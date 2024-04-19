@@ -1,0 +1,27 @@
+version: "3.7"
+services:
+  aidbox-db:
+    image: healthsamurai/aidboxdb:15.3
+    pull_policy: always
+    ports:
+      - "${PGHOSTPORT}:5432"
+    volumes:
+      - "./pgdata:/data"
+    environment:
+      POSTGRES_USER: "${PGUSER}"
+      POSTGRES_PASSWORD: "${PGPASSWORD}"
+      POSTGRES_DB: "${PGDATABASE}"
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on: ["aidbox-db"]
+    ports:
+      - "${AIDBOX_PORT}:${AIDBOX_PORT}"
+    env_file:
+      - .env
+    environment:
+      AIDBOX_DEV_MODE: "true"
+      PGPORT: 5432
+      PGHOST: aidbox-db
+      AIDBOX_FHIR_VERSION: "4.0.1"
