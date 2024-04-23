@@ -17,6 +17,7 @@ declare module "fastify" {
   interface FastifyRequest {
     appToken: string;
     aidboxClient: Client;
+    http: ReturnType<Client["HTTPClient"]>;
     appConfig: Config;
   }
 }
@@ -46,6 +47,11 @@ const main = async () => {
   });
 
   fastify.addHook("onRequest", (request, reply, done) => {
+    request.http = http;
+    done();
+  });
+
+  fastify.addHook("onRequest", (request, reply, done) => {
     request.appConfig = config;
     done();
   });
@@ -54,7 +60,9 @@ const main = async () => {
     return { message: "Hello my friend" };
   });
 
-  fastify.post("/", async (request: Request, reply) => {
+  // fastify.route({ url: config.app.callbackUrl });
+
+  fastify.post(config.app.callbackUrl, async (request: Request, reply) => {
     return await handleOperation(request, reply);
   });
 
@@ -87,7 +95,11 @@ const main = async () => {
         type: "app",
         apiVersion: 1,
         endpoint: {
-          url: config.app.baseUrl,
+          url: `${config.app.baseUrl}${
+            config.app.callbackUrl.startsWith("/")
+              ? config.app.callbackUrl
+              : `/${config.app.callbackUrl}`
+          }`,
           type: "http-rpc",
           secret: config.app.secret,
         },

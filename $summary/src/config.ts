@@ -19,6 +19,7 @@ const envSchema = object({
     return port;
   }),
   APP_URL: string([url()]),
+  APP_CALLBACK_URL: string(),
   APP_SECRET: string(),
 });
 
@@ -42,6 +43,7 @@ export const getConfig = (): Config => {
       app: {
         port: result.APP_PORT,
         baseUrl: result.APP_URL,
+        callbackUrl: result.APP_CALLBACK_URL,
         secret: result.APP_SECRET,
       },
       aidbox: {

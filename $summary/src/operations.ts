@@ -1,60 +1,220 @@
+import { randomUUID } from "node:crypto";
 import { FastifyReply } from "fastify";
 import { Request } from "./types";
 
-// const createComposition = async (aidboxClient: Client, data: any) => {};
+const createComposition = (data: any, patientId: string) => {
+  const now = new Date();
+  const medicationResources = [
+    "Medication",
+    "MedicationStatement",
+    "MedicationRequest",
+    "MedicationAdministration",
+    "MedicationDispense",
+  ];
+
+  return {
+    resourceType: "Composition",
+    id: randomUUID(),
+    date: now.toISOString(),
+    status: "final",
+    type: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "60591-5",
+          display: "Patient summary Document",
+        },
+      ],
+    },
+    subject: {
+      reference: `Patient/${patientId}`,
+    },
+    author: [
+      {
+        reference: `Patient/${patientId}`, // TODO: Change to Device
+      },
+    ],
+    title: `Patient Summary as of ${now.toString()}`,
+    event: [
+      {
+        code: [
+          {
+            coding: [
+              {
+                system: "http://terminology.hl7.org/CodeSystem/v3-ActClass",
+                code: "PCPR",
+              },
+            ],
+          },
+        ],
+        period: {
+          end: now.toISOString(),
+        },
+      },
+    ],
+    section: [
+      {
+        title: "Active Problems",
+        code: {
+          coding: [
+            {
+              system: "http://loinc.org",
+              code: "11450-4",
+              display: "Problem list Reported",
+            },
+          ],
+        },
+        entry: data.reduce((acc: any, item: any) => {
+          if (item.resource.resourceType === "Condition") {
+            acc.push({
+              reference: `Condition/${item.resource.id}`,
+            });
+          }
+          return acc;
+        }, []),
+      },
+      {
+        title: "Medication",
+        code: {
+          coding: [
+            {
+              system: "http://loinc.org",
+              code: "10160-0",
+              display: "History of Medication use Narrative",
+            },
+          ],
+        },
+        entry: data.reduce((acc: any, item: any) => {
+          if (medicationResources.includes(item.resource.resourceType)) {
+            acc.push({
+              reference: `${item.resource.resourceType}/${item.resource.id}`,
+            });
+          }
+          return acc;
+        }, []),
+      },
+      {
+        title: "Allergies and Intolerances",
+        code: {
+          coding: [
+            {
+              system: "http://loinc.org",
+              code: "48765-2",
+              display: "Allergies and adverse reactions Document",
+            },
+          ],
+        },
+        entry: data.reduce((acc: any, item: any) => {
+          if (item.resource.resourceType === "AllergyIntolerance") {
+            acc.push({
+              reference: `AllergyIntolerance/${item.resource.id}`,
+            });
+          }
+          return acc;
+        }, []),
+      },
+    ],
+  };
+};
+
+const resourceToSearchParam = {
+  MedicationStatement: "_revinclude=MedicationStatement:patient",
+  MedicationRequest: "_revinclude=MedicationRequest:patient",
+  MedicationAdministration: "_revinclude=MedicationAdministration:patient",
+  MedicationDispense: "_revinclude=MedicationDispense:patient",
+  AllergyIntolerance: "_revinclude=AllergyIntolerance:patient",
+  Immunization: "_revinclude=Immunization:patient",
+  Procedure: "_revinclude=Procedure:patient",
+  DeviceUseStatement: "_revinclude=DeviceUseStatement:patient",
+  DiagnosticReport: "_revinclude=DiagnosticReport:patient",
+  ClinicalImpression: "_revinclude=ClinicalImpression:patient",
+  CarePlan: "_revinclude=CarePlan:patient",
+  Consent: "_revinclude=Consent:patient",
+  Condition: "code=11348-0,11450-4",
+  Observation: "code=85353-1,8716-3,30954-2,10162-6,29762-2",
+};
+
+const summaryResources: Array<keyof typeof resourceToSearchParam> = [
+  "MedicationStatement",
+  "MedicationRequest",
+  "MedicationAdministration",
+  "MedicationDispense",
+  "AllergyIntolerance",
+  "Immunization",
+  "Procedure",
+  "DeviceUseStatement",
+  "DiagnosticReport",
+  "ClinicalImpression",
+  "CarePlan",
+  "Consent",
+  "Observation",
+  "Condition",
+];
 
 const patientSummary = {
   method: "GET",
   path: ["Patient", { name: "id" }, "$summary"],
-  handlerFn: async ({ aidboxClient, body }: Request, reply: FastifyReply) => {
+  handlerFn: async ({ http, body }: Request, reply: FastifyReply) => {
     const patientId = body?.request?.["route-params"].id;
+    const searchUrls = summaryResources.reduce(
+      (acc, resourceType) => {
+        if (["Observation", "Condition"].includes(resourceType)) {
+          return {
+            ...acc,
+            [resourceType]: `${resourceType}?patient=${patientId}&${resourceToSearchParam[resourceType]}`,
+          };
+        }
+        return {
+          ...acc,
+          other: `${acc.other}&${resourceToSearchParam[resourceType]}`,
+        };
+      },
+      { other: `Patient?_id=${patientId}` }
+    );
 
-    const query = `SELECT jsonb_build_object(
-                      'patient', jsonb_agg(DISTINCT pt.resource || jsonb_build_object('id', pt.id, 'resourceType', pt.resource_type)),
-                      'conditions', jsonb_agg(DISTINCT cond.resource || jsonb_build_object('id', cond.id, 'resourceType', cond.resource_type)),
-                      'allergies', jsonb_agg(DISTINCT ai.resource || jsonb_build_object('id', ai.id, 'resourceType', ai.resource_type)),
-                      'medications', jsonb_agg(DISTINCT med.resource || jsonb_build_object('id', med.id, 'resourceType', med.resource_type)),
-                      'medication_statements', jsonb_agg(DISTINCT ms.resource || jsonb_build_object('id', ms.id, 'resourceType', ms.resource_type)),
-                      'medication_requests', jsonb_agg(DISTINCT mr.resource || jsonb_build_object('id', mr.id, 'resourceType', mr.resource_type)),
-                      'medication_administrations', jsonb_agg(DISTINCT ma.resource || jsonb_build_object('id', ma.id, 'resourceType', ma.resource_type)),
-                      'medication_dispenses', jsonb_agg(DISTINCT md.resource || jsonb_build_object('id', md.id, 'resourceType', md.resource_type))
-                    ) AS result
-                      FROM patient pt
-                      LEFT JOIN condition cond ON cond.resource #>> '{subject, id}' = pt.id
-                      LEFT JOIN allergyintolerance ai ON ai.resource #>> '{patient, id}' = pt.id
-                      LEFT JOIN medicationstatement ms ON ms.resource #>> '{subject, id}' = pt.id
-                      LEFT JOIN medicationrequest mr ON mr.resource #>> '{subject, id}' = pt.id
-                      LEFT JOIN medicationadministration ma ON ma.resource #>> '{subject, id}' = pt.id
-                      LEFT JOIN medicationdispense md ON md.resource #>> '{subject, id}' = pt.id
-                      LEFT JOIN medication med ON med.id = ms.resource #>> '{medication, Reference, id}'
-                    WHERE pt.id = ?
-                    GROUP BY pt.id;`;
+    const bundleBody = {
+      resourceType: "Bundle",
+      type: "transaction",
+      entry: Object.values(searchUrls).map((searchUrl) => ({
+        request: { method: "GET", url: searchUrl },
+      })),
+    };
 
-    const data: Array<{ result: Array<Record<string, any>> }> = await aidboxClient.rawSQL(query, [
-      patientId,
-    ]);
+    const {
+      response: { data },
+    }: any = await http.post("", { json: bundleBody });
 
-    if (data.length === 0) {
+    const patientData = data.entry.reduce((acc: any, item: any) => {
+      if (item.resource.total > 0) {
+        acc.push(...item.resource.entry);
+      }
+      return acc;
+    }, []);
+
+    if (patientData.length === 0) {
       return reply.send({
-        resource: {
-          resourceType: "Bundle",
-          type: "document",
-          entry: [],
+        resourceType: "OperationOutcome",
+        id: "not-found",
+        text: {
+          status: "generated",
+          div: `Resource Patient/${patientId} not found`,
         },
+        issue: [
+          {
+            severity: "fatal",
+            code: "not-found",
+            diagnostics: `Resource Patient/${patientId} not found`,
+          },
+        ],
       });
     }
 
+    const composition = createComposition(patientData, patientId);
+
     return reply.send({
-      resource: {
-        resourceType: "Bundle",
-        type: "document",
-        entry: Object.values(data[0].result)
-          .reduce((acc: any, item: any) => {
-            return [...acc, ...item];
-          }, [])
-          .filter((item: any) => !!item)
-          .map((item: any) => ({ resource: item })),
-      },
+      resourceType: "Bundle",
+      type: "document",
+      entry: [composition, ...patientData],
     });
   },
 };

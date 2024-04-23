@@ -30,6 +30,7 @@ export interface Config {
   app: {
     port: number;
     baseUrl: string;
+    callbackUrl: string;
     secret: string;
   };
   aidbox: {
