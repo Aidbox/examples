@@ -21,6 +21,7 @@ const envSchema = object({
   APP_URL: string([url()]),
   APP_CALLBACK_URL: string(),
   APP_SECRET: string(),
+  APP_ID: string(),
 });
 
 const prettifyError = (issues: ValiError["issues"]) => {
@@ -45,6 +46,7 @@ export const getConfig = (): Config => {
         baseUrl: result.APP_URL,
         callbackUrl: result.APP_CALLBACK_URL,
         secret: result.APP_SECRET,
+        id: result.APP_ID,
       },
       aidbox: {
         url: result.AIDBOX_BASE_URL,

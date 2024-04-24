@@ -36,7 +36,7 @@ const summaryResources: Array<keyof typeof resourceToSearchParam> = [
   "Condition",
 ];
 
-const patientSummary = {
+export const patientSummary = {
   method: "GET",
   path: ["Patient", { name: "id" }, "$summary"],
   handlerFn: async ({ http, body }: Request, reply: FastifyReply) => {
@@ -102,17 +102,4 @@ const patientSummary = {
       entry: [composition, ...patientData],
     });
   },
-};
-
-export const operations: Record<string, any> = {
-  "patient-summary": patientSummary,
-};
-
-export const handleOperation = async (request: Request, reply: FastifyReply) => {
-  const { body } = request;
-  if (body?.type === "operation" && body?.operation?.id) {
-    return operations[body?.operation?.id].handlerFn(request, reply);
-  }
-
-  return { response: "Operation not found" };
 };

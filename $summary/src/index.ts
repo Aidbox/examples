@@ -1,10 +1,10 @@
 import { Client as AidboxClient } from "@aidbox/sdk-r4";
 import Fastify from "fastify";
 import fastifyHealthcheck from "fastify-healthcheck";
-
-import { operations, handleOperation } from "./operations.js";
 import { getConfig } from "./config.js";
-import { Config, Client, Request } from "./types.js";
+import { Config, Client, Request, Operations } from "./types.js";
+import { dispatch } from "./dispatch.js";
+import * as operations from "./operations.js";
 
 const fastify = Fastify({ logger: true });
 
@@ -19,6 +19,7 @@ declare module "fastify" {
     aidboxClient: Client;
     http: ReturnType<Client["HTTPClient"]>;
     appConfig: Config;
+    operations: Operations;
   }
 }
 
@@ -56,14 +57,41 @@ const main = async () => {
     done();
   });
 
+  fastify.addHook("onRequest", (request, reply, done) => {
+    request.operations = operations as Operations;
+    done();
+  });
+
   fastify.get("/", async function handler() {
     return { message: "Hello my friend" };
   });
 
-  // fastify.route({ url: config.app.callbackUrl });
-
-  fastify.post(config.app.callbackUrl, async (request: Request, reply) => {
-    return await handleOperation(request, reply);
+  fastify.route({
+    method: "POST",
+    url: config.app.callbackUrl,
+    preHandler: (request, reply, done) => {
+      if (!request.headers.authorization) {
+        reply.statusCode = 401;
+        return reply.send({
+          error: { message: `Authorization header missing` },
+        });
+      }
+      const appId = config.app.id;
+      const appSecret = config.app.secret;
+      const appToken = Buffer.from(`${appId}:${appSecret}`).toString("base64");
+      const header = request.headers.authorization;
+      const token = header && header?.split(" ")?.[1];
+      if (token === appToken) {
+        return done();
+      }
+      reply.statusCode = 401;
+      reply.send({
+        error: { message: `Authorization failed for app [${appId}]` },
+      });
+    },
+    handler: (request, reply) => {
+      dispatch(request as Request, reply);
+    },
   });
 
   try {

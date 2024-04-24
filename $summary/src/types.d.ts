@@ -1,6 +1,5 @@
 import { Client as AidboxClient } from "@aidbox/sdk-r4";
-import { FastifyRequest } from "fastify";
-
+import { FastifyReply, FastifyRequest } from "fastify";
 type BasicAuthorization = {
   method: "basic";
   credentials: {
@@ -10,12 +9,13 @@ type BasicAuthorization = {
 };
 
 export type Client = AidboxClient<BasicAuthorization>;
+
 export type Request = FastifyRequest<{
   Params: { id: string };
   Body: {
-    type?: string;
+    type: string;
     operation: {
-      id?: string;
+      id: string;
     };
     request: {
       params: {};
@@ -32,6 +32,7 @@ export interface Config {
     baseUrl: string;
     callbackUrl: string;
     secret: string;
+    id: string;
   };
   aidbox: {
     url: string;
@@ -41,3 +42,14 @@ export interface Config {
     };
   };
 }
+
+export type AppResourceOperation = {
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  path: (string | { name: string })[];
+};
+
+export type Operations = Record<string, Operation>;
+
+export type Operation<T extends Request = any, U = any> = AppResourceOperation & {
+  handlerFn: (request: Request, reply: FastifyReply) => Promise<any>;
+};
