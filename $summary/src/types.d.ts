@@ -1,4 +1,5 @@
 import { Client as AidboxClient } from "@aidbox/sdk-r4";
+import { Condition } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Condition";
 import { FastifyReply, FastifyRequest } from "fastify";
 type BasicAuthorization = {
   method: "basic";
@@ -9,6 +10,8 @@ type BasicAuthorization = {
 };
 
 export type Client = AidboxClient<BasicAuthorization>;
+
+export type HttpClient = ReturnType<Client["HTTPClient"]>;
 
 export type Request = FastifyRequest<{
   Params: { id: string };
@@ -53,3 +56,5 @@ export type Operations = Record<string, Operation>;
 export type Operation<T extends Request = any, U = any> = AppResourceOperation & {
   handlerFn: (request: Request, reply: FastifyReply) => Promise<any>;
 };
+
+export type PatientData = Array<{ resource: Condition }>;

@@ -2,7 +2,7 @@ import { Client as AidboxClient } from "@aidbox/sdk-r4";
 import Fastify from "fastify";
 import fastifyHealthcheck from "fastify-healthcheck";
 import { getConfig } from "./config.js";
-import { Config, Client, Request, Operations } from "./types.js";
+import { Config, Client, Request, Operations, HttpClient } from "./types.js";
 import { dispatch } from "./dispatch.js";
 import * as operations from "./operations.js";
 
@@ -17,7 +17,7 @@ declare module "fastify" {
   interface FastifyRequest {
     appToken: string;
     aidboxClient: Client;
-    http: ReturnType<Client["HTTPClient"]>;
+    http: HttpClient;
     appConfig: Config;
     operations: Operations;
   }
@@ -68,7 +68,9 @@ const main = async () => {
 
   fastify.route({
     method: "POST",
-    url: config.app.callbackUrl,
+    url: config.app.callbackUrl.startsWith("/")
+      ? config.app.callbackUrl
+      : `/${config.app.callbackUrl}`,
     preHandler: (request, reply, done) => {
       if (!request.headers.authorization) {
         reply.statusCode = 401;
@@ -117,7 +119,7 @@ const main = async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    await http.put("App/my-app", {
+    await http.put(`App/${config.app.id}`, {
       json: {
         resourceType: "App",
         type: "app",
