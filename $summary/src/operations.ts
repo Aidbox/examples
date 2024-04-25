@@ -8,6 +8,7 @@ export const patientSummary = {
   handlerFn: async ({ http, body }: Request, reply: FastifyReply) => {
     try {
       const patientId = body?.request?.["route-params"].id;
+      // TODO: rewrite with _include/_revinclude when medication search param is fixed
       const {
         response: { data },
       }: any = await http.get(`fhir/Patient/${patientId}/$everything`);

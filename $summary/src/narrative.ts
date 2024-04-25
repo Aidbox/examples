@@ -1,4 +1,5 @@
-import { Condition } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Condition";
+import { Immunization } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Immunization";
+import { SimpleNarrativeEntry } from "./types";
 
 const compositionNarrativeTemplate = `<div xmlns="http://www.w3.org/1999/xhtml">
 <p><b>Generated Narrative</b></p>
@@ -45,8 +46,8 @@ const compositionNarrativeTemplate = `<div xmlns="http://www.w3.org/1999/xhtml">
 </table>
 </div>`;
 
-const conditionNarrativeTemplate = `<div xmlns=\"http://www.w3.org/1999/xhtml\">{{info}}</div>`;
-const conditionNoInfoNarrativeTemplate = `<div xmlns='http://www.w3.org/1999/xhtml' lang='en-NZ' xml:lang='en-NZ'>There is no information available about the subject's health problems or disabilities.</div>`;
+const simpleNarrativeTemplate = `<div xmlns=\"http://www.w3.org/1999/xhtml\">{{info}}</div>`;
+const simpleNoInfoNarrativeTemplate = `<div xmlns='http://www.w3.org/1999/xhtml' lang='en-NZ' xml:lang='en-NZ'>There is no information available about the subject's health problems or disabilities.</div>`;
 
 export const generateCompositionNarrative = ({
   id,
@@ -67,11 +68,13 @@ export const generateCompositionNarrative = ({
     .replace("{{compositionEventDate}}", eventDate),
 });
 
-export const generateConditionNarrative = (
-  conditions: Array<{ resource: Condition }>
-) => {
-  const info = conditions.reduce((acc: string[], { resource }) => {
-    const display = resource.code?.coding?.[0].display;
+export const generateSimpleNarrative = (resources: SimpleNarrativeEntry) => {
+  const info = resources.reduce((acc: string[], { resource }) => {
+    const display =
+      resource.resourceType === "Immunization"
+        ? resource.vaccineCode?.coding?.[0].display
+        : resource.code?.coding?.[0].display;
+
     if (display) {
       acc.push(display);
     }
@@ -79,11 +82,11 @@ export const generateConditionNarrative = (
   }, []);
   const narrative =
     info.length > 0
-      ? conditionNarrativeTemplate.replace(
+      ? simpleNarrativeTemplate.replace(
           "{{info}}",
-          info.map((item) => `<div>${item}</div>`).join("\n")
+          info.map((item) => `<div>${item}</div>`).join("")
         )
-      : conditionNoInfoNarrativeTemplate;
+      : simpleNoInfoNarrativeTemplate;
 
   return {
     status: "generated",
