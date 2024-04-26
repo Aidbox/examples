@@ -25,3 +25,20 @@ services:
       PGPORT: 5432
       PGHOST: aidbox-db
       AIDBOX_FHIR_VERSION: "4.0.1"
+      AIDBOX_FHIR_SCHEMA_VALIDATION: "true"
+      AIDBOX_FHIR_PACKAGES: "hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0"
+      AIDBOX_VALIDATE_BINDING_URL: "https://tx.fhir.org/r4/ValueSet/$validate-code"
+      BOX_FEATURES_VALIDATION_MODE: "fhir-schema"
+
+  node-app:
+    hostname: node-app
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    ports:
+      - 4000:4000
+    env_file:
+      - .env
+    volumes:
+      - ./:/usr/src/app
+      - ./node_modules:/usr/src/app/node_modules

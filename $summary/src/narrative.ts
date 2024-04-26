@@ -1,4 +1,3 @@
-import { Immunization } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Immunization";
 import { SimpleNarrativeEntry } from "./types";
 
 const compositionNarrativeTemplate = `<div xmlns="http://www.w3.org/1999/xhtml">

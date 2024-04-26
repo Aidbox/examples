@@ -5,7 +5,7 @@ PGUSER=postgres
 PGPASSWORD=postgres
 PGDATABASE=aidbox
 
-AIDBOX_BASE_URL=http://localhost:8888
+AIDBOX_BASE_URL=http://aidbox:8888
 AIDBOX_PORT=8888
 
 AIDBOX_CLIENT_SECRET=secret
@@ -13,7 +13,7 @@ AIDBOX_CLIENT_ID=root
 AIDBOX_ADMIN_PASSWORD=password
 
 APP_PORT=4000
-APP_URL=http://localhost:4000
+APP_URL=http://node-app:4000
 APP_SECRET=secret
 APP_CALLBACK_URL=/aidbox
 APP_ID=my-app

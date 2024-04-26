@@ -283,8 +283,9 @@ const generateDiagnosticResultsSection = async (
   const validDiagnosticResults = await validateResources(
     patientData,
     {
-      DiagnosticReport:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips",
+      // $validate on this profile doesn't work, uncomment when validation fixed
+      // DiagnosticReport:
+      //   "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips",
       Observation:
         "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips",
     },
