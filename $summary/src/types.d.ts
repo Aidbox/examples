@@ -2,10 +2,12 @@ import { Client as AidboxClient } from "@aidbox/sdk-r4";
 import { AllergyIntolerance } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/AllergyIntolerance";
 import { Condition } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Condition";
 import { DeviceUseStatement } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/DeviceUseStatement";
+import { DiagnosticReport } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/DiagnosticReport";
 import { Immunization } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Immunization";
 import { Medication } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Medication";
 import { MedicationRequest } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/MedicationRequest";
 import { MedicationStatement } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/MedicationStatement";
+import { Observation } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Observation";
 import { Procedure } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Procedure";
 import { FastifyReply, FastifyRequest } from "fastify";
 type BasicAuthorization = {
@@ -73,11 +75,13 @@ export type PatientData = Array<{
     | MedicationStatement
     | Immunization
     | Procedure
-    | DeviceUseStatement;
+    | DeviceUseStatement
+    | DiagnosticReport
+    | Observation;
 }>;
 
 export type SimpleNarrativeEntry = Array<{
-  resource: Condition | AllergyIntolerance | Medication | Immunization;
+  resource: Condition | AllergyIntolerance | Medication | Immunization | Observation;
 }>;
 
 export type SectionName =
@@ -87,7 +91,11 @@ export type SectionName =
   | "MedicationSummary"
   | "Immunizations"
   | "Procedures"
-  | "MedicalDevices";
+  | "MedicalDevices"
+  | "DiagnosticResults"
+  | "VitalSigns"
+  | "Pregnancy"
+  | "SocialHistory";
 
 export type IpsProfile =
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips"
@@ -97,7 +105,11 @@ export type IpsProfile =
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/Medication-uv-ips"
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips"
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips";
+  | "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips"
+  | "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips"
+  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips"
+  | "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips";
 
 export type SectionToGenerateFuncMap = {
   [K in SectionName]?: any;

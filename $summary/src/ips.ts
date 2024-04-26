@@ -256,7 +256,7 @@ const generateMedicalDevicesSection = async (
   );
 
   const section = {
-    title: "MedicalDevices",
+    title: "Medical Devices",
     code: {
       coding: [
         {
@@ -276,6 +276,137 @@ const generateMedicalDevicesSection = async (
   return { section, bundleData: validDevices };
 };
 
+const generateDiagnosticResultsSection = async (
+  patientData: PatientData,
+  http: HttpClient
+) => {
+  const validDiagnosticResults = await validateResources(
+    patientData,
+    {
+      DiagnosticReport:
+        "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips",
+      Observation:
+        "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips",
+    },
+    http
+  );
+
+  const section = {
+    title: "Results",
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "30954-2",
+          display: "Relevant diagnostic tests/laboratory data Narrative",
+        },
+      ],
+    },
+    text: generateSimpleNarrative(
+      validDiagnosticResults.filter(
+        ({ resource }) => resource.resourceType === "Observation"
+      ) as SimpleNarrativeEntry
+    ),
+    ...addEntry(validDiagnosticResults),
+  };
+
+  return { section, bundleData: validDiagnosticResults };
+};
+
+const generateVitalSignsSection = async (patientData: PatientData, http: HttpClient) => {
+  const validVitalSigns = patientData.filter(
+    ({ resource }) =>
+      resource.resourceType === "Observation" &&
+      resource.category?.find((item) =>
+        item.coding?.find((coding) => coding.code === "vital-signs")
+      )
+  );
+
+  const section = {
+    title: "Vital Signs",
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "8716-3",
+          display: "Vital signs",
+        },
+      ],
+    },
+    text: generateSimpleNarrative(validVitalSigns as SimpleNarrativeEntry),
+    ...addEntry(validVitalSigns),
+  };
+
+  return { section, bundleData: validVitalSigns };
+};
+
+const generatePregnancySection = async (patientData: PatientData, http: HttpClient) => {
+  const pregnancyStatuses = patientData.filter(
+    ({ resource }) =>
+      resource.resourceType === "Observation" &&
+      resource.code?.coding?.find((item) => item.code === "82810-3") // Observation-pregnancy-status-uv-ip is a fixed value code
+  );
+  const pregnancyOutcomes = await validateResources(
+    patientData,
+    {
+      Observation:
+        "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips",
+    },
+    http
+  );
+
+  const section = {
+    title: "Pregnancy",
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "10162-6",
+          display: "History of pregnancies Narrative",
+        },
+      ],
+    },
+    text: generateSimpleNarrative([
+      ...pregnancyStatuses,
+      ...pregnancyOutcomes,
+    ] as SimpleNarrativeEntry),
+    ...addEntry([...pregnancyStatuses, ...pregnancyOutcomes]),
+  };
+
+  return { section, bundleData: [...pregnancyStatuses, ...pregnancyOutcomes] };
+};
+
+const generateSocialHistorySection = async (
+  patientData: PatientData,
+  http: HttpClient
+) => {
+  const tobaccoAndAlcoholObservations = patientData.filter(
+    ({ resource }) =>
+      resource.resourceType === "Observation" &&
+      resource.code?.coding?.find(
+        // Observation tobacco use and alcohol have a fixed value code
+        (item) => item.code === "72166-2" || item.code === "74013-4"
+      )
+  );
+
+  const section = {
+    title: "Social History",
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "29762-2",
+          display: "Social history Narrative",
+        },
+      ],
+    },
+    text: generateSimpleNarrative(tobaccoAndAlcoholObservations as SimpleNarrativeEntry),
+    ...addEntry(tobaccoAndAlcoholObservations),
+  };
+
+  return { section, bundleData: tobaccoAndAlcoholObservations };
+};
+
 const sectionNames: Array<SectionName> = [
   "ProblemList",
   "AllergyIntolerance",
@@ -284,6 +415,10 @@ const sectionNames: Array<SectionName> = [
   "IllnessHistory",
   "Procedures",
   "MedicalDevices",
+  "DiagnosticResults",
+  "VitalSigns",
+  "Pregnancy",
+  "SocialHistory",
 ];
 
 const sectionToGenerateFuncMap: SectionToGenerateFuncMap = {
@@ -294,6 +429,10 @@ const sectionToGenerateFuncMap: SectionToGenerateFuncMap = {
   Immunizations: generateImmunizationsSection,
   Procedures: generateProceduresSection,
   MedicalDevices: generateMedicalDevicesSection,
+  DiagnosticResults: generateDiagnosticResultsSection,
+  VitalSigns: generateVitalSignsSection,
+  Pregnancy: generatePregnancySection,
+  SocialHistory: generateSocialHistorySection,
 };
 
 export const removeDuplicatedResources = (
@@ -334,7 +473,7 @@ export const generateSections = (patientData: PatientData, http: HttpClient) => 
 export const createComposition = (sections: any, patientId: string) => {
   const now = new Date();
 
-  const narrative = {
+  const composition = {
     resourceType: "Composition",
     id: randomUUID(),
     date: now.toISOString(),
@@ -379,12 +518,12 @@ export const createComposition = (sections: any, patientId: string) => {
   };
 
   return {
-    ...narrative,
+    ...composition,
     text: generateCompositionNarrative({
-      id: narrative.id,
-      status: narrative.status,
-      title: narrative.title,
-      eventDate: narrative.event[0].period.end,
+      id: composition.id,
+      status: composition.status,
+      title: composition.title,
+      eventDate: composition.event[0].period.end,
     }),
   };
 };
