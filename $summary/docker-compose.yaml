@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   aidbox-db:
-    image: healthsamurai/aidboxdb:15.3
+    image: healthsamurai/aidboxdb:16.1
     pull_policy: always
     ports:
       - "${PGHOSTPORT}:5432"
@@ -20,15 +20,6 @@ services:
       - "${AIDBOX_PORT}:${AIDBOX_PORT}"
     env_file:
       - .env
-    environment:
-      AIDBOX_DEV_MODE: "true"
-      PGPORT: 5432
-      PGHOST: aidbox-db
-      AIDBOX_FHIR_VERSION: "4.0.1"
-      AIDBOX_FHIR_SCHEMA_VALIDATION: "true"
-      AIDBOX_FHIR_PACKAGES: "hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0"
-      AIDBOX_VALIDATE_BINDING_URL: "https://tx.fhir.org/r4/ValueSet/$validate-code"
-      BOX_FEATURES_VALIDATION_MODE: "fhir-schema"
 
   node-app:
     hostname: node-app
