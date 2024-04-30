@@ -8,14 +8,16 @@
 - [Docker](https://www.docker.com/)
 
 ## STEP 1: Environment and Aidbox license
+
+Navigate to the `[Git base]/app-examples/$summary` folder and perform the following command:
 ```shell
 cp .env.tpl .env
 ```
 As a result you have the `.env` file that contains default settings.
 
-Get Aidbox license on https://aidbox.app user portal
+If you are hosting Aidbox on your local computer, obtain the self-hosted trial license as described in the documentation - https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker.
 
-Make sure that you set `AIDBOX_LICENSE` key inside `.env`
+Update the `AIDBOX_LICENSE` in the `.env` file with the license.
 
 ## STEP 2: Run aidbox and node-app in Docker
 
