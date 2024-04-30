@@ -32,7 +32,9 @@ And loging witn login: `admin` and password: `password`
 
 ## Step 4: Load test dataset
 
-Open rest console and requst $load endpoint to load 
+In the Aidbox admin window, navigate to the APIs section and choose REST Console. 
+Copy and paste the following snippet into the text box of the REST Console, then click Send.
+This $load request loads the Synthea test data into the server.
 
 ```
 POST /fhir/$load
@@ -41,7 +43,11 @@ Content-Type: text/yaml
 source: 'https://storage.googleapis.com/aidbox-public/synthea/100/all.ndjson.gz'
 ```
 
+Ensure that the data is loaded successfully by receiving a `Status: 201` response.
+
 ## Step 5: Load Compartment Definition
+
+As the next step, load the _CompartmentDefinition_ using the same REST Console in the Aidbox admin. Copy and paste the following snippet and then click Send.
 
 ```
 POST /fhir/CompartmentDefinition
@@ -216,13 +222,41 @@ accept: application/json
 }
 ```
 
+Make sure that the resource is stored successfully by receiving a `Status: 201` response.
 
-## Step 6: Request $summary 
+## Step 6: Request $summary using REST Console
 
-Now you can request `GET /fhir/Patient/[id]/$summary`
+The [$summary](https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html) operation requires either the logical ID (`Patient.id`) or a business identifier (`Patient.identifier`) of the patient. 
+You can use the following request to view all available patients:
+```
+GET /fhir/Patient?_elements=id,identifier
+```
 
-[Specification](https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html)
+To request the IPS "document" _Bundle_ for a specific patient using the REST Console, you can use the following request:
+```
+GET /fhir/Patient/[id]/$summary
+```
 
+Replace [id] with the logical ID of the patient you want to retrieve the IPS document for. 
+
+For example:
 ```
 GET /fhir/Patient/08b9a2bf-7492-4d15-b97f-00b54a3b35ee/$summary
 ```
+
+## Step 7: Request $summary using HTTP Client
+
+If you're starting the Aidbox FHIR server for the first time, the initial step involves creating a _Client_ resource with an ID and secret.
+Since the newly created client does not have default permissions to access the Aidbox REST API, the next step is to configure access policies.
+Refer to the documentation: [Create and test access control](https://docs.aidbox.app/modules-1/security-and-access-control/auth/basic-auth)
+
+The easiest way to achieve this is by navigating to Auth > Sandbox in the Aidbox Web Admin UI and performing REST queries to create the 'basic' client and assign the AccessPolicy.
+
+Once the client is created, you can perform the `$summary` operation using an HTTP tool, similar to the following example:
+```
+curl --location 'http://localhost:8888/fhir/Patient?_elements=id%2Cidentifier' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Basic YmFzaWM6c2VjcmV0' \
+--data ''
+```
+
