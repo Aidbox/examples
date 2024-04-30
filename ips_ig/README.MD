@@ -218,12 +218,12 @@ accept: application/json
 ```
 
 
-## Step 6: Request $summarty 
+## Step 6: Request $summary 
 
-Now you can request `GET /fhir/Patient/[di]/$summary`
+Now you can request `GET /fhir/Patient/[id]/$summary`
 
 [Specification](https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html)
 
 ```
-GET /fhir/Patient/08b9a2bf-7492-4d15-b97f-00b54a3b35ee/$summary
+GET /Patient/08b9a2bf-7492-4d15-b97f-00b54a3b35ee/$summary
 ```
