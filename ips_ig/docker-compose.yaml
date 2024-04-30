@@ -5,7 +5,7 @@ services:
     ports:
       - "${PGHOSTPORT}:5432"
     volumes:
-      - "./pgdata:/data"
+      - "./pgdata:/data:delegated"
     environment:
       POSTGRES_USER: "${PGUSER}"
       POSTGRES_PASSWORD: "${PGPASSWORD}"
