@@ -6,8 +6,8 @@ AIDBOX_FHIR_SCHEMA_VALIDATION=true
 AIDBOX_FHIR_PACKAGES=hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0
 AIDBOX_VALIDATE_BINDING_URL="https://tx.fhir.org/r4/ValueSet/\$validate-code"
 
-PGPORT= 5432
-PGHOST= aidbox-db
+PGPORT=5432
+PGHOST=aidbox-db
 PGHOSTPORT=5437
 PGUSER=postgres
 PGPASSWORD=postgres
