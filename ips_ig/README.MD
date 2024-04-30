@@ -20,8 +20,7 @@ Make sure that you set `AIDBOX_LICENSE` key inside `.env`
 ## STEP 2: Run aidbox and node-app in Docker
 
 ```shell
-pnpm install
-docker compose up
+docker compose up --build
 ```
 
 ## Step 3: Open and log in into Aidbox instance
@@ -225,5 +224,5 @@ Now you can request `GET /fhir/Patient/[id]/$summary`
 [Specification](https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html)
 
 ```
-GET /Patient/08b9a2bf-7492-4d15-b97f-00b54a3b35ee/$summary
+GET /fhir/Patient/08b9a2bf-7492-4d15-b97f-00b54a3b35ee/$summary
 ```

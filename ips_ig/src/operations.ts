@@ -4,7 +4,7 @@ import { generateSections, createComposition, removeDuplicatedResources } from "
 
 export const patientSummary = {
   method: "GET",
-  path: ["Patient", { name: "id" }, "$summary"],
+  path: ["fhir", "Patient", { name: "id" }, "$summary"],
   handlerFn: async ({ http, body }: Request, reply: FastifyReply) => {
     try {
       const patientId = body?.request?.["route-params"].id;
