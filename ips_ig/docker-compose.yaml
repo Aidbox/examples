@@ -1,3 +1,7 @@
+version: '3.7'
+volumes:
+  ips_pgdata:
+    name: ips_pgdata
 services:
   aidbox-db:
     image: healthsamurai/aidboxdb:16.1
@@ -5,7 +9,7 @@ services:
     ports:
       - "${PGHOSTPORT}:5432"
     volumes:
-      - "./pgdata:/data:delegated"
+      - "ips_pgdata:/data:delegated"
     environment:
       POSTGRES_USER: "${PGUSER}"
       POSTGRES_PASSWORD: "${PGPASSWORD}"
