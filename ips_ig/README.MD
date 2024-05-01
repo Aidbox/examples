@@ -4,7 +4,6 @@
 
 ## Prerequisites
 
-- [Node 18+](https://nodejs.org/en/)
 - [Docker](https://www.docker.com/)
 
 ## STEP 1: Environment and Aidbox license
