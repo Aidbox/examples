@@ -1,14 +1,12 @@
-# IPS Summary Operation
+# Implementation of IPS FHIR IG on Aidbox FHIR platform
 
 [DEMO (WIP)](https://aidbox.app) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW) 
 
 This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.
 
-## About IPS
+## About IPS (International Patient Summary)
 
-[Specification](https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html)
-
-The IPS is intended to support the provision of essential healthcare information for a patient, regardless of where they are receiving care. It includes critical information such as allergies, medications, past surgeries, and other significant medical history details.
+The IPS is intended to support the provision of essential healthcare information for a patient, regardless of where they are receiving care. It includes critical information such as allergies, medications, past surgeries, and other significant medical history details. [IPS Specification](https://build.fhir.org/ig/HL7/fhir-ips/index.html)
 
 ## Prerequisites
 
