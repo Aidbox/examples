@@ -22,7 +22,7 @@ export const patientSummary = {
       return reply.send({
         resourceType: "Bundle",
         type: "document",
-        entry: [composition, patient, ...removeDuplicatedResources(bundleData)],
+        entry: [{resource: composition, fullUrl: composition.id}, patient, ...removeDuplicatedResources(bundleData)],
       });
     } catch (error: any) {
       // TODO: handle errors properly

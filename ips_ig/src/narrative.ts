@@ -19,8 +19,8 @@ const compositionNarrativeTemplate = `<div xmlns="http://www.w3.org/1999/xhtml">
 <p>
   <b>type</b>: Patient summary Document
   <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki">
-    (<a href="https://loinc.org/">LOINC</a>#60591-5)</span
-  >
+    (<a href="https://loinc.org/">LOINC</a>#60591-5)
+  </span>
 </p>
 <p><b>date</b>: 2020-12-11 02:30:00+0100</p>
 <p><b>author</b>: Device Aidbox</p>
@@ -37,8 +37,7 @@ const compositionNarrativeTemplate = `<div xmlns="http://www.w3.org/1999/xhtml">
     <td>
       care provision
       <span style="background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki">
-        (<a href="http://terminology.hl7.org/CodeSystem/v3-ActClass">ActClass</a>#PCPR)</span
-      >
+        (<a href="http://terminology.hl7.org/CodeSystem/v3-ActClass">ActClass</a>#PCPR)</span>
     </td>
     <td>?? --&gt; {{compositionEventDate}}</td>
   </tr>

@@ -437,7 +437,7 @@ const sectionToGenerateFuncMap: SectionToGenerateFuncMap = {
 };
 
 export const removeDuplicatedResources = (
-  resources: Array<{ resource: { id: string } }>
+  resources: Array<{ resource: { id: string, resourceType: string } }>
 ) => {
   return resources.reduce(
     (acc, item) => {
@@ -445,7 +445,7 @@ export const removeDuplicatedResources = (
         ({ resource }) => resource.id === item.resource?.id
       );
       if (!duplicatedResource) {
-        acc.push(item);
+        acc.push(Object.assign(item, {fullUrl: `${item.resource.resourceType}/${item.resource.id}`}));
       }
       return acc;
     },
