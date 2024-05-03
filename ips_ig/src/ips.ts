@@ -445,11 +445,11 @@ export const removeDuplicatedResources = (
         ({ resource }) => resource.id === item.resource?.id
       );
       if (!duplicatedResource) {
-        acc.push(Object.assign(item, {fullUrl: `${item.resource.resourceType}/${item.resource.id}`}));
+        acc.push({...item, fullUrl: `${item.resource.resourceType}/${item.resource.id}`});
       }
       return acc;
     },
-    [] as Array<{ resource: { id: string } }>
+    [] as Array<{ resource: { id: string }, fullUrl: string }>
   );
 };
 
