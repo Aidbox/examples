@@ -2,6 +2,9 @@
 
 [Specification](https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html)
 
+
+[DEMO (WIP)](https://aidbox.app) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW) 
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
