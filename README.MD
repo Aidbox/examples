@@ -4,9 +4,9 @@ A collection of example applications built on top of Aidbox FHIR platform
 
 ## Application Examples
 
-### [Implementation of International Patient Summary Implementation Guide](/ips_ig)
+- [Implementation of International Patient Summary Implementation Guide](/ips_ig)
+  [DEMO (WIP)](https://aidbox.app) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW) 
 
-[DEMO (WIP)](https://aidbox.app) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW) 
 
 ## Documentation
 
