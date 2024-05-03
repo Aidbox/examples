@@ -4,6 +4,9 @@ import { generateSections, createComposition, removeDuplicatedResources } from "
 
 export const patientSummary = {
   method: "GET",
+  fhirCode: "summary",
+  fhirUrl: "http://hl7.org/fhir/uv/ips/OperationDefinition/summary",
+  fhirResource: ["Patient"],
   path: ["fhir", "Patient", { name: "id" }, "$summary"],
   handlerFn: async ({ http, body }: Request, reply: FastifyReply) => {
     try {
