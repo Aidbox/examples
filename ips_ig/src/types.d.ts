@@ -102,7 +102,6 @@ export type IpsProfile =
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips"
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationStatement-uv-ips"
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Medication-uv-ips"
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips"
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips"
   | "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips"
