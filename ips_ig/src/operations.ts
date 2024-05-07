@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { FastifyReply } from "fastify";
 import { Request } from "./types";
-import { generateSections, createComposition, removeDuplicatedResources } from "./ips.js";
+import { generateSections, createComposition, addFullUrl } from "./ips.js";
 
 export const patientSummary = {
   method: "GET",
@@ -9,21 +9,24 @@ export const patientSummary = {
   fhirUrl: "http://hl7.org/fhir/uv/ips/OperationDefinition/summary",
   fhirResource: ["Patient"],
   path: ["fhir", "Patient", { name: "id" }, "$summary"],
-  handlerFn: async ({ http, body, appConfig }: Request, reply: FastifyReply) => {
+  handlerFn: async (
+    { aidboxClient, http, body, appConfig }: Request,
+    reply: FastifyReply
+  ) => {
     try {
-      const patientId = body?.request?.["route-params"].id;
-      // TODO: rewrite with _include/_revinclude when medication search param is fixed
-      const {
-        response: { data },
-      }: any = await http.get(`fhir/Patient/${patientId}/$everything`);
-      const patient = data.entry[0];
-      const { sections, bundleData }: any = await generateSections(data.entry, http);
+      const patientId: string = body?.request?.["route-params"].id;
+      const patient = await aidboxClient.resource.get("Patient", patientId);
+
+      const { sections, bundleData }: any = await generateSections(http, patientId);
       const composition = createComposition(sections, patientId);
 
       return reply.send({
         resourceType: "Bundle",
         type: "document",
         timestamp: new Date().toISOString(),
+        meta: {
+          profile: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Bundle-uv-ips"],
+        },
         identifier: { system: "urn:oid:2.16.724.4.8.10.200.10", value: randomUUID() },
         entry: [
           {
@@ -31,19 +34,15 @@ export const patientSummary = {
             fullUrl: `${appConfig.aidbox.url}/fhir/Composition/${composition.id}`,
           },
           {
-            resource: patient.resource,
-            fullUrl: `${appConfig.aidbox.url}/fhir/Patient/${patient.resource.id}`,
+            resource: patient,
+            fullUrl: `${appConfig.aidbox.url}/fhir/Patient/${patient.id}`,
           },
-          ...removeDuplicatedResources(bundleData, appConfig.aidbox.url),
+          ...addFullUrl(bundleData, appConfig.aidbox.url),
         ],
       });
     } catch (error: any) {
-      // TODO: handle errors properly
       console.log(error);
-      if (error.response?.status === 404) {
-        return reply.send(error.response.data); //FIX: return status 404
-      }
-      return reply.send("");
+      return reply.send(error.response);
     }
   },
 };

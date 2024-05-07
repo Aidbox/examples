@@ -113,3 +113,14 @@ export type IpsProfile =
 export type SectionToGenerateFuncMap = {
   [K in SectionName]?: any;
 };
+
+export type BundleEntry = Array<{
+  request: {
+    method: string;
+    url: string;
+  };
+}>;
+
+export type SectionProfiles = {
+  [K in SectionName]: Record<string, Array<string>>;
+};

@@ -1,42 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { generateCompositionNarrative, generateSimpleNarrative } from "./narrative.js";
 import {
+  BundleEntry,
   HttpClient,
   IpsProfile,
   PatientData,
   SectionName,
+  SectionProfiles,
   SectionToGenerateFuncMap,
   SimpleNarrativeEntry,
 } from "./types";
-
-const validateResources = async (
-  resources: PatientData,
-  resourceProfileMap: Record<string, IpsProfile>,
-  http: HttpClient
-) => {
-  let result = [];
-  for (const { resource } of resources) {
-    if (!Object.keys(resourceProfileMap).includes(resource.resourceType)) continue;
-    const profile = resourceProfileMap[resource.resourceType];
-    const { response }: any = await http.post(
-      `fhir/${resource.resourceType}/${resource.id}/$validate?mode=profile&profile=${profile}`,
-      { json: resource }
-    );
-
-    if (response.data?.id === "allok") {
-      result.push({ resource: resource });
-    }
-  }
-  return result;
-};
-
-const validateConditions = async (patientData: PatientData, http: HttpClient) => {
-  return validateResources(
-    patientData,
-    { Condition: "http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips" },
-    http
-  );
-};
 
 const addEntry = (patientData: PatientData) => {
   if (patientData.length === 0) return {};
@@ -45,11 +18,6 @@ const addEntry = (patientData: PatientData) => {
       reference: `${resource.resource.resourceType}/${resource.resource.id}`,
     })),
   };
-};
-
-const getIdFromRef = (ref: string) => {
-  const splitedRef = ref.split("/");
-  return splitedRef[splitedRef.length - 1];
 };
 
 const buildSection = (
@@ -64,9 +32,88 @@ const buildSection = (
   };
 };
 
+const sectionProfiles: SectionProfiles = {
+  MedicationSummary: {
+    MedicationStatement: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationStatement-uv-ips",
+    ],
+    MedicationRequest: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips",
+    ],
+  },
+  AllergyIntolerance: {
+    AllergyIntolerance: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips",
+    ],
+  },
+  ProblemList: {
+    Condition: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips"],
+  },
+  Procedures: {
+    Procedure: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips"],
+  },
+  Immunizations: {
+    Immunization: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips"],
+  },
+  MedicalDevices: {
+    DeviceUseStatement: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips",
+    ],
+  },
+  DiagnosticResults: {
+    DiagnosticReport: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips",
+    ],
+    Observation: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips",
+    ],
+  },
+  VitalSigns: { Observation: ["http://hl7.org/fhir/StructureDefinition/vitalsigns"] },
+  IllnessHistory: {
+    Condition: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips"],
+  },
+  Pregnancy: {
+    Observation: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-status-uv-ips",
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips",
+    ],
+  },
+  SocialHistory: {
+    Observation: [
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-tobaccouse-uv-ips",
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-alcoholuse-uv-ips",
+    ],
+  },
+};
+
+const findIntersection = (
+  sectionProfiles: Array<string>,
+  resourceProfiles: Array<string>
+) => sectionProfiles.find((profile) => resourceProfiles.includes(profile));
+
+const getSectionResources = (
+  patientData: PatientData,
+  sectionsProfiles: Record<string, Array<string>>
+) => {
+  return patientData.reduce((acc: PatientData, { resource }) => {
+    const rightResourceType = Object.keys(sectionsProfiles).includes(
+      resource.resourceType
+    );
+    const validResource =
+      rightResourceType &&
+      resource.meta?.profile &&
+      findIntersection(sectionsProfiles[resource.resourceType], resource.meta.profile);
+
+    if (validResource) {
+      acc.push({ resource });
+    }
+    return acc;
+  }, []);
+};
+
 // ----- Required sections -----
-const generateProblemListSection = async (patientData: PatientData, http: HttpClient) => {
-  const validConditions = await validateConditions(patientData, http);
+const generateProblemListSection = (patientData: PatientData) => {
+  const validConditions = getSectionResources(patientData, sectionProfiles.ProblemList);
 
   const section = {
     title: "Active Problems",
@@ -83,20 +130,13 @@ const generateProblemListSection = async (patientData: PatientData, http: HttpCl
     ...addEntry(validConditions),
   };
 
-  return { section, bundleData: validConditions };
+  return section;
 };
 
-const generateAllergyIntoleranceSection = async (
-  patientData: PatientData,
-  http: HttpClient
-) => {
-  const validAllergies = await validateResources(
+const generateAllergyIntoleranceSection = (patientData: PatientData) => {
+  const validAllergies = getSectionResources(
     patientData,
-    {
-      AllergyIntolerance:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips",
-    },
-    http
+    sectionProfiles.AllergyIntolerance
   );
 
   const section = {
@@ -114,43 +154,13 @@ const generateAllergyIntoleranceSection = async (
     ...addEntry(validAllergies),
   };
 
-  return { section, bundleData: validAllergies };
+  return section;
 };
 
-const fetchMedications = async (patientData: PatientData, http: HttpClient) => {
-  const medicationIds = patientData.reduce((acc: string[], { resource }: any) => {
-    if (
-      ["MedicationStatement", "MedicationRequest"].includes(resource.resourceType) &&
-      resource.medicationReference?.reference
-    ) {
-      acc.push(getIdFromRef(resource.medicationReference?.reference));
-    }
-    return acc;
-  }, []);
-
-  if (medicationIds.length === 0) return [];
-
-  const uniqIds = [...new Set(medicationIds)];
-  const {
-    response: { data },
-  }: any = await http.get(`fhir/Medication?_id=${uniqIds.join(",")}`);
-
-  return data.entry;
-};
-
-const generateMedicationSummarySection = async (
-  patientData: PatientData,
-  http: HttpClient
-) => {
-  const validMedications = await validateResources(
+const generateMedicationSummarySection = (patientData: PatientData) => {
+  const validMedications = getSectionResources(
     patientData,
-    {
-      MedicationStatement:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationStatement-uv-ips",
-      MedicationRequest:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips",
-    },
-    http
+    sectionProfiles.MedicationSummary
   );
 
   const section = {
@@ -168,20 +178,14 @@ const generateMedicationSummarySection = async (
     ...addEntry(validMedications),
   };
 
-  return { section, bundleData: validMedications };
+  return section;
 };
 
 // ----- Recommended sections -----
-const generateImmunizationsSection = async (
-  patientData: PatientData,
-  http: HttpClient
-) => {
-  const validImmunizations = await validateResources(
+const generateImmunizationsSection = (patientData: PatientData) => {
+  const validImmunizations = getSectionResources(
     patientData,
-    {
-      Immunization: "http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips",
-    },
-    http
+    sectionProfiles.Immunizations
   );
 
   const section = {
@@ -198,20 +202,11 @@ const generateImmunizationsSection = async (
     text: generateSimpleNarrative(validImmunizations as SimpleNarrativeEntry),
   };
 
-  return {
-    section: buildSection(section, validImmunizations),
-    bundleData: validImmunizations,
-  };
+  return buildSection(section, validImmunizations);
 };
 
-const generateProceduresSection = async (patientData: PatientData, http: HttpClient) => {
-  const validProcedures = await validateResources(
-    patientData,
-    {
-      Procedure: "http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips",
-    },
-    http
-  );
+const generateProceduresSection = (patientData: PatientData) => {
+  const validProcedures = getSectionResources(patientData, sectionProfiles.Procedures);
 
   const section = {
     title: "Procedures",
@@ -227,21 +222,11 @@ const generateProceduresSection = async (patientData: PatientData, http: HttpCli
     text: generateSimpleNarrative(validProcedures as SimpleNarrativeEntry),
   };
 
-  return { section: buildSection(section, validProcedures), bundleData: validProcedures };
+  return buildSection(section, validProcedures);
 };
 
-const generateMedicalDevicesSection = async (
-  patientData: PatientData,
-  http: HttpClient
-) => {
-  const validDevices = await validateResources(
-    patientData,
-    {
-      DeviceUseStatement:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips",
-    },
-    http
-  );
+const generateMedicalDevicesSection = (patientData: PatientData, http: HttpClient) => {
+  const validDevices = getSectionResources(patientData, sectionProfiles.MedicalDevices);
 
   const section = {
     title: "Medical Devices",
@@ -260,22 +245,13 @@ const generateMedicalDevicesSection = async (
     },
   };
 
-  return { section: buildSection(section, validDevices), bundleData: validDevices };
+  return buildSection(section, validDevices);
 };
 
-const generateDiagnosticResultsSection = async (
-  patientData: PatientData,
-  http: HttpClient
-) => {
-  const validDiagnosticResults = await validateResources(
+const generateDiagnosticResultsSection = (patientData: PatientData, http: HttpClient) => {
+  const validDiagnosticResults = getSectionResources(
     patientData,
-    {
-      DiagnosticReport:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips",
-      Observation:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips",
-    },
-    http
+    sectionProfiles.DiagnosticResults
   );
 
   const section = {
@@ -296,21 +272,12 @@ const generateDiagnosticResultsSection = async (
     ),
   };
 
-  return {
-    section: buildSection(section, validDiagnosticResults),
-    bundleData: validDiagnosticResults,
-  };
+  return buildSection(section, validDiagnosticResults);
 };
 
 // ----- Optional sections -----
-const generateVitalSignsSection = async (patientData: PatientData, http: HttpClient) => {
-  const validVitalSigns = patientData.filter(
-    ({ resource }) =>
-      resource.resourceType === "Observation" &&
-      resource.category?.find((item) =>
-        item.coding?.find((coding) => coding.code === "vital-signs")
-      )
-  );
+const generateVitalSignsSection = (patientData: PatientData, http: HttpClient) => {
+  const validVitalSigns = getSectionResources(patientData, sectionProfiles.VitalSigns);
 
   const section = {
     title: "Vital Signs",
@@ -326,25 +293,12 @@ const generateVitalSignsSection = async (patientData: PatientData, http: HttpCli
     text: generateSimpleNarrative(validVitalSigns as SimpleNarrativeEntry),
   };
 
-  return { section: buildSection(section, validVitalSigns), bundleData: validVitalSigns };
+  return buildSection(section, validVitalSigns);
 };
 
-const generatePregnancySection = async (patientData: PatientData, http: HttpClient) => {
-  const pregnancyStatuses = patientData.filter(
-    ({ resource }) =>
-      resource.resourceType === "Observation" &&
-      resource.code?.coding?.find((item) => item.code === "82810-3") // Observation-pregnancy-status-uv-ip is a fixed value code
-  );
-  const pregnancyOutcomes = await validateResources(
-    patientData,
-    {
-      Observation:
-        "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips",
-    },
-    http
-  );
+const generatePregnancySection = (patientData: PatientData, http: HttpClient) => {
+  const validObservations = getSectionResources(patientData, sectionProfiles.Pregnancy);
 
-  const bundleData = [...pregnancyStatuses, ...pregnancyOutcomes];
   const section = {
     title: "Pregnancy",
     code: {
@@ -356,26 +310,16 @@ const generatePregnancySection = async (patientData: PatientData, http: HttpClie
         },
       ],
     },
-    text: generateSimpleNarrative(bundleData as SimpleNarrativeEntry),
+    text: generateSimpleNarrative(validObservations as SimpleNarrativeEntry),
   };
 
-  return {
-    section: buildSection(section, bundleData),
-    bundleData,
-  };
+  return buildSection(section, validObservations);
 };
 
-const generateSocialHistorySection = async (
-  patientData: PatientData,
-  http: HttpClient
-) => {
-  const tobaccoAndAlcoholObservations = patientData.filter(
-    ({ resource }) =>
-      resource.resourceType === "Observation" &&
-      resource.code?.coding?.find(
-        // Observation tobacco use and alcohol have a fixed value code
-        (item) => item.code === "72166-2" || item.code === "74013-4"
-      )
+const generateSocialHistorySection = (patientData: PatientData, http: HttpClient) => {
+  const validObservations = getSectionResources(
+    patientData,
+    sectionProfiles.SocialHistory
   );
 
   const section = {
@@ -389,20 +333,17 @@ const generateSocialHistorySection = async (
         },
       ],
     },
-    text: generateSimpleNarrative(tobaccoAndAlcoholObservations as SimpleNarrativeEntry),
+    text: generateSimpleNarrative(validObservations as SimpleNarrativeEntry),
   };
 
-  return {
-    section: buildSection(section, tobaccoAndAlcoholObservations),
-    bundleData: tobaccoAndAlcoholObservations,
-  };
+  return buildSection(section, validObservations);
 };
 
-const generateIllnessHistorySection = async (
-  patientData: PatientData,
-  http: HttpClient
-) => {
-  const validConditions = await validateConditions(patientData, http);
+const generateIllnessHistorySection = (patientData: PatientData) => {
+  const validConditions = getSectionResources(
+    patientData,
+    sectionProfiles.IllnessHistory
+  );
 
   const section = {
     title: "Past history of illnesses",
@@ -418,7 +359,7 @@ const generateIllnessHistorySection = async (
     text: generateSimpleNarrative(validConditions as SimpleNarrativeEntry),
   };
 
-  return { section: buildSection(section, validConditions), bundleData: validConditions };
+  return buildSection(section, validConditions);
 };
 
 const sectionNames: Array<SectionName> = [
@@ -449,47 +390,80 @@ const sectionToGenerateFuncMap: SectionToGenerateFuncMap = {
   SocialHistory: generateSocialHistorySection,
 };
 
-export const removeDuplicatedResources = (
+export const addFullUrl = (
   resources: Array<{ resource: { id: string; resourceType: string } }>,
   aidboxBaseUrl: string
 ) => {
   return resources.reduce(
     (acc, item) => {
-      const duplicatedResource = acc.find(
-        ({ resource }) => resource.id === item.resource?.id
-      );
-      if (!duplicatedResource) {
-        acc.push({
-          ...item,
-          fullUrl: `${aidboxBaseUrl}/fhir/${item.resource.resourceType}/${item.resource.id}`,
-        });
-      }
+      acc.push({
+        resource: item.resource,
+        fullUrl: `${aidboxBaseUrl}/fhir/${item.resource.resourceType}/${item.resource.id}`,
+      });
       return acc;
     },
     [] as Array<{ resource: { id: string }; fullUrl: string }>
   );
 };
 
-export const generateSections = (patientData: PatientData, http: HttpClient) => {
-  return sectionNames.reduce(
-    async (previousPromise: Promise<any>, item) => {
-      const acc = await previousPromise;
-      const { section, bundleData } = await sectionToGenerateFuncMap[item](
-        patientData,
-        http
-      );
+const buildQueriesForSection = (
+  sectionName: SectionName,
+  patientId: string
+): Array<string> | undefined => {
+  const profiles = sectionProfiles[sectionName];
+  if (!profiles) return undefined;
 
-      if (section) {
-        return {
-          sections: [...acc.sections, section],
-          bundleData: [...acc.bundleData, ...bundleData],
-        };
-      }
-
-      return acc;
-    },
-    Promise.resolve({ sections: [], bundleData: [] })
+  return Object.keys(profiles).map(
+    (resourceType) =>
+      `/fhir/${resourceType}?patient=${patientId}&_profile=${profiles[resourceType].join(",")}`
   );
+};
+
+const fetchSummaryResources = async (http: HttpClient, patientId: string) => {
+  const bundleEntry = sectionNames.reduce((acc: BundleEntry, sectionName) => {
+    if (sectionName === "IllnessHistory" && sectionNames.includes("ProblemList"))
+      return acc;
+
+    const sectionsQueries = buildQueriesForSection(sectionName, patientId);
+    if (sectionsQueries) {
+      const entries = sectionsQueries.map((query) => ({
+        request: { method: "GET", url: query },
+      }));
+
+      acc.push(...entries);
+    }
+    return acc;
+  }, []);
+
+  const { response }: any = await http.post("", {
+    json: {
+      resourceType: "Bundle",
+      type: "transaction",
+      entry: bundleEntry,
+    },
+  });
+
+  return response.data?.entry?.reduce((acc: PatientData, item: any) => {
+    if (item.resource?.total > 0) {
+      acc.push(...item.resource?.entry);
+    }
+    return acc;
+  }, []);
+};
+
+export const generateSections = async (http: HttpClient, patientId: string) => {
+  const patientData = await fetchSummaryResources(http, patientId);
+  const sections = sectionNames.reduce((acc: any, item) => {
+    const section = sectionToGenerateFuncMap[item](patientData, http);
+
+    if (section) {
+      acc.push(section);
+    }
+
+    return acc;
+  }, []);
+
+  return { sections, bundleData: patientData };
 };
 
 export const createComposition = (sections: any, patientId: string) => {
@@ -498,6 +472,9 @@ export const createComposition = (sections: any, patientId: string) => {
   const composition = {
     resourceType: "Composition",
     id: randomUUID(),
+    meta: {
+      profile: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips"],
+    },
     date: now.toISOString(),
     status: "final",
     type: {
