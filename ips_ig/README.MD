@@ -28,51 +28,17 @@ If you are hosting Aidbox on your local computer, obtain the self-hosted trial l
 docker compose up --build
 ```
 
+On start, the node-app will [upload](./src/index.ts#L142) a sample [bundle](./src/data.json) with patient data.
+
 ## Step 3: Open and log in into Aidbox instance
 
 Opein in browser http://localhost:8888
 
 And loging witn login: `admin` and password: `password`
 
-## Step 4: Load test dataset
+## Step 4: Request $summary using REST Console
 
 In the Aidbox admin window, navigate to the APIs section and choose REST Console.
-Copy and paste the following snippet into the text box of the REST Console, then click Send.
-This $load request loads the Synthea test data into the server.
-
-```
-POST /fhir/$load
-
-source: https://storage.googleapis.com/aidbox-public/synthea/100/all.ndjson.gz
-```
-
-Ensure that the data is loaded successfully by receiving a `Status: 200` response.
-
-```yaml
-format: fhir
-resources:
-  CarePlan: 356
-  Observation: 20382
-  MedicationAdministration: 150
-  Goal: 301
-  Patient: 124
-  DiagnosticReport: 1430
-  Practitioner: 181
-  ExplanationOfBenefit: 3460
-  Immunization: 1636
-  Claim: 4488
-  MedicationRequest: 1028
-  Encounter: 3460
-  Condition: 871
-  Procedure: 2854
-  Organization: 181
-  AllergyIntolerance: 40
-  ImagingStudy: 134
-```
-
-[$load](https://docs.aidbox.app/api-1/bulk-api-1/usdload) endpoint documentation.
-
-## Step 5: Request $summary using REST Console
 
 The [$summary](https://build.fhir.org/ig/HL7/fhir-ips/OperationDefinition-summary.html) operation requires either the logical ID (`Patient.id`) or a business identifier (`Patient.identifier`) of the patient.
 You can use the following request to view all available patients:
@@ -95,7 +61,7 @@ For example:
 GET /fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary
 ```
 
-## Step 6: Request $summary using HTTP Client
+## Step 5: Request $summary using HTTP Client
 
 If you're starting the Aidbox FHIR server for the first time, the initial step involves creating a _Client_ resource with an ID and secret.
 Since the newly created client does not have default permissions to access the Aidbox REST API, the next step is to configure access policies.
