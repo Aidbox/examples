@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import * as path from "node:path";
 import { Client as AidboxClient } from "@aidbox/sdk-r4";
 import Fastify from "fastify";
 import fastifyHealthcheck from "fastify-healthcheck";
@@ -7,7 +5,8 @@ import { getConfig } from "./config.js";
 import { Config, Client, Request, Operations, HttpClient } from "./types.js";
 import { dispatch } from "./dispatch.js";
 import * as operations from "./operations.js";
-import { fileURLToPath } from "node:url";
+// @ts-ignore
+import patientData from "./data.json" assert { type: "json" };
 
 const fastify = Fastify({ logger: true });
 
@@ -140,14 +139,8 @@ const main = async () => {
       },
     });
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const dataFilePath = path.resolve(__dirname, "data.json");
-    const file = await readFile(dataFilePath, { encoding: "utf8" });
-    const samplePatientData = JSON.parse(file);
-    console.log("samplePatientData", samplePatientData);
     await http.post(``, {
-      json: samplePatientData,
+      json: patientData,
     });
 
     await fastify.listen({ host: "0.0.0.0", port: config.app.port });
