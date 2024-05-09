@@ -700,7 +700,7 @@
         "deviceName": [
           {
             "name": "H.I.A. BEGIN",
-            "type": "model-name"
+            "type": "registered-name"
           }
         ],
         "modelNumber": "2.0.1",
@@ -740,6 +740,86 @@
       "request": {
         "method": "PUT",
         "url": "/fhir/DeviceUseStatement/eumfh-70-275-1"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "pregnancy-outcome-example",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"pregnancy-outcome-example\"> </a><a name=\"hcpregnancy-outcome-example\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;pregnancy-outcome-example&quot; </p></div><p><b>status</b>: final</p><p><b>code</b>: [#] Births total <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#11640-0)</span></p><p><b>subject</b>: <a href=\"Patient-patient-example-female.html\">Patient/patient-example-female</a> &quot; DELAROSA&quot;</p><p><b>effective</b>: 2020-01-10</p><p><b>value</b>: 1 1<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM code 1 = '1')</span></p></div>"
+        },
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "11640-0",
+              "display": "[#] Births total"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2020-01-10",
+        "valueQuantity": {
+          "value": 1,
+          "system": "http://unitsofmeasure.org",
+          "code": "1"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/pregnancy-outcome-example"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "tobacco-use-example",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-tobaccouse-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"tobacco-use-example\"> </a><a name=\"hctobacco-use-example\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;tobacco-use-example&quot; </p></div><p><b>status</b>: final</p><p><b>code</b>: Tobacco smoking status <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#72166-2)</span></p><p><b>subject</b>: <a href=\"Patient-patient-example-female.html\">Patient/patient-example-female</a> &quot; DELAROSA&quot;</p><p><b>effective</b>: 2019-07-15</p><p><b>value</b>: Former smoker <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#LA15920-4)</span></p></div>"
+        },
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "72166-2",
+              "display": "Tobacco smoking status"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2019-07-15",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "LA15920-4",
+              "display": "Former smoker"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/tobacco-use-example"
       }
     },
     {

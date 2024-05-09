@@ -138,11 +138,11 @@ const main = async () => {
         operations,
       },
     });
-
+    fastify.log.info("Upload Patient sample data");
     await http.post(``, {
       json: patientData,
+      timeout: 100000,
     });
-
     await fastify.listen({ host: "0.0.0.0", port: config.app.port });
   } catch (err) {
     fastify.log.error(err);
