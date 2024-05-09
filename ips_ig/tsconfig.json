@@ -9,7 +9,7 @@
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "noEmit": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
