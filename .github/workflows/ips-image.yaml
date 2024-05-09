@@ -2,7 +2,7 @@ name: IPS app image
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ips-aidbox-app
+  IMAGE_NAME: ${{ github.repository }}-ips-ig
 
 on:
   push:
