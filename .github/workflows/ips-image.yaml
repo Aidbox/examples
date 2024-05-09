@@ -37,6 +37,6 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           context: ./ips_ig
-          file: ./ips_ig/Dockerfile.dev
+          file: ./ips_ig/Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
