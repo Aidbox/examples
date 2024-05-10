@@ -1,6 +1,6 @@
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
-[DEMO (WIP)](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)
+[DEMO](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)
 
 This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.
 
@@ -77,3 +77,37 @@ curl --location 'http://localhost:8888/fhir/Patient?_elements=id%2Cidentifier' \
 --header 'Authorization: Basic YmFzaWM6c2VjcmV0' \
 --data ''
 ```
+
+## Deploy
+
+This application works with [aidbox running](https://docs.aidbox.app/getting-started/run-aidbox-in-kubernetes/deploy-aidbox-in-kubernetes) under the following settings (envs):
+
+```yaml
+AIDBOX_FHIR_VERSION=4.0.1
+AIDBOX_FHIR_SCHEMA_VALIDATION=true
+AIDBOX_FHIR_PACKAGES=hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0
+AIDBOX_VALIDATE_BINDING_URL="https://r4.ontoserver.csiro.au/fhir/ValueSet/\$validate-code"
+```
+
+To deploy the application use [prepared](./k8s.yaml) k8s config. Additionally, you have to add to the config resource `Secret`:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ips-app
+  namespace: ips
+stringData:
+  AIDBOX_CLIENT_ID: <your_aidbox_client_id>
+  AIDBOX_CLIENT_SECRET: <your_aidbox_client_secret>
+  APP_SECRET: <your_app_secret> # allows aidbox safely communicate with this app
+```
+
+## Run Inferno IPS tests
+
+To run Inferno IPS tests against this implementation:
+
+1. Copy the prepared [configuration](./ips-inferno-config.json) for the test suite.
+2. Create a test session on the [Inferno website](https://inferno-qa.healthit.gov/test-kits/international-patient-summary/).
+3. Click on the "RUN ALL TESTS" button.
+4. Paste the copied configuration into the JSON field and submit.

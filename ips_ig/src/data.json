@@ -1085,13 +1085,6 @@
         "dosageInstruction": [
           {
             "text": "40 mg/day",
-            "timing": {
-              "repeat": {
-                "frequency": 1,
-                "period": 1,
-                "periodUnit": "d"
-              }
-            },
             "doseAndRate": [
               {
                 "doseQuantity": {
