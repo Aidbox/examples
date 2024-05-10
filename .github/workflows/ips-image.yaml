@@ -47,3 +47,10 @@ jobs:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
           args: apply -n ips -f ./ips_ig/k8s.yaml
+
+      - name: Restart
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: rollout restart -n ips deployment/ips-app
