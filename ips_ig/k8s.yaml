@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ips-app
+  namespace: ips
+  labels:
+    service: ips-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ips-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ips-app
+    spec:
+      containers:
+        - name: ips-app
+          image: ghcr.io/aidbox/app-examples-ips-ig:main
+          ports:
+            - name: api
+              containerPort: 4000
+              protocol: TCP
+          # envFrom:
+          #   - configMapRef:
+          #       name: aidbox
+          #   - secretRef:
+          #       name: aidbox
+      restartPolicy: Always
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
