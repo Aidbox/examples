@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aidbox/sdk-r4": "^1.0.11",
+    "@aidbox/sdk-r4": "^1.0.12",
     "dotenv": "^16.3.1",
     "fastify": "^4.21.0",
     "fastify-healthcheck": "^4.4.0",

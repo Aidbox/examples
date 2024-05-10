@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@aidbox/sdk-r4':
-        specifier: ^1.0.11
-        version: 1.0.11
+        specifier: ^1.0.12
+        version: 1.0.12
       dotenv:
         specifier: ^16.3.1
         version: 16.4.5
@@ -45,8 +45,8 @@ importers:
 
 packages:
 
-  '@aidbox/sdk-r4@1.0.11':
-    resolution: {integrity: sha512-HxDcenjVIsaVuCtC1Pi4j8badMLro6pU3juCCmVLFMwNF+a8PjHDnKKjTvSQbgnyXgLrshxGP0rdu6w07BxUIw==}
+  '@aidbox/sdk-r4@1.0.12':
+    resolution: {integrity: sha512-Tv2Z+LLD51PhX6w5vHyqi0+89OYNOB41GVyQuoF5EMLIxDuLqOFYrUHU9LqQlmmzAwtSYXmi9p2XPs81PXpgpg==}
     engines: {node: '>=18'}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -507,7 +507,7 @@ packages:
 
 snapshots:
 
-  '@aidbox/sdk-r4@1.0.11':
+  '@aidbox/sdk-r4@1.0.12':
     dependencies:
       '@juanelas/base64': 1.1.5
       tslib: 2.6.2
