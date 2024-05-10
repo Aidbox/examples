@@ -700,7 +700,7 @@
         "deviceName": [
           {
             "name": "H.I.A. BEGIN",
-            "type": "registered-name"
+            "type": "patient-reported-name"
           }
         ],
         "modelNumber": "2.0.1",
@@ -824,28 +824,709 @@
     },
     {
       "resource": {
-        "resourceType": "Organization",
-        "id": "45a5c5b1-4ec1-4d60-b4b2-ff5a84a41fd7",
+        "resourceType": "Observation",
+        "id": "hemoglobin",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-laboratory-uv-ips"
+          ]
+        },
         "text": {
           "status": "generated",
-          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><a name=\"Organization_45a5c5b1-4ec1-4d60-b4b2-ff5a84a41fd7\"> </a><p><b>Generated Narrative: Organization</b><a name=\"45a5c5b1-4ec1-4d60-b4b2-ff5a84a41fd7\"> </a><a name=\"hc45a5c5b1-4ec1-4d60-b4b2-ff5a84a41fd7\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Organization &quot;45a5c5b1-4ec1-4d60-b4b2-ff5a84a41fd7&quot; </p></div><p><b>active</b>: true</p><p><b>type</b>: Other <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.5.0/CodeSystem-organization-type.html\">Organization type</a>#other)</span></p><p><b>name</b>: Laboratoire de charme</p></div>"
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"hemoglobin\"> </a><a name=\"hchemoglobin\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;hemoglobin&quot; </p></div><p><b>status</b>: final</p><p><b>category</b>: Laboratory <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.5.0/CodeSystem-observation-category.html\">Observation Category Codes</a>#laboratory)</span></p><p><b>code</b>: Hemoglobin A1c/Hemoglobin.total in Blood by HPLC <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#17856-6)</span></p><p><b>subject</b>: <a href=\"Patient-eumfh-39-07.html\">Patient/eumfh-39-07</a> &quot; HEIG&quot;</p><p><b>effective</b>: 2017-11-10 08:20:00+0100</p><p><b>performer</b>: <a href=\"Organization-TII-Organization1.html\">Organization/TII-Organization1</a> &quot;Someplace General Hospital&quot;</p><p><b>value</b>: 7.5 %<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM code % = '%')</span></p><p><b>note</b>: Above stated goal of 7.0 %</p></div>"
         },
-        "active": true,
-        "type": [
+        "status": "final",
+        "category": [
           {
             "coding": [
               {
-                "system": "http://terminology.hl7.org/CodeSystem/organization-type",
-                "code": "other"
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
               }
             ]
           }
         ],
-        "name": "Laboratoire de charme"
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "17856-6",
+              "display": "Hemoglobin A1c/Hemoglobin.total in Blood by HPLC"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2017-11-10T08:20:00+01:00",
+        "performer": [
+          {
+            "reference": "Organization/TII-Organization1"
+          }
+        ],
+        "valueQuantity": {
+          "value": 7.5,
+          "unit": "%",
+          "system": "http://unitsofmeasure.org",
+          "code": "%"
+        },
+        "note": [
+          {
+            "text": "Above stated goal of 7.0 %"
+          }
+        ]
       },
       "request": {
         "method": "PUT",
-        "url": "/fhir/Organization/45a5c5b1-4ec1-4d60-b4b2-ff5a84a41fd7"
+        "url": "/fhir/Observation/hemoglobin"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "hemoglobin",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2><span title=\"Codes: {http://loinc.org 11502-2}\">Laboratory report</span> (<span title=\"Codes: {http://terminology.hl7.org/CodeSystem/v2-0074 LAB}\">Laboratory</span>) </h2><table class=\"grid\"><tr><td>Subject</td><td><b>Alexander Heig </b> male, DoB: 1957 ( <code>http://trilliumbridge.eu/fhir/demos/eumfh/inject</code>/39-07)</td></tr><tr><td>When For</td><td>2017-11-10</td></tr><tr><td>Reported</td><td>2017-11-10 08:20:00+0100</td></tr></table><p><b>Report Details</b></p><table class=\"grid\"><tr><td><b>Code</b></td><td><b>Value</b></td><td><b>Note</b></td><td><b>When For</b></td></tr><tr><td><a href=\"Observation-hemoglobin.html\"><span title=\"Codes: {http://loinc.org 17856-6}\">Hemoglobin A1c/Hemoglobin.total in Blood by HPLC</span></a></td><td>7.5 %</td><td>Above stated goal of 7.0 %</td><td>2017-11-10 08:20:00+0100</td></tr></table></div>"
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                "code": "LAB",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "11502-2",
+              "display": "Laboratory report"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2017-11-10",
+        "issued": "2017-11-10T08:20:00+01:00",
+        "performer": [
+          {
+            "reference": "Organization/TII-Organization1",
+            "display": "Someplace General Hospital"
+          }
+        ],
+        "result": [
+          {
+            "reference": "Observation/hemoglobin",
+            "display": "Above stated goal of 7.0 %"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/DiagnosticReport/hemoglobin"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "specimen-example-1",
+        "meta": {
+          "profile": ["http://hl7.org/fhir/uv/ips/StructureDefinition/Specimen-uv-ips"]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Specimen</b><a name=\"specimen-example-1\"> </a><a name=\"hcspecimen-example-1\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Specimen &quot;specimen-example-1&quot; </p></div><p><b>type</b>: Urine specimen <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#122575003)</span></p><p><b>subject</b>: <a href=\"Patient-66033.html\">Patient/66033</a> &quot; LUX-BRENNARD&quot;</p><h3>Collections</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Method</b></td></tr><tr><td style=\"display: none\">*</td><td>Urine specimen collection, clean catch <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#73416001)</span></td></tr></table></div>"
+        },
+        "type": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "122575003",
+              "display": "Urine specimen"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "collection": {
+          "method": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "73416001",
+                "display": "Urine specimen collection, clean catch"
+              }
+            ]
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Specimen/specimen-example-1"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ImagingStudy",
+        "id": "TII-ImagingStudy-5-1",
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: ImagingStudy</b><a name=\"TII-ImagingStudy-5-1\"> </a><a name=\"hcTII-ImagingStudy-5-1\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource ImagingStudy &quot;TII-ImagingStudy-5-1&quot; </p></div><p><b>identifier</b>: <a href=\"http://terminology.hl7.org/5.5.0/NamingSystem-dui.html\" title=\"An OID issued under DICOM OID rules. DICOM OIDs are represented as plain OIDs, with a prefix of &quot;urn:oid:&quot;. See https://www.dicomstandard.org/\">DICOM Unique Id</a>/urn:oid:2.16.840.1.113883.2.9.999.1.12345</p><p><b>status</b>: available</p><p><b>subject</b>: <a href=\"Patient-eumfh-39-07.html\">Patient/eumfh-39-07</a> &quot; HEIG&quot;</p><p><b>procedureCode</b>: SPECT Heart perfusion and wall motion at rest and W stress and W Tl-201 IV and W Tc-99m Sestamibi IV <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#49569-7)</span></p><p><b>reasonCode</b>: Chest pain, hypertension, type II diabetes mellitus. <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> ()</span></p><h3>Series</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>Uid</b></td><td><b>Modality</b></td><td><b>BodySite</b></td></tr><tr><td style=\"display: none\">*</td><td>2.16.840.1.113883.2.9.999.2.12345</td><td>Nuclear Medicine (Details: DICOM code NM = 'Nuclear Medicine', stated as 'Nuclear Medicine')</td><td>Heart (Details: SNOMED CT code 80891009 = 'Heart', stated as 'Heart')</td></tr></table></div>"
+        },
+        "identifier": [
+          {
+            "system": "urn:dicom:uid",
+            "value": "urn:oid:2.16.840.1.113883.2.9.999.1.12345"
+          }
+        ],
+        "status": "available",
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "procedureCode": [
+          {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "49569-7",
+                "display": "SPECT Heart perfusion and wall motion at rest and W stress and W Tl-201 IV and W Tc-99m Sestamibi IV"
+              }
+            ]
+          }
+        ],
+        "reasonCode": [
+          {
+            "text": "Chest pain, hypertension, type II diabetes mellitus."
+          }
+        ],
+        "series": [
+          {
+            "uid": "2.16.840.1.113883.2.9.999.2.12345",
+            "modality": {
+              "system": "http://dicom.nema.org/resources/ontology/DCM",
+              "code": "NM",
+              "display": "Nuclear Medicine"
+            },
+            "bodySite": {
+              "system": "http://snomed.info/sct",
+              "code": "80891009",
+              "display": "Heart"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/ImagingStudy/TII-ImagingStudy-5-1"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "eumfh-39-07",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Practitioner-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Practitioner</b><a name=\"eumfh-39-07\"> </a><a name=\"hceumfh-39-07\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Practitioner &quot;eumfh-39-07&quot; </p></div><p><b>name</b>: Mark Antonio </p></div>"
+        },
+        "name": [
+          {
+            "family": "Antonio",
+            "given": ["Mark"],
+            "prefix": ["Dr."]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Practitioner/eumfh-39-07"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "eumfh-39-07-1-request",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: MedicationRequest</b><a name=\"eumfh-39-07-1-request\"> </a><a name=\"hceumfh-39-07-1-request\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource MedicationRequest &quot;eumfh-39-07-1-request&quot; </p></div><p><b>status</b>: active</p><p><b>intent</b>: order</p><p><b>medication</b>: <a href=\"Medication-eumfh-39-07-1.html\">Medication/eumfh-39-07-1: simvastatin</a></p><p><b>subject</b>: <a href=\"Patient-eumfh-39-07.html\">Patient/eumfh-39-07: Alexander Heig (inject 39-07)</a> &quot; HEIG&quot;</p><blockquote><p><b>dosageInstruction</b></p><p><b>text</b>: 40 mg/day</p><p><b>timing</b>: Once per 1 days</p><blockquote><p><b>doseAndRate</b></p></blockquote></blockquote><h3>DispenseRequests</h3><table class=\"grid\"><tr><td style=\"display: none\">-</td><td><b>ValidityPeriod</b></td></tr><tr><td style=\"display: none\">*</td><td>2021-01-01 --&gt; (ongoing)</td></tr></table></div>"
+        },
+        "status": "active",
+        "intent": "order",
+        "medicationReference": {
+          "reference": "Medication/976d0804-cae0-45ae-afe3-a19f3ceba6bc",
+          "display": "simvastatin"
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8",
+          "display": "Alexander Heig (inject 39-07)"
+        },
+        "dosageInstruction": [
+          {
+            "text": "40 mg/day",
+            "timing": {
+              "repeat": {
+                "frequency": 1,
+                "period": 1,
+                "periodUnit": "d"
+              }
+            },
+            "doseAndRate": [
+              {
+                "doseQuantity": {
+                  "value": 40,
+                  "unit": "mg",
+                  "system": "http://unitsofmeasure.org",
+                  "code": "mg"
+                }
+              }
+            ]
+          }
+        ],
+        "dispenseRequest": {
+          "validityPeriod": {
+            "start": "2021-01-01"
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/MedicationRequest/eumfh-39-07-1-request"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "simple-pr",
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: PractitionerRole</b><a name=\"simple-pr\"> </a><a name=\"hcsimple-pr\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource PractitionerRole &quot;simple-pr&quot; </p></div><p><b>practitioner</b>: <a href=\"Practitioner-eumfh-39-07.html\">Practitioner/eumfh-39-07</a> &quot; ANTONIO&quot;</p><p><b>organization</b>: <a href=\"Organization-simple-org.html\">Organization/simple-org</a> &quot;Best Diagnostic Department&quot;</p></div>"
+        },
+        "practitioner": {
+          "reference": "Practitioner/eumfh-39-07"
+        },
+        "organization": {
+          "reference": "Organization/TII-Organization1"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/PractitionerRole/simple-pr"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Media",
+        "id": "media-example-smile",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Media-observation-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Media</b><a name=\"media-example-smile\"> </a><a name=\"hcmedia-example-smile\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Media &quot;media-example-smile&quot; </p></div><p><b>status</b>: completed</p><p><b>type</b>: Image <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://hl7.org/fhir/R4/codesystem-media-type.html\">Media Type</a>#image)</span></p><p><b>subject</b>: <a href=\"Patient-eumfh-39-07.html\">Patient/eumfh-39-07</a> &quot; HEIG&quot;</p><p><b>created</b>: 2017-12-17</p><p><b>issued</b>: Dec 17, 2017, 2:56:18\u202fPM</p><p><b>operator</b>: <a href=\"Practitioner-eumfh-39-07.html\">Practitioner/eumfh-39-07</a> &quot; ANTONIO&quot;</p><p><b>height</b>: 128</p><p><b>width</b>: 128</p><blockquote><p><b>content</b></p><blockquote><p><b>id</b></p>a1</blockquote><p><b>contentType</b>: image/png</p><p><b>data</b>: (base64 data - 1800 bytes)</p><p><b>creation</b>: 2017-12-17</p></blockquote></div>"
+        },
+        "status": "completed",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/media-type",
+              "code": "image",
+              "display": "Image"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "createdDateTime": "2017-12-17",
+        "issued": "2017-12-17T14:56:18Z",
+        "operator": {
+          "reference": "Practitioner/eumfh-39-07"
+        },
+        "height": 128,
+        "width": 128,
+        "content": {
+          "id": "a1",
+          "creation": "2017-12-17"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Media/media-example-smile"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "alcohol-use-example",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-alcoholuse-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"alcohol-use-example\"> </a><a name=\"hcalcohol-use-example\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;alcohol-use-example&quot; </p></div><p><b>status</b>: final</p><p><b>code</b>: Alcoholic drinks per day <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#74013-4)</span></p><p><b>subject</b>: <a href=\"Patient-patient-example-female.html\">Patient/patient-example-female</a> &quot; DELAROSA&quot;</p><p><b>effective</b>: 2019-07-15</p><p><b>value</b>: 2 {wine glasses}/d<span style=\"background: LightGoldenRodYellow\"> (Details: UCUM code {wine glasses}/d = '{wine glasses}/d')</span></p></div>"
+        },
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "74013-4",
+              "display": "Alcoholic drinks per day"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2019-07-15",
+        "valueQuantity": {
+          "value": 2,
+          "system": "http://unitsofmeasure.org",
+          "code": "{wine glasses}/d"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/alcohol-use-example"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "pregnancy-edd-example",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-edd-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"pregnancy-edd-example\"> </a><a name=\"hcpregnancy-edd-example\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;pregnancy-edd-example&quot; </p></div><p><b>status</b>: final</p><p><b>code</b>: Delivery date Estimated <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#11778-8)</span></p><p><b>subject</b>: <a href=\"Patient-patient-example-female.html\">Patient/patient-example-female</a> &quot; DELAROSA&quot;</p><p><b>effective</b>: 2020-01-10</p><p><b>value</b>: 2020-05-02</p></div>"
+        },
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "11778-8",
+              "display": "Delivery date Estimated"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2020-01-10",
+        "valueDateTime": "2020-05-02"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/pregnancy-edd-example"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "pregnancy-status-example",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-status-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"pregnancy-status-example\"> </a><a name=\"hcpregnancy-status-example\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;pregnancy-status-example&quot; </p></div><p><b>status</b>: final</p><p><b>code</b>: Pregnancy status <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#82810-3)</span></p><p><b>subject</b>: <a href=\"Patient-patient-example-female.html\">Patient/patient-example-female</a> &quot; DELAROSA&quot;</p><p><b>effective</b>: 2020-01-10</p><p><b>value</b>: Pregnant <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#LA15173-0)</span></p><p><b>hasMember</b>: <a href=\"Observation-pregnancy-edd-example.html\">Observation/pregnancy-edd-example</a></p></div>"
+        },
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "82810-3",
+              "display": "Pregnancy status"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2020-01-10",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "LA15173-0",
+              "display": "Pregnant"
+            }
+          ]
+        },
+        "hasMember": [
+          {
+            "reference": "Observation/pregnancy-edd-example"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/pregnancy-status-example"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "pathology-cancer",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-pathology-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Observation</b><a name=\"pathology-cancer\"> </a><a name=\"hcpathology-cancer\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Observation &quot;pathology-cancer&quot; </p></div><p><b>status</b>: final</p><p><b>category</b>: Laboratory <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"http://terminology.hl7.org/5.5.0/CodeSystem-observation-category.html\">Observation Category Codes</a>#laboratory)</span></p><p><b>code</b>: Estrogen receptor [Interpretation] in Tissue <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://loinc.org/\">LOINC</a>#16112-5)</span></p><p><b>subject</b>: <a href=\"Patient-eumfh-39-07.html\">Patient/eumfh-39-07</a> &quot; HEIG&quot;</p><p><b>effective</b>: 2020-04-22 19:20:00+0200</p><p><b>performer</b>: <a href=\"Organization-TII-Organization1.html\">Organization/TII-Organization1</a> &quot;Someplace General Hospital&quot;</p><p><b>value</b>: Estrogen receptor positive tumor <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#416053008)</span></p><p><b>method</b>: Microscopy <span style=\"background: LightGoldenRodYellow; margin: 4px; border: 1px solid khaki\"> (<a href=\"https://browser.ihtsdotools.org/\">SNOMED CT</a>#117259009)</span></p></div>"
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "16112-5",
+              "display": "Estrogen receptor [Interpretation] in Tissue"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "2020-04-22T19:20:00+02:00",
+        "performer": [
+          {
+            "reference": "Organization/TII-Organization1"
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "416053008",
+              "display": "Estrogen receptor positive tumor"
+            }
+          ]
+        },
+        "method": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "117259009",
+              "display": "Microscopy"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/pathology-cancer"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "ips-example-imaging-4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t\t<p>\n\t\t\t\t<b>date</b>: 1995-06-08\n            </p>\n\t\t\t<p>\n\t\t\t\t<b>subject</b>: <a>Patient/eumfh-39-07</a>\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>CT Abdomen W contrast IV</b>\n\t\t\t</p>\n\t\t\t<p>\n\t\t\t\t<b>Procedure Description:</b>Serial imaging was obtained in the upper abdomen with the administration of oral and intravenous contrast.</p>\n\t\t\t<p>\n\t\t\t\t<b>Finding:</b>The examination demonstrates a well circumscribed 3 cm lesion present within the medial aspect of the inferior right liver lobe. Initial evaluation demonstrates lack of contrast enhancement. Subsequent imaging (not shown) demonstrated typical contrast enhancement pattern of a benign hemangioma of the liver. The remaining contrast enhancement pattern in the liver is normal. There is normal appearance of the adrenal glands, spleen, kidneys, and pancreas. There is no evidence of liver metastasis.</p>\n\t\t\t<p>\n\t\t\t\t<b>Conclusion:</b>3 cm nodule present in the inferior medial aspect of right liver lobe. Contrast enhancement pattern consistent with the diagnosis of hemangioma.\n            </p>\n\t\t</div>"
+        },
+        "partOf": [
+          {
+            "reference": "ImagingStudy/TII-ImagingStudy-5-1"
+          }
+        ],
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "imaging",
+                "display": "Imaging"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "79103-8",
+              "display": "CT Abdomen W contrast IV"
+            }
+          ],
+          "text": "Upper abdomen with the administration of oral and intravenous contrast (example-4)"
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "1995-06-08",
+        "performer": [
+          {
+            "reference": "Practitioner/eumfh-39-07"
+          },
+          {
+            "reference": "Organization/TII-Organization1"
+          }
+        ],
+        "valueString": "3 cm nodule present in the inferior medial aspect of right liver lobe. Contrast enhancement pattern consistent with the diagnosis of hemangioma.",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://dicom.nema.org/resources/ontology/DCM",
+                  "code": "121065",
+                  "display": "Procedure Description"
+                }
+              ]
+            },
+            "valueString": "Serial imaging was obtained in the upper abdomen with the administration of oral and intravenous contrast."
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://dicom.nema.org/resources/ontology/DCM",
+                  "code": "121071",
+                  "display": "Finding"
+                }
+              ]
+            },
+            "valueString": "The examination demonstrates a well circumscribed 3 cm lesion present within the medial aspect of the inferior right liver lobe. Initial evaluation demonstrates lack of contrast enhancement. Subsequent imaging (not shown) demonstrated typical contrast enhancement pattern of a benign hemangioma of the liver. The remaining contrast enhancement pattern in the liver is normal. There is normal appearance of the adrenal glands, spleen, kidneys, and pancreas. There is no evidence of liver metastasis."
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/ips-example-imaging-4"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "ips-example-imaging-1",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-radiology-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n            <p>\n                <b>CT Abdomen W contrast IV</b>\n            </p>\n            <p>\n                <b>date</b>: 1995-06-08\n            </p>\n            <p>\n                <b>subject</b>:\n                <a>Patient/eumfh-39-07</a>\n            </p>\n            <p>\n                <b>value</b>: 3 cm nodule present in the inferior medial aspect of right liver lobe. Contrast enhancement pattern consistent with the diagnosis of hemangioma.\n            </p>\n        </div>"
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "imaging",
+                "display": "Imaging"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "79103-8",
+              "display": "CT Abdomen W contrast IV"
+            }
+          ],
+          "text": "Upper abdomen with the administration of oral and intravenous contrast (example-4)"
+        },
+        "subject": {
+          "reference": "Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8"
+        },
+        "effectiveDateTime": "1995-06-08",
+        "performer": [
+          {
+            "reference": "Practitioner/eumfh-39-07"
+          },
+          {
+            "reference": "Organization/TII-Organization1"
+          }
+        ],
+        "valueString": "3 cm nodule present in the inferior medial aspect of right liver lobe. Contrast enhancement pattern consistent with the diagnosis of hemangioma."
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Observation/ips-example-imaging-1"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "TII-Organization1",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/uv/ips/StructureDefinition/Organization-uv-ips"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative: Organization</b><a name=\"TII-Organization1\"> </a><a name=\"hcTII-Organization1\"> </a></p><div style=\"display: inline-block; background-color: #d9e0e7; padding: 6px; margin: 4px; border: 1px solid #8da1b4; border-radius: 5px; line-height: 60%\"><p style=\"margin-bottom: 0px\">Resource Organization &quot;TII-Organization1&quot; </p></div><p><b>name</b>: Someplace General Hospital</p><p><b>address</b>: 123 Street Address Sometown Somecountry </p></div>"
+        },
+        "name": "Someplace General Hospital",
+        "address": [
+          {
+            "line": ["123 Street Address"],
+            "city": "Sometown",
+            "country": "Somecountry"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/fhir/Organization/TII-Organization1"
       }
     }
   ]

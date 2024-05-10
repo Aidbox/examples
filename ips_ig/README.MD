@@ -1,6 +1,6 @@
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
-[DEMO (WIP)](https://aidbox.app) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)
+[DEMO (WIP)](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)
 
 This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.
 

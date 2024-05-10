@@ -66,6 +66,7 @@ const sectionProfiles: SectionProfiles = {
     ],
     Observation: [
       "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips",
+      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-laboratory-uv-ips",
     ],
   },
   VitalSigns: { Observation: ["http://hl7.org/fhir/StructureDefinition/vitalsigns"] },
