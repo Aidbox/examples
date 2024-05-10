@@ -23,6 +23,8 @@ spec:
               containerPort: 4000
               protocol: TCP
           envFrom:
+            - configMapRef:
+                name: ips-app
             - secretRef:
                 name: ips-app
       restartPolicy: Always
@@ -44,7 +46,19 @@ spec:
     - name: ips-app
       protocol: TCP
       port: 4000
-      targetPort: ips-app
+      targetPort: 4000
   selector:
-    app: ips-app
+    app.kubernetes.io/name: ips-app
   type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ips-app
+  namespace: ips
+data:
+  AIDBOX_BASE_URL: https://ips.hz.aidbox.dev
+  APP_PORT: "4000"
+  APP_URL: http://ips-app.ips.svc.cluster.local:4000
+  APP_CALLBACK_URL: /aidbox
+  APP_ID: ips-app
