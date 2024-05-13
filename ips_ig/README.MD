@@ -101,6 +101,92 @@ AIDBOX_FHIR_PACKAGES=hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0
 AIDBOX_VALIDATE_BINDING_URL="https://r4.ontoserver.csiro.au/fhir/ValueSet/\$validate-code"
 ```
 
+Also, it is possible to deploy Aidbox with [Helm charts](https://github.com/Aidbox/helm-charts/tree/main). To do so, follow the steps outlined below:
+
+### 1. Add aidbox helm repo
+
+```
+helm repo add aidbox https://aidbox.github.io/helm-charts
+```
+
+### 2. Prepare database config
+
+```yaml
+config: |-
+  listen_addresses = '*'
+  shared_buffers = '2GB'
+  max_wal_size = '4GB'
+  pg_stat_statements.max = 500
+  pg_stat_statements.save = false
+  pg_stat_statements.track = top
+  pg_stat_statements.track_utility = true
+  shared_preload_libraries = 'pg_stat_statements'
+  track_io_timing = on
+  wal_level = logical
+  wal_log_hints = on
+  archive_command = 'wal-g wal-push %p'
+  restore_command = 'wal-g wal-fetch %f %p'
+
+env:
+  PGDATA: /data/pg
+  POSTGRES_DB: postgres
+  POSTGRES_PASSWORD: <your-postgres-password>
+
+image.repository: healthsamurai/aidboxdb
+image.tag: "16.1"
+storage:
+  size: "10Gi"
+  className: <your-storage-className>
+```
+
+### and apply it
+
+```
+helm upgrade --install aidboxdb aidbox/aidboxdb \
+  --namespace ips --create-namespace \
+  --values /path/to/db-config.yaml
+```
+
+### 3. Prepare Aidbox config
+
+```yaml
+host: <your-aidbox-host>
+protocol: https
+
+config:
+  PGHOST: aidboxdb.ips.svc.cluster.local
+  PGDATABASE: postgres
+  PGUSER: postgres
+  PGPASSWORD: <your-postgres-password>
+  AIDBOX_CLIENT_ID: <your-aidbox-client-id>
+  AIDBOX_CLIENT_SECRET: <your-aidbox-client-password>
+  AIDBOX_ADMIN_ID: <your-aidbox-admin-id>
+  AIDBOX_ADMIN_PASSWORD: <your-aidbox-admin-password>
+  AIDBOX_LICENSE: <aidbox-license>
+  AIDBOX_DEV_MODE: true
+  AIDBOX_FHIR_VERSION: 4.0.1
+  AIDBOX_FHIR_SCHEMA_VALIDATION: true
+  AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0
+  AIDBOX_VALIDATE_BINDING_URL: "https://r4.ontoserver.csiro.au/fhir/ValueSet/$validate-code"
+  AIDBOX_BASE_URL: <your-base-url>
+  AIDBOX_PORT: 8888
+  AIDBOX_COMPLIANCE: enabled
+
+ingress:
+  annotations:
+    acme.cert-manager.io/http01-ingress-class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.class: nginx
+```
+
+### and apply it
+
+```
+helm upgrade --install aidbox aidbox/aidbox \
+  --namespace ips --create-namespace \
+  --values /path/to/aidbox-config.yaml
+```
+
 To deploy the application use [prepared](./k8s.yaml) k8s config. Additionally, you have to add to the config resource `Secret`:
 
 ```yaml
