@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { FastifyReply } from "fastify";
 import { Request } from "./types";
-import { generateSections, createComposition, addFullUrl } from "./ips.js";
+import {
+  generateSections,
+  createComposition,
+  addFullUrl,
+  getResourcesFromRefs,
+} from "./ips.js";
 
 export const patientSummary = {
   method: "GET",
@@ -19,6 +24,7 @@ export const patientSummary = {
 
       const { sections, bundleData }: any = await generateSections(http, patientId);
       const composition = createComposition(sections, patientId);
+      const refResources = await getResourcesFromRefs(http, bundleData);
 
       return reply.send({
         resourceType: "Bundle",
@@ -37,7 +43,7 @@ export const patientSummary = {
             resource: patient,
             fullUrl: `${appConfig.aidbox.url}/fhir/Patient/${patient.id}`,
           },
-          ...addFullUrl(bundleData, appConfig.aidbox.url),
+          ...addFullUrl([...bundleData, ...refResources], appConfig.aidbox.url),
         ],
       });
     } catch (error: any) {

@@ -467,6 +467,63 @@ export const generateSections = async (http: HttpClient, patientId: string) => {
   return { sections, bundleData: patientData };
 };
 
+const getRefs = (data: Array<{ reference: string }>) =>
+  data.map(({ reference }) => reference);
+
+export const getResourcesFromRefs = async (
+  http: HttpClient,
+  patientData: PatientData
+) => {
+  const { refs, bundleResources } = patientData.reduce(
+    (acc: { refs: Array<string>; bundleResources: Array<string> }, { resource }: any) => {
+      const performerRef = resource.performer ? getRefs(resource.performer) : [];
+      const partOfRef = resource.partOf ? getRefs(resource.partOf) : [];
+      const hasMemberRef = resource.hasMember ? getRefs(resource.hasMember) : [];
+      const resourceRef = `${resource.resourceType}/${resource.id}`;
+      return {
+        refs: [...acc.refs, ...performerRef, ...partOfRef, ...hasMemberRef],
+        bundleResources: [...acc.bundleResources, resourceRef],
+      };
+    },
+    {
+      refs: [],
+      bundleResources: [],
+    }
+  );
+
+  const uniqueRefs = [...new Set(refs)];
+  const missingRefs = uniqueRefs.filter((ref) => bundleResources.indexOf(ref) < 0);
+
+  const bundleEntry = missingRefs.reduce(
+    (acc: BundleEntry, ref: string) => {
+      acc.push({
+        request: { method: "GET", url: `/fhir/${ref}` },
+      });
+      return acc;
+    },
+    [
+      {
+        request: { method: "GET", url: "/fhir/Organization/TII-Organization1dddd" },
+      },
+    ]
+  );
+
+  const { response }: any = await http.post("", {
+    json: {
+      resourceType: "Bundle",
+      type: "batch",
+      entry: bundleEntry,
+    },
+  });
+
+  return response.data?.entry?.reduce((acc: PatientData, item: any) => {
+    if (item.response?.status == 200) {
+      acc.push({ resource: item.resource });
+    }
+    return acc;
+  }, []);
+};
+
 export const createComposition = (sections: any, patientId: string) => {
   const now = new Date();
 
