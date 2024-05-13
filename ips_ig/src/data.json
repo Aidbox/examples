@@ -318,10 +318,7 @@
           ]
         },
         "meta": {
-          "profile": [
-            "http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips",
-            "http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips|1.1.0"
-          ]
+          "profile": ["http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips"]
         },
         "resourceType": "Condition",
         "recordedDate": "2016-10",
