@@ -8,10 +8,11 @@
     "node": ">=18.0"
   },
   "scripts": {
+    "clean": "rm -rf build/ *.tsbuildinfo",
     "dev": "NODE_ENV=development nodemon",
     "start": "nodemon",
     "ci:test": "echo \"Error: no test specified\" ",
-    "build": "tsc -b --force"
+    "build": "pnpm run clean && tsc -b --force"
   },
   "author": "",
   "license": "ISC",
