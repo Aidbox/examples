@@ -11,7 +11,7 @@
     "dev": "NODE_ENV=development nodemon",
     "start": "nodemon",
     "ci:test": "echo \"Error: no test specified\" ",
-    "build": "tsc -b"
+    "build": "tsc -b --force"
   },
   "author": "",
   "license": "ISC",
