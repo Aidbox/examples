@@ -1,13 +1,13 @@
 import { Client as AidboxClient } from "@aidbox/sdk-r4";
 import Fastify from "fastify";
 import fastifyHealthcheck from "fastify-healthcheck";
-import { getConfig } from "./config.js";
-import { Config, Client, Request, Operations, HttpClient } from "./types.js";
-import { dispatch } from "./dispatch.js";
-import * as operations from "./operations.js";
-import { patientData } from "./patientData.js";
+import { getConfig } from "./config";
+import { Config, Client, Request, Operations, HttpClient } from "./types";
+import { dispatch } from "./dispatch";
+import * as operations from "./operations";
+import { patientData } from "./patientData";
 // @ts-ignore
-// import patientData from "./data.json" assert { type: "json" };
+// import patientData from "./dataon" assert { type: "json" };
 
 const fastify = Fastify({ logger: true });
 
