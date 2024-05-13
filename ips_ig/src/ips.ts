@@ -479,9 +479,20 @@ export const getResourcesFromRefs = async (
       const performerRef = resource.performer ? getRefs(resource.performer) : [];
       const partOfRef = resource.partOf ? getRefs(resource.partOf) : [];
       const hasMemberRef = resource.hasMember ? getRefs(resource.hasMember) : [];
+      const deviceRef = resource.device?.reference ? [resource.device?.reference] : [];
+      const medicationRef = resource.medicationReference?.reference
+        ? [resource.medicationReference?.reference]
+        : [];
       const resourceRef = `${resource.resourceType}/${resource.id}`;
       return {
-        refs: [...acc.refs, ...performerRef, ...partOfRef, ...hasMemberRef],
+        refs: [
+          ...acc.refs,
+          ...performerRef,
+          ...partOfRef,
+          ...hasMemberRef,
+          ...deviceRef,
+          ...medicationRef,
+        ],
         bundleResources: [...acc.bundleResources, resourceRef],
       };
     },

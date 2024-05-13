@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import assert from "node:assert";
 import { FastifyReply } from "fastify";
 import { Request } from "./types";
 import {
@@ -11,7 +12,8 @@ import { Patient } from "@aidbox/sdk-r4/types";
 
 const generateSummary = async ({ http, appConfig }: Request, patient: Patient) => {
   try {
-    const patientId = patient.id!!;
+    assert(patient.id, "Patient Id is required");
+    const patientId = patient.id;
     const { sections, bundleData }: any = await generateSections(http, patientId);
     const composition = createComposition(sections, patientId);
     const refResources = await getResourcesFromRefs(http, bundleData);

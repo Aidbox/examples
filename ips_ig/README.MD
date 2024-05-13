@@ -101,7 +101,7 @@ AIDBOX_FHIR_PACKAGES=hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0
 AIDBOX_VALIDATE_BINDING_URL="https://r4.ontoserver.csiro.au/fhir/ValueSet/\$validate-code"
 ```
 
-Also, it is possible to deploy Aidbox with [Helm charts](https://github.com/Aidbox/helm-charts/tree/main). To do so, follow the steps outlined below:
+It is possible to deploy Aidbox with [Helm charts](https://github.com/Aidbox/helm-charts/tree/main). To do so, follow the steps outlined below:
 
 ### 1. Add aidbox helm repo
 
