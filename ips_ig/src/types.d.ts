@@ -30,7 +30,7 @@ export type Request = FastifyRequest<{
       id: string;
     };
     request: {
-      params: {};
+      params: Record<string, string>;
       "route-params": Record<string, any>;
       headers: Record<string, any>;
       "oauth/user": Record<string, any>;

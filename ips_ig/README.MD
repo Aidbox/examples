@@ -61,6 +61,18 @@ For example:
 GET /fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary
 ```
 
+Or you can use request with `identifier` search parameter:
+
+```
+GET /fhir/Patient/$summary?identifier=<patient-identifier>
+```
+
+For example:
+
+```
+GET /fhir/Patient/$summary?identifier=574687583
+```
+
 ## Step 5: Request $summary using HTTP Client
 
 If you're starting the Aidbox FHIR server for the first time, the initial step involves creating a _Client_ resource with an ID and secret.

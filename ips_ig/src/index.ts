@@ -6,8 +6,6 @@ import { Config, Client, Request, Operations, HttpClient } from "./types.js";
 import { dispatch } from "./dispatch.js";
 import * as operations from "./operations.js";
 import { patientData } from "./patientData.js";
-// @ts-ignore
-// import patientData from "./data.json" assert { type: "json" };
 
 const fastify = Fastify({ logger: true });
 
