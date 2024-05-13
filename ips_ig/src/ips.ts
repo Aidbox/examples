@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { generateCompositionNarrative, generateSimpleNarrative } from "./narrative";
+import { generateCompositionNarrative, generateSimpleNarrative } from "./narrative.js";
 import {
   BundleEntry,
   HttpClient,

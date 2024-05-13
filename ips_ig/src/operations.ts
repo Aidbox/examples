@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { FastifyReply } from "fastify";
 import { Request } from "./types";
-import { generateSections, createComposition, addFullUrl } from "./ips";
+import { generateSections, createComposition, addFullUrl } from "./ips.js";
 
 export const patientSummary = {
   method: "GET",
