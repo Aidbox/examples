@@ -5,8 +5,9 @@ import { getConfig } from "./config.js";
 import { Config, Client, Request, Operations, HttpClient } from "./types.js";
 import { dispatch } from "./dispatch.js";
 import * as operations from "./operations.js";
+import { patientData } from "./patientData.js";
 // @ts-ignore
-import patientData from "./data.json" assert { type: "json" };
+// import patientData from "./data.json" assert { type: "json" };
 
 const fastify = Fastify({ logger: true });
 
@@ -138,7 +139,7 @@ const main = async () => {
         operations,
       },
     });
-    fastify.log.info("Upload Patient sample data");
+    fastify.log.info("Upload Patient sample data!");
     await http.post(``, {
       json: patientData,
       timeout: 100000,
