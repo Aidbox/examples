@@ -10,6 +10,8 @@ import {
 } from "./ips.js";
 import { Patient } from "@aidbox/sdk-r4/types";
 
+const getError = (error: any) => (error.response ? error.response : error);
+
 const generateSummary = async ({ http, appConfig }: Request, patient: Patient) => {
   try {
     assert(patient.id, "Patient Id is required");
@@ -40,7 +42,7 @@ const generateSummary = async ({ http, appConfig }: Request, patient: Patient) =
     };
   } catch (error: any) {
     console.log(error);
-    return error.response;
+    return getError(error);
   }
 };
 
@@ -58,7 +60,7 @@ export const patientSummary = {
       return reply.send(summary);
     } catch (error: any) {
       console.log(error);
-      return reply.send(error.response);
+      return reply.send(getError(error));
     }
   },
 };
@@ -99,7 +101,7 @@ export const patientSummarySearch = {
       return reply.send(summary);
     } catch (error: any) {
       console.log(error);
-      return reply.send(error.response);
+      return reply.send(getError(error));
     }
   },
 };
