@@ -5,6 +5,7 @@ A collection of example applications built on top of Aidbox FHIR platform
 ## App Examples
 
 - [Implementation of International Patient Summary Implementation Guide](/ips_ig)
+- [Aidbox Forms Builder with Flutter web](./aidbox-forms-flutter-web)
 
 
 ## Documentation
