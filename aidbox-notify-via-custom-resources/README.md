@@ -1,6 +1,6 @@
 # Aidbox Notify via Custom Resources
 
-In this example, we will implement a minimalistic JavaScript demo that describes the typical flow for notifications: requesting a notification, locking it for sending, and then sending it (placeholder).
+In this example, you can see the custom resources demonstration on the minimalistic JavaScript example project which implemented the typical flow for notifications: requesting a notification, locking it for sending, and then sending it (placeholder).
 
 Scenarios:
 
@@ -20,8 +20,6 @@ For that we define the following custom resources:
 1. Learn how to use [custom resources](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) via [FHIRSchema](https://github.com/fhir-schema/fhir-schema).
 2. Understand how to implement lock behavior via [FHIR condition update](https://build.fhir.org/http.html#cond-update).
 
-## TOC
-
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
@@ -38,7 +36,6 @@ For that we define the following custom resources:
             - [Get Notification to Send](#get-notification-to-send)
             - [Lock Notification for Sending](#lock-notification-for-sending)
             - [Send Notification (Placeholder)](#send-notification-placeholder)
-        - [To Do](#to-do)
 
 <!-- markdown-toc end -->
 
@@ -113,11 +110,6 @@ elements:
   status:
     type: string
     scalar: true
-    constraints:
-      cont-status:
-        human: "Status should be 'requested', 'in-progress' or 'completed'"
-        severity: "error"
-        expression: "status='requested' or status='in-progress'"
     binding:
       valueSet: "http://hl7.org/fhir/ValueSet/task-status"
       strength: required
@@ -139,14 +131,16 @@ elements:
 
 ### Search Parameters
 
-These search parameters allow us to make specific requests:
+For our example we need to perform the following request types:
 
 - `GET /fhir/TutorNotification?type=sms`
 - `GET /fhir/TutorNotification?status=requested`
 - `GET /fhir/TutorNotification?after=gt2024-06-12T12:00:00Z`
 - `GET /fhir/TutorNotification?_include=TutorNotification:template:TutorNotificationTemplate`
 - `GET /fhir/TutorNotification?_include=TutorNotification:subject:Patient`
-- In the example, we use a combination of all of them.
+- in the example, we use a combination of all of them.
+
+For them we need to create the following search parameters:
 
 ```yaml
 POST /fhir/SearchParameter
