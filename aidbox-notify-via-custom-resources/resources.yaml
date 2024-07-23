@@ -13,12 +13,6 @@ elements:
     type: string
     scalar: true
 
-# POST /TutorNotificationTemplate
-# id: welcome
-# resourceType: TutorNotificationTemplate
-# template: |
-#   Hello user name: {{patient.name.given}}
-
 ---
 
 id: TutorNotification
@@ -45,8 +39,12 @@ elements:
   status:
     type: string
     scalar: true
+    constraints:
+      cont-status:
+        human: "Status should be 'requested', 'in-progress' or 'completed'"
+        severity: "error"
+        expression: "%context='requested' or %context='in-progress' or %context='completed'"
     binding:
-      # TODO: constrains?
       valueSet: "http://hl7.org/fhir/ValueSet/task-status"
       strength: required
   template:
@@ -64,24 +62,21 @@ elements:
     scalar: true
     refers: ["Patient"]
 
+---
 
+resourceType: SearchParameter
+id: TutorNotification-type
+url: http://example.com/aidbox-sms-tutor/TutorNotification-type
+version: 0.0.1
+status: draft
 
-
-
-
-
-# POST /fhir/TutorNotification
-
-# type: sms
-# status: requested
-# template:
-#   reference: "TutorNotificationTemplate/welcome"
-# sendAfter: "2024-07-12T12:00:00Z"
-# subject:
-#   reference: "Patient/pt-1"
-
-#   GET /fhir/TutorNotification?_count=1&_include=subject
-
+name: type
+code: type
+base:
+  - TutorNotification
+type: token
+description: Search TutorNotification by type
+expression: TutorNotification.type
 
 ---
 
@@ -99,26 +94,6 @@ type: token
 description: Search TutorNotification by status
 expression: TutorNotification.status
 
-# GET  /fhir/TutorNotification?_count=1&status=requested
-
----
-
-resourceType: SearchParameter
-id: TutorNotification-type
-url: http://example.com/aidbox-sms-tutor/TutorNotification-type
-version: 0.0.1
-status: draft
-
-name: type
-code: type
-base:
-  - TutorNotification
-type: token
-description: Search TutorNotification by type
-expression: TutorNotification.type
-
-# GET  /fhir/TutorNotification?_count=1&type=sms
-
 ---
 
 resourceType: SearchParameter
@@ -134,8 +109,6 @@ base:
 type: date
 description: Search TutorNotification by sendAfter
 expression: TutorNotification.sendAfter
-
-# GET  /fhir/TutorNotification?_count=1&after=gt2024-06-12T12:00:00Z
 
 ---
 
@@ -153,8 +126,6 @@ type: reference
 description: Search TutorNotification by subject
 expression: TutorNotification.subject
 
-# GET  /fhir/TutorNotification?_count=1&after=gt2024-06-12T12:00:00Z
-
 ---
 
 resourceType: SearchParameter
@@ -171,33 +142,18 @@ type: reference
 description: Search TutorNotification by template
 expression: TutorNotification.template
 
-# GET  /TutorNotification?_count=1&_include=TutorNotification:template:TutorNotificationTemplate
+---
 
+id: welcome
+resourceType: TutorNotificationTemplate
+template: |
+  Hello user name: {{patient.name.given}}
 
+---
 
-# GET  /fhir/TutorNotification?_count=1&_include=TutorNotification:subject:Patient&_include=TutorNotification:template:TutorNotificationTemplate
-
-
-# GET  /fhir/TutorNotification?_count=1&type=sms&status=requested&after=gt2024-06-12T12:00:00Z
-
-
-
-# extension:
-#   - url: http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status
-#     valueCode: trial-use
-# experimental: true
-# date: "2023-03-26T15:21:02+11:00"
-# publisher: Health Level Seven International (Patient Administration)
-# contact:
-#   - telecom:
-#       - system: url
-#         value: http://hl7.org/fhir
-#   - telecom:
-#       - system: url
-#         value: http://www.hl7.org/Special/committees/pafm/index.cfm
-# jurisdiction:
-#   - coding:
-#       - system: http://unstats.un.org/unsd/methods/m49/m49.htm
-#         code: "001"
-#         display: World
-# processingMode: normal
+id: pt-1
+name:
+- given:
+  - James
+  family: Morgan
+resourceType: Patient

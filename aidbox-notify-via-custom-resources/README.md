@@ -63,7 +63,7 @@ To run the example, clone the repository and open the `index.html` file in your 
 In Aidbox REST Console:
 
 ```yaml
-POST /FHIRSchema
+POST /fhir/FHIRSchema
 content-type: text/yaml
 accept: text/yaml
 
@@ -84,7 +84,7 @@ elements:
 ```
 
 ```yaml
-POST /FHIRSchema
+POST /fhir/FHIRSchema
 content-type: text/yaml
 accept: text/yaml
 
@@ -112,6 +112,11 @@ elements:
   status:
     type: string
     scalar: true
+    constraints:
+      cont-status:
+        human: "Status should be 'requested', 'in-progress' or 'completed'"
+        severity: "error"
+        expression: "%context='requested' or %context='in-progress' or %context='completed'"
     binding:
       valueSet: "http://hl7.org/fhir/ValueSet/task-status"
       strength: required
@@ -130,6 +135,8 @@ elements:
     scalar: true
     refers: ["Patient"]
 ```
+
+Here we use the standard task status value set ([link](https://hl7.org/fhir/valueset-task-status.html)) for `TutorNotification.status`, but it contains too many codes, so we restrict them via the element-specific constraint.
 
 ### Search Parameters
 

@@ -76,6 +76,15 @@ window.bootstrap = async () => {
               valueSet: "http://hl7.org/fhir/ValueSet/task-status",
               strength: "required",
             },
+            constraints: {
+              "cont-status": {
+                human:
+                  "Status should be 'requested', 'in-progress' or 'completed'",
+                severity: "error",
+                expression:
+                  "%context='requested' or %context='in-progress' or %context='completed'",
+              },
+            },
           },
           template: {
             type: "Reference",
