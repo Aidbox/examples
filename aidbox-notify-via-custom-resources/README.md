@@ -17,7 +17,7 @@ For that we define the following custom resources:
 
 ## Objectives
 
-1. Learn how to use [custom resources](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema) via [FHIRSchema](https://github.com/fhir-schema/fhir-schema).
+1. Learn how to use [custom resources](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) via [FHIRSchema](https://github.com/fhir-schema/fhir-schema).
 2. Understand how to implement lock behavior via [FHIR condition update](https://build.fhir.org/http.html#cond-update).
 
 ## TOC
@@ -44,8 +44,8 @@ For that we define the following custom resources:
 
 ## Prerequisites
 
-- A running instance of Aidbox: [Run Aidbox locally](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally)
-- Basic authentication setup: [Basic Auth](https://docs.aidbox.app/modules-1/security-and-access-control/auth/basic-auth)
+- A running instance of Aidbox: [Run Aidbox locally](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo)
+- Basic authentication setup: [Basic Auth](https://docs.aidbox.app/modules-1/security-and-access-control/auth/basic-auth?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo)
 
 ## Setup Aidbox
 
@@ -53,7 +53,7 @@ Before starting the example, you need to:
 
 - Define custom resources
 - Define search parameters
-- Define initial data
+- Load initial data
 
 You can do this manually or via a bootstrap inside the example.
 
@@ -139,7 +139,7 @@ elements:
 
 ### Search Parameters
 
-By default, custom resources don't support search parameters via FHIR Path. These search parameters allow us to make specific requests:
+These search parameters allow us to make specific requests:
 
 - `GET /fhir/TutorNotification?type=sms`
 - `GET /fhir/TutorNotification?status=requested`

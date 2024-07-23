@@ -1,6 +1,6 @@
 # BedaEMR
 
-Runs on [Aidbox FHIR platform](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker)
+Runs on [Aidbox FHIR platform](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo)
 
 Clean and powerful frontend for Electronic Medical Records.
 

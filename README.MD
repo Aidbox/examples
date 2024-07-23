@@ -5,10 +5,10 @@ A collection of example applications built on top of Aidbox FHIR platform
 ## App Examples
 
 - [Implementation of International Patient Summary Implementation Guide](/ips_ig)
-- [Aidbox Forms Builder with Flutter web](./aidbox-forms-flutter-web)
-- [Aidbox Forms Builder with Angular.js](aidbox-forms-angular)
-- [Aidbox Forms Builder with Angular.js (controlled mode)](aidbox-forms-angular-controlled)
-- [Aidbox Notify via Custom Resources](aidbox-notify-via-custom-resources)
+- [Aidbox Forms Builder with Flutter web](/aidbox-forms-flutter-web)
+- [Aidbox Forms Builder with Angular.js](/aidbox-forms-angular)
+- [Aidbox Forms Builder with Angular.js (controlled mode)](/aidbox-forms-angular-controlled)
+- [Aidbox Notify via Custom Resources](/aidbox-notify-via-custom-resources)
 
 ## Documentation
 
