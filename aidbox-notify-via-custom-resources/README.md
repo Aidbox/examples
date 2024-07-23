@@ -54,7 +54,7 @@ Before starting the example, you need to:
 
 You can do this manually or via a bootstrap inside the example.
 
-To run the example, clone the repository and open the `index.html` file in your browser.
+To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/).
 
 ### FHIRSchema for Custom Resources
 
@@ -272,7 +272,7 @@ resourceType: Patient
 
 This section explains the technical details of the notification workflow, including how each step works and what is expected at each stage.
 
-To run the example, clone the repository and open the `index.html` file in your browser.
+To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/).
 
 #### Request Notification to Send
 

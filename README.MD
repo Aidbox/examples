@@ -8,7 +8,7 @@ A collection of example applications built on top of Aidbox FHIR platform
 - [Aidbox Forms Builder with Flutter web](/aidbox-forms-flutter-web)
 - [Aidbox Forms Builder with Angular.js](/aidbox-forms-angular)
 - [Aidbox Forms Builder with Angular.js (controlled mode)](/aidbox-forms-angular-controlled)
-- [Aidbox Notify via Custom Resources](/aidbox-notify-via-custom-resources)
+- [Aidbox Notify via Custom Resources](/aidbox-notify-via-custom-resources) ([demo](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/))
 
 ## Documentation
 
