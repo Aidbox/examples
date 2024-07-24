@@ -104,6 +104,12 @@ window.bootstrap = async () => {
             scalar: true,
             refers: ["Patient"],
           },
+          templateParameters: {
+            scalar: true,
+            additionalProperties: {
+              type: "string",
+            },
+          },
         },
       },
     },
@@ -198,7 +204,7 @@ window.bootstrap = async () => {
       data: {
         id: "welcome",
         resourceType: "TutorNotificationTemplate",
-        template: "Hello user name: {{patient.name.given}}",
+        template: "Hello user name: {{patientName}}",
       },
     },
     // Initial data: Patient

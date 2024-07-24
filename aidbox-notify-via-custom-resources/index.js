@@ -11,10 +11,21 @@ window.token = () => {
 };
 
 window.updateCurrentNotification = (notification, patient, template) => {
+  if (notification === undefined) {
+    return (document.getElementById("notification").innerHTML = "");
+  }
   window.notification = notification;
   window.patient = patient;
   window.template = template;
-  const html = `id: ${notification.id}\n    ${patient.name[0].given[0]} - ${notification.type} - ${notification.status} - ${notification.sendAfter}\n    template: ${template.template}\n    message: ${template.message}`;
+  const html = [
+    `id: ${notification.id}`,
+    `    ${patient.name[0].given[0]} - ${notification.type} - ${notification.status} - ${notification.sendAfter}`,
+    `    template: ${template.template}`,
+    `    templateParameters: ${JSON.stringify(
+      notification.templateParameters,
+    )}`,
+    `    message: ${notification.message}`,
+  ].join("\n");
   document.getElementById("notification").innerHTML = html;
 };
 
@@ -81,6 +92,7 @@ window.getNotification = async () => {
 
   const json = await response.json();
   if (!json.entry || json.entry.length === 0) {
+    updateCurrentNotification();
     return window.log(
       "No requested sms notifications found. Request one first.",
     );
@@ -151,15 +163,17 @@ window.sendNotification = async () => {
 
   ////////////////////////////////////////////////////////////
   // Place for implementation of sending SMS
+  const templateParameters = { patientName: window.patient.name[0].given[0] };
   const message = window.template.template.replace(
-    "{{patient.name.given}}",
-    window.patient.name[0].given[0],
+    "{{patientName}}",
+    templateParameters.patientName,
   );
 
   const notification = {
     ...window.notification,
     status: "completed",
     message: message,
+    templateParameters: templateParameters,
   };
 
   alert("Send SMS:\n\n" + notification.message);

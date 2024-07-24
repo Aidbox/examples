@@ -20,6 +20,8 @@ For that we define the following custom resources:
 ## Objectives
 
 1. Learn how to use [custom resources](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) via [FHIRSchema](https://github.com/fhir-schema/fhir-schema).
+    - How to use existing value set with additional constraints as element type.
+    - How to use FHIRSchema extension for additional properties.
 2. Understand how to implement lock behavior via [FHIR condition update](https://build.fhir.org/http.html#cond-update).
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
@@ -27,7 +29,6 @@ For that we define the following custom resources:
 
 - [Aidbox Notify via Custom Resources](#aidbox-notify-via-custom-resources)
     - [Objectives](#objectives)
-    - [TOC](#toc)
     - [Prerequisites](#prerequisites)
     - [Setup Aidbox](#setup-aidbox)
         - [FHIRSchema for Custom Resources](#fhirschema-for-custom-resources)
@@ -95,6 +96,7 @@ type: TutorNotification
 name: TutorNotification
 base: DomainResource
 kind: resource
+ALLOW_FHIR_SCHEMA_FHIR_INCOMPATIBLE_EXTENSIONS: true
 derivation: specialization
 required:
   - sendAfter
@@ -134,9 +136,16 @@ elements:
     type: Reference
     scalar: true
     refers: ["Patient"]
+  templateParameters:
+    scalar: true
+    additionalProperties:
+      type: string
 ```
 
-Here we use the standard task status value set ([link](https://hl7.org/fhir/valueset-task-status.html)) for `TutorNotification.status`, but it contains too many codes, so we restrict them via the element-specific constraint.
+In this FHIRShema:
+
+- Here we use the standard task status value set ([link](https://hl7.org/fhir/valueset-task-status.html)) for `TutorNotification.status`, but it contains too many codes, so we restrict them via the element-specific constraint.
+- Also, we use [additionalProperties FHIRSchema extensions](https://fhir-schema.github.io/fhir-schema/reference/extensions.html#additionalproperties?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) which is <u>FHIR incompatible</u> but allows us to put all template parameters in TutorNotification resource.
 
 ### Search Parameters
 
