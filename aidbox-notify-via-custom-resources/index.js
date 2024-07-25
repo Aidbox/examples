@@ -56,7 +56,10 @@ window.requestNotification = async () => {
     body: JSON.stringify(notification),
   });
   if (!response.ok) {
-    return alert("Error: " + response.status + " " + response.statusText);
+    const json = await response.json();
+    return alert(
+      "Error: " + response.status + " " + JSON.stringify(json.text.div),
+    );
   }
 
   const json = await response.json();
@@ -87,7 +90,10 @@ window.getNotification = async () => {
     },
   });
   if (!response.ok) {
-    return alert("Error: " + response.status + " " + response.statusText);
+    const json = await response.json();
+    return alert(
+      "Error: " + response.status + " " + JSON.stringify(json.text.div),
+    );
   }
 
   const json = await response.json();
@@ -99,10 +105,16 @@ window.getNotification = async () => {
   }
   const resources = json.entry.map((entry) => entry.resource);
   const {
-    Patient: patients,
     TutorNotification: notifications,
+    Patient: patients,
     TutorNotificationTemplate: templates,
   } = Object.groupBy(resources, (e) => e.resourceType);
+
+  if (!notifications || !patients || !templates) {
+    return window.log(
+      `Notification looks incomplete. Delete it: ${notifications[0].id}`,
+    );
+  }
 
   const notification = notifications[0];
   const patient = patients[0];
@@ -145,7 +157,10 @@ window.lockNotification = async () => {
   console.log("Lock notification for processing");
 
   if (!response.ok) {
-    return alert("Error: " + response.status + " " + response.statusText);
+    const json = await response.json();
+    return alert(
+      "Error: " + response.status + " " + JSON.stringify(json.text.div),
+    );
   }
   window.log("Lock notification: " + notification.id);
 };
@@ -189,7 +204,10 @@ window.sendNotification = async () => {
   });
 
   if (!response.ok) {
-    return alert("Error: " + response.status + " " + response.statusText);
+    const json = await response.json();
+    return alert(
+      "Error: " + response.status + " " + JSON.stringify(json.text.div),
+    );
   }
 
   window.updateCurrentNotification(
