@@ -63,83 +63,104 @@ To run the example, clone the repository and open the `index.html` file in your 
 
 In Aidbox REST Console:
 
-```yaml
+```json
 POST /fhir/FHIRSchema
-content-type: text/yaml
-accept: text/yaml
 
-id: TutorNotificationTemplate
-resourceType: FHIRSchema
-url: "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
-type: TutorNotificationTemplate
-name: TutorNotificationTemplate
-base: DomainResource
-kind: resource
-derivation: specialization
-required:
-  - template
-elements:
-  template:
-    type: string
-    scalar: true
+{
+  "id": "TutorNotificationTemplate",
+  "resourceType": "FHIRSchema",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate",
+  "type": "TutorNotificationTemplate",
+  "name": "TutorNotificationTemplate",
+  "base": "DomainResource",
+  "kind": "resource",
+  "derivation": "specialization",
+  "required": [
+    "template"
+  ],
+  "elements": {
+    "template": {
+      "type": "string",
+      "scalar": true
+    }
+  }
+}
 ```
 
-```yaml
+```json
 POST /fhir/FHIRSchema
-content-type: text/yaml
-accept: text/yaml
 
-id: TutorNotification
-resourceType: FHIRSchema
-url: "http://example.com/aidbox-sms-tutor/TutorNotification"
-type: TutorNotification
-name: TutorNotification
-base: DomainResource
-kind: resource
-ALLOW_FHIR_SCHEMA_FHIR_INCOMPATIBLE_EXTENSIONS: true
-derivation: specialization
-required:
-  - sendAfter
-  - status
-  - subject
-  - template
-  - type
-elements:
-  type:
-    type: string
-    scalar: true
-    binding:
-      valueSet: "http://hl7.org/fhir/ValueSet/contact-point-system"
-      strength: required
-  status:
-    type: string
-    scalar: true
-    constraints:
-      cont-status:
-        human: "Status should be 'requested', 'in-progress' or 'completed'"
-        severity: "error"
-        expression: "%context='requested' or %context='in-progress' or %context='completed'"
-    binding:
-      valueSet: "http://hl7.org/fhir/ValueSet/task-status"
-      strength: required
-  template:
-    type: Reference
-    scalar: true
-    refers: ["TutorNotificationTemplate"]
-  message:
-    type: string
-    scalar: true
-  sendAfter:
-    type: dateTime
-    scalar: true
-  subject:
-    type: Reference
-    scalar: true
-    refers: ["Patient"]
-  templateParameters:
-    scalar: true
-    additionalProperties:
-      type: string
+{
+  "id": "TutorNotification",
+  "resourceType": "FHIRSchema",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotification",
+  "type": "TutorNotification",
+  "name": "TutorNotification",
+  "base": "DomainResource",
+  "kind": "resource",
+  "ALLOW_FHIR_SCHEMA_FHIR_INCOMPATIBLE_EXTENSIONS": true,
+  "derivation": "specialization",
+  "required": [
+    "sendAfter",
+    "status",
+    "subject",
+    "template",
+    "type"
+  ],
+  "elements": {
+    "type": {
+      "type": "string",
+      "scalar": true,
+      "binding": {
+        "valueSet": "http://hl7.org/fhir/ValueSet/contact-point-system",
+        "strength": "required"
+      }
+    },
+    "status": {
+      "type": "string",
+      "scalar": true,
+      "constraints": {
+        "cont-status": {
+          "human": "Status should be 'requested', 'in-progress' or 'completed'",
+          "severity": "error",
+          "expression": "%context='requested' or %context='in-progress' or %context='completed'"
+        }
+      },
+      "binding": {
+        "valueSet": "http://hl7.org/fhir/ValueSet/task-status",
+        "strength": "required"
+      }
+    },
+    "template": {
+      "type": "Reference",
+      "scalar": true,
+      "refers": [
+        "TutorNotificationTemplate"
+      ]
+    },
+    "message": {
+      "type": "string",
+      "scalar": true
+    },
+    "sendAfter": {
+      "type": "dateTime",
+      "scalar": true
+    },
+    "subject": {
+      "type": "Reference",
+      "scalar": true,
+      "refers": [
+        "Patient"
+      ]
+    },
+    "templateParameters": {
+      "scalar": true,
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}
 ```
 
 In this FHIRShema:
@@ -160,130 +181,133 @@ For our example we need to perform the following request types:
 
 For them we need to create the following search parameters:
 
-```yaml
+```json
 POST /fhir/SearchParameter
-content-type: text/yaml
-accept: text/yaml
 
-resourceType: SearchParameter
-id: TutorNotification-type
-url: http://example.com/aidbox-sms-tutor/TutorNotification-type
-version: 0.0.1
-status: draft
-
-name: type
-code: type
-base:
-  - TutorNotification
-type: token
-description: Search TutorNotification by type
-expression: TutorNotification.type
+{
+  "resourceType": "SearchParameter",
+  "id": "TutorNotification-type",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotification-type",
+  "version": "0.0.1",
+  "status": "draft",
+  "name": "type",
+  "code": "type",
+  "base": [
+    "TutorNotification"
+  ],
+  "type": "token",
+  "description": "Search TutorNotification by type",
+  "expression": "TutorNotification.type"
+}
 ```
 
-```yaml
+```json
 POST /fhir/SearchParameter
-content-type: text/yaml
-accept: text/yaml
 
-resourceType: SearchParameter
-id: TutorNotification-status
-url: http://example.com/aidbox-sms-tutor/TutorNotification-status
-version: 0.0.1
-status: draft
-
-name: status
-code: status
-base:
-  - TutorNotification
-type: token
-description: Search TutorNotification by status
-expression: TutorNotification.status
+{
+  "resourceType": "SearchParameter",
+  "id": "TutorNotification-status",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotification-status",
+  "version": "0.0.1",
+  "status": "draft",
+  "name": "status",
+  "code": "status",
+  "base": [
+    "TutorNotification"
+  ],
+  "type": "token",
+  "description": "Search TutorNotification by status",
+  "expression": "TutorNotification.status"
+}
 ```
 
-```yaml
+```json
 POST /fhir/SearchParameter
-content-type: text/yaml
-accept: text/yaml
 
-resourceType: SearchParameter
-id: TutorNotification-after
-url: http://example.com/aidbox-sms-tutor/TutorNotification-after
-version: 0.0.1
-status: draft
-
-name: after
-code: after
-base:
-  - TutorNotification
-type: date
-description: Search TutorNotification by sendAfter
-expression: TutorNotification.sendAfter
+{
+  "resourceType": "SearchParameter",
+  "id": "TutorNotification-after",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotification-after",
+  "version": "0.0.1",
+  "status": "draft",
+  "name": "after",
+  "code": "after",
+  "base": [
+    "TutorNotification"
+  ],
+  "type": "date",
+  "description": "Search TutorNotification by sendAfter",
+  "expression": "TutorNotification.sendAfter"
+}
 ```
 
-```yaml
+```json
 POST /fhir/SearchParameter
-content-type: text/yaml
-accept: text/yaml
 
-resourceType: SearchParameter
-id: TutorNotification-subject
-url: http://example.com/aidbox-sms-tutor/TutorNotification-subject
-version: 0.0.1
-status: draft
-
-name: subject
-code: subject
-base:
-  - TutorNotification
-type: reference
-description: Search TutorNotification by subject
-expression: TutorNotification.subject
+{
+  "resourceType": "SearchParameter",
+  "id": "TutorNotification-subject",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotification-subject",
+  "version": "0.0.1",
+  "status": "draft",
+  "name": "subject",
+  "code": "subject",
+  "base": [
+    "TutorNotification"
+  ],
+  "type": "reference",
+  "description": "Search TutorNotification by subject",
+  "expression": "TutorNotification.subject"
+}
 ```
 
-```yaml
+```json
 POST /fhir/SearchParameter
-content-type: text/yaml
-accept: text/yaml
 
-resourceType: SearchParameter
-id: TutorNotification-template
-url: http://example.com/aidbox-sms-tutor/TutorNotification-template
-version: 0.0.1
-status: draft
-
-name: template
-code: template
-base:
-  - TutorNotification
-type: reference
-description: Search TutorNotification by template
-expression: TutorNotification.template
+{
+  "resourceType": "SearchParameter",
+  "id": "TutorNotification-template",
+  "url": "http://example.com/aidbox-sms-tutor/TutorNotification-template",
+  "version": "0.0.1",
+  "status": "draft",
+  "name": "template",
+  "code": "template",
+  "base": [
+    "TutorNotification"
+  ],
+  "type": "reference",
+  "description": "Search TutorNotification by template",
+  "expression": "TutorNotification.template"
+}
 ```
 
 ### Initial Data
 
-```yaml
+```json
 POST /fhir/TutorNotificationTemplate
-content-type: text/yaml
-accept: text/yaml
 
-id: welcome
-resourceType: TutorNotificationTemplate
-template: |
-  Hello user name: {{patient.name.given}}
+{
+  "id": "welcome",
+  "resourceType": "TutorNotificationTemplate",
+  "template": "Hello user name: {{patient.name.given}}\n"
+}
 ```
 
-```yaml
+```json
 POST /fhir/Patient
-content-type: text/yaml
-accept: text/yaml
 
-id: pt-1
-name:
-- given:
-  - James
-  family: Morgan
-resourceType: Patient
+{
+  "id": "pt-1",
+  "name": [
+    {
+      "given": [
+        "James"
+      ],
+      "family": "Morgan"
+    }
+  ],
+  "resourceType": "Patient"
+}
 ```
 
 ### Notification Workflow
