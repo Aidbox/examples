@@ -58,6 +58,7 @@ window.bootstrap = async () => {
         name: "TutorNotification",
         base: "DomainResource",
         kind: "resource",
+        ALLOW_FHIR_SCHEMA_FHIR_INCOMPATIBLE_EXTENSIONS: true,
         derivation: "specialization",
         required: ["sendAfter", "status", "subject", "template", "type"],
         elements: {
