@@ -6,7 +6,7 @@ This repository contains pre-configured Aidbox instance and implementation of `$
 
 ## About IPS (International Patient Summary)
 
-The IPS is intended to support the provision of essential healthcare information for a patient, regardless of where they are receiving care. It includes critical information such as allergies, medications, past surgeries, and other significant medical history details. [IPS Specification](https://build.fhir.org/ig/HL7/fhir-ips/index.html)
+The IPS is intended to support the provision of essential healthcare information for a patient, regardless of where they are receiving care. It includes critical information such as allergies, medications, past surgeries, and other significant medical history details. See [IPS Specification](https://build.fhir.org/ig/HL7/fhir-ips/index.html)
 
 ## Prerequisites
 
@@ -14,13 +14,15 @@ The IPS is intended to support the provision of essential healthcare information
 
 ## STEP 1: Environment and Aidbox license
 
-Copy `.env.tpl` file into `.env` file and add `AIDBOX_LICENSE` key
+Copy `.env.tpl` file into `.env` file:
 
 ```shell
 cp .env.tpl .env
 ```
 
-If you are hosting Aidbox on your local computer, obtain the self-hosted trial license as described in the documentation - https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker.
+If you are hosting Aidbox on your local computer, obtain the self-hosted license as described in the [documentation](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker).
+
+Add the license (`AIDBOX_LICENSE`) int the .env file.
 
 ## STEP 2: Run aidbox and node-app in Docker
 
@@ -28,13 +30,13 @@ If you are hosting Aidbox on your local computer, obtain the self-hosted trial l
 docker compose up --build
 ```
 
-On start, the node-app will [upload](./src/index.ts#L142) a sample [bundle](./src/data.json) with patient data.
+On start, the node-app will [upload](./src/index.ts#L142) a sample FHIR [Bundle](./src/patientData.ts) with patient data.
 
 ## Step 3: Open and log in into Aidbox instance
 
-Opein in browser http://localhost:8888
+Open in browser http://localhost:8888
 
-And loging witn login: `admin` and password: `password`
+And log in witn username: `admin` and password: `password`
 
 ## Step 4: Request $summary using REST Console
 
