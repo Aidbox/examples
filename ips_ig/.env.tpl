@@ -14,7 +14,7 @@ PGUSER=postgres
 PGPASSWORD=postgres
 PGDATABASE=aidbox
 
-AIDBOX_BASE_URL=http://host.docker.internal:8888
+AIDBOX_BASE_URL=http://aidbox:8888
 AIDBOX_PORT=8888
 
 AIDBOX_CLIENT_SECRET=secret
