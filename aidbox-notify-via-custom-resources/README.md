@@ -1,6 +1,6 @@
 # Aidbox Notify via Custom Resources
 
-[DEMO](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIRSchema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)
+[DEMO](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)
 
 In this example, you can see the custom resources demonstration on the minimalistic JavaScript example project which implemented the typical flow for notifications: requesting a notification, locking it for sending, and then sending it (placeholder).
 
@@ -19,9 +19,9 @@ For that we define the following custom resources:
 
 ## Objectives
 
-1. Learn how to use [custom resources](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) via [FHIRSchema](https://github.com/fhir-schema/fhir-schema).
+1. Learn how to use [custom resources](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) via [FHIR Schema](https://github.com/fhir-schema/fhir-schema).
     - How to use existing value set with additional constraints as element type.
-    - How to use FHIRSchema extension for additional properties.
+    - How to use FHIR Schema extension for additional properties.
 2. Understand how to implement lock behavior via [FHIR condition update](https://build.fhir.org/http.html#cond-update).
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
@@ -31,7 +31,7 @@ For that we define the following custom resources:
     - [Objectives](#objectives)
     - [Prerequisites](#prerequisites)
     - [Setup Aidbox](#setup-aidbox)
-        - [FHIRSchema for Custom Resources](#fhirschema-for-custom-resources)
+        - [FHIR Schema for Custom Resources](#fhir-schema-for-custom-resources)
         - [Search Parameters](#search-parameters)
         - [Initial Data](#initial-data)
         - [Notification Workflow](#notification-workflow)
@@ -59,7 +59,7 @@ You can do this manually or via a bootstrap inside the example.
 
 To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/).
 
-### FHIRSchema for Custom Resources
+### FHIR Schema for Custom Resources
 
 In Aidbox REST Console:
 
@@ -166,7 +166,7 @@ POST /fhir/FHIRSchema
 In this FHIRShema:
 
 - Here we use the standard task status value set ([link](https://hl7.org/fhir/valueset-task-status.html)) for `TutorNotification.status`, but it contains too many codes, so we restrict them via the element-specific constraint.
-- Also, we use [additionalProperties FHIRSchema extensions](https://fhir-schema.github.io/fhir-schema/reference/extensions.html#additionalproperties?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) which is <u>FHIR incompatible</u> but allows us to put all template parameters in TutorNotification resource.
+- Also, we use [additionalProperties FHIR Schema extensions](https://fhir-schema.github.io/fhir-schema/reference/extensions.html#additionalproperties?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) which is <u>FHIR incompatible</u> but allows us to put all template parameters in TutorNotification resource.
 
 ### Search Parameters
 
