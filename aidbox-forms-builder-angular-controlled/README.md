@@ -1,4 +1,4 @@
-# aidbox-forms-angular-controlled
+# aidbox-forms-builder-angular-controlled
 
 In controlled mode, integrating the Aidbox Forms Builder with Angular.js
 involves passing the editing questionnaire as an attribute to the Forms
@@ -28,6 +28,7 @@ management.
 ## Available attributes
 * `base-url` - optional, base url of your Aidbox instance, default is https://form-builder.aidbox.app
 * `style` - optional, style of the underlying iframe
+* `token` - optional, JWT token to authenticate the user
 * `value` - required, questionnaire as a JSON string
 * `hide-back` - optional, hide back button
 * `hide-publish` - optional, hide publish button

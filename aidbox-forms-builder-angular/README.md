@@ -1,4 +1,4 @@
-# aidbox-forms-angular
+# aidbox-forms-builder-angular
 
 Example of integration Aidbox Forms Builder with Angular.js
 
@@ -15,9 +15,10 @@ Example of integration Aidbox Forms Builder with Angular.js
 ```
 
 ## Available attributes
-* `base-url` - optional, base url of your Aidbox instance, default is https://form-builder.aidbox.app
+* `base-url` - optional, base url of your Aidbox instance, default is the url of Aidbox instance the script is loaded from
 * `style` - optional, style of the underlying iframe
-* `form-id` - required, id of the form to load
+* `token` - optional, JWT token to authenticate the user
+* `form-id` - optional, id of the form to load, if not provided, builder will be opened with a blank form
 * `hide-back` - optional, hide back button
 * `hide-publish` - optional, hide publish button
 * `hide-save` - optional, hide save button
