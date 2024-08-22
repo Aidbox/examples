@@ -1,6 +1,6 @@
 # [WIP] Dynamic SubscriptionTopic with destinations
 
-It is a demo of Aidbox SubscriptionTopic with Kafka.
+It is a demo of [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) with Kafka.
 
 ## Prerequisites
 
