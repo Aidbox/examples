@@ -22,7 +22,7 @@ management.
 ```
 
 ## Available attributes
-* `base-url` - optional, base url of your Aidbox instance, default is https://form-builder.aidbox.app
+* `base-url` - optional, base url of your Aidbox instance, default is the url of Aidbox instance the script is loaded from
 * `style` - optional, style of the underlying iframe
 * `token` - optional, JWT token to authenticate the user
 * `questionnaire` - required, questionnaire as a JSON string

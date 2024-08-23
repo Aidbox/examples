@@ -8,7 +8,6 @@ Example of integration Aidbox Forms Renderer with Angular.js
 <aidbox-form-renderer
   style="width: 100%; border: none; align-self: stretch; display: flex"
   questionnaire-id="{{ id }}"
-  base-url="https://form-builder.aidbox.app"
 >
 </aidbox-form-renderer>
 ```
