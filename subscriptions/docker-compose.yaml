@@ -46,7 +46,7 @@ services:
       "
       kafka-topics --bootstrap-server kafka:29092 --list
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic my-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-forms --replication-factor 1 --partitions 1
       echo -e 'Created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
       "
