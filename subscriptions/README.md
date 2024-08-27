@@ -111,7 +111,7 @@ accept: application/json
     },
     {
       "name": "bootstrap.servers",
-      "valueString": "localhost:9092"
+      "valueString": "kafka:29092"
     }
   ]
 }
@@ -125,7 +125,7 @@ Create a Kafka Topic named aidbox-forms. If you used our Docker Compose file, th
 
 ### Submit form
 
-Open [Depression form](http://localhost:8888/ui/sdc#/questionnaire-response/depression-form), fill it out, and submit it.
+Open [list of forms](http://localhost:8888/ui/sdc#/), click `share` -> click `attach` -> copy the link -> open the link -> fill the form out, and submit it.
 
 ### Check TopicDestination status
 
