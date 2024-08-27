@@ -2,6 +2,34 @@
 
 This is a demo of [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) integrated with Kafka.
 
+In this example we demonstrate how you can create standard FHIR questionnaire, collecting data from users via web form and receives all responses to the Kafka topic.
+
+Objectives:
+
+1. How to up and running Aidbox and Kafka locally via docker compose.
+1. Learn how to collect user answers for **FHIR Questionnaire** via [Aidbox Forms](https://docs.aidbox.app/modules-1/aidbox-forms).
+1. Learn how [SubscriptionTopic and TopicDestination](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) works with Kafka.
+
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [[WIP] Aidbox SubscriptionTopic with Kafka](#wip-aidbox-subscriptiontopic-with-kafka)
+    - [Prerequisites](#prerequisites)
+    - [Step 1: Set Up the Environment](#step-1-set-up-the-environment)
+        - [Set Up Aidbox](#set-up-aidbox)
+        - [Run Aidbox, Kafka & Kafka UI](#run-aidbox-kafka--kafka-ui)
+    - [STEP 2: Set up Subscription and Destination](#step-2-set-up-subscription-and-destination)
+        - [Create AidboxSubscriptionTopic resource](#create-aidboxsubscriptiontopic-resource)
+        - [Create TopicDestination resource](#create-topicdestination-resource)
+        - [Create Kafka Topic](#create-kafka-topic)
+    - [STEP 3: Feature demonstration](#step-3-feature-demonstration)
+        - [Submit form](#submit-form)
+        - [Check TopicDestination status](#check-topicdestination-status)
+        - [See messages in Kafka UI](#see-messages-in-kafka-ui)
+
+<!-- markdown-toc end -->
+
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
@@ -23,7 +51,7 @@ Add the license key (AIDBOX_LICENSE) to the .env file.
 ### Run Aidbox, Kafka & Kafka UI
 
 ```shell
-docker compose up 
+docker compose up
 ```
 
 - Aidbox will be available on <http://localhost:8888/>
@@ -31,6 +59,11 @@ docker compose up
   - Password: `password`
 - Kafka UI will be available on <http://localhost:8080/>
 - Kafka will be available on `http://localhost:9092/`
+
+Additionally, the docker compose file makes initial setup for Kafka and Aidbox:
+
+- Import FHIR Questionnaire description and create from (see `init-aidbox` service).
+- Create Kafka topic for QuestionnaireResponse-s (see `init-kafka` service).
 
 ## STEP 2: Set up Subscription and Destination
 
@@ -63,6 +96,11 @@ content-type: application/json
 accept: application/json
 
 {
+  "meta": {
+    "profile": [
+      "http://fhir.aidbox.app/StructureDefinition/TopicDestinationKafka"
+    ]
+  },
   "kind": "kafka",
   "id": "kafka-destination",
   "topic": "http://example.org/FHIR/R5/SubscriptionTopic/QuestionnaireResponse-topic",
@@ -80,7 +118,7 @@ accept: application/json
 ```
 
 ### Create Kafka Topic
- 
+
 Create a Kafka Topic named aidbox-forms. If you used our Docker Compose file, the Kafka topic should be created automatically.
 
 ## STEP 3: Feature demonstration
@@ -97,9 +135,6 @@ Open back Aidbox [REST Console](http://localhost:8888/ui/console#/rest) and get 
 GET /fhir/TopicDestination/kafka-destination/$status
 ```
 
-### See messages in Kafka UI  
+### See messages in Kafka UI
 
 Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-forms` -> `messages` and review the QuestionnaireResponse that was created after submitting the depression form.
-
-
-

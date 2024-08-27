@@ -1,35 +1,28 @@
 version: '3.8'
 
 services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-
   kafka:
-    image: confluentinc/cp-kafka:latest
-    container_name: kafka
+    image: apache/kafka:latest
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS:                      LISTENER_INSIDE://0.0.0.0:29092, LISTENER_OUTSIDE://0.0.0.0:9092,  CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS:           LISTENER_INSIDE://kafka:29092,   LISTENER_OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INSIDE:PLAINTEXT,       LISTENER_OUTSIDE:PLAINTEXT,       CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME:     LISTENER_INSIDE
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:29093
     ports:
       - "9092:9092"
-    depends_on:
-      - zookeeper
-  
+      - "9093:29093"
+    volumes:
+      - ./kafka-data:/var/lib/kafka/data
+
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     ports:
-      - 8080:8080
+      - "8080:8080"
     depends_on:
       - kafka
     environment:
@@ -50,3 +43,17 @@ services:
       echo -e 'Created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
       "
+
+  # init-aidbox:
+  #   image: confluentinc/cp-kafka:latest
+  #   depends_on:
+  #     - kafka
+  #   entrypoint: [ '/bin/sh', '-c' ]
+  #   command: |
+  #     "
+  #     kafka-topics --bootstrap-server kafka:29092 --list
+  #     echo -e 'Creating kafka topics'
+  #     kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-forms --replication-factor 1 --partitions 1
+  #     echo -e 'Created the following topics:'
+  #     kafka-topics --bootstrap-server kafka:29092 --list
+  #     "
