@@ -1,4 +1,4 @@
-# Aidbox Forms & Kafka TopicDestination
+# Aidbox Subscriptions & Kafka TopicDestination
 
 This is a demo of [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) integrated with Kafka.
 
@@ -13,7 +13,7 @@ Objectives:
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Aidbox Forms & Kafka TopicDestination](#aidbox-forms--kafka-topicdestination)
+- [Aidbox Subscriptions & Kafka TopicDestination](#aidbox-subscriptions--kafka-topicdestination)
     - [Prerequisites](#prerequisites)
     - [Step 1: Set Up the Environment](#step-1-set-up-the-environment)
         - [Set Up Aidbox](#set-up-aidbox)
