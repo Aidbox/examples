@@ -11,7 +11,7 @@ A collection of example applications built on top of Aidbox FHIR platform
 - [Aidbox Forms Renderer with Angular.js](aidbox-forms-renderer-angular)
 - [Aidbox Forms Renderer with Angular.js (controlled mode)](aidbox-forms-renderer-angular-controlled)
 - [Aidbox Notify via Custom Resources](/aidbox-notify-via-custom-resources) ([demo](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/))
-- [Aidbox Forms & Kafka Topic Destination](/aidbox-notify-via-custom-resources)
+- [Aidbox Forms & Kafka Topic Destination](/aidbox-forms-and-kafka-topic-destination)
 
 ## Documentation
 
