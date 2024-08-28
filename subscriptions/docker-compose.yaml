@@ -1,4 +1,3 @@
-version: '3.8'
 volumes:
   subs-pgdata:
     name: subs-pgdata
@@ -103,13 +102,7 @@ services:
       - "./resources:/resources"
     command: |
       "
-      # Variables
       FILE="/resources/questionnaire.json"
-      URL="http://aidbox:8888/fhir/Questionnaire"
-
-      # Read the content of the file
-      DATA=$(cat "$$FILE")
-
-      # Send the PUT request using curl
-      curl -X PUT "$$URL" -u root:secret -H "Content-Type: application/json" -d "$$DATA"
+      URL="http://aidbox:8888/fhir/Questionnaire/subs-demo-kafka-questionnaire"
+      curl -X PUT "$$URL" -u root:secret -d @"$$FILE" -H "Content-Type: application/json"
       "
