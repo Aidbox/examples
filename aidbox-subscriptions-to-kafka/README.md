@@ -82,7 +82,7 @@ accept: application/json
   "trigger": [
     {
       "resource": "QuestionnaireResponse",
-      "fhirPathCriteria": "status = 'completed'"
+      "fhirPathCriteria": "status = 'completed' or status = 'amended'"
     }
   ]
 }
