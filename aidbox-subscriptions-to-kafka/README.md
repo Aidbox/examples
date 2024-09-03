@@ -1,4 +1,4 @@
-# Aidbox Subscriptions & Kafka TopicDestination
+# Topic-Based Subscription to Kafka
 
 This is a demo of [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) integrated with Kafka.
 
@@ -13,7 +13,7 @@ Objectives:
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Aidbox Subscriptions & Kafka TopicDestination](#aidbox-subscriptions--kafka-topicdestination)
+- [Topic-Based Subscription to Kafka](#topic-based-subscription-to-kafka)
     - [Prerequisites](#prerequisites)
     - [Step 1: Set Up the Environment](#step-1-set-up-the-environment)
         - [Set Up Aidbox](#set-up-aidbox)
@@ -25,6 +25,7 @@ Objectives:
         - [Submit Form](#submit-form)
         - [Check TopicDestination Status](#check-topicdestination-status)
         - [See Messages in Kafka UI](#see-messages-in-kafka-ui)
+    - [Demo](#demo)
 
 <!-- markdown-toc end -->
 
@@ -137,3 +138,16 @@ GET /fhir/TopicDestination/kafka-destination/$status
 ### See Messages in Kafka UI
 
 Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-forms` -> `messages` and review the `QuestionnaireResponse` that was created after submitting the form.
+
+## Demo
+
+A fully deployed and configured [Aidbox](https://subscriptions.hz.aidbox.dev/) instance with [Kafka](https://kafka-ui-subscriptions.hz.aidbox.dev/) is available for you to explore how Aidbox's SubscriptionTopic works. The SubscriptionTopic in Aidbox is set up to send `QuestionnaireResponse` events in the `completed` status to Kafka.
+
+To try it out:
+
+1. Open the [Aidbox](https://subscriptions.hz.aidbox.dev/) link.
+2. Log in using the username `subscriptions-demo` and the password `password`.
+3. Navigate to [Aidbox Forms](https://subscriptions.hz.aidbox.dev/ui/sdc).
+4. Click on `share`, then select `attach`, copy the link, and open it.
+5. Fill out the form and submit it to create a `QuestionnaireResponse`.
+6. Finally, open the [Kafka UI](https://kafka-ui-subscriptions.hz.aidbox.dev/ui/clusters/local/all-topics/aidbox-forms/messages?filterQueryType=STRING_CONTAINS&attempt=2&limit=100&page=0&seekDirection=BACKWARD&keySerde=String&valueSerde=String&seekType=LATEST) to view your `QuestionnaireResponse` in the Kafka messages.
