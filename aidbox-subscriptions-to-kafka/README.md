@@ -1,14 +1,13 @@
-# Topic-Based Subscription to Kafka
+# Topic-based Subscriptions to Kafka
+[DEMO](update) | [Documentation]([https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=app-examples&utm_medium=readme)
 
-This is a demo of [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) integrated with Kafka.
-
-In this example, we demonstrate how you can create a standard FHIR questionnaire, collect data from users via a web form, and receive all responses to the Kafka topic.
+This example showcases [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) producing data to  Kafka.
 
 Objectives:
 
-1. Learn how to set up Aidbox and Kafka locally via Docker Compose.
-2. Learn how to collect user answers for a **FHIR Questionnaire** via [Aidbox Forms](https://docs.aidbox.app/modules-1/aidbox-forms).
-3. Learn how [SubscriptionTopic and TopicDestination](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) work with Kafka.
+1. Set up Aidbox and Kafka locally using Docker Compose.
+2. Get **FHIR QuestionnaireResponse** via [Aidbox Forms](https://docs.aidbox.app/modules-1/aidbox-forms).
+3. Learn how [SubscriptionTopic and TopicDestination](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) work with Kafka to handle the collected data.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
@@ -43,7 +42,7 @@ Objectives:
     cp .env.tpl .env
     ```
 
-2. Obtain the self-hosted license from the [Aidbox Portal](https://aidbox.app/).
+2. Get a self-hosted Aidbox license from the [Aidbox Portal](https://aidbox.app/).
 
 3. Add the license key (`AIDBOX_LICENSE`) to the `.env` file.
 
@@ -53,22 +52,22 @@ Objectives:
 docker compose up
 ```
 
-- Aidbox will be available at <http://localhost:8888/>
+- Aidbox is be available at <http://localhost:8888/>
   - Username: `admin`
   - Password: `password`
-- Kafka UI will be available at <http://localhost:8080/>
-- Kafka will be available at `http://localhost:9092/` without authorization.
+- Kafka UI is be available at <http://localhost:8080/>
+- Kafka is available at `http://localhost:9092/` (no authorization required)
 
-Additionally, the Docker Compose file initializes the setup for Kafka and Aidbox:
+The Docker Compose file initializes the environment for both Kafka and Aidbox with the following configuration:
 
-- Imports FHIR Questionnaire description (see `init-aidbox` service).
+- Imports FHIR Questionnaire (see `init-aidbox` service).
 - Creates a Kafka topic for `QuestionnaireResponse` (see `init-kafka` service).
 
 ## Step 2: Set Up Subscription and Destination
 
 ### Create AidboxSubscriptionTopic Resource
 
-To create a subscription on the `QuestionnaireResponse` resource, open API's -> REST Console and execute the following request:
+To create a subscription on the `QuestionnaireResponse` resource that has a specific status, open Aidbox UI -> APIs -> REST Console and execute the following request:
 
 ```json
 POST /fhir/AidboxSubscriptionTopic
@@ -87,10 +86,11 @@ accept: application/json
   ]
 }
 ```
-
-This resource describes the data source for the subscription but doesn't actually execute any activities from Aidbox.
+This resource describes the data source for the subscription but doesn't execute any activities from Aidbox.
 
 ### Create TopicDestination Resource
+
+Creating this resource establishes a connection to the Kafka server. When the system produces an event, it will be processed to the specified Kafka topic.
 
 ```json
 POST /fhir/TopicDestination
@@ -119,9 +119,7 @@ accept: application/json
 }
 ```
 
-Creating this resource establishes a connection to the Kafka server. When the system produces an event, it will be processed to the Kafka topic.
-
-## Step 3: Feature Demonstration
+## Step 3: Demonstration
 
 ### Submit Form
 
@@ -141,13 +139,10 @@ Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-forms` -> `messag
 
 ## Demo
 
-A fully deployed and configured [Aidbox](https://subscriptions.hz.aidbox.dev/) instance with [Kafka](https://kafka-ui-subscriptions.hz.aidbox.dev/) is available for you to explore how Aidbox's SubscriptionTopic works. The SubscriptionTopic in Aidbox is set up to send `QuestionnaireResponse` events in the `completed` status to Kafka.
+A deployed and configured [Aidbox](https://subscriptions.hz.aidbox.dev/) instance with [Kafka](https://kafka-ui-subscriptions.hz.aidbox.dev/) is available for you to explore how Aidbox's SubscriptionTopic works. The SubscriptionTopic in Aidbox is set up to send `QuestionnaireResponse` events in the `completed` and 'amended' status to Kafka.
 
 To try it out:
 
-1. Open the [Aidbox](https://subscriptions.hz.aidbox.dev/) link.
-2. Log in using the username `subscriptions-demo` and the password `password`.
-3. Navigate to [Aidbox Forms](https://subscriptions.hz.aidbox.dev/ui/sdc).
-4. Click on `share`, then select `attach`, copy the link, and open it.
-5. Fill out the form and submit it to create a `QuestionnaireResponse`.
-6. Finally, open the [Kafka UI](https://kafka-ui-subscriptions.hz.aidbox.dev/ui/clusters/local/all-topics/aidbox-forms/messages?filterQueryType=STRING_CONTAINS&attempt=2&limit=100&page=0&seekDirection=BACKWARD&keySerde=String&valueSerde=String&seekType=LATEST) to view your `QuestionnaireResponse` in the Kafka messages.
+1. Open [form](https://bit.ly/aidbox-subscriptions-form)
+2. Submit or amend the response
+7. Open the [Kafka UI](https://bit.ly/subscriptions-demo-kafka-ui) to view your `QuestionnaireResponse` in the Kafka messages tab.
