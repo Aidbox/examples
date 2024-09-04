@@ -123,7 +123,7 @@ accept: application/json
 
 ### Submit Form
 
-Open the [list of forms](http://localhost:8888/ui/sdc#/), click `share` -> click `attach` -> copy the link -> open the link -> fill out the form, and submit it.
+Open the [list of forms](http://localhost:8888/ui/sdc#/), click `share` -> enable 'allow amend -> 'click `attach` -> copy the link -> open the link -> fill out the form, and submit it.
 
 ### Check TopicDestination Status
 
