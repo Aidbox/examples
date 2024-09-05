@@ -35,6 +35,7 @@ class AidboxBuilderWidget extends StatelessWidget {
       url,
       (int viewId) => html.IFrameElement()
         ..src = url
+        ..allow = 'microphone *'
         ..style.border = 'none'
         ..style.height = '100%'
         ..style.width = '100%',
