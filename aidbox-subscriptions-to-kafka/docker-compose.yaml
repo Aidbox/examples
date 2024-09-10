@@ -15,6 +15,11 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME:     LISTENER_INSIDE
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:29093
+
+      # Additional configuration for transactions in single-node setup
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
     healthcheck:
       test: /opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka:9092 || exit 1
       interval: 1s
