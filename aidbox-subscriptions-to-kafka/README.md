@@ -7,22 +7,22 @@ Objectives:
 
 1. Set up Aidbox and Kafka locally using Docker Compose.
 2. Get **FHIR QuestionnaireResponse** via [Aidbox Forms](https://docs.aidbox.app/modules-1/aidbox-forms).
-3. Learn how [SubscriptionTopic and TopicDestination](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) work with Kafka to handle the collected data.
+3. Learn how [AidboxSubscriptionTopic and AidboxTopicDestination](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations) work with Kafka to handle the collected data.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Topic-Based Subscription to Kafka](#topic-based-subscription-to-kafka)
+- [Topic-based Subscriptions to Kafka](#topic-based-subscriptions-to-kafka)
     - [Prerequisites](#prerequisites)
     - [Step 1: Set Up the Environment](#step-1-set-up-the-environment)
         - [Set Up Aidbox](#set-up-aidbox)
         - [Run Aidbox, Kafka & Kafka UI](#run-aidbox-kafka--kafka-ui)
     - [Step 2: Set Up Subscription and Destination](#step-2-set-up-subscription-and-destination)
         - [Create AidboxSubscriptionTopic Resource](#create-aidboxsubscriptiontopic-resource)
-        - [Create TopicDestination Resource](#create-topicdestination-resource)
-    - [Step 3: Feature Demonstration](#step-3-feature-demonstration)
+        - [Create AidboxTopicDestination Resource](#create-aidboxtopicdestination-resource)
+    - [Step 3: Demonstration](#step-3-demonstration)
         - [Submit Form](#submit-form)
-        - [Check TopicDestination Status](#check-topicdestination-status)
+        - [Check AidboxTopicDestination Status](#check-aidboxtopicdestination-status)
         - [See Messages in Kafka UI](#see-messages-in-kafka-ui)
     - [Demo](#demo)
 
@@ -88,19 +88,19 @@ accept: application/json
 ```
 This resource describes the data source for the subscription but doesn't execute any activities from Aidbox.
 
-### Create TopicDestination Resource
+### Create AidboxTopicDestination Resource
 
 Creating this resource establishes a connection to the Kafka server. When the system produces an event, it will be processed to the specified Kafka topic.
 
 ```json
-POST /fhir/TopicDestination
+POST /fhir/AidboxTopicDestination
 content-type: application/json
 accept: application/json
 
 {
   "meta": {
     "profile": [
-      "http://fhir.aidbox.app/StructureDefinition/TopicDestinationKafka"
+      "http://fhir.aidbox.app/StructureDefinition/AidboxTopicDestinationKafka"
     ]
   },
   "kind": "kafka",
@@ -125,12 +125,12 @@ accept: application/json
 
 Open the [list of forms](http://localhost:8888/ui/sdc#/), click `share` -> enable 'allow amend' -> click `attach` -> copy the link -> open the link -> fill out the form, and submit it.
 
-### Check TopicDestination Status
+### Check AidboxTopicDestination Status
 
-Open the Aidbox [REST Console](http://localhost:8888/ui/console#/rest) and get the TopicDestination status:
+Open the Aidbox [REST Console](http://localhost:8888/ui/console#/rest) and get the AidboxTopicDestination status:
 
 ```
-GET /fhir/TopicDestination/kafka-destination/$status
+GET /fhir/AidboxTopicDestination/kafka-destination/$status
 ```
 
 ### See Messages in Kafka UI
