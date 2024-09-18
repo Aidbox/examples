@@ -100,10 +100,10 @@ accept: application/json
 {
   "meta": {
     "profile": [
-      "http://fhir.aidbox.app/StructureDefinition/AidboxTopicDestinationKafka"
+      "http://aidbox.app/StructureDefinition/aidboxtopicdestination-kafka-at-least-once"
     ]
   },
-  "kind": "kafka",
+  "kind": "kafka-at-least-once",
   "id": "kafka-destination",
   "topic": "http://example.org/FHIR/R5/SubscriptionTopic/QuestionnaireResponse-topic",
   "parameter": [
