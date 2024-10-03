@@ -112,7 +112,7 @@ accept: application/json
       "valueString": "aidbox-forms"
     },
     {
-      "name": "bootstrap.servers",
+      "name": "bootstrapServers",
       "valueString": "kafka:29092"
     }
   ]
