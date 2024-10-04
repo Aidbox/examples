@@ -82,3 +82,52 @@ accept: application/json
   ]
 }
 ```
+
+Access policies
+
+```json
+{
+  "id":"subscription-demo-allow-sdc",
+  "link":[
+    {
+      "id":"sdc-config",
+      "resourceType":"Operation"
+    },
+    {
+      "id":"topic-destination-status",
+      "resourceType":"Operation"
+    },
+    {
+      "id":"populate-questionnaire-link-id",
+      "resourceType":"Operation"
+    }
+  ],
+  "meta":{
+    "createdAt":"2024-10-04T11:11:41.096668Z",
+    "versionId":"1185",
+    "lastUpdated":"2024-10-04T11:11:41.096668Z"
+  },
+  "engine":"allow",
+  "resourceType":"AccessPolicy"
+}
+```
+
+```json
+{
+  "id":"subscription-demo-rpcs",
+  "rpc":{
+    "aidbox.sdc.patient/forms-grid":true,
+    "aidbox.sdc.grid/get-definition":true,
+    "aidbox.sdc.patient/documents-workflows-grid":true
+  },
+  "meta":{
+    "createdAt":"2024-08-29T14:28:43.756160Z",
+    "versionId":"143",
+    "lastUpdated":"2024-08-29T14:54:40.426408Z"
+  },
+  "type":"rpc",
+  "engine":"allow-rpc",
+  "description":"public rpc methods",
+  "resourceType":"AccessPolicy"
+}
+```

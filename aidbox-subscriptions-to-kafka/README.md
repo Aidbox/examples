@@ -32,6 +32,8 @@ Objectives:
 ## Prerequisites
 
 - [Docker](https://www.docker.com/)
+- Cloned repository: [Github: Aidbox/examples](https://github.com/Aidbox/examples/tree/main)
+- Working directory: `aidbox-subscriptions-to-kafka`
 
 ## Step 1: Set Up the Environment
 
@@ -87,6 +89,7 @@ accept: application/json
   ]
 }
 ```
+
 This resource describes the data source for the subscription but doesn't execute any activities from Aidbox.
 
 ### Create AidboxTopicDestination Resource
@@ -142,9 +145,9 @@ Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-forms` -> `messag
 
 Also you can find example of k8s deployment:
 
-- Configuration: [k8s.yaml](./k8s.yaml)
+- Configuration: [k8s.yaml](https://github.com/Aidbox/examples/blob/main/aidbox-subscriptions-to-kafka/k8s.yaml)
 - Also, you need to pass secrets for Aidbox and Database. See details: [Deploy Aidbox with Helm Charts](https://docs.aidbox.app/getting-started/run-aidbox-in-kubernetes/deploy-aidbox-with-helm-charts). We recommend to use helm.
-- Configuration resource examples: [k8s_resources](./k8s_resources.md) 
+- Configuration resource examples: [k8s_resources](https://github.com/Aidbox/examples/blob/main/aidbox-subscriptions-to-kafka/k8s.yaml) 
 
 ## Demo
 
