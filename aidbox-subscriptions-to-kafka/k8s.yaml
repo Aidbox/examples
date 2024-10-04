@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,7 +18,7 @@ spec:
         - name: kafka
           image: apache/kafka:latest
           ports:
-            - containerPort: 9092
+            - containerPort: 29092
             - containerPort: 29093
           envFrom:
             - configMapRef:
@@ -36,10 +37,11 @@ metadata:
   name: kafka
   namespace: subscriptions
 spec:
+  type: ClusterIP # Ensure the service is only accessible inside the cluster
   ports:
-    - name: outside
-      port: 9092
-      targetPort: 9092
+    - name: inside
+      port: 29092
+      targetPort: 29092
     - name: controller
       port: 29093
       targetPort: 29093
@@ -66,12 +68,15 @@ metadata:
 data:
   KAFKA_NODE_ID: "1"
   KAFKA_PROCESS_ROLES: "broker,controller"
-  KAFKA_LISTENERS: "LISTENER_INSIDE://0.0.0.0:29092,LISTENER_OUTSIDE://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093"
-  KAFKA_ADVERTISED_LISTENERS: "LISTENER_INSIDE://kafka:29092,LISTENER_OUTSIDE://kafka:9092"
-  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "LISTENER_INSIDE:PLAINTEXT,LISTENER_OUTSIDE:PLAINTEXT,CONTROLLER:PLAINTEXT"
+  KAFKA_LISTENERS: "LISTENER_INSIDE://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093"
+  KAFKA_ADVERTISED_LISTENERS: "LISTENER_INSIDE://kafka:29092"
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "LISTENER_INSIDE:PLAINTEXT,CONTROLLER:PLAINTEXT"
   KAFKA_INTER_BROKER_LISTENER_NAME: "LISTENER_INSIDE"
   KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
   KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+  KAFKA_MIN_INSYNC_REPLICAS: "1"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -116,7 +121,7 @@ metadata:
   namespace: subscriptions
 data:
   KAFKA_CLUSTERS_0_NAME: "local"
-  KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
+  KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:29092"
   DYNAMIC_CONFIG_ENABLED: "true"
   KAFKA_CLUSTERS_0_READONLY: "true"
 ---
