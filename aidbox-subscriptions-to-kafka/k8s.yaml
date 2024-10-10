@@ -1,0 +1,168 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: subscriptions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: apache/kafka:latest
+          ports:
+            - containerPort: 29092
+            - containerPort: 29093
+          envFrom:
+            - configMapRef:
+                name: kafka-config
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+      volumes:
+        - name: kafka-data
+          persistentVolumeClaim:
+            claimName: kafka-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: subscriptions
+spec:
+  type: ClusterIP # Ensure the service is only accessible inside the cluster
+  ports:
+    - name: inside
+      port: 29092
+      targetPort: 29092
+    - name: controller
+      port: 29093
+      targetPort: 29093
+  selector:
+    app: kafka
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kafka-pvc
+  namespace: subscriptions
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-config
+  namespace: subscriptions
+data:
+  KAFKA_NODE_ID: "1"
+  KAFKA_PROCESS_ROLES: "broker,controller"
+  KAFKA_LISTENERS: "LISTENER_INSIDE://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093"
+  KAFKA_ADVERTISED_LISTENERS: "LISTENER_INSIDE://kafka:29092"
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "LISTENER_INSIDE:PLAINTEXT,CONTROLLER:PLAINTEXT"
+  KAFKA_INTER_BROKER_LISTENER_NAME: "LISTENER_INSIDE"
+  KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+  KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+  KAFKA_MIN_INSYNC_REPLICAS: "1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ui
+  namespace: subscriptions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-ui
+  template:
+    metadata:
+      labels:
+        app: kafka-ui
+    spec:
+      containers:
+        - name: kafka-ui
+          image: provectuslabs/kafka-ui:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: kafka-ui-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-ui
+  namespace: subscriptions
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: kafka-ui
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-ui-config
+  namespace: subscriptions
+data:
+  KAFKA_CLUSTERS_0_NAME: "local"
+  KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:29092"
+  DYNAMIC_CONFIG_ENABLED: "true"
+  KAFKA_CLUSTERS_0_READONLY: "true"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kafka-ui
+  namespace: subscriptions
+  annotations:
+    acme.cert-manager.io/http01-ingress-class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+    - hosts:
+        - kafka-ui-subscriptions.hz.aidbox.dev
+      secretName: kafka-ui-cert
+  rules:
+    - host: kafka-ui-subscriptions.hz.aidbox.dev
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: kafka-ui
+                port:
+                  number: 8080
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    email: hello@my-domain.com
+    preferredChain: ''
+    privateKeySecretRef:
+      name: issuer-key
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - http01:
+          ingress:
+            class: nginx

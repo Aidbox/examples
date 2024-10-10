@@ -1,0 +1,6 @@
+{
+  "watch": ["src/**/*.ts"],
+  "ext": "ts",
+  "legacyWatch": true,
+  "exec": "node --loader ts-node/esm  ./src/index.ts"
+}

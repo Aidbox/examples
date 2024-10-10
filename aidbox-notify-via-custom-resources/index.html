@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Aidbox Notify via Custom Resources</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="bootstrap.js"></script>
+  </head>
+
+  <body>
+    <div class="max-w-7xl mx-auto p-8">
+      <h1
+        class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl"
+      >
+        Aidbox Notify via Custom Resources
+      </h1>
+
+      <div class="my-4">
+        Connect to your Aidbox instance via
+        <a
+          href="https://docs.aidbox.app/modules-1/security-and-access-control/auth/basic-auth"
+          class="text-indigo-600 hover:underline"
+          target="_blank"
+        >
+          Basic authentication</a
+        >. See details in
+        <a
+          href="https://github.com/Aidbox/app-examples/blob/main/aidbox-notify-via-custom-resources/README.md"
+          class="text-indigo-600 hover:underline"
+          target="_blank"
+        >
+          README.
+        </a>
+      </div>
+
+      <div class="my-4"></div>
+
+      <div class="my-4">
+        <label class="block font-medium leading-6 text-gray-900 my-2">
+          FHIR base url
+        </label>
+        <input
+          id="base-url"
+          type="text"
+          class="block w-full rounded-md border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          placeholder="http://localhost:8765/fhir"
+        />
+      </div>
+
+      <div class="my-4">
+        <label class="block font-medium leading-6 text-gray-900 my-2">
+          Client id
+        </label>
+        <input
+          id="client-id"
+          type="text"
+          class="block w-full rounded-md border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          placeholder="root"
+        />
+      </div>
+
+      <div class="my-4">
+        <label class="block font-medium leading-6 text-gray-900 my-2">
+          Client secret
+        </label>
+        <input
+          id="client-secret"
+          type="password"
+          class="block w-full rounded-md border-0 px-4 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          placeholder="secret"
+        />
+      </div>
+
+      <hr />
+
+      <div class="my-4 flex items-baseline">
+        <div class="font-medium leading-6 text-gray-900 mr-4">
+          POST FHIR Schema-s, Search Parameters and Initial Data to Aidbox
+        </div>
+        <button
+          type="button"
+          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          onclick="bootstrap()"
+        >
+          Bootstrap
+        </button>
+      </div>
+
+      <hr />
+
+      <div class="my-4">
+        <button
+          type="button"
+          class="rounded-md bg-white px-3 py-2 font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          onclick="requestNotification()"
+        >
+          Request notification send
+        </button>
+      </div>
+      <hr />
+
+      <div class="my-4">
+        <label class="block font-medium leading-6 text-gray-900 my-2">
+          Worker actions
+        </label>
+        <span class="isolate inline-flex rounded-md shadow-sm">
+          <button
+            type="button"
+            class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
+            onclick="getNotification()"
+          >
+            Get notification
+          </button>
+          <button
+            type="button"
+            class="relative -ml-px inline-flex items-center bg-white px-3 py-2 font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
+            onclick="lockNotification()"
+          >
+            Lock notification
+          </button>
+          <button
+            type="button"
+            class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
+            onclick="sendNotification()"
+          >
+            Send notification
+          </button>
+        </span>
+      </div>
+
+      <div class="my-4">
+        <label class="block font-medium leading-6 text-gray-900 my-2">
+          Notification
+        </label>
+        <div class="rounded-md bg-gray-800">
+          <pre
+            class="p-4 block text-gray-300 text-sm"
+          ><code id="notification"></code></pre>
+        </div>
+      </div>
+
+      <div class="my-4">
+        <label class="block font-medium leading-6 text-gray-900 my-2">
+          Journal
+        </label>
+        <div class="rounded-md bg-gray-800">
+          <pre
+            class="p-4 block text-gray-300 text-sm"
+          ><code id="journal"></code></pre>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

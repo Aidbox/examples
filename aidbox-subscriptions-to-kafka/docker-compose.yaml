@@ -1,0 +1,113 @@
+volumes:
+  subs-pgdata:
+    name: subs-pgdata
+  subs-kafka-data:
+    name: subs-kafka-data
+services:
+  kafka:
+    image: apache/kafka:latest
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS:                      LISTENER_INSIDE://0.0.0.0:29092, LISTENER_OUTSIDE://0.0.0.0:9092,  CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS:           LISTENER_INSIDE://kafka:29092,   LISTENER_OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INSIDE:PLAINTEXT,       LISTENER_OUTSIDE:PLAINTEXT,       CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME:     LISTENER_INSIDE
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:29093
+
+      # Additional configuration for transactions in single-node setup
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+    healthcheck:
+      test: /opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka:9092 || exit 1
+      interval: 1s
+      timeout: 60s
+      retries: 60
+    ports:
+      - "9092:9092"
+      - "9093:29093"
+    volumes:
+      - "subs-kafka-data:/var/lib/kafka/data"
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+
+  init-kafka:
+    image: apache/kafka:latest
+    depends_on:
+      kafka:
+       condition: service_healthy
+
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
+      echo -e 'Creating kafka topics'
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-forms --replication-factor 1 --partitions 1
+      echo -e 'Created the following topics:'
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
+      "
+  
+  aidbox-db:
+    image: healthsamurai/aidboxdb:16.1
+    pull_policy: always
+    ports:
+      - "5438:5432"
+    volumes:
+      - "subs-pgdata:/data:delegated"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aidbox
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on: ["aidbox-db"]
+    volumes:
+      - "./tmp:/tmp"
+    ports:
+      - "8888:8888"
+    environment:
+      PGPORT: 5432
+      PGHOST: aidbox-db
+      PGHOSTPORT: 5438
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: aidbox
+      AIDBOX_BASE_URL: http://localhost:8888
+      AIDBOX_PORT: 8888
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  init-aidbox:
+    image: healthsamurai/aidboxone:edge
+    depends_on:
+      aidbox:
+        condition: service_healthy
+    entrypoint: [ '/bin/sh', '-c' ]
+    volumes:
+      - "./resources:/resources"
+    command: |
+      "
+      FILE="/resources/questionnaire.json"
+      URL="http://aidbox:8888/fhir/Questionnaire/subs-demo-kafka-questionnaire"
+      curl -X PUT "$$URL" -u root:secret -d @"$$FILE" -H "Content-Type: application/json"
+      "
