@@ -38,7 +38,11 @@
       ];
 
       const [id, setId] = React.useState(questionnaires[0].id);
-      const [theme, setTheme] = React.useState();
+      const [theme, setTheme] = React.useState({
+        button: {
+          "accent-color": "#e34001", // General accent color for buttons
+        },
+      });
 
 
       return (
@@ -143,6 +147,7 @@
                 style={{width: '100%', border: 'none', alignSelf: 'stretch', display: 'flex'}}
                 questionnaire-id={id}
                 theme={JSON.stringify(theme)}
+                disable-load-sdc-config={true}
               >
               </aidbox-form-renderer>
             </main>
