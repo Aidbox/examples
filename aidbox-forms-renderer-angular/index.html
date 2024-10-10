@@ -91,11 +91,19 @@
             </button>
           </nav>
         </div>
+        <button
+          class="mt-auto border rounded text-sm text-orange-600 hover:text-orange-500 hover:border-orange-500 active:bg-orange-600 active:text-white border-orange-600 p-2 pr-4"
+          ng-on-click="changeTheme()"
+        >
+          Apply custom theme
+        </button>
       </div>
       <main class="flex-1 flex">
         <aidbox-form-renderer
+          base-url="https://form-builder.aidbox.app"
           style="width: 100%; border: none; align-self: stretch; display: flex"
           questionnaire-id="{{ id }}"
+          theme='{{ theme }}'
         >
         </aidbox-form-renderer>
       </main>
@@ -124,6 +132,20 @@
 
         $scope.selectQuestionnaire = function (id) {
           $scope.id = id;
+        };
+
+        const theme = {
+          "base-font-size": "12px", // Base font size for the theme
+          background: {
+            "toolbar-color": "#2c3e50", // Background color of the toolbar
+          },
+          button: {
+            "accent-color": "#27ae60", // General accent color for buttons
+          },
+        };
+
+        $scope.changeTheme = function() {
+          $scope.theme = JSON.stringify(theme);
         };
       }]);
   </script>
