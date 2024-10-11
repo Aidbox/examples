@@ -1,6 +1,6 @@
 # Aidbox Notify via Custom Resources
 
-[DEMO](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)
+[Demo](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)
 
 In this example, you can see the custom resources demonstration on the minimalistic JavaScript example project which implemented the typical flow for notifications: requesting a notification, locking it for sending, and then sending it (placeholder).
 

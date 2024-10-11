@@ -9,7 +9,7 @@ questionnaire within the Angular.js application. This approach is
 beneficial for applications requiring custom questionnaire handling and
 management.
 
-[Online demo](https://aidbox.github.io/examples/aidbox-forms-builder-angular-controlled/)
+[Demo](https://aidbox.github.io/examples/aidbox-forms-builder-angular-controlled/)
 
 ## Example
 
