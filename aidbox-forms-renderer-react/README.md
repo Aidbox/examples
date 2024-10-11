@@ -1,4 +1,4 @@
-# aidbox-forms-renderer-angular
+# aidbox-forms-renderer-react
 
 Example of integration Aidbox Forms Renderer with React.js
 
