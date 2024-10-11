@@ -1,6 +1,6 @@
 # Aidbox Notify via Custom Resources
 
-[Demo](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)
+[Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)
 
 In this example, you can see the custom resources demonstration on the minimalistic JavaScript example project which implemented the typical flow for notifications: requesting a notification, locking it for sending, and then sending it (placeholder).
 
@@ -57,7 +57,7 @@ Before starting the example, you need to:
 
 You can do this manually or via a bootstrap inside the example.
 
-To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/).
+To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/).
 
 ### FHIR Schema for Custom Resources
 
@@ -314,7 +314,7 @@ POST /fhir/Patient
 
 This section explains the technical details of the notification workflow, including how each step works and what is expected at each stage.
 
-To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/app-examples/aidbox-notify-via-custom-resources/).
+To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/).
 
 #### Request Notification to Send
 
