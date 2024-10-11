@@ -13,7 +13,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Aidbox Forms Renderer with React.js](aidbox-forms-renderer-react) ([Online Demo](https://aidbox.github.io/examplesaidbox-forms-renderer-react/))
 - [Aidbox Forms Renderer with React.js in controlled mode](aidbox-forms-renderer-react-controlled) ([Online Demo](https://aidbox.github.io/examplesaidbox-forms-renderer-react-controlled/))
 - [Aidbox Notify via Custom Resources](/aidbox-notify-via-custom-resources) ([Online Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/))
-- [Topic-Based Subscription to Kafka](/aidbox-subscriptions-to-kafka/) [Online Demo](aidbox-subscriptions-to-kafka/README.md#demo)
+- [Topic-Based Subscription to Kafka](/aidbox-subscriptions-to-kafka/) ([Online Demo](aidbox-subscriptions-to-kafka/README.md#demo))
 
 ## Documentation
 
