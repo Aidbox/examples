@@ -2,7 +2,7 @@
 
 Example of integration Aidbox Forms Builder with Angular.js
 
-[Online demo](https://aidbox.github.io/examples/aidbox-forms-builder-angular/)
+[Demo](https://aidbox.github.io/examples/aidbox-forms-builder-angular/)
 
 
 ## Example
