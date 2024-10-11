@@ -8,6 +8,8 @@ loaded from nor saved to Aidbox, allowing for full management of the resources
 within the React application. This approach is beneficial for applications 
 requiring custom resource handling and management.
 
+[Online demo](https://aidbox.github.io/examples/aidbox-forms-renderer-react-controlled/)
+
 ## Example
 
 ```js
