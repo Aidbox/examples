@@ -55,12 +55,4 @@ const AidboxFormRenderer = ({ questionnaire }) => {
 ```
 
 ## Available attributes
-* `base-url` - optional, base url of your Aidbox instance, default is the url of Aidbox instance the script is loaded from
-* `style` - optional, style of the underlying iframe
-* `token` - optional, JWT token to authenticate the user
-* `questionnaire` - required, questionnaire as a JSON string
-* `questionnaire-response` - optional, questionnaire response as a JSON string
-
-## Events
-* `change` - emitted when the questionnaire response is modified, triggered on auto-save or when submit button is clicked. `event.detail` contains the modified questionnaire response as JSON object.
-* `ready` - emitted when Aidbox Forms Renderer is loaded and ready to be used.
+Please refer to [Aidbox Forms documentation](https://docs.aidbox.app/modules/aidbox-forms/aidbox-ui-builder-alpha/embedding-renderer) for more information about available attributes.

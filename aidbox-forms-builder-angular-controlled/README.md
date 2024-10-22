@@ -28,16 +28,4 @@ management.
 ```
 
 ## Available attributes
-* `base-url` - optional, base url of your Aidbox instance, default is the url of Aidbox instance the script is loaded from
-* `style` - optional, style of the underlying iframe
-* `token` - optional, JWT token to authenticate the user
-* `value` - required, questionnaire as a JSON string
-* `hide-back` - optional, hide back button
-* `hide-publish` - optional, hide publish button
-* `hide-save` - optional, hide save button
-* `show-share` - optional, show share button
-
-## Events
-* `change` - emitted when the questionnaire is modified, triggered on every change or when the save or publish button is clicked. `event.detail` contains the modified questionnaire as JSON object.
-* `ready` - emitted when Aidbox Forms Builder is loaded and ready to be used.
-* `select` - emmited when an item is selected in the item list. `event.detail` contains the selected item as JSON object.
+Please refer to [Aidbox Forms documentation](https://docs.aidbox.app/modules/aidbox-forms/aidbox-ui-builder-alpha/embedding-builder) for more information about available attributes.

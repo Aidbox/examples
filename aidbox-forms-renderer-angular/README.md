@@ -15,8 +15,4 @@ Example of integration Aidbox Forms Renderer with Angular.js
 ```
 
 ## Available attributes
-* `base-url` - optional, base url of your Aidbox instance, default is the url of Aidbox instance the script is loaded from
-* `style` - optional, style of the underlying iframe
-* `token` - optional, JWT token to authenticate the user
-* `questionnaire-id` - optional, id of the questionnaire to load, either `questionnaire` or `questionnaire-id` should be provided
-* `questionnaire-response-id` - optional, id of the questionnaire response to load, either `questionnaire-response` or `questionnaire-response-id` should be provided
+Please refer to [Aidbox Forms documentation](https://docs.aidbox.app/modules/aidbox-forms/aidbox-ui-builder-alpha/embedding-renderer) for more information about available attributes.
