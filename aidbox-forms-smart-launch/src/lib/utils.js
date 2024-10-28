@@ -1,0 +1,244 @@
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { publicBuilderClient } from "@/hooks/use-client.jsx";
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
+export function constructName(name) {
+  if (name?.[0]["text"]) {
+    return `${name?.[0].text}`;
+  } else {
+    const prefix = name?.[0].prefix?.[0] ?? "";
+    const givenName = name?.[0].given?.[0] ?? "";
+    const familyName = name?.[0].family ?? "";
+
+    return `${prefix} ${givenName} ${familyName}`.replace(/\s+/g, " ").trim();
+  }
+}
+
+export const constructAddress = (address) => {
+  const line = address[0].line?.[0] ?? "";
+  const city = address[0].city ?? "";
+  const state = address[0].state ?? "";
+  const postalCode = address[0].postalCode ?? "";
+  const country = address[0].country ?? "";
+
+  return `${line}, ${city}, ${state} ${postalCode}, ${country}`;
+};
+
+export function constructGender(gender) {
+  return gender.charAt(0).toUpperCase() + gender.slice(1);
+}
+
+export function constructInitials(name) {
+  const [givenName, familyName] = constructName(name).split(" ");
+  return familyName
+    ? `${givenName.charAt(0)}${familyName.charAt(0)}`.toUpperCase()
+    : givenName.substring(0, 2).toUpperCase();
+}
+
+export function calculatePagination(currentPage, totalPages) {
+  const maxPagesToShow = 5; // Adjust as needed
+  const pagesToShowBeforeCurrent = 2;
+  const pagesToShowAfterCurrent = 2;
+
+  currentPage = Math.max(1, Math.min(currentPage, totalPages)); // Ensure currentPage is within bounds
+
+  const prevButtonEnabled = currentPage > 1;
+  const nextButtonEnabled = currentPage < totalPages;
+
+  let startPage = Math.max(1, currentPage - pagesToShowBeforeCurrent);
+  let endPage = Math.min(totalPages, currentPage + pagesToShowAfterCurrent);
+
+  // Prioritize showing pages around the current page
+  while (
+    endPage - startPage + 1 < maxPagesToShow &&
+    (startPage > 1 || endPage < totalPages)
+  ) {
+    if (startPage > 1) {
+      startPage--;
+    }
+    if (endPage < totalPages && endPage - startPage + 1 < maxPagesToShow) {
+      // Only expand endPage if there's still room
+      endPage++;
+    }
+  }
+
+  const pages = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+
+  const showFirstPageButton = startPage > 1;
+  const showLastPageButton = endPage < totalPages;
+  const showFirstEllipsis = startPage > 2; // Simplify ellipsis logic
+  const showLastEllipsis = endPage < totalPages - 1;
+
+  return {
+    prevButtonEnabled,
+    showFirstPageButton,
+    showFirstEllipsis,
+    pagesBeforeCurrent: pages.filter((p) => p < currentPage),
+    currentPage,
+    pagesAfterCurrent: pages.filter((p) => p > currentPage),
+    showLastEllipsis,
+    showLastPageButton,
+    nextButtonEnabled,
+  };
+}
+
+export async function populate({ questionnaire, subject, encounter, author }) {
+  const {
+    parameter: [{ resource }],
+  } = await publicBuilderClient.request({
+    url: "Questionnaire/$populate",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/fhir+json",
+    },
+    body: JSON.stringify({
+      resourceType: "Parameters",
+      parameter: [
+        {
+          name: "questionnaire",
+          resource: questionnaire,
+        },
+        {
+          name: "subject",
+          resource: subject,
+        },
+        {
+          name: "context",
+          part: [
+            ...(encounter
+              ? [
+                  {
+                    name: "name",
+                    valueString: "encounter",
+                  },
+                  {
+                    name: "content",
+                    resource: encounter,
+                  },
+                ]
+              : []),
+            ...(author
+              ? [
+                  {
+                    name: "name",
+                    valueString: "author",
+                  },
+                  {
+                    name: "content",
+                    resource: author,
+                  },
+                ]
+              : []),
+          ],
+        },
+      ],
+    }),
+  });
+
+  return resource;
+}
+
+export function saveQuestionnaireResponse(
+  client,
+  questionnaire,
+  questionnaireResponse,
+) {
+  let url = "QuestionnaireResponse";
+  let method = "POST";
+
+  if (questionnaireResponse.id) {
+    url += `/${questionnaireResponse.id}`;
+    method = "PUT";
+  }
+
+  return client.request({
+    url,
+    method,
+    headers: { "Content-Type": "application/fhir+json" },
+    body: JSON.stringify({
+      ...questionnaireResponse,
+      // Plugging questionnaire.id in because SMART Health IT requires QRs to have Questionnaire/{id} as reference
+      questionnaire: `Questionnaire/${questionnaire.id}`,
+      meta: {
+        ...questionnaireResponse.meta,
+        source: "https://aidbox.github.io/examples/aidbox-forms-smart-launch",
+      },
+    }),
+  });
+}
+
+export async function createQuestionnaireResponse({
+  client,
+  questionnaire,
+  subject,
+  encounter,
+  author,
+}) {
+  const questionnaireResponse = await populate({
+    questionnaire,
+    subject,
+    encounter,
+    author,
+  });
+
+  return saveQuestionnaireResponse(
+    client,
+    questionnaire,
+    questionnaireResponse,
+  );
+}
+
+export function createSmartAppLauncherUrl({
+  launchUrl,
+  launchType,
+  fhirVersion,
+}) {
+  const launchTypes = [
+    "provider-ehr",
+    "patient-portal",
+    "provider-standalone",
+    "patient-standalone",
+    "backend-service",
+  ];
+
+  const url = new URL(launchUrl);
+  url.search = "";
+  url.hash = "";
+
+  const qs = new URLSearchParams();
+  qs.set("fhir_version", fhirVersion || "r4");
+  qs.set("launch_url", url.toString());
+  qs.set("launch", btoa(JSON.stringify([launchTypes.indexOf(launchType)])));
+
+  return `https://launch.smarthealthit.org/?${qs.toString()}`;
+}
+
+export function unbundle(result) {
+  const resource =
+    result.resourceType === "Bundle" ? result.entry[0]?.resource : result;
+
+  if (!resource) {
+    throw new Error("Resource not found");
+  }
+
+  return resource;
+}
+
+export async function findQuestionnaire(client, ref) {
+  const query = ref.startsWith("http")
+    ? `Questionnaire?url=${ref.replace(/\|.*$/, "")}`
+    : `Questionnaire/${ref.replace(/^Questionnaire\//, "")}`;
+
+  return Promise.any([
+    publicBuilderClient.request(query).then(unbundle),
+    client.request(query).then(unbundle),
+    publicBuilderClient.request(ref).then(unbundle),
+  ]);
+}
