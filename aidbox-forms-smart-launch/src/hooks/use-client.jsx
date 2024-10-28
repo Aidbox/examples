@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
 import { client, oauth2 } from "fhirclient";
-import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 export const clientId = "aidbox-forms";
@@ -33,15 +32,13 @@ export const useClient = () => {
 };
 
 export const ClientProvider = ({ children }) => {
-  let location = useLocation();
-
   const { data: client } = useQuery({
     queryKey: ["client"],
     queryFn: () => {
       return oauth2.init({
         clientId,
         scope,
-        redirectUri: location.pathname,
+        redirectUri: window.location.pathname,
       });
     },
     retry: false,

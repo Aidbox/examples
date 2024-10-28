@@ -222,7 +222,7 @@ export function createSmartAppLauncherUrl({
 
 export function unbundle(result) {
   const resource =
-    result.resourceType === "Bundle" ? result.entry[0]?.resource : result;
+    result.resourceType === "Bundle" ? result.entry?.[0]?.resource : result;
 
   if (!resource) {
     throw new Error("Resource not found");

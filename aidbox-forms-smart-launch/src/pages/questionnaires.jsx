@@ -60,10 +60,11 @@ export const Questionnaires = () => {
 
   const totalPages = Math.ceil(data.total / pageSize);
 
-  const questionnaires = data.entry.map((x) => ({
-    publisher: "Health Samurai",
-    ...x.resource,
-  }));
+  const questionnaires =
+    data.entry?.map((x) => ({
+      publisher: "Health Samurai",
+      ...x.resource,
+    })) || [];
 
   const [previewingQuestionnaire, setPreviewingQuestionnaire] = useState(null);
 

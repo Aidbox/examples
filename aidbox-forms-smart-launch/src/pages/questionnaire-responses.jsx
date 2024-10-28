@@ -60,7 +60,7 @@ export const QuestionnaireResponses = () => {
 
   const totalPages = Math.ceil(data.total / pageSize);
 
-  const questionnaireResponse = data.entry.map((x) => x.resource);
+  const questionnaireResponse = data.entry?.map((x) => x.resource) || [];
 
   const dummy = Symbol("dummy");
 
