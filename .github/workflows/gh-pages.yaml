@@ -32,7 +32,7 @@ jobs:
       - name: Prepare for deployment
         run: |
           cd aidbox-forms-smart-launch
-          rm -rf !(dist)
+          find . -mindepth 1 -maxdepth 1 ! -name 'dist' -exec rm -rf {} \;
           mv dist/* .
           rm -rf dist
 
