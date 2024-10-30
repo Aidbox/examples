@@ -9,7 +9,7 @@ export function Dashboard() {
       <h1 className="mb-4 text-2xl font-bold">
         Welcome, {constructName(user.name)}
       </h1>
-      <p className="text-muted-foreground">
+      <div className="text-muted-foreground">
         {user.resourceType === "Patient" ? (
           <div className="space-y-2">
             <p>
@@ -57,7 +57,7 @@ export function Dashboard() {
             </p>
           </div>
         )}
-      </p>
+      </div>
     </div>
   );
 }

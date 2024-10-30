@@ -179,8 +179,6 @@ export function saveQuestionnaireResponse(
 }
 
 export function saveQuestionnaire(client, questionnaire) {
-  console.log({ client });
-
   let url = "Questionnaire";
   let method = "POST";
 
@@ -277,4 +275,69 @@ export async function findQuestionnaire(client, ref) {
   return findQuestionnaireWithClient(client, ref).then(
     ([, questionnaire]) => questionnaire,
   );
+}
+
+export async function getPager(client, baseUrl, pageSize) {
+  const serverUrl = client.state.serverUrl.endsWith("/")
+    ? client.state.serverUrl
+    : `${client.state.serverUrl}/`;
+
+  const url = new URL(baseUrl, serverUrl);
+
+  // Get the first page to determine pagination method
+  const data = await client.request(url.toString());
+  const link = data.link.filter(
+    (x) => x.relation === "self" || x.relation === "first",
+  )?.[0];
+
+  if (link) {
+    const url = new URL(link.url, serverUrl);
+
+    // Check if the server uses page base or offset based pagination
+    const pageParam = [...url.searchParams]
+      .map(([key]) => {
+        if (key.toLocaleLowerCase().includes("offset")) {
+          return {
+            param: key,
+            type: "offset",
+          };
+        } else if (key.toLocaleLowerCase().includes("page")) {
+          return {
+            param: key,
+            type: "page",
+          };
+        }
+      })
+      .filter(Boolean)[0];
+
+    // If we found a pagination method, return a function to fetch a specific page
+    if (pageParam) {
+      url.searchParams.set("_count", pageSize);
+
+      return (page) => {
+        if (pageParam.type === "offset") {
+          // Offset based pagination
+          url.searchParams.set(pageParam.param, `${pageSize * (page - 1)}`);
+        } else {
+          // Page based pagination
+          url.searchParams.set(pageParam.param, `${page}`);
+        }
+        return client.request(url.toString());
+      };
+    }
+  }
+
+  // Can't determine pagination method, just return everything
+  // todo: fallback to prev/next based pagination
+  return (_page) => {
+    // Remove _count parameter to get all results
+    url.searchParams.delete("_count");
+    return client.request(url.toString()).then((data) => {
+      return {
+        ...data,
+        // Hide the real total count from the user
+        total: data.entry?.length || 0,
+      };
+    });
+  };
 }

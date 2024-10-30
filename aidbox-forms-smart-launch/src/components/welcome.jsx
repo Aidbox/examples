@@ -74,13 +74,13 @@ export const Welcome = () => {
               <li>
                 <span className="font-semibold">Launch URL:</span>{" "}
                 <code className="bg-black text-white px-1 py-0.5 rounded text-xs">
-                  {launchUrl}
+                  {launchUrl.toString()}
                 </code>
               </li>
               <li>
                 <span className="font-semibold">Redirect URL:</span>{" "}
                 <code className="bg-black text-white px-1 py-0.5 rounded text-xs">
-                  {launchUrl}
+                  {launchUrl.toString()}
                 </code>
               </li>
               <li>

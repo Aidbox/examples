@@ -39,6 +39,7 @@ import {
   constructName,
   createQuestionnaireResponse,
   deleteQuestionnaire,
+  getPager,
   saveQuestionnaire,
 } from "@/lib/utils.js";
 import { useToast } from "@/hooks/use-toast.js";
@@ -49,7 +50,6 @@ export const Questionnaires = () => {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  console.log(searchParams.toString());
   const { user, patient, encounter } = useLaunchContext();
   const client = useClient();
   const { toast } = useToast();
@@ -68,16 +68,20 @@ export const Questionnaires = () => {
   const currentQueryKey = ["questionnaires", source, currentPage];
   const firstPageOfEhrQueryKey = ["questionnaires", "ehr", 1];
 
+  const { data: libraryPager } = useQuery({
+    queryKey: ["questionnaire-pager", "library"],
+    queryFn: () => getPager(publicBuilderClient, "Questionnaire", pageSize),
+  });
+
+  const { data: ehrPager } = useQuery({
+    queryKey: ["questionnaire-pager", "ehr"],
+    queryFn: () => getPager(client, "Questionnaire", pageSize),
+  });
+
   const { data } = useQuery({
     queryKey: currentQueryKey,
     queryFn: () =>
-      source === "library"
-        ? publicBuilderClient.request(
-            `Questionnaire?_count=${pageSize}&page=${currentPage}`,
-          )
-        : client.request(
-            `Questionnaire?_count=${pageSize}&_getpagesoffset=${pageSize * (currentPage - 1)}`,
-          ),
+      source === "library" ? libraryPager(currentPage) : ehrPager(currentPage),
   });
 
   const createQuestionnaireMutation = useMutation({
