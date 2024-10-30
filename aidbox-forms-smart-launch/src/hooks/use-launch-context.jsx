@@ -30,10 +30,14 @@ export const readLaunchContext = async (client) => {
     readLaunchResource(client, "QuestionnaireResponse"),
   ]);
 
+  if (user.status === "rejected") {
+    throw user.reason;
+  }
+
   return {
     patient: p.status === "fulfilled" ? p.value : null,
     encounter: e.status === "fulfilled" ? e.value : null,
-    user: u.status === "fulfilled" ? u.value : null,
+    user: u.value,
     questionnaire: q.status === "fulfilled" ? q.value : null,
     questionnaireResponse: qr.status === "fulfilled" ? qr.value : null,
   };
