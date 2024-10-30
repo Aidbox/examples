@@ -8,6 +8,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'ips_ig/**' # Only trigger if files within ips_ig change
   workflow_dispatch:
 
 jobs:
