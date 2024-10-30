@@ -1,11 +1,12 @@
 import { createContext, useContext } from "react";
 import { client, oauth2 } from "fhirclient";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 
 export const clientId = "aidbox-forms";
 
 // todo: reconsider scopes
-const scope = [
+export const defaultScope = [
   "openid fhirUser", // Request access to current user and its identity
   "profile", // Permission to retrieve information about the current logged-in user
   "online_access", // Request a refresh_token that can be used to obtain a new access token to replace an expired one, and that will be usable for as long as the end-user remains online.
@@ -18,11 +19,19 @@ const scope = [
 
   "patient/Patient.r", // Request read access to Patient resource
   "patient/QuestionnaireResponse.crus", // Request create, read, update access to QuestionnaireResponse resource
-].join(" ");
+];
 
 export const publicBuilderClient = client("https://form-builder.aidbox.app");
 
 const clientContext = createContext(null);
+
+export const authorize = (options) => {
+  return oauth2.authorize({
+    clientId,
+    redirectUri: window.location.pathname,
+    ...options,
+  });
+};
 
 export const useClient = () => {
   const client = useContext(clientContext);
@@ -34,12 +43,26 @@ export const useClient = () => {
 };
 
 export const ClientProvider = ({ children }) => {
+  const [searchParams] = useSearchParams();
+
   const { data: client } = useQuery({
     queryKey: ["client"],
     queryFn: () => {
+      if (searchParams.has("error") || searchParams.has("error_description")) {
+        return oauth2
+          .ready({
+            clientId,
+            redirectUri: window.location.pathname,
+          })
+          .catch((error) => {
+            sessionStorage.clear();
+            throw error;
+          });
+      }
+
       return oauth2.init({
         clientId,
-        scope,
+        scope: defaultScope.join(" "),
         redirectUri: window.location.pathname,
       });
     },

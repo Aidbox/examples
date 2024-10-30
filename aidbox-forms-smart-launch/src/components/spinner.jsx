@@ -3,7 +3,7 @@ export const Spinner = (props) => {
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 150" {...props}>
       <path
         fill="none"
-        stroke="#F472B6"
+        stroke="#EA4A35"
         strokeWidth="15"
         strokeLinecap="round"
         strokeDasharray="300 385"

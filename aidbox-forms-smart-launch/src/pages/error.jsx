@@ -1,5 +1,5 @@
 import { useRouteError } from "react-router-dom";
-import { LaunchInstructions } from "@/components/launch-instructions.jsx";
+import { Welcome } from "@/components/welcome.jsx";
 
 export function Error() {
   let error = useRouteError();
@@ -7,7 +7,7 @@ export function Error() {
   return (
     <div className="p-10">
       {error?.message?.includes("fhirServiceUrl") ? (
-        <LaunchInstructions />
+        <Welcome />
       ) : (
         <>
           <h1 className="text-4xl font-bold mb-4">
