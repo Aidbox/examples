@@ -12,16 +12,17 @@ import { UserAvatar } from "@/components/user-avatar.jsx";
 import { useLaunchContext } from "@/hooks/use-launch-context.jsx";
 import { constructName } from "@/lib/utils.js";
 import { useClient } from "@/hooks/use-client.jsx";
-import { useHref } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const UserDropdownMenu = () => {
   const { user } = useLaunchContext();
-  const href = useHref("/");
   const client = useClient();
+  const navigate = useNavigate();
 
   const logout = () => {
     client._clearState?.();
-    location.href = href;
+    navigate("/");
+    window.location.reload();
   };
 
   return (

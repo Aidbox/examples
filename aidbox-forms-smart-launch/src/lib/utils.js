@@ -7,7 +7,9 @@ export function cn(...inputs) {
 }
 
 export function constructName(name) {
-  if (name?.[0]["text"]) {
+  if (!name) {
+    return "Unknown";
+  } else if (name?.[0]["text"]) {
     return `${name?.[0].text}`;
   } else {
     const prefix = name?.[0].prefix?.[0] ?? "";
@@ -29,7 +31,7 @@ export const constructAddress = (address) => {
 };
 
 export function constructGender(gender) {
-  return gender.charAt(0).toUpperCase() + gender.slice(1);
+  return gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : "unknown";
 }
 
 export function constructInitials(name) {
@@ -236,13 +238,9 @@ export function createSmartAppLauncherUrl({
     "backend-service",
   ];
 
-  const url = new URL(launchUrl);
-  url.search = "";
-  url.hash = "";
-
   const qs = new URLSearchParams();
   qs.set("fhir_version", fhirVersion || "r4");
-  qs.set("launch_url", url.toString());
+  qs.set("launch_url", launchUrl.toString());
   qs.set("launch", btoa(JSON.stringify([launchTypes.indexOf(launchType)])));
 
   return `https://launch.smarthealthit.org/?${qs.toString()}`;

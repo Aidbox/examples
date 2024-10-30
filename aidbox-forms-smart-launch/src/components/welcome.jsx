@@ -34,6 +34,7 @@ import {
 import { Textarea } from "@/ui/textarea.jsx";
 import { useToast } from "@/hooks/use-toast.js";
 import useLocalStorageState from "use-local-storage-state";
+import logo from "/health-samurai.svg";
 
 export const Welcome = () => {
   const { toast } = useToast();
@@ -55,7 +56,8 @@ export const Welcome = () => {
     },
   );
 
-  const launchUrl = window.location.href;
+  const launchUrl = new URL(window.location);
+  launchUrl.search = "";
 
   return (
     <>
@@ -109,7 +111,7 @@ export const Welcome = () => {
       <div className="mb-4"></div>
 
       <div className="flex flex-col items-center gap-8 max-w-[24rem] mx-auto">
-        <img alt="Health Samurai" src="/health-samurai.svg" width="64" />
+        <img alt="Health Samurai" src={logo} width="64" />
 
         <h1 className="text-2xl font-bold text-center text-pretty">
           Welcome to Aidbox Forms Smart App

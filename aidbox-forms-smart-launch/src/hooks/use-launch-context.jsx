@@ -30,8 +30,8 @@ export const readLaunchContext = async (client) => {
     readLaunchResource(client, "QuestionnaireResponse"),
   ]);
 
-  if (user.status === "rejected") {
-    throw user.reason;
+  if (u.status === "rejected") {
+    throw u.reason;
   }
 
   return {

@@ -1,6 +1,6 @@
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import { Dashboard } from "@/pages/dashboard.jsx";
 import { Page } from "@/components/page.jsx";
@@ -25,45 +25,40 @@ const queryClient = new QueryClient({
   },
 });
 
-const router = createBrowserRouter(
-  [
-    {
-      path: "/",
-      Component: Page,
-      ErrorBoundary: Error,
-      children: [
-        {
-          index: true,
-          Component: Dashboard,
-        },
-        {
-          path: "/questionnaire-responses",
-          Component: QuestionnaireResponses,
-        },
-        {
-          path: "/questionnaire-responses/:id",
-          Component: QuestionnaireResponse,
-        },
-        {
-          Component: PractitionerOnly,
-          children: [
-            {
-              path: "/questionnaires",
-              Component: Questionnaires,
-            },
-            {
-              path: "/questionnaires/:id",
-              Component: QuestionnaireEditor,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+const router = createHashRouter([
   {
-    basename: import.meta.env.BASE_URL,
+    path: "/",
+    Component: Page,
+    ErrorBoundary: Error,
+    children: [
+      {
+        index: true,
+        Component: Dashboard,
+      },
+      {
+        path: "/questionnaire-responses",
+        Component: QuestionnaireResponses,
+      },
+      {
+        path: "/questionnaire-responses/:id",
+        Component: QuestionnaireResponse,
+      },
+      {
+        Component: PractitionerOnly,
+        children: [
+          {
+            path: "/questionnaires",
+            Component: Questionnaires,
+          },
+          {
+            path: "/questionnaires/:id",
+            Component: QuestionnaireEditor,
+          },
+        ],
+      },
+    ],
   },
-);
+]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

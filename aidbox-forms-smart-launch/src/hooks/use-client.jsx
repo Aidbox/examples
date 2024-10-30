@@ -26,9 +26,11 @@ export const publicBuilderClient = client("https://form-builder.aidbox.app");
 const clientContext = createContext(null);
 
 export const authorize = (options) => {
+  const redirectUri = window.location.pathname + window.location.hash;
+
   return oauth2.authorize({
     clientId,
-    redirectUri: window.location.pathname,
+    redirectUri,
     ...options,
   });
 };
@@ -43,16 +45,18 @@ export const useClient = () => {
 };
 
 export const ClientProvider = ({ children }) => {
-  const [searchParams] = useSearchParams();
+  const { searchParams } = new URL(window.location);
 
   const { data: client } = useQuery({
     queryKey: ["client"],
     queryFn: () => {
+      const redirectUri = window.location.pathname + window.location.hash;
+
       if (searchParams.has("error") || searchParams.has("error_description")) {
         return oauth2
           .ready({
             clientId,
-            redirectUri: window.location.pathname,
+            redirectUri,
           })
           .catch((error) => {
             sessionStorage.clear();
@@ -63,7 +67,7 @@ export const ClientProvider = ({ children }) => {
       return oauth2.init({
         clientId,
         scope: defaultScope.join(" "),
-        redirectUri: window.location.pathname,
+        redirectUri,
       });
     },
     retry: false,
