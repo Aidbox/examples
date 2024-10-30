@@ -1,5 +1,5 @@
-import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
-import { publicBuilderClient, useClient } from "@/hooks/use-client.jsx";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { useClient } from "@/hooks/use-client.jsx";
 import { DataTable } from "@/components/data-table.jsx";
 import { Button } from "@/ui/button";
 import {
@@ -10,36 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/ui/dropdown-menu";
-import {
-  Copy,
-  Edit,
-  Eye,
-  Loader2,
-  MoreHorizontal,
-  Plus,
-  Trash,
-  Trash2,
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/ui/dialog.jsx";
+import { Copy, Edit, MoreHorizontal } from "lucide-react";
 import * as React from "react";
-import { Suspense, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { QuestionnairePreview } from "@/components/questionnaire-preview.jsx";
-import { Loading } from "@/components/loading.jsx";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Pagination } from "@/components/pagination.jsx";
 import { useLaunchContext } from "@/hooks/use-launch-context.jsx";
-import {
-  constructName,
-  createQuestionnaireResponse,
-  findQuestionnaire,
-} from "@/lib/utils.js";
-import { useToast } from "@/hooks/use-toast.js";
-import { Spinner } from "@/components/spinner.jsx";
+import { constructName, findQuestionnaire } from "@/lib/utils.js";
 
 export const QuestionnaireResponses = () => {
   const [searchParams] = useSearchParams();

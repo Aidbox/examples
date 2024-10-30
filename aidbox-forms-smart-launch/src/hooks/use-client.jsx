@@ -14,6 +14,8 @@ const scope = [
   "launch/questionnaire", // Request Questionnaire to be included in the launch context
   "launch/questionnaireresponse", // Request QuestionnaireResponse to be included in the launch context
 
+  "user/Questionnaire.crus",
+
   "patient/Patient.r", // Request read access to Patient resource
   "patient/QuestionnaireResponse.crus", // Request create, read, update access to QuestionnaireResponse resource
 ].join(" ");

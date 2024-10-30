@@ -9,8 +9,16 @@ import {
   PaginationPrevious,
 } from "@/ui/pagination.jsx";
 import * as React from "react";
+import { useSearchParams } from "react-router-dom";
 
 export const Pagination = ({ currentPage, totalPages }) => {
+  const [searchParams] = useSearchParams();
+
+  const withPage = (page) => {
+    searchParams.set("page", page);
+    return `?${searchParams}`;
+  };
+
   if (totalPages <= 1) {
     return null;
   }
@@ -22,13 +30,13 @@ export const Pagination = ({ currentPage, totalPages }) => {
       <PaginationContent>
         {paginationData.prevButtonEnabled && (
           <PaginationItem>
-            <PaginationPrevious to={`?page=${currentPage - 1}`} />
+            <PaginationPrevious to={withPage(currentPage - 1)} />
           </PaginationItem>
         )}
 
         {paginationData.showFirstPageButton && (
           <PaginationItem>
-            <PaginationLink to={`?page=1`}>{1}</PaginationLink>
+            <PaginationLink to={withPage(1)}>{1}</PaginationLink>
           </PaginationItem>
         )}
 
@@ -40,7 +48,7 @@ export const Pagination = ({ currentPage, totalPages }) => {
 
         {paginationData.pagesBeforeCurrent.map((page) => (
           <PaginationItem key={page}>
-            <PaginationLink to={`?page=${page}`}>{page}</PaginationLink>
+            <PaginationLink to={withPage(page)}>{page}</PaginationLink>
           </PaginationItem>
         ))}
 
@@ -50,7 +58,7 @@ export const Pagination = ({ currentPage, totalPages }) => {
 
         {paginationData.pagesAfterCurrent.map((page) => (
           <PaginationItem key={page}>
-            <PaginationLink to={`?page=${page}`}>{page}</PaginationLink>
+            <PaginationLink to={withPage(page)}>{page}</PaginationLink>
           </PaginationItem>
         ))}
 
@@ -62,7 +70,7 @@ export const Pagination = ({ currentPage, totalPages }) => {
 
         {paginationData.showLastPageButton && (
           <PaginationItem>
-            <PaginationLink to={`?page=${totalPages}`}>
+            <PaginationLink to={withPage(totalPages)}>
               {totalPages}
             </PaginationLink>
           </PaginationItem>
@@ -70,7 +78,7 @@ export const Pagination = ({ currentPage, totalPages }) => {
 
         {paginationData.nextButtonEnabled && (
           <PaginationItem>
-            <PaginationNext to={`?page=${currentPage + 1}`} />
+            <PaginationNext to={withPage(currentPage + 1)} />
           </PaginationItem>
         )}
       </PaginationContent>

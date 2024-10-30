@@ -1,15 +1,17 @@
-import { publicBuilderClient } from "@/hooks/use-client.jsx";
+import { useClient } from "@/hooks/use-client.jsx";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast.js";
 import { useAwaiter } from "@/hooks/use-awaiter.jsx";
+import { findQuestionnaire } from "@/lib/utils.js";
 
 export const QuestionnairePreview = ({ id }) => {
   const ref = useRef();
+  const client = useClient();
 
   const { data: questionnaire } = useQuery({
     queryKey: ["questionnaire", id],
-    queryFn: () => publicBuilderClient.request(`Questionnaire/${id}`),
+    queryFn: () => findQuestionnaire(client, id),
   });
 
   const { toast } = useToast();

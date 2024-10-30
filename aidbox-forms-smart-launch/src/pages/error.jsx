@@ -1,7 +1,4 @@
-import { useNavigate, useRouteError } from "react-router-dom";
-import { useEffect, useLayoutEffect } from "react";
-import { ChevronRight, Stethoscope, User } from "lucide-react";
-import { Button } from "@/ui/button.jsx";
+import { useRouteError } from "react-router-dom";
 import { LaunchInstructions } from "@/components/launch-instructions.jsx";
 
 export function Error() {

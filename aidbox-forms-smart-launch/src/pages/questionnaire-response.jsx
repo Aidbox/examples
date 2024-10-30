@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { publicBuilderClient, useClient } from "@/hooks/use-client.jsx";
+import { useClient } from "@/hooks/use-client.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAwaiter } from "@/hooks/use-awaiter.jsx";
 import { useEffect, useRef } from "react";

@@ -165,12 +165,40 @@ export function saveQuestionnaireResponse(
     body: JSON.stringify({
       ...questionnaireResponse,
       // Plugging questionnaire.id in because SMART Health IT requires QRs to have Questionnaire/{id} as reference
-      questionnaire: `Questionnaire/${questionnaire.id}`,
+      questionnaire: questionnaire.url
+        ? questionnaire.url
+        : `Questionnaire/${questionnaire.id}`,
       meta: {
         ...questionnaireResponse.meta,
         source: "https://aidbox.github.io/examples/aidbox-forms-smart-launch",
       },
     }),
+  });
+}
+
+export function saveQuestionnaire(client, questionnaire) {
+  console.log({ client });
+
+  let url = "Questionnaire";
+  let method = "POST";
+
+  if (questionnaire.id) {
+    url += `/${questionnaire.id}`;
+    method = "PUT";
+  }
+
+  return client.request({
+    url,
+    method,
+    headers: { "Content-Type": "application/fhir+json" },
+    body: JSON.stringify(questionnaire),
+  });
+}
+
+export function deleteQuestionnaire(client, questionnaire) {
+  return client.request({
+    url: `Questionnaire/${questionnaire.id}`,
+    method: "DELETE",
   });
 }
 
@@ -231,14 +259,24 @@ export function unbundle(result) {
   return resource;
 }
 
-export async function findQuestionnaire(client, ref) {
+export async function findQuestionnaireWithClient(client, ref) {
   const query = ref.startsWith("http")
     ? `Questionnaire?url=${ref.replace(/\|.*$/, "")}`
     : `Questionnaire/${ref.replace(/^Questionnaire\//, "")}`;
 
   return Promise.any([
-    publicBuilderClient.request(query).then(unbundle),
-    client.request(query).then(unbundle),
-    publicBuilderClient.request(ref).then(unbundle),
+    publicBuilderClient
+      .request(query)
+      .then((result) => [publicBuilderClient, unbundle(result)]),
+    client.request(query).then((result) => [client, unbundle(result)]),
+    publicBuilderClient
+      .request(ref)
+      .then((result) => [publicBuilderClient, unbundle(result)]),
   ]);
+}
+
+export async function findQuestionnaire(client, ref) {
+  return findQuestionnaireWithClient(client, ref).then(
+    ([, questionnaire]) => questionnaire,
+  );
 }

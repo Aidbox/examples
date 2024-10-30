@@ -2,11 +2,10 @@ import { SidebarInset, SidebarProvider } from "@/ui/sidebar.jsx";
 import { Header } from "@/components/header.jsx";
 import { Sidebar } from "@/components/sidebar.jsx";
 import * as React from "react";
+import { Suspense } from "react";
 import { LaunchContextProvider } from "@/hooks/use-launch-context.jsx";
 import { ClientProvider } from "@/hooks/use-client.jsx";
-import { cn } from "@/lib/utils.js";
-import { Outlet, useNavigation } from "react-router-dom";
-import { Suspense } from "react";
+import { Outlet } from "react-router-dom";
 import { Loading } from "@/components/loading.jsx";
 
 export const Page = () => {
