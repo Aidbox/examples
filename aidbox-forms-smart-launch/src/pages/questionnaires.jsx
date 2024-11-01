@@ -13,6 +13,16 @@ import {
   DropdownMenuTrigger,
 } from "@/ui/dropdown-menu";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/ui/alert-dialog";
+import {
   ChevronDown,
   Copy,
   Edit,
@@ -167,18 +177,14 @@ export const Questionnaires = () => {
 
   const deleteQuestionnaireMutation = useMutation({
     mutationFn: (questionnaire) => deleteQuestionnaire(client, questionnaire),
-    onMutate: async (questionnaire) => {
+    onSuccess: async (_, questionnaire) => {
       await queryClient.cancelQueries({ queryKey: currentQueryKey });
-      const previousData = queryClient.getQueryData(currentQueryKey);
 
       queryClient.setQueryData(currentQueryKey, (data) => ({
         ...data,
         entry: data.entry?.filter((x) => x.resource.id !== questionnaire.id),
       }));
 
-      return { previousData };
-    },
-    onSuccess: () => {
       toast({
         title: "Questionnaire deleted",
         description: `Questionnaire deleted successfully`,
@@ -186,8 +192,6 @@ export const Questionnaires = () => {
     },
 
     onError: (err, newTodo, context) => {
-      queryClient.setQueryData(currentQueryKey, context.previousData);
-
       toast({
         variant: "destructive",
         title: "Delete questionnaire",
@@ -208,6 +212,7 @@ export const Questionnaires = () => {
     })) || [];
 
   const [previewingQuestionnaire, setPreviewingQuestionnaire] = useState(null);
+  const [deletingQuestionnaire, setDeletingQuestionnaire] = useState(null);
 
   const columns = [
     {
@@ -233,6 +238,7 @@ export const Questionnaires = () => {
           (createQuestionnaireMutation.isPending &&
             createQuestionnaireMutation.variables.questionnaire.id ===
               questionnaire.id) ||
+          questionnaire.id === deleteQuestionnaireMutation.variables?.id ||
           questionnaire.id === undefined; // optimistically importing questionnaire
 
         return loading ? (
@@ -262,12 +268,12 @@ export const Questionnaires = () => {
                 onClick={() => setPreviewingQuestionnaire(questionnaire.id)}
               >
                 <Eye />
-                View questionnaire
+                Preview
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to={`/questionnaires/${questionnaire.id}`}>
                   <Edit />
-                  Edit questionnaire
+                  Edit
                 </Link>
               </DropdownMenuItem>
               {source === "library" && (
@@ -280,18 +286,16 @@ export const Questionnaires = () => {
                   }}
                 >
                   <Import />
-                  Import questionnaire
+                  Import
                 </DropdownMenuItem>
               )}
               {source !== "library" && (
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
-                  onClick={() => {
-                    deleteQuestionnaireMutation.mutate(questionnaire);
-                  }}
+                  onClick={() => setDeletingQuestionnaire(questionnaire)}
                 >
                   <Trash2 />
-                  Delete questionnaire
+                  Delete
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
@@ -345,6 +349,36 @@ export const Questionnaires = () => {
       <DataTable columns={columns} data={questionnaires} />
 
       <Pagination currentPage={currentPage} totalPages={totalPages} />
+
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingQuestionnaire(null);
+          }
+        }}
+        open={!!deletingQuestionnaire}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Proceeding will permanently delete
+              this questionnaire from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                deleteQuestionnaireMutation.mutate(deletingQuestionnaire);
+                setDeletingQuestionnaire(null);
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog
         onOpenChange={(open) => {
