@@ -270,12 +270,14 @@ export const Questionnaires = () => {
                 <Eye />
                 Preview
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to={`/questionnaires/${questionnaire.id}`}>
-                  <Edit />
-                  Edit
-                </Link>
-              </DropdownMenuItem>
+              {source !== "library" && (
+                <DropdownMenuItem asChild>
+                  <Link to={`/questionnaires/${questionnaire.id}`}>
+                    <Edit />
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+              )}
               {source === "library" && (
                 <DropdownMenuItem
                   onClick={() => {
@@ -298,27 +300,29 @@ export const Questionnaires = () => {
                   Delete
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem
-                onClick={() => {
-                  createQuestionnaireMutation.mutate({
-                    client,
-                    questionnaire: {
-                      ...questionnaire,
-                      // used to link questionnaire response
-                      url:
-                        source === "library"
-                          ? `${publicBuilderClient.state.serverUrl}/Questionnaire/${questionnaire.id}`
-                          : undefined,
-                    },
-                    subject: patient,
-                    encounter,
-                    author: user,
-                  });
-                }}
-              >
-                <Plus />
-                Create response
-              </DropdownMenuItem>
+              {source !== "library" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    createQuestionnaireMutation.mutate({
+                      client,
+                      questionnaire: {
+                        ...questionnaire,
+                        // used to link questionnaire response
+                        url:
+                          source === "library"
+                            ? `${publicBuilderClient.state.serverUrl}/Questionnaire/${questionnaire.id}`
+                            : undefined,
+                      },
+                      subject: patient,
+                      encounter,
+                      author: user,
+                    });
+                  }}
+                >
+                  <Plus />
+                  Create response
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
