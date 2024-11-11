@@ -1,6 +1,9 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { publicBuilderClient } from "@/hooks/use-client.jsx";
+import {
+  fixPotentialBrokenUrl,
+  publicBuilderClient,
+} from "@/hooks/use-client.jsx";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -266,7 +269,7 @@ export async function findQuestionnaireWithClient(client, ref) {
       .then((result) => [publicBuilderClient, unbundle(result)]),
     client.request(query).then((result) => [client, unbundle(result)]),
     publicBuilderClient
-      .request(ref)
+      .request(fixPotentialBrokenUrl(ref))
       .then((result) => [publicBuilderClient, unbundle(result)]),
   ]);
 }
