@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useClient } from "@/hooks/use-client.jsx";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useAwaiter } from "@/hooks/use-awaiter.jsx";
 import { useEffect, useRef } from "react";
 import { findQuestionnaire, saveQuestionnaireResponse } from "@/lib/utils.js";
@@ -10,14 +10,14 @@ export const QuestionnaireResponse = () => {
   const { id } = useParams();
   const client = useClient();
 
-  const { data: questionnaireResponse } = useQuery({
+  const { data: questionnaireResponse } = useSuspenseQuery({
     queryKey: ["questionnaire-response", id],
     queryFn: () => client.request(`QuestionnaireResponse/${id}`),
   });
 
   const questionnaireRef = questionnaireResponse.questionnaire;
 
-  const { data: questionnaire } = useQuery({
+  const { data: questionnaire } = useSuspenseQuery({
     queryKey: ["questionnaire", questionnaireRef],
     queryFn: () => findQuestionnaire(client, questionnaireRef),
   });

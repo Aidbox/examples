@@ -19,9 +19,6 @@ const queryClient = new QueryClient({
     mutations: {
       throwOnError: true,
     },
-    queries: {
-      suspense: true,
-    },
   },
 });
 

@@ -1,13 +1,7 @@
 import { Button } from "@/ui/button.jsx";
-import {
-  ChevronRight,
-  ChevronsUpDown,
-  Play,
-  Stethoscope,
-  User,
-} from "lucide-react";
+import { ChevronsUpDown, Play, Stethoscope, User } from "lucide-react";
 import { createSmartAppLauncherUrl } from "@/lib/utils.js";
-import { clientId, defaultScope, authorize } from "@/hooks/use-client.jsx";
+import { authorize, clientId, defaultScope } from "@/hooks/use-client.jsx";
 import {
   Card,
   CardContent,
@@ -43,12 +37,8 @@ export const Welcome = () => {
   const [tab, setTab] = useLocalStorageState("welcome-tab", {
     defaultValue: "ehr",
   });
-  const [issuer, setIssuer, { removeItem: resetIssuer }] = useLocalStorageState(
-    "issuer",
-    {
-      defaultValue: "https://launch.smarthealthit.org/v/r4/fhir",
-    },
-  );
+  const [issuer, setIssuer, { removeItem: resetIssuer }] =
+    useLocalStorageState("issuer");
   const [scope, setScope, { removeItem: resetScope }] = useLocalStorageState(
     "scope",
     {
@@ -165,7 +155,7 @@ export const Welcome = () => {
                       launchType: "provider-ehr",
                     })}
                   >
-                    <Stethoscope className="text-orange-500 my-4" />
+                    <Stethoscope className="text-primary my-4" />
                     Provider EHR
                   </a>
                 </Button>
@@ -176,7 +166,7 @@ export const Welcome = () => {
                       launchType: "patient-portal",
                     })}
                   >
-                    <User className="text-orange-500 my-4" />
+                    <User className="text-primary my-4" />
                     Patient Portal
                   </a>
                 </Button>
@@ -251,7 +241,7 @@ export const Welcome = () => {
                       }
                     }}
                   >
-                    <Play className="text-orange-500 my-4" />
+                    <Play className="text-primary my-4" />
                     Launch
                   </Button>
                 </CardFooter>

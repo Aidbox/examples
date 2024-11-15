@@ -16,6 +16,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Pagination } from "@/components/pagination.jsx";
 import { useLaunchContext } from "@/hooks/use-launch-context.jsx";
 import { constructName, findQuestionnaire } from "@/lib/utils.js";
+import { IndefiniteProgress } from "@/components/indefinite-progress.jsx";
 
 export const QuestionnaireResponses = () => {
   const [searchParams] = useSearchParams();
@@ -26,7 +27,7 @@ export const QuestionnaireResponses = () => {
   const currentPage = Number(searchParams.get("page")) || 1;
   const pageSize = 15;
 
-  const { data } = useQuery({
+  const questionnaireResponseResult = useQuery({
     queryKey: ["questionnaire-responses", currentPage],
     queryFn: () =>
       client.request(
@@ -34,48 +35,48 @@ export const QuestionnaireResponses = () => {
       ),
   });
 
-  const totalPages = Math.ceil(data.total / pageSize);
+  const totalPages = Math.ceil(
+    (questionnaireResponseResult.data?.total || 0) / pageSize,
+  );
 
-  const questionnaireResponse = data.entry?.map((x) => x.resource) || [];
+  const questionnaireResponses =
+    questionnaireResponseResult.data?.entry?.map((x) => x.resource) || [];
 
-  const dummy = Symbol("dummy");
-
-  const practitioners = useQueries({
-    queries: questionnaireResponse
+  const practitionerResults = useQueries({
+    queries: questionnaireResponses
       .filter(({ author }) => author?.id)
       .map(({ author }) => ({
         queryKey: ["author", author.id],
-        queryFn: () =>
-          client.request(`Practitioner/${author.id}`).catch(() => dummy),
+        queryFn: () => client.request(`Practitioner/${author.id}`),
       })),
-    combine: (results) =>
-      results.reduce((acc, { data }) => {
-        if (data !== dummy) {
-          acc[data.id] = data;
-        }
-        return acc;
-      }, {}),
   });
 
-  const questionnaires = useQueries({
-    queries: questionnaireResponse
+  const practitioners = practitionerResults.reduce((acc, { data }) => {
+    if (data) {
+      acc[data.id] = data;
+    }
+    return acc;
+  }, {});
+
+  const questionnaireResults = useQueries({
+    queries: questionnaireResponses
       .filter(({ questionnaire }) => questionnaire)
       .map(({ questionnaire }) => ({
         queryKey: ["questionnaire", questionnaire],
         queryFn: () =>
-          findQuestionnaire(client, questionnaire).then(
-            (result) => ({ key: questionnaire, result }),
-            () => dummy,
-          ),
+          findQuestionnaire(client, questionnaire).then((result) => ({
+            key: questionnaire,
+            result,
+          })),
       })),
-    combine: (results) =>
-      results.reduce((acc, { data }) => {
-        if (data !== dummy) {
-          acc[data.key] = data.result;
-        }
-        return acc;
-      }, {}),
   });
+
+  const questionnaires = questionnaireResults.reduce((acc, { data }) => {
+    if (data) {
+      acc[data.key] = data.result;
+    }
+    return acc;
+  }, {});
 
   const columns = [
     {
@@ -143,11 +144,20 @@ export const QuestionnaireResponses = () => {
     },
   ];
 
-  return (
-    <div className="p-6 overflow-auto flex-1">
-      <DataTable columns={columns} data={questionnaireResponse} />
+  const isFetching =
+    questionnaireResponseResult.isFetching ||
+    questionnaireResults.some((x) => x.isFetching) ||
+    practitionerResults.some((x) => x.isFetching);
 
-      <Pagination currentPage={currentPage} totalPages={totalPages} />
-    </div>
+  return (
+    <>
+      <IndefiniteProgress active={isFetching} />
+
+      <div className="p-6 overflow-auto flex-1">
+        <DataTable columns={columns} data={questionnaireResponses} />
+
+        <Pagination currentPage={currentPage} totalPages={totalPages} />
+      </div>
+    </>
   );
 };

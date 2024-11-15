@@ -1,7 +1,6 @@
 import { createContext, useContext } from "react";
 import { client, oauth2 } from "fhirclient";
-import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const clientId = "aidbox-forms";
 
@@ -58,7 +57,7 @@ export const useClient = () => {
 export const ClientProvider = ({ children }) => {
   const { searchParams } = new URL(window.location);
 
-  const { data: client } = useQuery({
+  const { data: client } = useSuspenseQuery({
     queryKey: ["client"],
     queryFn: () => {
       const redirectUri = window.location.pathname + window.location.hash;

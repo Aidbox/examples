@@ -1,6 +1,3 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { publicBuilderClient, useClient } from "@/hooks/use-client.jsx";
-import { DataTable } from "@/components/data-table.jsx";
 import { Button } from "@/ui/button";
 import {
   DropdownMenu,
@@ -13,16 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/ui/dropdown-menu";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/ui/alert-dialog";
-import {
   ChevronDown,
   Copy,
   Edit,
@@ -32,66 +19,85 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import * as React from "react";
+import { Suspense, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Input } from "@/ui/input.jsx";
+import { IndefiniteProgress } from "@/components/indefinite-progress.jsx";
+import { useThrottle } from "ahooks";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLaunchContext } from "@/hooks/use-launch-context.jsx";
+import { publicBuilderClient, useClient } from "@/hooks/use-client.jsx";
+import { useToast } from "@/hooks/use-toast.js";
+import {
+  constructName,
+  createQuestionnaireResponse,
+  deleteQuestionnaire,
+  saveQuestionnaire,
+} from "@/lib/utils.js";
+import { ToastAction } from "@/ui/toast.jsx";
+import { Spinner } from "@/components/spinner.jsx";
+import { DataTable } from "@/components/data-table.jsx";
+import { Pagination } from "@/components/pagination.jsx";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/ui/alert-dialog.jsx";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/ui/dialog.jsx";
-import * as React from "react";
-import { Suspense, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { QuestionnairePreview } from "@/components/questionnaire-preview.jsx";
 import { Loading } from "@/components/loading.jsx";
-import { Pagination } from "@/components/pagination.jsx";
-import { useLaunchContext } from "@/hooks/use-launch-context.jsx";
-import {
-  constructName,
-  createQuestionnaireResponse,
-  deleteQuestionnaire,
-  getPager,
-  saveQuestionnaire,
-} from "@/lib/utils.js";
-import { useToast } from "@/hooks/use-toast.js";
-import { Spinner } from "@/components/spinner.jsx";
-import { ToastAction } from "@/ui/toast.jsx";
+import { QuestionnairePreview } from "@/components/questionnaire-preview.jsx";
 
 export const Questionnaires = () => {
-  const queryClient = useQueryClient();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [params, _setParams] = useSearchParams();
 
+  const setParams = (newParams) => {
+    for (const [name, value] of Object.entries(newParams)) {
+      if (value === undefined || value === "") {
+        params.delete(name);
+      } else {
+        params.set(name, value);
+      }
+    }
+    _setParams(params, {
+      replace: true,
+    });
+  };
+
+  const search = params.get("search") || "";
+  const debouncedSearch = useThrottle(search, { wait: 500 });
+  const page = Number(params.get("page")) || 1;
+  const source = params.get("source") || "library";
+
+  const queryClient = useQueryClient();
   const { user, patient, encounter } = useLaunchContext();
   const client = useClient();
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const currentPage = Number(searchParams.get("page")) || 1;
   const pageSize = 15;
+  const queryKey = ["questionnaires", source, page, debouncedSearch];
 
-  const source = searchParams.get("source") || "library";
-
-  const setSource = (value) => {
-    searchParams.set("source", value);
-    setSearchParams(searchParams);
-  };
-
-  const currentQueryKey = ["questionnaires", source, currentPage];
-  const firstPageOfEhrQueryKey = ["questionnaires", "ehr", 1];
-
-  const { data: libraryPager } = useQuery({
-    queryKey: ["questionnaire-pager", "library"],
-    queryFn: () => getPager(publicBuilderClient, "Questionnaire", pageSize),
-  });
-
-  const { data: ehrPager } = useQuery({
-    queryKey: ["questionnaire-pager", "ehr"],
-    queryFn: () => getPager(client, "Questionnaire", pageSize),
-  });
-
-  const { data } = useQuery({
-    queryKey: currentQueryKey,
+  const questionnaireResults = useQuery({
+    queryKey,
     queryFn: () =>
-      source === "library" ? libraryPager(currentPage) : ehrPager(currentPage),
+      source === "library"
+        ? publicBuilderClient.request(
+            `Questionnaire?_count=${pageSize}&page=${page}${debouncedSearch ? `&title:contains=${decodeURIComponent(debouncedSearch)}` : ""}`,
+          )
+        : client.request(
+            `Questionnaire?_count=${pageSize}&_getpagesoffset=${pageSize * (page - 1)}${debouncedSearch ? `&title:contains=${decodeURIComponent(debouncedSearch)}` : ""}`,
+          ),
   });
 
   const createQuestionnaireMutation = useMutation({
@@ -107,43 +113,9 @@ export const Questionnaires = () => {
   });
 
   const importQuestionnaireMutation = useMutation({
-    mutationFn: (questionnaire) => saveQuestionnaire(client, questionnaire),
-    onMutate: async (questionnaire) => {
-      await queryClient.cancelQueries({
-        queryKey: firstPageOfEhrQueryKey,
-      });
-
-      const previousData = queryClient.getQueryData(firstPageOfEhrQueryKey);
-
-      queryClient.setQueryData(firstPageOfEhrQueryKey, (data) => ({
-        ...data,
-        entry: [
-          {
-            resource: questionnaire,
-          },
-          ...(data?.entry || []),
-        ],
-      }));
-
-      navigate("?source=ehr&page=1");
-
-      return { previousData };
-    },
-    onSuccess: async (data, variables, context) => {
-      await queryClient.cancelQueries({
-        queryKey: firstPageOfEhrQueryKey,
-      });
-
-      queryClient.setQueryData(firstPageOfEhrQueryKey, {
-        ...context.previousData,
-        entry: [
-          {
-            resource: data,
-          },
-          ...(context.previousData?.entry || []),
-        ],
-      });
-
+    mutationFn: (questionnaire) =>
+      saveQuestionnaire(client, { ...questionnaire, id: undefined }),
+    onSuccess: async (data) => {
       toast({
         title: "Questionnaire imported",
         description: `Questionnaire imported successfully`,
@@ -159,18 +131,11 @@ export const Questionnaires = () => {
         ),
       });
     },
-    onError: (err, newTodo, context) => {
-      queryClient.setQueryData(firstPageOfEhrQueryKey, context.previousData);
-
+    onError: (err) => {
       toast({
         variant: "destructive",
         title: "Import questionnaire",
         description: `Unable to import questionnaire: ${err.message}`,
-      });
-    },
-    onSettled: () => {
-      void queryClient.invalidateQueries({
-        queryKey: firstPageOfEhrQueryKey,
       });
     },
   });
@@ -178,9 +143,9 @@ export const Questionnaires = () => {
   const deleteQuestionnaireMutation = useMutation({
     mutationFn: (questionnaire) => deleteQuestionnaire(client, questionnaire),
     onSuccess: async (_, questionnaire) => {
-      await queryClient.cancelQueries({ queryKey: currentQueryKey });
+      await queryClient.cancelQueries({ queryKey });
 
-      queryClient.setQueryData(currentQueryKey, (data) => ({
+      queryClient.setQueryData(queryKey, (data) => ({
         ...data,
         entry: data.entry?.filter((x) => x.resource.id !== questionnaire.id),
       }));
@@ -191,7 +156,7 @@ export const Questionnaires = () => {
       });
     },
 
-    onError: (err, newTodo, context) => {
+    onError: (err) => {
       toast({
         variant: "destructive",
         title: "Delete questionnaire",
@@ -199,14 +164,16 @@ export const Questionnaires = () => {
       });
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: currentQueryKey });
+      void queryClient.invalidateQueries({ queryKey });
     },
   });
 
-  const totalPages = Math.ceil(data.total / pageSize);
+  const totalPages = Math.ceil(
+    (questionnaireResults.data?.total || 0) / pageSize,
+  );
 
   const questionnaires =
-    data.entry?.map((x) => ({
+    questionnaireResults.data?.entry?.map((x) => ({
       publisher: source === "library" ? "Health Samurai" : undefined,
       ...x.resource,
     })) || [];
@@ -238,7 +205,9 @@ export const Questionnaires = () => {
           (createQuestionnaireMutation.isPending &&
             createQuestionnaireMutation.variables.questionnaire.id ===
               questionnaire.id) ||
-          questionnaire.id === deleteQuestionnaireMutation.variables?.id ||
+          (importQuestionnaireMutation.isPending &&
+            importQuestionnaireMutation.variables?.id === questionnaire.id) ||
+          deleteQuestionnaireMutation.variables?.id === questionnaire.id ||
           questionnaire.id === undefined; // optimistically importing questionnaire
 
         return loading ? (
@@ -281,10 +250,7 @@ export const Questionnaires = () => {
               {source === "library" && (
                 <DropdownMenuItem
                   onClick={() => {
-                    importQuestionnaireMutation.mutate({
-                      ...questionnaire,
-                      id: undefined,
-                    });
+                    importQuestionnaireMutation.mutate(questionnaire);
                   }}
                 >
                   <Import />
@@ -331,78 +297,96 @@ export const Questionnaires = () => {
   ];
 
   return (
-    <div className="p-6 overflow-auto flex-1">
-      <div className="mb-4 flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Source: {source === "library" ? "Forms Public Library" : "EHR"}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuRadioGroup value={source} onValueChange={setSource}>
-              <DropdownMenuRadioItem value="library">
-                Forms Library
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="ehr">EHR</DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+    <>
+      <IndefiniteProgress active={questionnaireResults.isFetching} />
+
+      <div className="p-6 overflow-auto flex-1">
+        <div className="mb-4 gap-4 flex justify-between">
+          <Input
+            placeholder="Search"
+            className="max-w-[20rem]"
+            value={search}
+            onChange={(e) => {
+              setParams({ search: e.target.value, page: undefined });
+            }}
+          />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Source: {source === "library" ? "Forms Library" : "EHR"}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuRadioGroup
+                value={source}
+                onValueChange={(value) => {
+                  setParams({ source: value });
+                }}
+              >
+                <DropdownMenuRadioItem value="library">
+                  Forms Library
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="ehr">EHR</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <DataTable columns={columns} data={questionnaires} />
+
+        <Pagination currentPage={page} totalPages={totalPages} />
+
+        <AlertDialog
+          onOpenChange={(open) => {
+            if (!open) {
+              setDeletingQuestionnaire(null);
+            }
+          }}
+          open={!!deletingQuestionnaire}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. Proceeding will permanently delete
+                this questionnaire from the system.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  deleteQuestionnaireMutation.mutate(deletingQuestionnaire);
+                  setDeletingQuestionnaire(null);
+                }}
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <Dialog
+          onOpenChange={(open) => {
+            if (!open) {
+              setPreviewingQuestionnaire(null);
+            }
+          }}
+          open={!!previewingQuestionnaire}
+        >
+          <DialogContent className="flex flex-col max-w-[calc(100vw_-_4rem)] h-[calc(100vh_-_4rem)]">
+            <DialogHeader>
+              <DialogTitle>Preview</DialogTitle>
+            </DialogHeader>
+            {previewingQuestionnaire && (
+              <Suspense fallback={<Loading />}>
+                <QuestionnairePreview id={previewingQuestionnaire} />
+              </Suspense>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
-      <DataTable columns={columns} data={questionnaires} />
-
-      <Pagination currentPage={currentPage} totalPages={totalPages} />
-
-      <AlertDialog
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeletingQuestionnaire(null);
-          }
-        }}
-        open={!!deletingQuestionnaire}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. Proceeding will permanently delete
-              this questionnaire from the system.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                deleteQuestionnaireMutation.mutate(deletingQuestionnaire);
-                setDeletingQuestionnaire(null);
-              }}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <Dialog
-        onOpenChange={(open) => {
-          if (!open) {
-            setPreviewingQuestionnaire(null);
-          }
-        }}
-        open={!!previewingQuestionnaire}
-      >
-        <DialogContent className="flex flex-col max-w-[calc(100vw_-_4rem)] h-[calc(100vh_-_4rem)]">
-          <DialogHeader>
-            <DialogTitle>Preview</DialogTitle>
-          </DialogHeader>
-          {previewingQuestionnaire && (
-            <Suspense fallback={<Loading />}>
-              <QuestionnairePreview id={previewingQuestionnaire} />
-            </Suspense>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+    </>
   );
 };

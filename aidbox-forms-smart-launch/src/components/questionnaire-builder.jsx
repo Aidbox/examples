@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { publicBuilderClient, useClient } from "@/hooks/use-client.jsx";
 import { useAwaiter } from "@/hooks/use-awaiter.jsx";
 import { findQuestionnaireWithClient, saveQuestionnaire } from "@/lib/utils.js";
@@ -13,7 +13,7 @@ export const QuestionnaireBuilder = ({ id }) => {
 
   const {
     data: [usedClient, questionnaire],
-  } = useQuery({
+  } = useSuspenseQuery({
     queryKey: ["questionnaire", id],
     queryFn: () => findQuestionnaireWithClient(client, id),
   });

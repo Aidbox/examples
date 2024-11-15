@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { publicBuilderClient, useClient } from "@/hooks/use-client.jsx";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 const readLaunchResource = async (client, resourceType) => {
   const { fhirContext } = client?.state?.tokenResponse;
@@ -56,7 +56,7 @@ export const useLaunchContext = () => {
 export const LaunchContextProvider = ({ children }) => {
   const client = useClient();
 
-  const { data } = useQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ["launch-context"],
     queryFn: () => readLaunchContext(client),
   });
