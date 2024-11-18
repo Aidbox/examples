@@ -1,5 +1,6 @@
 import ky from "ky";
-import { Bundle, Patient, Practitioner } from "fhir/r4";
+import { Bundle, Organization, Patient, Practitioner } from "fhir/r4";
+import { sha256 } from "@/lib/utils";
 
 interface Meta {
   lastUpdated: string;
@@ -39,6 +40,26 @@ export const api = ky.extend({
       ),
   },
 });
+
+export function createOrganization(serverUrl: string) {
+  const id = sha256(serverUrl);
+
+  return api
+    .put(`Organization/${id}`, {
+      json: {
+        id,
+        resourceType: "Organization",
+        name: serverUrl,
+      },
+    })
+    .json<Organization>();
+}
+
+export function getOrganization(serverUrl: string) {
+  const id = sha256(serverUrl);
+
+  return api.get(`Organization/${id}`).json<Organization>();
+}
 
 export function getPatients(params?: PatientSearchParams) {
   const searchParams = new URLSearchParams();
