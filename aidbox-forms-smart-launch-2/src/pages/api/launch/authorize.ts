@@ -9,6 +9,8 @@ export default async function handler(
 
   await smart.authorize({
     clientId: "aidbox-forms",
-    redirectUri: "http://localhost:3000/api/launch/ready",
+    redirectUri: "/api/launch/ready",
+    scope:
+      "openid fhirUser profile offline_access launch launch/patient patient/*.rs user/*.rs",
   });
 }

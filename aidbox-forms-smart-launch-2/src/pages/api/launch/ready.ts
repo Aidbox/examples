@@ -8,5 +8,5 @@ export default async function handler(
   const smart = await getSmartApi(req, res);
   await smart.ready();
 
-  res.redirect(302, "/api/launch/test");
+  res.redirect(302, "/dashboard");
 }

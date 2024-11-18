@@ -13,8 +13,6 @@ import { Badge } from "@/components/ui/badge";
 export default async function ClientsPage() {
   const clients = await getClients();
 
-  console.log(clients.entry);
-
   return (
     <>
       <PageHeader
