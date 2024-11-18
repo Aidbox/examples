@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: "${PGIMAGE}"
+    pull_policy: always
+    ports:
+      - "${PGHOSTPORT}:5432"
+    volumes:
+      - "./pgdata:/data"
+    environment:
+      POSTGRES_USER:     "${PGUSER}"
+      POSTGRES_PASSWORD: "${PGPASSWORD}"
+      POSTGRES_DB:       "${PGDATABASE}"
+
+  aidbox:
+    image: "${AIDBOX_IMAGE}"
+    pull_policy: always
+    depends_on: ["postgres"]
+    ports:
+      - "${AIDBOX_PORT}:${AIDBOX_PORT}"
+    env_file:
+      - .env
+    environment:
+      PGPORT: 5432
+      PGHOST: postgres
