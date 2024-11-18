@@ -5,7 +5,7 @@ services:
     ports:
       - "${PGHOSTPORT}:5432"
     volumes:
-      - "./pgdata:/data"
+      - "./pgdata:/var/lib/postgresql/data"
     environment:
       POSTGRES_USER:     "${PGUSER}"
       POSTGRES_PASSWORD: "${PGPASSWORD}"

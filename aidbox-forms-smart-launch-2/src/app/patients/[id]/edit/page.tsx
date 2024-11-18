@@ -1,6 +1,6 @@
 import { JsonEditor } from "@/components/json-editor";
 import { PageHeader } from "@/components/page-header";
-import { api } from "@/lib/aidbox";
+import { getCurrentAidbox } from "@/lib/smart";
 import { Patient } from "fhir/r4";
 
 interface EditPatientPageProps {
@@ -13,7 +13,8 @@ export default async function EditPatientPage({
   params,
 }: EditPatientPageProps) {
   const { id } = await params;
-  const patient = await api.get(`fhir/Patient/${id}`).json<Patient>();
+  const aidbox = await getCurrentAidbox();
+  const patient = await aidbox.get(`fhir/Patient/${id}`).json<Patient>();
 
   return (
     <>
