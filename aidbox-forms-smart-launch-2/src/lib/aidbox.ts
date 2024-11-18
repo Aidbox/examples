@@ -1,25 +1,11 @@
 import ky from "ky";
-import { Bundle, Patient, Practitioner } from "fhir/r4";
+import { Bundle, Organization, Patient, Practitioner } from "fhir/r4";
+import { sha256 } from "@/lib/utils";
 
 interface Meta {
   lastUpdated: string;
   createdAt: string;
   versionId: string;
-}
-
-interface Client {
-  id: string;
-  resourceType: "Client";
-  meta: Meta;
-  secret: string;
-  grant_types: string[];
-  auth: {
-    authorization_code: {
-      redirect_uri: string[];
-    };
-  };
-  _source: string;
-  first_party: boolean;
 }
 
 interface CommonSearchParams {
@@ -55,8 +41,24 @@ export const api = ky.extend({
   },
 });
 
-export async function getClients() {
-  return api.get("fhir/Client").json<Bundle<Client>>();
+export function createOrganization(serverUrl: string) {
+  const id = sha256(serverUrl);
+
+  return api
+    .put(`Organization/${id}`, {
+      json: {
+        id,
+        resourceType: "Organization",
+        name: serverUrl,
+      },
+    })
+    .json<Organization>();
+}
+
+export function getOrganization(serverUrl: string) {
+  const id = sha256(serverUrl);
+
+  return api.get(`Organization/${id}`).json<Organization>();
 }
 
 export function getPatients(params?: PatientSearchParams) {

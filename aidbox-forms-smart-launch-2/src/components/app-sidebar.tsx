@@ -34,11 +34,6 @@ const data = {
       href: "/practitioners",
       icon: UserCog,
     },
-    {
-      title: "Clients",
-      href: "/clients",
-      icon: KeyRound,
-    },
   ],
 };
 
