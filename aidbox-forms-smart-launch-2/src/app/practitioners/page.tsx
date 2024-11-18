@@ -24,6 +24,7 @@ import { getCookie } from "cookies-next";
 import { cookies } from "next/headers";
 import { GENDER_OPTIONS, PAGE_SIZES, ValidPageSize } from "@/lib/constants";
 import { Pager } from "@/components/pager";
+import { getCurrentAidbox } from "@/lib/smart";
 
 interface PageProps {
   searchParams: Promise<{
@@ -56,6 +57,7 @@ async function extractPageSize(params: Awaited<PageProps["searchParams"]>) {
 }
 
 export default async function PractitionersPage({ searchParams }: PageProps) {
+  const aidbox = await getCurrentAidbox();
   const params = await searchParams;
   let pageSize = await extractPageSize(params);
 
@@ -63,7 +65,7 @@ export default async function PractitionersPage({ searchParams }: PageProps) {
   const searchQuery = params.search;
   const genderFilter = params.gender;
 
-  const practitioners = await getPractitioners({
+  const practitioners = await getPractitioners(aidbox, {
     _count: pageSize,
     _page: currentPage,
     name: searchQuery,

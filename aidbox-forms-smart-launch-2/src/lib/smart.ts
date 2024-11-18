@@ -9,7 +9,7 @@ import { cache } from "react";
 import { Patient, Practitioner } from "fhir/r4";
 import { redis } from "@/lib/redis";
 import assert from "node:assert";
-import { getOrganization } from "@/lib/aidbox";
+import { getOrganization, getOrganizationalAidbox } from "@/lib/aidbox";
 
 interface SmartSession {
   [SMART_KEY]: string | undefined;
@@ -118,4 +118,9 @@ export const getCurrentUser = cache(async () => {
 export const currentOrganization = cache(async () => {
   const client = await getCurrentClient();
   return getOrganization(client.state.serverUrl);
+});
+
+export const getCurrentAidbox = cache(async () => {
+  const client = await getCurrentClient();
+  return getOrganizationalAidbox(client.state.serverUrl);
 });

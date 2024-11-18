@@ -1,4 +1,4 @@
-import ky from "ky";
+import ky, { KyInstance } from "ky";
 import { Bundle, Organization, Patient, Practitioner } from "fhir/r4";
 import { sha256 } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ interface PractitionerBundle {
   total: number;
 }
 
-export const api = ky.extend({
+const aidbox = ky.extend({
   prefixUrl: process.env.AIDBOX_BASE_URL,
   headers: {
     Authorization:
@@ -44,7 +44,7 @@ export const api = ky.extend({
 export function createOrganization(serverUrl: string) {
   const id = sha256(serverUrl);
 
-  return api
+  return aidbox
     .put(`Organization/${id}`, {
       json: {
         id,
@@ -58,10 +58,18 @@ export function createOrganization(serverUrl: string) {
 export function getOrganization(serverUrl: string) {
   const id = sha256(serverUrl);
 
-  return api.get(`Organization/${id}`).json<Organization>();
+  return aidbox.get(`Organization/${id}`).json<Organization>();
 }
 
-export function getPatients(params?: PatientSearchParams) {
+export function getOrganizationalAidbox(serverUrl: string) {
+  const id = sha256(serverUrl);
+
+  return aidbox.extend({
+    prefixUrl: `${process.env.AIDBOX_BASE_URL}/Organization/${id}`,
+  });
+}
+
+export function getPatients(aidbox: KyInstance, params?: PatientSearchParams) {
   const searchParams = new URLSearchParams();
   if (params?._count) {
     searchParams.set("_count", params._count.toString());
@@ -81,12 +89,15 @@ export function getPatients(params?: PatientSearchParams) {
   if (params?.gender) {
     searchParams.set("gender", params.gender);
   }
-  return api
+  return aidbox
     .get(`fhir/Patient?${searchParams.toString()}`)
     .json<Bundle<Patient>>();
 }
 
-export async function getPractitioners(params: GetPractitionersParams = {}) {
+export async function getPractitioners(
+  aidbox: KyInstance,
+  params: GetPractitionersParams = {},
+) {
   const searchParams = new URLSearchParams();
   if (params?._count) {
     searchParams.set("_count", params._count.toString());
@@ -100,7 +111,7 @@ export async function getPractitioners(params: GetPractitionersParams = {}) {
   if (params?.gender) {
     searchParams.set("gender", params.gender);
   }
-  return api
+  return aidbox
     .get(`fhir/Practitioner?${searchParams.toString()}`)
     .json<PractitionerBundle>();
 }
