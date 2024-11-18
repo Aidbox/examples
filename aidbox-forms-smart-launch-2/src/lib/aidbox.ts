@@ -1,0 +1,104 @@
+import ky from "ky";
+import { Bundle, Patient, Practitioner } from "fhir/r4";
+
+interface Meta {
+  lastUpdated: string;
+  createdAt: string;
+  versionId: string;
+}
+
+interface Client {
+  id: string;
+  resourceType: "Client";
+  meta: Meta;
+  secret: string;
+  grant_types: string[];
+  auth: {
+    authorization_code: {
+      redirect_uri: string[];
+    };
+  };
+  _source: string;
+  first_party: boolean;
+}
+
+interface CommonSearchParams {
+  _count?: number;
+  _page?: number;
+}
+
+interface PatientSearchParams extends CommonSearchParams {
+  name?: string;
+  given?: string;
+  family?: string;
+  gender?: "male" | "female" | "other" | "unknown";
+}
+
+interface GetPractitionersParams extends CommonSearchParams {
+  name?: string;
+  gender?: string;
+}
+
+interface PractitionerBundle {
+  entry: { resource: Practitioner }[];
+  total: number;
+}
+
+export const api = ky.extend({
+  prefixUrl: process.env.AIDBOX_BASE_URL,
+  headers: {
+    Authorization:
+      "Basic " +
+      btoa(
+        `${process.env.AIDBOX_CLIENT_ID}:${process.env.AIDBOX_CLIENT_SECRET}`,
+      ),
+  },
+});
+
+export async function getClients() {
+  return api.get("fhir/Client").json<Bundle<Client>>();
+}
+
+export function getPatients(params?: PatientSearchParams) {
+  const searchParams = new URLSearchParams();
+  if (params?._count) {
+    searchParams.set("_count", params._count.toString());
+  }
+  if (params?._page) {
+    searchParams.set("_page", params._page.toString());
+  }
+  if (params?.name) {
+    searchParams.set("name", params.name);
+  }
+  if (params?.given) {
+    searchParams.set("given", params.given);
+  }
+  if (params?.family) {
+    searchParams.set("family", params.family);
+  }
+  if (params?.gender) {
+    searchParams.set("gender", params.gender);
+  }
+  return api
+    .get(`fhir/Patient?${searchParams.toString()}`)
+    .json<Bundle<Patient>>();
+}
+
+export async function getPractitioners(params: GetPractitionersParams = {}) {
+  const searchParams = new URLSearchParams();
+  if (params?._count) {
+    searchParams.set("_count", params._count.toString());
+  }
+  if (params?._page) {
+    searchParams.set("_page", params._page.toString());
+  }
+  if (params?.name) {
+    searchParams.set("name", params.name);
+  }
+  if (params?.gender) {
+    searchParams.set("gender", params.gender);
+  }
+  return api
+    .get(`fhir/Practitioner?${searchParams.toString()}`)
+    .json<PractitionerBundle>();
+}
