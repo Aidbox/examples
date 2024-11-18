@@ -7,21 +7,6 @@ interface Meta {
   versionId: string;
 }
 
-interface Client {
-  id: string;
-  resourceType: "Client";
-  meta: Meta;
-  secret: string;
-  grant_types: string[];
-  auth: {
-    authorization_code: {
-      redirect_uri: string[];
-    };
-  };
-  _source: string;
-  first_party: boolean;
-}
-
 interface CommonSearchParams {
   _count?: number;
   _page?: number;
@@ -54,10 +39,6 @@ export const api = ky.extend({
       ),
   },
 });
-
-export async function getClients() {
-  return api.get("fhir/Client").json<Bundle<Client>>();
-}
 
 export function getPatients(params?: PatientSearchParams) {
   const searchParams = new URLSearchParams();
