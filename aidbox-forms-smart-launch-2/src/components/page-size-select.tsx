@@ -33,10 +33,8 @@ export function PageSizeSelect({
       path: "/",
     });
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString());
     params.set("pageSize", size);
-
-    console.log(params.toString());
 
     router.push(pathname + "?" + params.toString());
   };

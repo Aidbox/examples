@@ -22,3 +22,10 @@ services:
     environment:
       PGPORT: 5432
       PGHOST: postgres
+
+  redis:
+    image: redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - "./redisdata:/data"

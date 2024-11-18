@@ -9,6 +9,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import React from "react";
+import { Button } from "@/components/ui/button";
+import { Bell } from "lucide-react";
+import { UserDropdownMenu } from "@/components/user-dropdown-menu";
 
 interface PageHeaderProps {
   items: Array<{
@@ -17,10 +20,10 @@ interface PageHeaderProps {
   }>;
 }
 
-export function PageHeader({ items }: PageHeaderProps) {
+export async function PageHeader({ items }: PageHeaderProps) {
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b">
-      <div className="flex items-center gap-2 px-3">
+      <div className="flex items-center gap-2 px-3 flex-1">
         <SidebarTrigger />
         <Separator orientation="vertical" className="mr-2 h-4" />
         <Breadcrumb>
@@ -43,6 +46,13 @@ export function PageHeader({ items }: PageHeaderProps) {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
+        <div className="flex items-center gap-2 ml-auto">
+          <Button variant="ghost" size="icon">
+            <Bell className="h-5 w-5" />
+            <span className="sr-only">Notifications</span>
+          </Button>
+          <UserDropdownMenu />
+        </div>
       </div>
     </header>
   );
