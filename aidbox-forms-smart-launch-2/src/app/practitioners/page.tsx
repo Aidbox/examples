@@ -59,7 +59,7 @@ async function extractPageSize(params: Awaited<PageProps["searchParams"]>) {
 export default async function PractitionersPage({ searchParams }: PageProps) {
   const aidbox = await getCurrentAidbox();
   const params = await searchParams;
-  let pageSize = await extractPageSize(params);
+  const pageSize = await extractPageSize(params);
 
   const currentPage = Number(params.page) || 1;
   const searchQuery = params.search;

@@ -9,12 +9,6 @@ import {
 import { sha256 } from "@/lib/utils";
 import assert from "node:assert";
 
-interface Meta {
-  lastUpdated: string;
-  createdAt: string;
-  versionId: string;
-}
-
 interface CommonSearchParams {
   _count?: number;
   _page?: number;

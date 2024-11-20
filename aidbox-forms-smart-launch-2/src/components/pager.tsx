@@ -33,7 +33,7 @@ export function Pager({ currentPage, totalPages }: PagerProps) {
   const searchParams = useSearchParams();
 
   function buildUrl(page: number) {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString());
     params.set("page", page.toString());
 
     return pathname + "?" + params.toString();
