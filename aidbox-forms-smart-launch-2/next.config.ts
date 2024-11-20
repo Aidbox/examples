@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_VERSION: version,
   },
-  /* config options here */
+  output: "standalone",
 };
 
 export default nextConfig;

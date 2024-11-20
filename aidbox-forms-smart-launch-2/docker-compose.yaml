@@ -29,3 +29,15 @@ services:
       - "${REDIS_PORT}:6379"
     volumes:
       - "./redisdata:/data"
+
+#  app:
+#    image: aidbox-forms-smart-launch-2
+#    pull_policy: never
+#    env_file:
+#      - .env
+#    environment:
+#      REDIS_URL: "redis://redis:6379/0"
+#      AIDBOX_BASE_URL: http://aidbox:8888
+#      PGHOST: postgres
+#    ports:
+#      - "3001:3000"
