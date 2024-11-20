@@ -1,3 +1,5 @@
+"use server";
+
 import { IronSession } from "iron-session";
 import { NextApiRequest, NextApiResponse } from "next";
 import BaseServerStorage from "fhirclient/lib/storage/BrowserStorage";
@@ -12,16 +14,20 @@ import {
   Patient,
   Practitioner,
 } from "fhir/r4";
-import { redis } from "@/lib/redis";
+import { createRedis } from "@/lib/redis";
 import assert from "node:assert";
 import { getOrganizationalAidbox } from "@/lib/aidbox";
+import Redis from "ioredis";
 
 interface SmartSession {
   [SMART_KEY]: string | undefined;
 }
 
 class HybridStorage extends BaseServerStorage {
-  constructor(private session: IronSession<SmartSession>) {
+  constructor(
+    private session: IronSession<SmartSession>,
+    private redis: Redis,
+  ) {
     super();
   }
 
@@ -29,7 +35,7 @@ class HybridStorage extends BaseServerStorage {
     if (key === SMART_KEY) {
       return this.session[key];
     } else {
-      const value = await redis.get(`smart:${key}`);
+      const value = await this.redis.get(`smart:${key}`);
       return value != null ? JSON.parse(value) : undefined;
     }
   }
@@ -38,7 +44,7 @@ class HybridStorage extends BaseServerStorage {
     if (key === SMART_KEY) {
       this.session[key] = value;
     } else {
-      await redis.set(`smart:${key}`, JSON.stringify(value));
+      await this.redis.set(`smart:${key}`, JSON.stringify(value));
     }
     return value;
   }
@@ -51,7 +57,7 @@ class HybridStorage extends BaseServerStorage {
       }
       return false;
     } else {
-      const deleted = await redis.del(`smart:${key}`);
+      const deleted = await this.redis.del(`smart:${key}`);
       return deleted > 0;
     }
   }
@@ -69,11 +75,12 @@ class NodeAdapter extends BaseNodeAdapter {
     request: NextApiRequest,
     response: NextApiResponse,
     private session: IronSession<any>,
+    private redis: Redis,
   ) {
     super({
       request,
       response,
-      storage: new HybridStorage(session),
+      storage: new HybridStorage(session, redis),
     });
   }
 
@@ -88,7 +95,12 @@ export async function getSmartApi(
   response: NextApiResponse,
 ) {
   const session = await getSession(request, response);
-  const api = new NodeAdapter(request, response, session).getSmartApi();
+  const api = new NodeAdapter(
+    request,
+    response,
+    session,
+    await createRedis(),
+  ).getSmartApi();
 
   return {
     ...api,
@@ -119,7 +131,10 @@ export const getCapabilityStatement = async (client: Client) => {
 };
 
 export const getCurrentClient = cache(async () => {
-  const storage = new HybridStorage(await getSession<SmartSession>());
+  const storage = new HybridStorage(
+    await getSession<SmartSession>(),
+    await createRedis(),
+  );
   const state = await storage.state();
   assert(state, "No SMART state found in session");
 

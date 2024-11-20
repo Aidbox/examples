@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { HumanName } from "fhir/r4";
+import { Address, HumanName } from "fhir/r4";
 import crypto from "crypto";
 
 export function cn(...inputs: ClassValue[]) {
@@ -26,6 +26,20 @@ export function constructInitials(name: HumanName[] | undefined) {
   return familyName
     ? `${givenName.charAt(0)}${familyName.charAt(0)}`.toUpperCase()
     : givenName.substring(0, 2).toUpperCase();
+}
+
+export const constructAddress = (address: Address[]) => {
+  const line = address[0].line?.[0] ?? "";
+  const city = address[0].city ?? "";
+  const state = address[0].state ?? "";
+  const postalCode = address[0].postalCode ?? "";
+  const country = address[0].country ?? "";
+
+  return `${line}, ${city}, ${state} ${postalCode}, ${country}`;
+};
+
+export function constructGender(gender: string | undefined) {
+  return gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : "unknown";
 }
 
 export function sha256(message: string) {

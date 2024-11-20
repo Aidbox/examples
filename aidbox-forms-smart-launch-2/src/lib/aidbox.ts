@@ -1,3 +1,5 @@
+"use server";
+
 import ky, { KyInstance } from "ky";
 import {
   Bundle,
@@ -8,6 +10,7 @@ import {
 } from "fhir/r4";
 import { sha256 } from "@/lib/utils";
 import assert from "node:assert";
+import { cache } from "react";
 
 interface CommonSearchParams {
   _count?: number;
@@ -42,7 +45,9 @@ const aidbox = ky.extend({
   },
 });
 
-export function upsertOrganization(capabilityStatement: CapabilityStatement) {
+export const upsertOrganization = async (
+  capabilityStatement: CapabilityStatement,
+) => {
   const serverUrl = capabilityStatement?.implementation?.url;
   assert(serverUrl, "Server URL is required");
 
@@ -74,59 +79,60 @@ export function upsertOrganization(capabilityStatement: CapabilityStatement) {
       },
     })
     .json<Organization>();
-}
+};
 
-export function getOrganizationalAidbox(serverUrl: string) {
+export const getOrganizationalAidbox = cache(async (serverUrl: string) => {
   const id = sha256(serverUrl);
 
   return aidbox.extend({
     prefixUrl: `${process.env.AIDBOX_BASE_URL}/Organization/${id}`,
   });
-}
+});
 
-export function getPatients(aidbox: KyInstance, params?: PatientSearchParams) {
-  const searchParams = new URLSearchParams();
-  if (params?._count) {
-    searchParams.set("_count", params._count.toString());
-  }
-  if (params?._page) {
-    searchParams.set("_page", params._page.toString());
-  }
-  if (params?.name) {
-    searchParams.set("name", params.name);
-  }
-  if (params?.given) {
-    searchParams.set("given", params.given);
-  }
-  if (params?.family) {
-    searchParams.set("family", params.family);
-  }
-  if (params?.gender) {
-    searchParams.set("gender", params.gender);
-  }
-  return aidbox
-    .get(`fhir/Patient?${searchParams.toString()}`)
-    .json<Bundle<Patient>>();
-}
+export const getPatients = cache(
+  async (aidbox: KyInstance, params?: PatientSearchParams) => {
+    const searchParams = new URLSearchParams();
+    if (params?._count) {
+      searchParams.set("_count", params._count.toString());
+    }
+    if (params?._page) {
+      searchParams.set("_page", params._page.toString());
+    }
+    if (params?.name) {
+      searchParams.set("name", params.name);
+    }
+    if (params?.given) {
+      searchParams.set("given", params.given);
+    }
+    if (params?.family) {
+      searchParams.set("family", params.family);
+    }
+    if (params?.gender) {
+      searchParams.set("gender", params.gender);
+    }
+    return aidbox
+      .get(`fhir/Patient?${searchParams.toString()}`)
+      .json<Bundle<Patient>>();
+  },
+);
 
-export async function getPractitioners(
-  aidbox: KyInstance,
-  params: GetPractitionersParams = {},
-) {
-  const searchParams = new URLSearchParams();
-  if (params?._count) {
-    searchParams.set("_count", params._count.toString());
-  }
-  if (params?._page) {
-    searchParams.set("_page", params._page.toString());
-  }
-  if (params?.name) {
-    searchParams.set("name", params.name);
-  }
-  if (params?.gender) {
-    searchParams.set("gender", params.gender);
-  }
-  return aidbox
-    .get(`fhir/Practitioner?${searchParams.toString()}`)
-    .json<PractitionerBundle>();
-}
+export const getPractitioners = cache(
+  async (aidbox: KyInstance, params: GetPractitionersParams = {}) => {
+    const searchParams = new URLSearchParams();
+    if (params?._count) {
+      searchParams.set("_count", params._count.toString());
+    }
+    if (params?._page) {
+      searchParams.set("_page", params._page.toString());
+    }
+    if (params?.name) {
+      searchParams.set("name", params.name);
+    }
+    if (params?.gender) {
+      searchParams.set("gender", params.gender);
+    }
+    return aidbox
+      .get(`fhir/Practitioner?${searchParams.toString()}`)
+      .json<PractitionerBundle>();
+  },
+);

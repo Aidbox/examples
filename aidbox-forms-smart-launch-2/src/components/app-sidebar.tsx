@@ -1,14 +1,10 @@
-"use client";
-
 import * as React from "react";
-import { LayoutDashboard, UserCog, Users } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
@@ -17,30 +13,10 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      href: "/",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Patients",
-      href: "/patients",
-      icon: Users,
-    },
-    {
-      title: "Practitioners",
-      href: "/practitioners",
-      icon: UserCog,
-    },
-  ],
-};
+import { PatientCard } from "@/components/patient-card";
+import { AppMenu } from "@/components/app-menu";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
-
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -68,27 +44,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarMenu>
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  asChild
-                  className={cn(
-                    "flex items-center gap-3",
-                    pathname === item.href &&
-                      "bg-accent text-accent-foreground",
-                  )}
-                >
-                  <a href={item.href} className="font-medium">
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.title}
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
+          <AppMenu />
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <PatientCard />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
