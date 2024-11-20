@@ -1,3 +1,5 @@
+"use server";
+
 import Client from "fhirclient/lib/Client";
 import {
   Bundle,
@@ -156,7 +158,7 @@ export async function sync(client: Client) {
   }
 
   await upsertOrganization(await getCapabilityStatement(client));
-  const aidbox = getOrganizationalAidbox(client.state.serverUrl);
+  const aidbox = await getOrganizationalAidbox(client.state.serverUrl);
 
   const bundle = {
     resourceType: "Bundle",

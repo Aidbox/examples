@@ -150,9 +150,9 @@ export default async function PatientsPage({ searchParams }: PageProps) {
                   <TableCell>
                     <div className="flex gap-2">
                       <Button asChild variant="link" size="sm">
-                        <a href={`/patients/${patient?.id}/edit`}>
+                        <Link href={`/patients/${patient?.id}/edit`}>
                           <Edit />
-                        </a>
+                        </Link>
                       </Button>
                     </div>
                   </TableCell>
