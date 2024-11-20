@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSmartApi } from "@/lib/smart";
-import { createOrganization, getOrganizationalAidbox } from "@/lib/aidbox";
+import { sync } from "@/lib/sync";
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,13 +8,8 @@ export default async function handler(
 ) {
   const smart = await getSmartApi(req, res);
   const client = await smart.ready();
-  await createOrganization(client.state.serverUrl);
 
-  const aidbox = getOrganizationalAidbox(client.state.serverUrl);
-
-  await aidbox.post("fhir/Patient", {
-    json: await client.patient.read(),
-  });
+  await sync(client);
 
   res.redirect(302, "/dashboard");
 }

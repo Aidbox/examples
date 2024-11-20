@@ -124,7 +124,7 @@ export default async function PractitionersPage({ searchParams }: PageProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {practitioners.entry.map(({ resource: practitioner }) => (
+              {practitioners.entry?.map(({ resource: practitioner }) => (
                 <TableRow key={practitioner.id}>
                   <TableCell className="font-medium">
                     {practitioner.id}

@@ -6,10 +6,15 @@ import Client from "fhirclient/lib/Client";
 import { SMART_KEY } from "fhirclient/lib/settings";
 import { getSession } from "@/lib/session";
 import { cache } from "react";
-import { Patient, Practitioner } from "fhir/r4";
+import {
+  CapabilityStatement,
+  CapabilityStatementImplementation,
+  Patient,
+  Practitioner,
+} from "fhir/r4";
 import { redis } from "@/lib/redis";
 import assert from "node:assert";
-import { getOrganization, getOrganizationalAidbox } from "@/lib/aidbox";
+import { getOrganizationalAidbox } from "@/lib/aidbox";
 
 interface SmartSession {
   [SMART_KEY]: string | undefined;
@@ -95,6 +100,24 @@ export async function getSmartApi(
   } as typeof api;
 }
 
+export const getCapabilityStatement = async (client: Client) => {
+  const capabilityStatement = await client
+    .request<CapabilityStatement>("/metadata")
+    .catch((e) => {
+      console.error(`Failed to read capability statement: ${e.message}`);
+      return {} as CapabilityStatement;
+    });
+
+  if (capabilityStatement.implementation?.url !== client.state.serverUrl) {
+    capabilityStatement.implementation =
+      capabilityStatement.implementation ||
+      ({} as CapabilityStatementImplementation);
+    capabilityStatement.implementation.url = client.state.serverUrl;
+  }
+
+  return capabilityStatement;
+};
+
 export const getCurrentClient = cache(async () => {
   const storage = new HybridStorage(await getSession<SmartSession>());
   const state = await storage.state();
@@ -113,11 +136,6 @@ export const getCurrentUser = cache(async () => {
   const client = await getCurrentClient();
   const user = await client.user.read();
   return user as Patient | Practitioner;
-});
-
-export const currentOrganization = cache(async () => {
-  const client = await getCurrentClient();
-  return getOrganization(client.state.serverUrl);
 });
 
 export const getCurrentAidbox = cache(async () => {
