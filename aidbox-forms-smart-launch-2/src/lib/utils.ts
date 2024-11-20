@@ -31,3 +31,19 @@ export function constructInitials(name: HumanName[] | undefined) {
 export function sha256(message: string) {
   return crypto.createHash("sha256").update(message).digest("hex");
 }
+
+export function readableStreamToObject(stream: ReadableStream) {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let result = "";
+  return new Promise<object>(async (resolve) => {
+    await reader.read().then(async function process({ done, value }) {
+      if (!done) {
+        result += decoder.decode(value, { stream: true });
+        return await process(await reader.read());
+      }
+
+      resolve(JSON.parse(result));
+    });
+  });
+}

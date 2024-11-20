@@ -1,6 +1,13 @@
 import ky, { KyInstance } from "ky";
-import { Bundle, Organization, Patient, Practitioner } from "fhir/r4";
+import {
+  Bundle,
+  CapabilityStatement,
+  Organization,
+  Patient,
+  Practitioner,
+} from "fhir/r4";
 import { sha256 } from "@/lib/utils";
+import assert from "node:assert";
 
 interface Meta {
   lastUpdated: string;
@@ -41,24 +48,38 @@ const aidbox = ky.extend({
   },
 });
 
-export function createOrganization(serverUrl: string) {
+export function upsertOrganization(capabilityStatement: CapabilityStatement) {
+  const serverUrl = capabilityStatement?.implementation?.url;
+  assert(serverUrl, "Server URL is required");
+
   const id = sha256(serverUrl);
+
+  const software =
+    `${capabilityStatement.software?.name || ""} ${capabilityStatement.software?.version || ""}`.trim() ||
+    "";
+
+  const implementation =
+    `${capabilityStatement.implementation?.description || ""}`.trim() || "";
+
+  const fhirVersion = capabilityStatement.fhirVersion || "";
+
+  const name =
+    `${software} ${implementation} ${fhirVersion}`
+      .replace(/\s+/g, " ")
+      .trim() || "Unknown";
 
   return aidbox
     .put(`Organization/${id}`, {
       json: {
         id,
         resourceType: "Organization",
-        name: serverUrl,
+        name,
+        identifier: [
+          { system: "aidbox-forms-smart-launch-2", value: serverUrl },
+        ],
       },
     })
     .json<Organization>();
-}
-
-export function getOrganization(serverUrl: string) {
-  const id = sha256(serverUrl);
-
-  return aidbox.get(`Organization/${id}`).json<Organization>();
 }
 
 export function getOrganizationalAidbox(serverUrl: string) {
