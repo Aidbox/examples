@@ -33,10 +33,6 @@ Aidbox server will be available at [http://localhost:8888](http://localhost:8888
 ## Interaction Diagram
 
 ```mermaid
----
-config:
-  theme: forest
----
 sequenceDiagram
     actor Customer as User
     participant EHR as EHR <br> (with auth server)
@@ -73,24 +69,24 @@ sequenceDiagram
         Customer ->>+ Smart App: Edit questionnaire
         Smart App ->>- Customer: Display Form Builder
     end
-    opt Viewing public library
-        Customer ->>+ Smart App: Show public library
-        Smart App ->>+ Public Library: Request /Questionnaire
-        Public Library ->>- Smart App: Return questionnaires
-        Smart App ->>- Customer: Display questionnaires of public library
-    end
-    opt Importing questionnaires
-        Customer ->>+ Smart App: Import questionnaire
-        Smart App ->>+ Public Library: Request /Questionnaire/:id
-        Public Library ->>- Smart App: Return a questionnaire
-        Smart App ->> Aidbox: Insert the questionnaire 🔒
-        Smart App ->>- Customer: Display questionnaires
-    end
+%% opt Viewing public library
+%%     Customer ->>+ Smart App: Show public library
+%%     Smart App ->>+ Public Library: Request /Questionnaire
+%%     Public Library ->>- Smart App: Return questionnaires
+%%     Smart App ->>- Customer: Display questionnaires of public library
+%% end
+%% opt Importing questionnaires
+%%     Customer ->>+ Smart App: Import questionnaire
+%%     Smart App ->>+ Public Library: Request /Questionnaire/:id
+%%     Public Library ->>- Smart App: Return a questionnaire
+%%     Smart App ->> Aidbox: Insert the questionnaire 🔒
+%%     Smart App ->>- Customer: Display questionnaires
+%% end
     opt Creating questionnaire responses
         Customer ->>+ Smart App: Create response response <br> from the selected questionnaire
         Smart App ->>+ Aidbox: Request Questionnaire/$populate 🔒
         Aidbox ->> Aidbox: Execution fhir queries <br> from population expression 🔒
-        Note right of Aidbox: Guarantied by Aidbox to run correctly <br> (why? Aidbox has properly implementations of search params)
+        Note right of Aidbox: Guaranteed by Aidbox to run correctly, as <br> it has proper implementations of search parameters
         Aidbox ->>- Smart App: Return a questionnaire response
         Smart App ->> Aidbox: Save the questionnaire response 🔒
         Smart App ->>- Customer: Display Form Renderer with <br> the created questionnaire response
