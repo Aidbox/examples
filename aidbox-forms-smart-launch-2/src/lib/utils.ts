@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Address, HumanName } from "fhir/r4";
 import crypto from "crypto";
+import { SMART_LAUNCH_TYPES } from "@/lib/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -60,4 +61,24 @@ export function readableStreamToObject(stream: ReadableStream) {
       resolve(JSON.parse(result));
     });
   });
+}
+
+export function createSmartAppLauncherUrl({
+  launchUrl,
+  launchType,
+  fhirVersion = "r4",
+}: {
+  launchUrl: URL;
+  launchType: (typeof SMART_LAUNCH_TYPES)[number];
+  fhirVersion?: string;
+}) {
+  const params = new URLSearchParams();
+  params.set("fhir_version", fhirVersion);
+  params.set("launch_url", launchUrl.toString());
+  params.set(
+    "launch",
+    btoa(JSON.stringify([SMART_LAUNCH_TYPES.indexOf(launchType)])),
+  );
+
+  return `https://launch.smarthealthit.org/?${params.toString()}`;
 }
