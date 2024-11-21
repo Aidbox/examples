@@ -15,9 +15,9 @@ import {
   Practitioner,
 } from "fhir/r4";
 import { createRedis } from "@/lib/redis";
-import assert from "node:assert";
 import { getOrganizationalAidbox } from "@/lib/aidbox";
 import Redis from "ioredis";
+import { redirect } from "next/navigation";
 
 interface SmartSession {
   [SMART_KEY]: string | undefined;
@@ -136,7 +136,10 @@ export const getCurrentClient = cache(async () => {
     await createRedis(),
   );
   const state = await storage.state();
-  assert(state, "No SMART state found in session");
+
+  if (!state) {
+    redirect("/help");
+  }
 
   return new Client(new BaseNodeAdapter({ storage } as any), state);
 });

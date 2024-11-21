@@ -13,3 +13,24 @@ export const GENDER_OPTIONS = [
 ] as const;
 
 export type ValidGender = (typeof GENDER_OPTIONS)[number]["value"];
+
+export const SMART_LAUNCH_SCOPES = [
+  "openid",
+  "fhirUser",
+  "profile",
+  "offline_access",
+  "launch",
+  "launch/patient",
+  "patient/*.rs",
+  "user/*.rs",
+];
+
+export const SMART_LAUNCH_CLIENT_ID = "aidbox-forms";
+
+export const SMART_LAUNCH_TYPES = [
+  "provider-ehr",
+  "patient-portal",
+  "provider-standalone",
+  "patient-standalone",
+  "backend-service",
+] as const;

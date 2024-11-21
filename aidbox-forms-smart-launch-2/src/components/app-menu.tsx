@@ -16,7 +16,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      href: "/",
+      href: "/dashboard",
       icon: LayoutDashboard,
     },
     {
@@ -39,14 +39,8 @@ export function AppMenu() {
     <SidebarMenu>
       {data.navMain.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton
-            asChild
-            className={cn(
-              "flex items-center gap-3",
-              pathname === item.href && "bg-accent text-accent-foreground",
-            )}
-          >
-            <Link href={item.href} className="font-medium">
+          <SidebarMenuButton asChild isActive={pathname === item.href}>
+            <Link href={item.href}>
               <item.icon className="mr-2 h-4 w-4" />
               {item.title}
             </Link>
