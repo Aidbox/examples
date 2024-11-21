@@ -38,7 +38,7 @@ sequenceDiagram
     participant EHR as EHR <br> (with auth server)
     participant Smart App as Smart App <br> (with backend)
     participant Aidbox as Aidbox <br> (not publicly accessible)
-    Note right of Smart App: Communication with Aidbox <br> using HTTP basic auth
+    Note right of Smart App: Communicates with Aidbox <br> using HTTP basic auth
     Customer ->> EHR: Launch Smart App
     EHR ->> Smart App: Launch context + Access Token
     Smart App ->> Aidbox: Upsert organization
@@ -85,7 +85,7 @@ sequenceDiagram
     opt Creating questionnaire responses
         Customer ->>+ Smart App: Create response response <br> from the selected questionnaire
         Smart App ->>+ Aidbox: Request Questionnaire/$populate 🔒
-        Aidbox ->> Aidbox: Execution fhir queries <br> from population expression 🔒
+        Aidbox ->> Aidbox: Execute fhir queries <br> from population expression 🔒
         Note right of Aidbox: Guaranteed by Aidbox to run correctly, as <br> it has proper implementations of search parameters
         Aidbox ->>- Smart App: Return a questionnaire response
         Smart App ->> Aidbox: Save the questionnaire response 🔒
