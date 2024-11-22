@@ -17,6 +17,7 @@ import { Bundle, Questionnaire } from "fhir/r4";
 import { isDefined } from "@/lib/utils";
 import { decidePageSize } from "@/lib/server/utils";
 import ky from "ky";
+import { QuestionnairesActions } from "@/components/questionnaires-actions";
 
 interface PageProps {
   searchParams: Promise<{
@@ -83,22 +84,20 @@ export default async function PublicLibraryPage({ searchParams }: PageProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
+                <TableHead className="pl-6">Title</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="w-[1%] pr-6">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {resources.map((resource) => (
                 <TableRow key={resource.id}>
-                  <TableCell>{resource.title}</TableCell>
+                  <TableCell className="pl-6">{resource.title}</TableCell>
                   <TableCell>{resource.status}</TableCell>
                   <TableCell>{resource.date}</TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/questionnaires/${resource.id}`}>View</Link>
-                    </Button>
+                  <TableCell className="text-right pr-6">
+                    <QuestionnairesActions questionnaire={resource} library />
                   </TableCell>
                 </TableRow>
               ))}
