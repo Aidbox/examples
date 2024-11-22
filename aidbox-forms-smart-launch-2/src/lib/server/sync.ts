@@ -13,11 +13,7 @@ import {
   upsertOrganization,
 } from "@/lib/server/aidbox";
 import { getCapabilityStatement } from "@/lib/server/smart";
-import { readableStreamToObject } from "@/lib/utils";
-
-function isBundle(resource: Resource): resource is Bundle<Resource> {
-  return "resourceType" in resource && resource.resourceType === "Bundle";
-}
+import { isBundle, readableStreamToObject } from "@/lib/utils";
 
 async function extractPatient(client: Client) {
   const patient = await client.patient.read().catch((e) => {
