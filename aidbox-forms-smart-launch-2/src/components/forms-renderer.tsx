@@ -4,6 +4,7 @@ import { Questionnaire, QuestionnaireResponse } from "fhir/r4";
 
 export function FormsRenderer({
   questionnaire,
+  questionnaireResponse,
   onChange,
 }: {
   questionnaire: Questionnaire;
@@ -34,7 +35,7 @@ export function FormsRenderer({
     <aidbox-form-renderer
       ref={ref}
       questionnaire={JSON.stringify(questionnaire)}
-      questionnaire-response={JSON.stringify(questionnaire)}
+      questionnaire-response={JSON.stringify(questionnaireResponse)}
       style={{
         width: "100%",
         height: "100%",

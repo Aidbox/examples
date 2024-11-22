@@ -9,7 +9,7 @@ interface PageProps {
   }>;
 }
 
-export default async function QuestionnairesPage({ params }: PageProps) {
+export default async function EditQuestionnairePage({ params }: PageProps) {
   const aidbox = await getCurrentAidbox();
   const { id } = await params;
 
