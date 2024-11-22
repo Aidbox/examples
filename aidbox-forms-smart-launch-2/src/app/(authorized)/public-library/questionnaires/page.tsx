@@ -18,6 +18,7 @@ import { isDefined } from "@/lib/utils";
 import { decidePageSize } from "@/lib/server/utils";
 import ky from "ky";
 import { QuestionnairesActions } from "@/components/questionnaires-actions";
+import { getCurrentAidbox } from "@/lib/server/smart";
 
 interface PageProps {
   searchParams: Promise<{
@@ -52,6 +53,17 @@ export default async function PublicLibraryPage({ searchParams }: PageProps) {
 
   const total = response.total || 0;
   const totalPages = Math.ceil(total / pageSize);
+
+  async function importQuestionnaire(questionnaire: Questionnaire) {
+    "use server";
+
+    const aidbox = await getCurrentAidbox();
+    return aidbox
+      .post("fhir/Questionnaire", {
+        json: { ...questionnaire, id: undefined },
+      })
+      .json<Questionnaire>();
+  }
 
   return (
     <>
@@ -97,7 +109,11 @@ export default async function PublicLibraryPage({ searchParams }: PageProps) {
                   <TableCell>{resource.status}</TableCell>
                   <TableCell>{resource.date}</TableCell>
                   <TableCell className="text-right pr-6">
-                    <QuestionnairesActions questionnaire={resource} library />
+                    <QuestionnairesActions
+                      library
+                      questionnaire={resource}
+                      onImportAction={importQuestionnaire}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

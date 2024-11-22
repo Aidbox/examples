@@ -1,5 +1,3 @@
-"use server";
-
 import Client from "fhirclient/lib/Client";
 import {
   Bundle,

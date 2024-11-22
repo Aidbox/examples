@@ -1,5 +1,3 @@
-"use server";
-
 import { IronSession } from "iron-session";
 import { NextApiRequest, NextApiResponse } from "next";
 import BaseServerStorage from "fhirclient/lib/storage/BrowserStorage";

@@ -30,14 +30,21 @@ import {
 import { FormsRenderer } from "@/components/forms-renderer";
 import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "@/components/spinner";
+import { ToastAction } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
 
 export function QuestionnairesActions({
   questionnaire,
   library,
+  onDeleteAction,
+  onImportAction,
 }: {
   questionnaire: Questionnaire;
   library?: boolean;
+  onDeleteAction?: (questionnaire: Questionnaire) => Promise<void>;
+  onImportAction?: (questionnaire: Questionnaire) => Promise<Questionnaire>;
 }) {
+  const router = useRouter();
   const [viewing, setViewing] = useState(false);
   const { toast } = useToast();
 
@@ -80,7 +87,16 @@ export function QuestionnairesActions({
           {!library && (
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => {}}
+              onClick={async () => {
+                if (onDeleteAction) {
+                  await onDeleteAction(questionnaire);
+
+                  toast({
+                    title: "Questionnaire deleted",
+                    description: `Questionnaire deleted successfully`,
+                  });
+                }
+              }}
             >
               <Trash2 />
               Delete
@@ -95,7 +111,27 @@ export function QuestionnairesActions({
           )}
 
           {library && (
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem
+              onClick={async () => {
+                if (onImportAction) {
+                  const { id } = await onImportAction(questionnaire);
+                  toast({
+                    title: "Questionnaire imported",
+                    description: `Questionnaire imported successfully`,
+                    action: (
+                      <ToastAction
+                        altText="Edit"
+                        onClick={() => {
+                          router.push(`/questionnaires/${id}`);
+                        }}
+                      >
+                        Edit
+                      </ToastAction>
+                    ),
+                  });
+                }
+              }}
+            >
               <Import />
               Import
             </DropdownMenuItem>
