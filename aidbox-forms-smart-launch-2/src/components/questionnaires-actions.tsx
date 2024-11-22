@@ -108,7 +108,7 @@ export function QuestionnairesActions({
             <DialogTitle>Preview</DialogTitle>
           </DialogHeader>
           {viewing && (
-            <Suspense fallback={<Spinner expand={true} />}>
+            <Suspense fallback={<Spinner expand="true" />}>
               <FormsRenderer
                 questionnaire={questionnaire}
                 onChange={() => {
