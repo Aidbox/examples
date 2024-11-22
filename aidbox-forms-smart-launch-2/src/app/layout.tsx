@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "@/components/toaster";
 
 export const metadata: Metadata = {
   title: "Aidbox Forms Smart Launch",
@@ -14,7 +15,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <head>
+        <script
+          src="https://form-builder.aidbox.app/static/aidbox-forms-renderer-webcomponent.js"
+          async
+        ></script>
+        <script
+          src="https://form-builder.aidbox.app/static/aidbox-forms-builder-webcomponent.js"
+          async
+        ></script>
+      </head>
+      <body className="antialiased">
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

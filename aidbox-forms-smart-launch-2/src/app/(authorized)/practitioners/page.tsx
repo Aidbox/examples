@@ -104,7 +104,7 @@ export default async function PractitionersPage({ searchParams }: PageProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
+                <TableHead className="pl-6">ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Gender</TableHead>
                 <TableHead>Email</TableHead>
@@ -113,7 +113,7 @@ export default async function PractitionersPage({ searchParams }: PageProps) {
             <TableBody>
               {resources.map((resource) => (
                 <TableRow key={resource.id}>
-                  <TableCell>{resource.id}</TableCell>
+                  <TableCell className="pl-6">{resource.id}</TableCell>
                   <TableCell>{constructName(resource.name)}</TableCell>
                   <TableCell>
                     {constructGender(resource.gender) || "Not specified"}
