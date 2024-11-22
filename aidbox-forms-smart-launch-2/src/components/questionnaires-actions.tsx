@@ -1,6 +1,6 @@
 "use client";
 
-import { Questionnaire } from "fhir/r4";
+import { Questionnaire, QuestionnaireResponse } from "fhir/r4";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,11 +38,15 @@ export function QuestionnairesActions({
   library,
   onDeleteAction,
   onImportAction,
+  onCreateResponseAction,
 }: {
   questionnaire: Questionnaire;
   library?: boolean;
   onDeleteAction?: (questionnaire: Questionnaire) => Promise<void>;
   onImportAction?: (questionnaire: Questionnaire) => Promise<Questionnaire>;
+  onCreateResponseAction?: (
+    questionnaire: Questionnaire,
+  ) => Promise<QuestionnaireResponse>;
 }) {
   const router = useRouter();
   const [viewing, setViewing] = useState(false);
@@ -104,7 +108,36 @@ export function QuestionnairesActions({
           )}
 
           {!library && (
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem
+              onClick={async () => {
+                if (onCreateResponseAction) {
+                  try {
+                    const { id } = await onCreateResponseAction(questionnaire);
+
+                    toast({
+                      title: "Questionnaire response created",
+                      description: `New questionnaire response created and populated`,
+                      action: (
+                        <ToastAction
+                          altText="Edit"
+                          onClick={() => {
+                            router.push(`/questionnaire-responses/${id}`);
+                          }}
+                        >
+                          Edit
+                        </ToastAction>
+                      ),
+                    });
+                  } catch {
+                    toast({
+                      title: "Questionnaire response creation failed",
+                      description: `Failed to create new questionnaire response`,
+                      variant: "destructive",
+                    });
+                  }
+                }
+              }}
+            >
               <Plus />
               Create response
             </DropdownMenuItem>

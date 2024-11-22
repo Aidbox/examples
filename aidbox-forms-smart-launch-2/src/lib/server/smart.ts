@@ -9,6 +9,7 @@ import { cache } from "react";
 import {
   CapabilityStatement,
   CapabilityStatementImplementation,
+  Encounter,
   Patient,
   Practitioner,
 } from "fhir/r4";
@@ -152,6 +153,12 @@ export const getCurrentUser = cache(async () => {
   const client = await getCurrentClient();
   const user = await client.user.read();
   return user as Patient | Practitioner;
+});
+
+export const getCurrentEncounter = cache(async () => {
+  const client = await getCurrentClient();
+  const encounter = await client.encounter.read();
+  return encounter as Encounter;
 });
 
 export const getCurrentAidbox = cache(async () => {

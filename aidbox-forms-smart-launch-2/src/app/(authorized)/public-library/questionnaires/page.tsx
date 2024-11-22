@@ -19,6 +19,7 @@ import { decidePageSize } from "@/lib/server/utils";
 import ky from "ky";
 import { QuestionnairesActions } from "@/components/questionnaires-actions";
 import { getCurrentAidbox } from "@/lib/server/smart";
+import { revalidatePath } from "next/cache";
 
 interface PageProps {
   searchParams: Promise<{
@@ -58,11 +59,15 @@ export default async function PublicLibraryPage({ searchParams }: PageProps) {
     "use server";
 
     const aidbox = await getCurrentAidbox();
-    return aidbox
+    const created = aidbox
       .post("fhir/Questionnaire", {
         json: { ...questionnaire, id: undefined },
       })
       .json<Questionnaire>();
+
+    revalidatePath("/questionnaires");
+
+    return created;
   }
 
   return (
