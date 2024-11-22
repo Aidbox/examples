@@ -1,6 +1,6 @@
 import { type SVGProps } from "react";
 
-export function Spinner(props: SVGProps<SVGSVGElement> & { expand?: boolean }) {
+export function Spinner(props: SVGProps<SVGSVGElement> & { expand?: string }) {
   const svg = (
     <svg
       xmlns="http://www.w3.org/2000/svg"

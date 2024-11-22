@@ -1,13 +1,15 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { useAwaiter } from "@/hooks/use-awaiter";
-import { Questionnaire, QuestionnaireResponse } from "fhir/r4";
+import { Questionnaire } from "fhir/r4";
 
-export function FormsRenderer({
+export function FormsBuilder({
   questionnaire,
   onChange,
 }: {
   questionnaire: Questionnaire;
-  onChange?: (questionnaireResponse: QuestionnaireResponse) => void;
+  onChange?: (questionnaire: Questionnaire) => void;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
 
@@ -16,7 +18,7 @@ export function FormsRenderer({
 
     if (current) {
       const handler = (e: Event) => {
-        onChange?.((e as CustomEvent<QuestionnaireResponse>).detail);
+        onChange?.((e as CustomEvent<Questionnaire>).detail);
       };
 
       current.addEventListener("change", handler);
@@ -30,9 +32,20 @@ export function FormsRenderer({
   useAwaiter(ref);
 
   return (
-    <aidbox-form-renderer
+    <aidbox-form-builder
+      hide-back={true}
+      show-share={false}
+      hide-population={true}
+      hide-extraction={true}
+      hide-publish={true}
+      hide-add-theme={true}
+      hide-edit-theme={true}
+      hide-save-theme={true}
+      hide-convert={true}
+      hide-save={true}
+      disable-save={true}
       ref={ref}
-      questionnaire={JSON.stringify(questionnaire)}
+      value={JSON.stringify(questionnaire)}
       style={{
         width: "100%",
         height: "100%",
