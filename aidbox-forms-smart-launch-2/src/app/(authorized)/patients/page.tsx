@@ -1,4 +1,4 @@
-import { getPatients } from "@/lib/aidbox";
+import { getCurrentAidbox } from "@/lib/server/smart";
 import {
   Table,
   TableBody,
@@ -19,60 +19,47 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { PageSizeSelect } from "@/components/page-size-select";
 import Link from "next/link";
-import { Edit, Search } from "lucide-react";
-import { getCookie } from "cookies-next";
-import { cookies } from "next/headers";
-import { GENDER_OPTIONS, PAGE_SIZES, ValidPageSize } from "@/lib/constants";
+import { Search } from "lucide-react";
+import { GENDER_OPTIONS } from "@/lib/constants";
 import { Pager } from "@/components/pager";
-import { getCurrentAidbox } from "@/lib/smart";
+import { Bundle, Practitioner } from "fhir/r4";
+import { constructGender, constructName, isDefined } from "@/lib/utils";
+import { decidePageSize } from "@/lib/server/utils";
 
 interface PageProps {
   searchParams: Promise<{
     page?: string;
-    search?: string;
+    name?: string;
     gender?: "male" | "female" | "other" | "unknown";
     pageSize?: string;
   }>;
 }
 
-async function extractPageSize(params: Awaited<PageProps["searchParams"]>) {
-  let pageSize: ValidPageSize = PAGE_SIZES.DEFAULT;
-
-  const pageSizeFromCookie = await getCookie("pageSize", { cookies });
-  if (pageSizeFromCookie) {
-    const parsedPageSize = Number(pageSizeFromCookie);
-    if (PAGE_SIZES.OPTIONS.includes(parsedPageSize as ValidPageSize)) {
-      pageSize = parsedPageSize as ValidPageSize;
-    }
-  }
-
-  const pageSizeFromSearch = params.pageSize;
-  if (pageSizeFromSearch) {
-    const parsedPageSize = Number(pageSizeFromSearch);
-    if (PAGE_SIZES.OPTIONS.includes(parsedPageSize as ValidPageSize)) {
-      pageSize = parsedPageSize as ValidPageSize;
-    }
-  }
-  return pageSize;
-}
-
 export default async function PatientsPage({ searchParams }: PageProps) {
   const aidbox = await getCurrentAidbox();
   const params = await searchParams;
-  const pageSize = await extractPageSize(params);
 
-  const currentPage = Number(params.page) || 1;
-  const searchQuery = params.search;
-  const genderFilter = params.gender;
+  const pageSize = await decidePageSize(params.pageSize);
+  const page = Number(params.page) || 1;
+  const name = params.name || "";
+  const gender = params.gender || "";
 
-  const patients = await getPatients(aidbox, {
-    _count: pageSize,
-    _page: currentPage,
-    name: searchQuery,
-    gender: genderFilter,
-  });
+  const response = await aidbox
+    .get("fhir/Patient", {
+      searchParams: {
+        _count: pageSize,
+        _page: page,
+        ...(name && { name }),
+        ...(gender && { gender }),
+      },
+    })
+    .json<Bundle<Practitioner>>();
 
-  const totalPages = Math.ceil((patients.total || 0) / pageSize);
+  const resources =
+    response.entry?.map((entry) => entry.resource)?.filter(isDefined) || [];
+
+  const total = response.total || 0;
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <>
@@ -86,13 +73,13 @@ export default async function PatientsPage({ searchParams }: PageProps) {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                name="search"
+                name="name"
                 placeholder="Search patients by name..."
-                defaultValue={searchQuery}
+                defaultValue={name}
                 className="pl-8"
               />
             </div>
-            <Select name="gender" defaultValue={genderFilter || undefined}>
+            <Select name="gender" defaultValue={gender || undefined}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All genders" />
               </SelectTrigger>
@@ -105,7 +92,7 @@ export default async function PatientsPage({ searchParams }: PageProps) {
               </SelectContent>
             </Select>
             <Button type="submit">Search</Button>
-            {(searchQuery || genderFilter) && (
+            {(name || gender) && (
               <Button variant="ghost" asChild>
                 <Link href="/patients">Clear</Link>
               </Button>
@@ -122,45 +109,29 @@ export default async function PatientsPage({ searchParams }: PageProps) {
                 <TableHead>Gender</TableHead>
                 <TableHead>Birth Date</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {patients.entry?.map(({ resource: patient }) => (
-                <TableRow key={patient?.id}>
-                  <TableCell>{patient?.id}</TableCell>
+              {resources.map((resource) => (
+                <TableRow key={resource.id}>
+                  <TableCell>{resource.id}</TableCell>
+                  <TableCell>{constructName(resource.name)}</TableCell>
                   <TableCell>
-                    {patient?.name?.[0]?.text ||
-                      `${patient?.name?.[0]?.given?.join(" ") || ""} ${
-                        patient?.name?.[0]?.family || ""
-                      }`.trim() ||
-                      "N/A"}
+                    {constructGender(resource.gender) || "Not specified"}
                   </TableCell>
-                  <TableCell className="capitalize">
-                    {patient?.gender || "N/A"}
-                  </TableCell>
-                  <TableCell>{patient?.birthDate || "N/A"}</TableCell>
+                  <TableCell>{resource.birthDate || "N/A"}</TableCell>
                   <TableCell>
-                    {patient?.active ? (
+                    {resource.active ? (
                       <span className="text-green-600">Active</span>
                     ) : (
                       <span className="text-gray-500">Inactive</span>
                     )}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button asChild variant="link" size="sm">
-                        <Link href={`/patients/${patient?.id}/edit`}>
-                          <Edit />
-                        </Link>
-                      </Button>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))}
-              {!patients.entry?.length && (
+              {!resources.length && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">
+                  <TableCell colSpan={5} className="text-center py-4">
                     No patients found
                   </TableCell>
                 </TableRow>
@@ -171,15 +142,14 @@ export default async function PatientsPage({ searchParams }: PageProps) {
 
         <div className="flex items-center justify-between space-x-2 py-4">
           <div className="flex items-center gap-4">
-            {patients.total ? (
-              <div className="text-sm text-muted-foreground">{`Showing ${(currentPage - 1) * pageSize + 1}-${Math.min(
-                currentPage * pageSize,
-                patients.total,
-              )} of ${patients.total} patients`}</div>
+            {total ? (
+              <div className="text-sm text-muted-foreground">{`Showing ${
+                (page - 1) * pageSize + 1
+              }-${Math.min(page * pageSize, total)} of ${total} patients`}</div>
             ) : null}
-            <PageSizeSelect value={pageSize.toString()} />
+            <PageSizeSelect currentSize={pageSize} />
           </div>
-          <Pager currentPage={currentPage} totalPages={totalPages} />
+          <Pager currentPage={page} totalPages={totalPages} />
         </div>
       </div>
     </>

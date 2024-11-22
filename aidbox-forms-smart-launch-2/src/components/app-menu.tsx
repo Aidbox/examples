@@ -1,9 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { LayoutDashboard, UserCog, Users } from "lucide-react";
+import {
+  FileQuestion,
+  LayoutDashboard,
+  SquareMenu,
+  UserCog,
+  Users,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 
 import {
   SidebarMenu,
@@ -28,6 +33,16 @@ const data = {
       title: "Practitioners",
       href: "/practitioners",
       icon: UserCog,
+    },
+    {
+      title: "Questionnaires",
+      href: "/questionnaires",
+      icon: FileQuestion,
+    },
+    {
+      title: "Questionnaire Responses",
+      href: "/questionnaire-responses",
+      icon: SquareMenu,
     },
   ],
 };

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getSmartApi } from "@/lib/smart";
-import { sync } from "@/lib/sync";
+import { getSmartApi } from "@/lib/server/smart";
+import { sync } from "@/lib/server/sync";
 
 export default async function handler(
   req: NextApiRequest,

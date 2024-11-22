@@ -82,3 +82,7 @@ export function createSmartAppLauncherUrl({
 
   return `https://launch.smarthealthit.org/?${params.toString()}`;
 }
+
+export function isDefined<T>(value: T): value is NonNullable<T> {
+  return value !== undefined && value !== null;
+}
