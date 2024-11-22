@@ -1,5 +1,7 @@
 This is a Aidbox Forms Smart Launch project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+(Demo)[https://forms-smart-app.aidbox.app]
+
 ## Development
 
 First, copy `.env.example` to `.env` and set the correct values:

@@ -10,8 +10,11 @@ import {
   RelatedPerson,
   Resource,
 } from "fhir/r4";
-import { getOrganizationalAidbox, upsertOrganization } from "@/lib/aidbox";
-import { getCapabilityStatement } from "@/lib/smart";
+import {
+  getOrganizationalAidbox,
+  upsertOrganization,
+} from "@/lib/server/aidbox";
+import { getCapabilityStatement } from "@/lib/server/smart";
 import { readableStreamToObject } from "@/lib/utils";
 
 function isBundle(resource: Resource): resource is Bundle<Resource> {

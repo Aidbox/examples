@@ -9,51 +9,40 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { PageHeader } from "@/components/page-header";
 import { PageSizeSelect } from "@/components/page-size-select";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { GENDER_OPTIONS } from "@/lib/constants";
 import { Pager } from "@/components/pager";
-import { Bundle, Practitioner } from "fhir/r4";
-import { constructGender, constructName, isDefined } from "@/lib/utils";
+import { Bundle, Questionnaire } from "fhir/r4";
+import { isDefined } from "@/lib/utils";
 import { decidePageSize } from "@/lib/server/utils";
 
 interface PageProps {
   searchParams: Promise<{
     page?: string;
-    name?: string;
-    gender?: "male" | "female" | "other" | "unknown";
+    title?: string;
     pageSize?: string;
   }>;
 }
 
-export default async function PractitionersPage({ searchParams }: PageProps) {
+export default async function QuestionnairesPage({ searchParams }: PageProps) {
   const aidbox = await getCurrentAidbox();
   const params = await searchParams;
 
   const pageSize = await decidePageSize(params.pageSize);
   const page = Number(params.page) || 1;
-  const name = params.name || "";
-  const gender = params.gender || "";
+  const title = params.title || "";
 
   const response = await aidbox
-    .get("fhir/Practitioner", {
+    .get("fhir/Questionnaire", {
       searchParams: {
         _count: pageSize,
         _page: page,
-        ...(name && { name }),
-        ...(gender && { gender }),
+        ...(title && { "title:contains": title }),
       },
     })
-    .json<Bundle<Practitioner>>();
+    .json<Bundle<Questionnaire>>();
 
   const resources =
     response.entry?.map((entry) => entry.resource)?.filter(isDefined) || [];
@@ -64,37 +53,25 @@ export default async function PractitionersPage({ searchParams }: PageProps) {
   return (
     <>
       <PageHeader
-        items={[{ href: "/", label: "Home" }, { label: "Practitioners" }]}
+        items={[{ href: "/", label: "Home" }, { label: "Questionnaires" }]}
       />
       <div className="flex-1 p-6">
         <div className="flex gap-2 mb-6">
-          <form className="flex-1 flex gap-2" action="/practitioners">
+          <form className="flex-1 flex gap-2" action="/questionnaires">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                name="name"
-                placeholder="Search practitioners by name..."
-                defaultValue={name}
+                name="title"
+                placeholder="Search questionnaires by title..."
+                defaultValue={title}
                 className="pl-8"
               />
             </div>
-            <Select name="gender" defaultValue={gender || undefined}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All genders" />
-              </SelectTrigger>
-              <SelectContent>
-                {GENDER_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Button type="submit">Search</Button>
-            {(name || gender) && (
+            {title && (
               <Button variant="ghost" asChild>
-                <Link href="/practitioners">Clear</Link>
+                <Link href="/questionnaires">Clear</Link>
               </Button>
             )}
           </form>
@@ -104,31 +81,29 @@ export default async function PractitionersPage({ searchParams }: PageProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Gender</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {resources.map((resource) => (
                 <TableRow key={resource.id}>
-                  <TableCell>{resource.id}</TableCell>
-                  <TableCell>{constructName(resource.name)}</TableCell>
+                  <TableCell>{resource.title}</TableCell>
+                  <TableCell>{resource.status}</TableCell>
+                  <TableCell>{resource.date}</TableCell>
                   <TableCell>
-                    {constructGender(resource.gender) || "Not specified"}
-                  </TableCell>
-                  <TableCell>
-                    {resource.telecom?.find(
-                      (t) => t.system === "email" && t.use === "work",
-                    )?.value || "Not specified"}
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/questionnaires/${resource.id}`}>View</Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
               {!resources.length && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-4">
-                    No practitioners found
+                    No questionnaires found
                   </TableCell>
                 </TableRow>
               )}

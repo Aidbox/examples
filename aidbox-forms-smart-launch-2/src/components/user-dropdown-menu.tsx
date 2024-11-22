@@ -1,5 +1,5 @@
 import { ChevronDown, LogOut, Settings2, UserPen } from "lucide-react";
-import { getCurrentUser } from "@/lib/smart";
+import { getCurrentUser } from "@/lib/server/smart";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
 import {

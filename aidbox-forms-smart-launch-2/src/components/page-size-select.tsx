@@ -8,21 +8,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { setCookie } from "cookies-next";
-import { PAGE_SIZES } from "@/lib/constants";
+import { DEFAULT_PAGE_SIZE, PAGE_SIZES } from "@/lib/constants";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-const PAGE_SIZE_OPTIONS = PAGE_SIZES.OPTIONS.map((size) => ({
-  value: size.toString(),
-  label: `${size} per page`,
-}));
-
-interface PageSizeSelectProps {
-  value?: string;
-}
-
 export function PageSizeSelect({
-  value = PAGE_SIZES.DEFAULT.toString(),
-}: PageSizeSelectProps) {
+  currentSize = DEFAULT_PAGE_SIZE,
+}: {
+  currentSize?: number;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,14 +33,14 @@ export function PageSizeSelect({
   };
 
   return (
-    <Select value={value} onValueChange={handleValueChange}>
+    <Select value={currentSize?.toString()} onValueChange={handleValueChange}>
       <SelectTrigger className="w-[130px]">
-        <SelectValue placeholder={`${PAGE_SIZES.DEFAULT} per page`} />
+        <SelectValue placeholder={`${DEFAULT_PAGE_SIZE} per page`} />
       </SelectTrigger>
       <SelectContent>
-        {PAGE_SIZE_OPTIONS.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
+        {PAGE_SIZES.map((size) => (
+          <SelectItem key={size} value={size.toString()}>
+            {size} per page
           </SelectItem>
         ))}
       </SelectContent>

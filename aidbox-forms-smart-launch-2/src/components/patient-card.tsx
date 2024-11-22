@@ -4,7 +4,7 @@ import { constructAddress, constructGender, constructName } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { getCurrentPatient, getCurrentUser } from "@/lib/smart";
+import { getCurrentPatient, getCurrentUser } from "@/lib/server/smart";
 import {
   DropdownMenu,
   DropdownMenuContent,

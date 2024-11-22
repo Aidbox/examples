@@ -6,7 +6,7 @@ import BaseServerStorage from "fhirclient/lib/storage/BrowserStorage";
 import BaseNodeAdapter from "fhirclient/lib/adapters/NodeAdapter";
 import Client from "fhirclient/lib/Client";
 import { SMART_KEY } from "fhirclient/lib/settings";
-import { getSession } from "@/lib/session";
+import { getSession } from "@/lib/server/session";
 import { cache } from "react";
 import {
   CapabilityStatement,
@@ -14,8 +14,8 @@ import {
   Patient,
   Practitioner,
 } from "fhir/r4";
-import { createRedis } from "@/lib/redis";
-import { getOrganizationalAidbox } from "@/lib/aidbox";
+import { createRedis } from "@/lib/server/redis";
+import { getOrganizationalAidbox } from "@/lib/server/aidbox";
 import Redis from "ioredis";
 import { redirect } from "next/navigation";
 
