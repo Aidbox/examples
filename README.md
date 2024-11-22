@@ -13,6 +13,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Aidbox Forms Renderer with React.js](aidbox-forms-renderer-react/)
 - [Aidbox Forms Renderer with React.js in controlled mode](aidbox-forms-renderer-react-controlled/)
 - [Aidbox Forms Smart App Launch](aidbox-forms-smart-launch/)
+- [Aidbox Forms Smart App Launch (with backend)](aidbox-forms-smart-launch-2/)
 - [Aidbox Notify via Custom Resources](aidbox-notify-via-custom-resources/)
 - [Topic-Based Subscription to Kafka](aidbox-subscriptions-to-kafka/)
 
