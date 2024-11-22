@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import useLocalStorageState from "use-local-storage-state";
 import { SMART_LAUNCH_CLIENT_ID, SMART_LAUNCH_SCOPES } from "@/lib/constants";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { createSmartAppLauncherUrl } from "@/lib/utils";
@@ -55,7 +55,9 @@ export default function Page() {
   const [launchUrl, setLaunchUrl] = useState<string>();
 
   useEffect(() => {
-    setLaunchUrl(new URL("/api/launch/authorize", window.location.href).toString());
+    setLaunchUrl(
+      new URL("/api/launch/authorize", window.location.href).toString(),
+    );
   }, []);
 
   return (
@@ -151,10 +153,13 @@ export default function Page() {
               <CardFooter className="gap-2">
                 <Button variant="outline" className="flex-1" asChild={true}>
                   <a
-                    href={launchUrl && createSmartAppLauncherUrl({
-                      launchUrl,
-                      launchType: "provider-ehr",
-                    })}
+                    href={
+                      launchUrl &&
+                      createSmartAppLauncherUrl({
+                        launchUrl,
+                        launchType: "provider-ehr",
+                      })
+                    }
                   >
                     <Stethoscope className="text-primary my-4" />
                     Provider EHR
@@ -162,10 +167,13 @@ export default function Page() {
                 </Button>
                 <Button variant="outline" className="flex-1" asChild={true}>
                   <a
-                    href={launchUrl && createSmartAppLauncherUrl({
-                      launchUrl,
-                      launchType: "patient-portal",
-                    })}
+                    href={
+                      launchUrl &&
+                      createSmartAppLauncherUrl({
+                        launchUrl,
+                        launchType: "patient-portal",
+                      })
+                    }
                   >
                     <User className="text-primary my-4" />
                     Patient Portal
