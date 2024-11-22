@@ -7,6 +7,7 @@ export function FormsRenderer({
   onChange,
 }: {
   questionnaire: Questionnaire;
+  questionnaireResponse?: QuestionnaireResponse;
   onChange?: (questionnaireResponse: QuestionnaireResponse) => void;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
@@ -33,6 +34,7 @@ export function FormsRenderer({
     <aidbox-form-renderer
       ref={ref}
       questionnaire={JSON.stringify(questionnaire)}
+      questionnaire-response={JSON.stringify(questionnaire)}
       style={{
         width: "100%",
         height: "100%",

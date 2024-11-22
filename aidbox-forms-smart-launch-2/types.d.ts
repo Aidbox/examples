@@ -15,6 +15,7 @@ declare global {
         HTMLIFrameElement
       > & {
         questionnaire?: string;
+        "questionnaire-response"?: string;
       };
       "aidbox-form-builder": React.DetailedHTMLProps<
         React.IframeHTMLAttributes<HTMLIFrameElement>,

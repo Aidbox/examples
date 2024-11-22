@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Address, HumanName } from "fhir/r4";
+import { Address, Bundle, HumanName, Resource } from "fhir/r4";
 import crypto from "crypto";
 import { SMART_LAUNCH_TYPES } from "@/lib/constants";
 
@@ -85,4 +85,30 @@ export function createSmartAppLauncherUrl({
 
 export function isDefined<T>(value: T): value is NonNullable<T> {
   return value !== undefined && value !== null;
+}
+
+export function isBundle<T extends Resource = Resource>(
+  resource: any,
+): resource is Bundle<T> {
+  return "resourceType" in resource && resource.resourceType === "Bundle";
+}
+
+export function getFirst<T extends Resource = Resource>(
+  resource: T | Bundle<T>,
+): T {
+  if (isBundle<T>(resource)) {
+    const first = resource.entry?.[0].resource;
+    if (!first) {
+      throw new Error("Resource not found");
+    }
+    return first;
+  } else {
+    return resource;
+  }
+}
+
+export function typeSafeObjectFromEntries<
+  const T extends ReadonlyArray<readonly [PropertyKey, unknown]>,
+>(entries: T): { [K in T[number] as K[0]]: K[1] } {
+  return Object.fromEntries(entries) as { [K in T[number] as K[0]]: K[1] };
 }
