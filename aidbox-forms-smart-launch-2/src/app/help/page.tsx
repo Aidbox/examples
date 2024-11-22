@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import useLocalStorageState from "use-local-storage-state";
 import { SMART_LAUNCH_CLIENT_ID, SMART_LAUNCH_SCOPES } from "@/lib/constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { createSmartAppLauncherUrl } from "@/lib/utils";
@@ -52,7 +52,11 @@ export default function Page() {
     },
   );
 
-  const launchUrl = new URL("/api/launch/authorize", window.location.href);
+  const [launchUrl, setLaunchUrl] = useState<string>();
+
+  useEffect(() => {
+    setLaunchUrl(new URL("/api/launch/authorize", window.location.href).toString());
+  }, []);
 
   return (
     <>
@@ -69,13 +73,13 @@ export default function Page() {
               <li>
                 <span className="font-semibold">Launch URL:</span>{" "}
                 <code className="bg-black text-white px-1 py-0.5 rounded text-xs">
-                  {launchUrl.toString()}
+                  {launchUrl}
                 </code>
               </li>
               <li>
                 <span className="font-semibold">Redirect URL:</span>{" "}
                 <code className="bg-black text-white px-1 py-0.5 rounded text-xs">
-                  {launchUrl.toString()}
+                  {launchUrl}
                 </code>
               </li>
               <li>
@@ -147,7 +151,7 @@ export default function Page() {
               <CardFooter className="gap-2">
                 <Button variant="outline" className="flex-1" asChild={true}>
                   <a
-                    href={createSmartAppLauncherUrl({
+                    href={launchUrl && createSmartAppLauncherUrl({
                       launchUrl,
                       launchType: "provider-ehr",
                     })}
@@ -158,7 +162,7 @@ export default function Page() {
                 </Button>
                 <Button variant="outline" className="flex-1" asChild={true}>
                   <a
-                    href={createSmartAppLauncherUrl({
+                    href={launchUrl && createSmartAppLauncherUrl({
                       launchUrl,
                       launchType: "patient-portal",
                     })}
