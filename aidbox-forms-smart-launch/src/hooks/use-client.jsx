@@ -20,18 +20,9 @@ export const defaultScope = [
   "patient/QuestionnaireResponse.crus", // Request create, read, update access to QuestionnaireResponse resource
 ];
 
-const brokenUrl = "https://form-builder.aidbox.app";
 const correctUrl = "https://form-builder.aidbox.app/fhir";
 
 export const publicBuilderClient = client(correctUrl);
-
-export const fixPotentialBrokenUrl = (url) => {
-  if (url.startsWith(brokenUrl) && !url.startsWith(correctUrl)) {
-    return url.replace(brokenUrl, correctUrl);
-  }
-
-  return url;
-};
 
 const clientContext = createContext(null);
 
