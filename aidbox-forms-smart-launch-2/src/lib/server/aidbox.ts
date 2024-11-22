@@ -1,5 +1,3 @@
-"use server";
-
 import ky from "ky";
 import { CapabilityStatement, Organization } from "fhir/r4";
 import { sha256 } from "@/lib/utils";

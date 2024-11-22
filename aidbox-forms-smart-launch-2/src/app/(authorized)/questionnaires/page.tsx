@@ -1,4 +1,9 @@
-import { getCurrentAidbox } from "@/lib/server/smart";
+import {
+  getCurrentAidbox,
+  getCurrentEncounter,
+  getCurrentPatient,
+  getCurrentUser,
+} from "@/lib/server/smart";
 import {
   Table,
   TableBody,
@@ -14,10 +19,16 @@ import { PageSizeSelect } from "@/components/page-size-select";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Pager } from "@/components/pager";
-import { Bundle, Questionnaire } from "fhir/r4";
+import {
+  Bundle,
+  Questionnaire,
+  QuestionnaireResponse,
+  Parameters,
+} from "fhir/r4";
 import { isDefined } from "@/lib/utils";
 import { decidePageSize } from "@/lib/server/utils";
 import { QuestionnairesActions } from "@/components/questionnaires-actions";
+import { revalidatePath } from "next/cache";
 
 interface PageProps {
   searchParams: Promise<{
@@ -50,6 +61,85 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
 
   const total = response.total || 0;
   const totalPages = Math.ceil(total / pageSize);
+
+  async function deleteQuestionnaire(questionnaire: Questionnaire) {
+    "use server";
+
+    const aidbox = await getCurrentAidbox();
+    await aidbox.delete(`fhir/Questionnaire/${questionnaire.id}`).json();
+    revalidatePath("/questionnaires");
+  }
+
+  async function createQuestionnaireResponse(questionnaire: Questionnaire) {
+    "use server";
+
+    const aidbox = await getCurrentAidbox();
+    const subject = await getCurrentPatient().catch(() => null);
+    const encounter = await getCurrentEncounter().catch(() => null);
+    const author = await getCurrentUser().catch(() => null);
+
+    const result = await aidbox
+      .post(`fhir/Questionnaire/$populate`, {
+        json: {
+          resourceType: "Parameters",
+          parameter: [
+            {
+              name: "questionnaire",
+              resource: questionnaire,
+            },
+            {
+              name: "subject",
+              resource: subject,
+            },
+            {
+              name: "context",
+              part: [
+                ...(encounter
+                  ? [
+                      {
+                        name: "name",
+                        valueString: "encounter",
+                      },
+                      {
+                        name: "content",
+                        resource: encounter,
+                      },
+                    ]
+                  : []),
+                ...(author
+                  ? [
+                      {
+                        name: "name",
+                        valueString: "author",
+                      },
+                      {
+                        name: "content",
+                        resource: author,
+                      },
+                    ]
+                  : []),
+              ],
+            },
+          ],
+        },
+      })
+      .json<Parameters>();
+
+    const populated = result.parameter?.find(({ name }) => name === "response")
+      ?.resource as QuestionnaireResponse;
+
+    populated.questionnaire = `${questionnaire.url}${questionnaire.version ? `|${questionnaire.version}` : ""}`;
+
+    const saved = await aidbox
+      .post("fhir/QuestionnaireResponse", {
+        json: populated,
+      })
+      .json<QuestionnaireResponse>();
+
+    revalidatePath("/questionnaire-responses");
+
+    return saved;
+  }
 
   return (
     <>
@@ -95,7 +185,11 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
                   <TableCell>{resource.status}</TableCell>
                   <TableCell>{resource.date}</TableCell>
                   <TableCell className="text-right pr-6">
-                    <QuestionnairesActions questionnaire={resource} />
+                    <QuestionnairesActions
+                      questionnaire={resource}
+                      onDeleteAction={deleteQuestionnaire}
+                      onCreateResponseAction={createQuestionnaireResponse}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
