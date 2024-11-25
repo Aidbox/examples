@@ -1,6 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useClient } from "@/hooks/use-client.jsx";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useAwaiter } from "@/hooks/use-awaiter.jsx";
 import { useEffect, useRef } from "react";
 import { findQuestionnaire, saveQuestionnaireResponse } from "@/lib/utils.js";
@@ -9,6 +13,7 @@ export const QuestionnaireResponse = () => {
   const ref = useRef();
   const { id } = useParams();
   const client = useClient();
+  const queryClient = useQueryClient();
 
   const { data: questionnaireResponse } = useSuspenseQuery({
     queryKey: ["questionnaire-response", id],
@@ -24,6 +29,9 @@ export const QuestionnaireResponse = () => {
 
   const mutation = useMutation({
     mutationFn: saveQuestionnaireResponse.bind(null, client, questionnaire),
+    onSuccess: (qr) => {
+      queryClient.setQueryData(["questionnaire-response", id], qr);
+    },
   });
 
   useEffect(() => {
