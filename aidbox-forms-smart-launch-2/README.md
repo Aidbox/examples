@@ -136,3 +136,58 @@ sequenceDiagram
         deactivate Smart App
     end
 ```
+
+## Features
+
+1. SMART Launch & Authorization Flow:
+  * The app implements SMART on FHIR launch sequence using `/api/launch/authorize` and `/api/launch/ready` endpoints
+  * Uses `fhirclient` library for SMART authorization
+  * Supports both standalone and EHR launch flows
+  * Configured scopes include: openid, fhirUser, profile, offline_access, launch, launch/patient, patient/.rs, user/.rs
+  * Client ID is set to "aidbox-forms"
+2. Resource Synchronization:
+  * After successful authorization, the app syncs FHIR resources from the launch context to Aidbox
+  * The sync process includes:
+    * Patient data from launch context
+    * User data (Practitioner/RelatedPerson)
+    * Current encounter if available
+    * Additional context resources from token response
+    * Patient $everything operation results
+  * Resources are synchronized using a FHIR batch bundle with PUT requests
+  * Each resource is stored in an organizational compartment in Aidbox
+3. Forms Management:
+  * Supports FHIR Questionnaire and QuestionnaireResponse resources
+  * Provides UI for:
+    * Viewing/searching questionnaires
+    * Creating/editing questionnaires using a form builder
+    * Filling questionnaires
+    * Managing questionnaire responses
+  * Uses web components from form-builder.aidbox.app for rendering and building forms
+  * Supports population of QuestionnaireResponses with launch context data
+4. Data Access:
+  * Resources are stored in organizational compartments based on the FHIR server URL
+  * Implements pagination and search functionality for resources
+  * Supports filtering by various attributes (name, gender, title etc.)
+  * Handles resource relationships and includes (e.g. QuestionnaireResponse.questionnaire)
+5. UI Features:
+  * Modern React-based UI with Next.js
+  * Responsive sidebar navigation
+  * Tabular views with sorting and filtering
+  * Form builder and renderer integration
+  * Patient context display
+
+
+The application follows a clean architecture with:
+
+ * Clear separation of server/client code
+ * Type-safe FHIR resource handling
+ * Error handling and logging
+ * Efficient resource synchronization
+ * Modern UI components and styling with shadcn/ui
+
+The key integration points are:
+
+1. SMART launch sequence for authorization
+2. Resource synchronization with Aidbox
+3. Form builder/renderer web components
+4. FHIR API interactions for resource management
