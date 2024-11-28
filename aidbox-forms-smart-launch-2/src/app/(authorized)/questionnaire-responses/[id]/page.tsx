@@ -1,7 +1,6 @@
 import { getCurrentAidbox } from "@/lib/server/smart";
 import { PageHeader } from "@/components/page-header";
 import { Questionnaire, QuestionnaireResponse } from "fhir/r4";
-import { QuestionnaireEditor } from "@/components/questionnaire-editor";
 import { getFirst } from "@/lib/utils";
 import { QuestionnaireResponseEditor } from "@/components/questionnaire-response-editor";
 
