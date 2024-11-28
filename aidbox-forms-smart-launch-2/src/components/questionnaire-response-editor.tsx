@@ -1,6 +1,5 @@
 "use client";
 
-import { FormsBuilder } from "@/components/forms-builder";
 import { Questionnaire, QuestionnaireResponse } from "fhir/r4";
 import { Suspense, useTransition } from "react";
 import { Spinner } from "@/components/spinner";
