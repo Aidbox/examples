@@ -1,5 +1,32 @@
 This is a Aidbox Forms Smart Launch project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+You can use this project as a starting point for building your own Aidbox Forms Smart App. 
+It is intentionally kept simple to help you understand how to integrate Aidbox Forms adapt it to your needs.
+
+It includes an implementation of:
+- [x] SMART on FHIR Launch sequence on the backend
+  - [x] Cookie based session management
+- [x] Configuration of Aidbox server
+  - [x] Multitenancy via Organization based Access Control
+- [x] Client authentication with Aidbox
+- [x] FHIR resources synchronization using `$everything`
+- [ ] FHIR resources synchronization using predefined resource URLs
+- [x] Integration of Aidbox Forms via web components
+- [x] Questionnaire CRUD operations
+  - [x] Searching questionnaires
+  - [x] Viewing questionnaires
+  - [x] Creating questionnaire responses
+  - [x] Viewing public library
+  - [x] Importing questionnaires from public library
+  - [x] Editing questionnaires
+  - [x] Deleting questionnaires
+- [x] Questionnaire response CRUD operations
+  - [x] Creating questionnaire responses
+    - [x] Pre-populating questionnaire responses
+  - [x] Viewing questionnaire responses
+  - [x] Editing questionnaire responses
+  - [x] Deleting questionnaire responses
+
 [Demo](https://forms-smart-app.aidbox.app)
 
 ## Development
