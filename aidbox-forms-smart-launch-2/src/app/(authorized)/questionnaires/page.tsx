@@ -1,6 +1,5 @@
 import {
   getCurrentAidbox,
-  getCurrentEncounter,
   getCurrentPatient,
   getCurrentUser,
 } from "@/lib/server/smart";
