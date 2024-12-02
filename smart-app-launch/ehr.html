@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FHIR Patient List</title>
+</head>
+<body>
+
+    <h1>EHR Emulator</h1>
+
+    <form id="loginForm">
+        <h2>Login</h2>
+        <label>
+            Username: <input type="text" id="username" required />
+        </label><br/>
+        <label>
+            Password: <input type="password" id="password" required />
+        </label><br/>
+        <button type="submit">Login</button>
+    </form>
+    <div id="patientList" style="display:none;">
+        <h1>Patient List</h1>
+        <div id="user-info"></div>
+        <ul id="patients"></ul>
+    </div>
+
+    <script>
+     let accessToken = '';
+
+     // const username = 'provider';
+     // accessToken = '';
+     // showUserInfo(username);
+     // const fhirUrl = 'http://localhost:8080/fhir/Patient?_count=20&birthdate=ge2000'; // Replace with your FHIR server endpoint
+     // fetch(fhirUrl, {method: 'GET', headers: {'Authorization': 'Bearer ' + accessToken}})
+     //     .then(response => response.json())
+     //     .then(fhirData => {displayPatients(fhirData);})
+     //     .catch(error => {console.error('Error fetching patients:', error);});
+
+     document.getElementById('loginForm').addEventListener('submit', function(e){
+         e.preventDefault();
+
+         const username = document.getElementById('username').value;
+         const password = document.getElementById('password').value;
+         const client_id = 'ehr'; // Replace with your client_id
+
+         // Token endpoint URL
+         const tokenUrl = 'http://localhost:8080/auth/token'; // Replace with your token endpoint
+
+         // Prepare data for token request
+         const data = new URLSearchParams();
+         data.append('grant_type', 'password');
+         data.append('username', username);
+         data.append('password', password);
+         data.append('client_id', client_id);
+         // data.append('client_secret', client_secret);
+
+
+         // Request an access token
+         fetch(tokenUrl, {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/x-www-form-urlencoded'
+             },
+             body: data.toString()
+         })
+             .then(response => response.json())
+             .then(tokenData => {
+                 if(tokenData.access_token){
+                     showUserInfo(username);
+                     accessToken =  tokenData.access_token;
+                     // Use the access token to fetch patients
+                     const fhirUrl = 'http://localhost:8080/fhir/Patient?_count=20&birthdate=ge2000';
+                     fetch(fhirUrl, {
+                         method: 'GET',
+                         headers: {
+                             'Authorization': 'Bearer ' + tokenData.access_token
+                         }
+                     })
+                         .then(response => response.json())
+                         .then(fhirData => {
+                             displayPatients(fhirData);
+                         })
+                         .catch(error => {
+                             console.error('Error fetching patients:', error);
+                         });
+                 } else {
+                     console.error('Authentication failed:', tokenData);
+                     alert('Authentication failed: ' + (tokenData.error_description || 'Unknown error'));
+                 }
+             })
+             .catch(error => {
+                 console.error('Error during authentication:', error);
+             });
+     });
+
+     function showUserInfo(username) {
+         const userInfo = document.getElementById('user-info');
+         userInfo.innerHTML = 'You logged in as ' + username;
+     }
+
+     function launch(token, patientId) {
+         const fhirUrl = 'http://localhost:8080/rpc';
+         let body = {
+             method: "aidbox.smart/get-launch-uri",
+             params: {
+                 user: "practitioner",
+                 iss: "http://localhost:8080/fhir",
+                   client: "growth_chart",
+         ctx: {patient: patientId}
+     }
+         }
+         fetch(fhirUrl, {
+             method: 'POST',
+             headers: {'Authorization': 'Bearer ' + token,
+                       'content-type':  'application/json'},
+             body: JSON.stringify(body)
+         })
+             .then(response => response.json())
+             .then(resp => {
+                 // console.log("resp", resp)
+                 window.location = resp.result.uri
+             })
+             .catch(error => {
+                 console.error('Error fetching patients:', error);
+             });
+     }
+
+     function displayPatients(fhirData){
+         document.getElementById('loginForm').style.display = 'none';
+         document.getElementById('patientList').style.display = 'block';
+
+         const patientsUl = document.getElementById('patients');
+         patientsUl.innerHTML = '';
+
+         if(fhirData && fhirData.entry){
+             fhirData.entry.forEach(function(entry){
+                 const patient = entry.resource;
+                 let name = 'Unknown';
+                 let id = patient.id;
+                 if(patient.name && patient.name.length > 0){
+                     const nameObj = patient.name[0];
+                     const given = nameObj.given ? nameObj.given.join(' ') : '';
+                     const family = nameObj.family || '';
+                     const birthDate = patient.birthDate || '';
+                     name = `${given} ${family} (${birthDate}) <span style="color: blue" onclick="launch('${accessToken}', '${id}')">Launch Growth chart app</span>`;
+                 }
+                 const li = document.createElement('li');
+                 li.innerHTML = name;
+                 patientsUl.appendChild(li);
+             });
+         } else {
+             const li = document.createElement('li');
+             li.textContent = 'No patients found.';
+             patientsUl.appendChild(li);
+         }
+     }
+    </script>
+</body>
+</html>

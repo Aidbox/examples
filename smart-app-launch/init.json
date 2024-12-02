@@ -1,0 +1,17 @@
+{
+    "resourceType" : "Bundle",
+    "type" : "transaction",
+    "entry" : [
+        {
+            "request": {
+                "method": "PUT",
+                "url": "/Patient/marat-test-init-bundle"
+            },
+            "resource" : {
+                "resourceType" : "Patient",
+                "id" : "marat-test-init-bundle",
+                "gender": "male"
+            }
+        }
+    ]
+}

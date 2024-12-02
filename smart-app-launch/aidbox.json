@@ -1,0 +1,56 @@
+{
+  "type": "transaction",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Client/growth_chart"
+      },
+      "resource": {
+        "resourceType": "Client",
+        "id": "growth_chart",
+        "auth": {
+          "authorization_code": {
+            "redirect_uri": "http://localhost:9000/",
+            "refresh_token": true,
+            "token_format": "jwt",
+            "access_token_expiration": 3600000
+          }
+        },
+        "smart": {
+          "launch_uri": "http://localhost:9000/launch.html"
+        },
+        "type": "smart-app",
+        "secret": "quOfCRS7ty1RMUQq",
+        "grant_types": [
+          "authorization_code"
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/IdentityProvider/keycloak"
+      },
+      "resource": {
+        "resourceType": "IdentityProvider",
+        "scopes": [
+          "profile",
+          "openid"
+        ],
+        "system": "keycloak",
+        "userinfo_endpoint": "http://localhost:8888/realms/patients/protocol/openid-connect/userinfo",
+        "authorize_endpoint": "http://localhost:8888/realms/patients/protocol/openid-connect/auth",
+        "client": {
+          "id": "aidbox",
+          "secret": "HOuPXmduHfTjhtW0eqAeMsHZJbRNVc8x"
+        },
+        "title": "Keycloak",
+        "active": true,
+        "id": "keycloak",
+        "token_endpoint": "http://keycloak:8888/realms/patients/protocol/openid-connect/token",
+        "userinfo-source": "id-token"
+      }
+    }
+  ]
+}
