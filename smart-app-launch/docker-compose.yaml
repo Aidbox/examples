@@ -22,9 +22,17 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     command: start-dev --import-realm
+  
+  ehr:
+    image: nginx:alpine
+    ports:
+      - "7070:80"
+    volumes:
+      - ./ehr.html:/usr/share/nginx/html/ehr.html:ro
 
   aidbox_db:
     image: healthsamurai/aidboxdb:17
+    pull_policy: always
     volumes:
     - aidbox_pg_data:/data:delegated
     environment:
@@ -36,6 +44,7 @@ services:
 
   aidbox:
     image: healthsamurai/aidboxone:edge
+    pull_policy: always
     depends_on:
     - aidbox_db
     ports:
@@ -44,17 +53,14 @@ services:
     - ./aidbox.json:/tmp/aidbox.json
     environment:
       BOX_INIT_BUNDLE: file:///tmp/aidbox.json
-      AIDBOX_TERMINOLOGY_SERVICE_BASE_URL: https://tx.fhir.org/r4
       AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
       AIDBOX_FHIR_SCHEMA_VALIDATION: true
       AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
       AIDBOX_CLIENT_SECRET: vbDPgXnz0H
-      AIDBOX_CORRECT_AIDBOX_FORMAT: true
       AIDBOX_ADMIN_PASSWORD: password
       AIDBOX_COMPLIANCE: enabled
       BOX_SEARCH_FHIR__COMPARISONS: true
       PGHOST: aidbox_db
-      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
       PGUSER: aidbox
       AIDBOX_PORT: 8080
       PGDATABASE: aidbox

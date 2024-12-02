@@ -1,5 +1,5 @@
 {
-  "type": "transaction",
+  "type": "batch",
   "entry": [
     {
       "request": {
@@ -30,6 +30,41 @@
     {
       "request": {
         "method": "PUT",
+        "url": "/Client/ehr"
+      },
+      "resource": {
+        "id": "ehr",
+        "secret": "verysecret",
+        "grant_types": [
+          "basic"
+        ],
+        "resourceType": "Client"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/demo-clients-allow"
+      },
+      "resource": {
+        "id": "demo-clients-allow",
+        "link": [
+          {
+            "id": "ehr",
+            "resourceType": "Client"
+          },
+          {
+            "id": "growth_chart",
+            "resourceType": "Client"
+          }
+        ],
+        "engine": "allow",
+        "resourceType": "AccessPolicy"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
         "url": "/IdentityProvider/keycloak"
       },
       "resource": {
@@ -50,6 +85,25 @@
         "id": "keycloak",
         "token_endpoint": "http://keycloak:8888/realms/patients/protocol/openid-connect/token",
         "userinfo-source": "id-token"
+      }
+    },
+
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Patient/$load"
+      },
+      "resource": {
+        "source": "https://storage.googleapis.com/aidbox-public/synthea/v2/100/fhir/Patient.ndjson.gz"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Observation/$load"
+      },
+      "resource": {
+        "source": "https://storage.googleapis.com/aidbox-public/synthea/v2/100/fhir/Observation.ndjson.gz"
       }
     }
   ]

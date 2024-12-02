@@ -7,14 +7,14 @@ docker compose up
 ```
 
 aidbox - http://localhost:8080
-keycloak - http://localhost:88888
+keycloak - http://localhost:8888
 growth-chart - http://localhost:9000
 
 ## EHR launch
 
 ### Patient launch
 
-Open http://localhost:7070 (ehr emulator)
+Open http://localhost:7070/ehr.html (ehr emulator)
 
 
 Need launch uri
