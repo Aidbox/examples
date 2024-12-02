@@ -75,7 +75,9 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
 
     const aidbox = await getCurrentAidbox();
     const subject = await getCurrentPatient().catch(() => null);
-    const encounter = await getCurrentEncounter().catch(() => null);
+    // const encounter = await getCurrentEncounter().catch(() => null);
+    // TODO: fix data sync with EHR
+    // Encounters are created due to errors in references
     const author = await getCurrentUser().catch(() => null);
 
     const result = await aidbox
@@ -94,18 +96,6 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
             {
               name: "context",
               part: [
-                ...(encounter
-                  ? [
-                      {
-                        name: "name",
-                        valueString: "encounter",
-                      },
-                      {
-                        name: "content",
-                        resource: encounter,
-                      },
-                    ]
-                  : []),
                 ...(author
                   ? [
                       {
@@ -128,7 +118,9 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
     const populated = result.parameter?.find(({ name }) => name === "response")
       ?.resource as QuestionnaireResponse;
 
-    populated.questionnaire = `${questionnaire.url}${questionnaire.version ? `|${questionnaire.version}` : ""}`;
+    populated.questionnaire = `${questionnaire.url}${
+      questionnaire.version ? `|${questionnaire.version}` : ""
+    }`;
 
     const saved = await aidbox
       .post("fhir/QuestionnaireResponse", {
@@ -211,7 +203,7 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
                 (page - 1) * pageSize + 1
               }-${Math.min(
                 page * pageSize,
-                total,
+                total
               )} of ${total} practitioners`}</div>
             ) : null}
             <PageSizeSelect currentSize={pageSize} />
