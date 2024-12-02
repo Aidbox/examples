@@ -1,0 +1,63 @@
+version: '3.7'
+volumes:
+  aidbox_pg_data: {}
+
+services:
+
+  growth_chart:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.growthchart
+    ports:
+    - 9000:9000
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.6
+    volumes:
+    - ./keycloak.json:/opt/keycloak/data/import/keycloak.json
+    ports:
+      - 8888:8888
+    environment:
+      KC_HTTP_PORT: 8888
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm
+
+  aidbox_db:
+    image: healthsamurai/aidboxdb:17
+    volumes:
+    - aidbox_pg_data:/data:delegated
+    environment:
+      PGDATA: /data
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: nP0s8ALcTk
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    depends_on:
+    - aidbox_db
+    ports:
+    - 8080:8080
+    volumes:
+    - ./aidbox.json:/tmp/aidbox.json
+    environment:
+      BOX_INIT_BUNDLE: file:///tmp/aidbox.json
+      AIDBOX_TERMINOLOGY_SERVICE_BASE_URL: https://tx.fhir.org/r4
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      AIDBOX_FHIR_SCHEMA_VALIDATION: true
+      AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
+      AIDBOX_CLIENT_SECRET: vbDPgXnz0H
+      AIDBOX_CORRECT_AIDBOX_FORMAT: true
+      AIDBOX_ADMIN_PASSWORD: password
+      AIDBOX_COMPLIANCE: enabled
+      BOX_SEARCH_FHIR__COMPARISONS: true
+      PGHOST: aidbox_db
+      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
+      PGUSER: aidbox
+      AIDBOX_PORT: 8080
+      PGDATABASE: aidbox
+      PGPASSWORD: nP0s8ALcTk
+      PGPORT: '5432'
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
