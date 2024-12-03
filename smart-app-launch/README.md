@@ -59,7 +59,7 @@ Open the [Demo Launcher Page](http://localhost:7070/launcher.html).
 
 ## Step 4: Perform Patient Standalone Launch
 
-**4.1** Go back to the [Demo Launcher](http://localhost:7070/launcher.html)
+**4.1** Go back to the [Demo Launcher](http://localhost:7070/launcher.html)   
 **4.2** On the right side of the screen, click the **Launch Growth Chart App** button under Patient Standalone Launch.     
 **4.2** On the consent screen, allow all requested scopes.     
 **4.3** View the patient's data in the Growth Chart app.
