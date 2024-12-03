@@ -51,11 +51,11 @@ Open the [Demo Launcher Page](http://localhost:7070/launcher.html).
 
 ## Step 3: Perform EHR Launch
 
-**3.1** Select a patient from the list on the left side and click the `Launch Growth Chart App` button to start the launch process.
-**3.2** On the Aidbox login screen, click the `Sign in with Keycloak` button.  
-**3.3** Log in to Keycloak with username `patient` and password `password`
-**3.4** On the consent screen, allow all requested scopes.    
-**3.5** View the patient's data in the Growth Chart app.
+**3.1** Select a patient from the list on the left side and click the `Launch Growth Chart App` button to start the launch process.   
+**3.2** On the Aidbox login screen, click the `Sign in with Keycloak` button.     
+**3.3** Log in to Keycloak with username `patient` and password `password`   
+**3.4** On the consent screen, allow all requested scopes.       
+**3.5** View the patient's data in the Growth Chart app.   
 
 ## Step 4: Perform Patient Standalone Launch
 
