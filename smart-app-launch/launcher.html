@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SMART App launcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        #container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #left-content, #right-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+        }
+        #left-content {
+            border-right: 1px solid #ccc;
+        }
+        /* Center headings in their containers */
+        #left-content h1, #right-content h1 {
+            text-align: center;
+        }
+        #patientList ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #patientList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .launch-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .launch-button:hover {
+            background-color: #0056b3;
+        }
+        /* Center the button on the right side */
+        #right-content {
+            text-align: center;
+        }
+        /* Center the main title */
+        body > h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        /* Style paragraphs */
+        #left-content p, #right-content p {
+            text-align: left;
+            color: #555;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Demo Launcher</h1>
+    <div id="container">
+        <div id="left-content">
+            <div id="patientList">
+                <h1>EHR Launch</h1>
+                <p>
+                    This emulates the launch process from an EHR. You can select the patient context and launch the "Growth Chart" Smart App.
+                </p>
+                <p>
+                    Please use "Sign in with Keycloak". Credentials:<br>
+                    <strong>Username:</strong> patient<br>
+                    <strong>Password:</strong> password.
+                </p>
+                <ul id="patients"></ul>
+            </div>
+        </div>
+        <div id="right-content">
+            <h1>Patient Standalone Launch</h1>
+            <p>This emulates the patient standalone launch process. You need to launch the smart app. Your patient context has already been selected.</p>
+            <button class="launch-button" onclick="launch('4013bde2-8ef4-54ef-8790-11413950fc72')">Launch Growth Chart App</button>
+        </div>
+    </div>
+    <script>
+        // Client credentials
+        const client_id = 'ehr';
+        const client_secret = 'verysecret';
+
+        // Encode credentials in Base64
+        const credentials = btoa(client_id + ':' + client_secret);
+
+        // Headers for Basic Authentication
+        const headers = {
+            'Authorization': 'Basic ' + credentials
+        };
+
+        // FHIR API endpoint
+        const fhirUrl = 'http://localhost:8080/fhir/Patient?_count=20&birthdate=ge2000';
+
+        // Fetch patients using Basic Auth
+        fetch(fhirUrl, {
+            method: 'GET',
+            headers: headers
+        })
+        .then(response => response.json())
+        .then(fhirData => {
+            displayPatients(fhirData);
+        })
+        .catch(error => {
+            console.error('Error fetching patients:', error);
+        });
+
+        function launch(patientId) {
+            const fhirUrl = 'http://localhost:8080/rpc';
+            let body = {
+                method: "aidbox.smart/get-launch-uri",
+                params: {
+                    user: "practitioner",
+                    iss: "http://localhost:8080/fhir",
+                    client: "growth_chart",
+                    ctx: { patient: patientId }
+                }
+            };
+            fetch(fhirUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Basic ' + credentials,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            })
+            .then(response => response.json())
+            .then(resp => {
+                window.location = resp.result.uri;
+            })
+            .catch(error => {
+                console.error('Error launching app:', error);
+            });
+        }
+
+        function displayPatients(fhirData){
+            const patientList = document.getElementById('patientList');
+            patientList.style.display = 'block';
+
+            const patientsUl = document.getElementById('patients');
+            patientsUl.innerHTML = '';
+
+            if(fhirData && fhirData.entry){
+                fhirData.entry.forEach(function(entry){
+                    const patient = entry.resource;
+                    let name = 'Unknown';
+                    let id = patient.id;
+                    if(patient.name && patient.name.length > 0){
+                        const nameObj = patient.name[0];
+                        const given = nameObj.given ? nameObj.given.join(' ') : '';
+                        const family = nameObj.family || '';
+                        const birthDate = patient.birthDate || '';
+                        name = `${given} ${family} (${birthDate})`;
+                    }
+                    const li = document.createElement('li');
+                    const nameSpan = document.createElement('span');
+                    nameSpan.innerHTML = `<strong>${name}</strong>`;
+                    const button = document.createElement('button');
+                    button.className = 'launch-button';
+                    button.innerText = 'Launch Growth Chart App';
+                    button.onclick = function() {
+                        launch('${id}');
+                    };
+                    li.appendChild(nameSpan);
+                    li.appendChild(button);
+                    patientsUl.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'No patients found.';
+                patientsUl.appendChild(li);
+            }
+        }
+    </script>
+</body>
+</html>

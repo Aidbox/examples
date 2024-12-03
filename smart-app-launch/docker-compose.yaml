@@ -23,12 +23,12 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     command: start-dev --import-realm
   
-  ehr:
+  launcher:
     image: nginx:alpine
     ports:
       - "7070:80"
     volumes:
-      - ./ehr.html:/usr/share/nginx/html/ehr.html:ro
+      - ./launcher.html:/usr/share/nginx/html/launcher.html:r
 
   aidbox_db:
     image: healthsamurai/aidboxdb:17

@@ -14,7 +14,7 @@ growth-chart - http://localhost:9000
 
 ### Patient launch
 
-Open http://localhost:7070/ehr.html (ehr emulator)
+Open http://localhost:7070/launcher.html (Demo Smart APP launcher)
 
 
 Need launch uri
