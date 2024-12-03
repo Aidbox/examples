@@ -85,7 +85,7 @@ sequenceDiagram
     Aidbox ->> Keycloak: Redirect to Keycloak Login page 
     deactivate Aidbox
     activate Keycloak 
-    Note right of Keycloak: Login in with keycloak creds
+    Note right of Keycloak: Login with Keycloak credentials
     Keycloak ->> Aidbox: Response with code
     deactivate Keycloak
     activate Aidbox
@@ -108,7 +108,7 @@ sequenceDiagram
     Customer ->> Aidbox: Allow requested scopes  
     deactivate Customer
     activate Aidbox
-    Aidbox ->> Aidbox: Checks granted permissions
+    Aidbox ->> Aidbox: Check granted permissions
     Aidbox ->> Smart App: Redirect with code
     deactivate Aidbox 
     activate Smart App
