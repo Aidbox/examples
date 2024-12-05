@@ -1,10 +1,10 @@
-# Aidbox Smart App Launch Demo
+# SMART App Launch with Aidbox and Keycloak
 
 This demo showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html). 
 
 ## Components
 
-1. [Aidbox](https://docs.aidbox.app/) TODO: Add link to Audbox smart documentation   
+1. [Aidbox](https://docs.aidbox.app/modules/security-and-access-control/smart-on-fhir) 
     FHIR server with SMART-on-FHIR support.
 2. [Keycloak](https://www.keycloak.org/)   
     Identity and Access Management solution that integrates with Aidbox through the [IdentityProvider](https://docs.aidbox.app/modules/security-and-access-control/set-up-external-identity-provider) resource.
@@ -95,7 +95,7 @@ sequenceDiagram
     Keycloak ->> Aidbox: Return token 
     deactivate Keycloak
     activate Aidbox
-    Aidbox ->> Keycloak: Retrive user info
+    Aidbox ->> Keycloak: Request user info
     deactivate Aidbox 
     activate Keycloak
     Keycloak ->> Aidbox: Return user info 
