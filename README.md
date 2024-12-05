@@ -16,6 +16,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Aidbox Forms Smart App Launch (with backend)](aidbox-forms-smart-launch-2/)
 - [Aidbox Notify via Custom Resources](aidbox-notify-via-custom-resources/)
 - [Topic-Based Subscription to Kafka](aidbox-subscriptions-to-kafka/)
+- [SMART App Launch with Aidbox and Keycloak](smart-app-launch/)
 
 ## Documentation
 
