@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "3.13"
 fhirpy = "^2.0.15"
+fhirpy-types-r4b = "0.1.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.8.2"

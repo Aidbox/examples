@@ -1,51 +1,26 @@
 # ruff: noqa: E402
 
-from datetime import datetime
-
-
-def read_csv_as_dict(file_path):
-    with open(file_path, mode="r") as file:
-        lines = file.readlines()
-        keys = lines[0].strip().split(",")
-        data = lines[1:]
-        result = []
-        for line in data:
-            values = line.strip().split(",")
-            result.append(dict(zip(keys, values)))
-        return result
-
-
-def write_dict_as_csv(data, file_path):
-    with open(file_path, mode="w") as file:
-        columns = data[0].keys()
-        rows = []
-        for item in data:
-            rows.append(",".join([str(item[column]) for column in columns]))
-        file.write(",".join(columns) + "\n")
-        file.write("\n".join(rows))
-
-
-def now():
-    return datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
-
 
 #####################################################################
-# Use <https://github.com/beda-software/fhir-py>. Only Runtime
+# Use <https://github.com/beda-software/fhir-py>. with fhirpy-types-r4b
 
 
 from fhirpy import SyncFHIRClient
+from fhirpy_types_r4b import HumanName, Patient, BaseModel
+from utils import read_csv_as_dict, now
 
+
+patient = Patient(active=True)
 
 def import_data(client, file_path):
     raw_data = read_csv_as_dict(file_path)
     for item in raw_data:
-        patient_to_update = client.resource(
-            "Patient",
-            name=[{"given": [item["given"]], "family": item["family"]}],
-            gender=item["gender"],
+        patient_to_update = Patient(
+            name=[HumanName(given=[item['given']], family=item['family'])],
+            gender=item['gender']
         )
         patient, is_created = (
-            client.resources("Patient")
+            client.resources(Patient)
             .search(given=item["given"], family=item["family"])
             .update(patient_to_update)
         )
@@ -63,15 +38,14 @@ def import_data(client, file_path):
         )
         observation.save()
         print(
-            f"Obsetvation for {item['given']} {item['family']} created. Id: {observation.id}"
+            f"Observation for {item['given']} {item['family']} created. Id: {observation.id}"
         )
 
 
 client = SyncFHIRClient(
-    url="http://localhost:8888/", authorization="Basic cm9vdDpzZWNyZXQ="
+    url="http://localhost:8888/",
+    authorization="Basic cm9vdDpzZWNyZXQ=",
 )
-
-# client.resource("Patient", name=[{"given": ["given"], "family": "family"}]).save()
 
 import_data(client, "data/patients.csv")
 
