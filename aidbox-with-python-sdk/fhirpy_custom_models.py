@@ -1,6 +1,3 @@
-# ruff: noqa: E402
-
-
 #####################################################################
 # Use <https://github.com/beda-software/fhir-py>. With custom data models
 
