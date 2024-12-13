@@ -37,6 +37,8 @@ First, copy `.env.example` to `.env` and set the correct values:
 cp .env.example .env
 ```
 
+Obtain license key from [Aidbox](https://aidbox.app) and set it in `AIDBOX_LICENSE` variable.
+
 Then, start aidbox server:
 
 ```bash
