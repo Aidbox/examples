@@ -14,28 +14,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Dependencies
-        run: | 
-          cd aidbox-forms-smart-launch 
-          npm install
-
-      - name: Build
-        run: | 
-          cd aidbox-forms-smart-launch 
-          npm run build -- --base=/examples/aidbox-forms-smart-launch
-
-      - name: Prepare for deployment
-        run: |
-          cd aidbox-forms-smart-launch
-          find . -mindepth 1 -maxdepth 1 ! -name 'dist' -exec rm -rf {} \;
-          mv dist/* .
-          rm -rf dist
-
       - name: Publish
         uses: JamesIves/github-pages-deploy-action@v4
         with:
