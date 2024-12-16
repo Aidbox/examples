@@ -1,0 +1,4 @@
+.env
+tmp/
+.ruff_cache
+*.pyc
