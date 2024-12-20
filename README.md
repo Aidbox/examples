@@ -17,6 +17,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Aidbox Notify via Custom Resources](aidbox-notify-via-custom-resources/)
 - [Topic-Based Subscription to Kafka](aidbox-subscriptions-to-kafka/)
 - [SMART App Launch with Aidbox and Keycloak](smart-app-launch/)
+- [Aidbox Python Client](aidbox-with-python-sdk/)
 
 ## Documentation
 
