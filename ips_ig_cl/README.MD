@@ -1,12 +1,10 @@
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
-[Demo](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)
-
 This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.
 
 ## About IPS (International Patient Summary)
 
-The IPS is intended to support the provision of essential healthcare information for a patient, regardless of where they are receiving care. It includes critical information such as allergies, medications, past surgeries, and other significant medical history details. See [IPS Specification](https://build.fhir.org/ig/HL7/fhir-ips/index.html)
+The IPS is intended to support the provision of essential healthcare information for a patient, regardless of where they are receiving care. It includes critical information such as allergies, medications, past surgeries, and other significant medical history details. See [IPS Specification](https://build.fhir.org/ig/HL7Chile/IPS-CL/index.html)
 
 ## Prerequisites
 
@@ -29,8 +27,6 @@ Add the license (`AIDBOX_LICENSE`) int the .env file.
 ```shell
 docker compose up --build
 ```
-
-On start, the node-app will [upload](./src/index.ts#L142) a sample FHIR [Bundle](./src/patientData.ts) with patient data.
 
 ## Step 3: Open and log in into Aidbox instance
 
@@ -202,12 +198,3 @@ stringData:
   AIDBOX_CLIENT_SECRET: <your_aidbox_client_secret>
   APP_SECRET: <your_app_secret> # allows aidbox safely communicate with this app
 ```
-
-## Run Inferno IPS tests
-
-To run Inferno IPS tests against this implementation:
-
-1. Copy the prepared [configuration](./ips-inferno-config.json) for the test suite.
-2. Create a test session on the [Inferno website](https://inferno-qa.healthit.gov/test-kits/international-patient-summary/).
-3. Click on the "RUN ALL TESTS" button.
-4. Paste the copied configuration into the JSON field and submit.
