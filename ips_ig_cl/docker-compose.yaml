@@ -1,0 +1,39 @@
+version: "3.7"
+volumes:
+  ips_pgdata:
+    name: ips_pgdata
+services:
+  aidbox-db:
+    image: healthsamurai/aidboxdb:16.1
+    pull_policy: always
+    ports:
+      - "${PGHOSTPORT}:5432"
+    volumes:
+      - "ips_pgdata:/data:delegated"
+    environment:
+      POSTGRES_USER: "${PGUSER}"
+      POSTGRES_PASSWORD: "${PGPASSWORD}"
+      POSTGRES_DB: "${PGDATABASE}"
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on: ["aidbox-db"]
+    ports:
+      - "${AIDBOX_PORT}:${AIDBOX_PORT}"
+    env_file:
+      - .env
+
+  node-app:
+    hostname: node-app
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    ports:
+      - 4000:4000
+    user: node
+    command: sh -c "rsync -ar /usr/src/app-cache/node_modules/. /usr/src/app/node_modules && pnpm run dev"
+    env_file:
+      - .env
+    volumes:
+      - ./:/usr/src/app

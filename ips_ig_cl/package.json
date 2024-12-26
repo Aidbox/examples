@@ -1,0 +1,35 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0"
+  },
+  "scripts": {
+    "clean": "rm -rf build/ *.tsbuildinfo",
+    "dev": "NODE_ENV=development nodemon",
+    "start": "nodemon",
+    "ci:test": "echo \"Error: no test specified\" ",
+    "build": "pnpm run clean && tsc -b --force"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aidbox/sdk-r4": "^1.0.12",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.21.0",
+    "fastify-healthcheck": "^4.4.0",
+    "formdata-node": "^2.4.0",
+    "valibot": "^0.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.17.5",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "packageManager": "pnpm@9.1.0+sha512.67f5879916a9293e5cf059c23853d571beaf4f753c707f40cb22bed5fb1578c6aad3b6c4107ccb3ba0b35be003eb621a16471ac836c87beb53f9d54bb4612724"
+}
