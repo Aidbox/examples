@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ips-app
-          image: ghcr.io/aidbox/examples-ips-ig-cl:latest
+          image: ghcr.io/aidbox/examples-ips-ig-cl:main
           imagePullPolicy: Always
           ports:
             - name: api
