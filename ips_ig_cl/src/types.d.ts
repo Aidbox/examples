@@ -1,8 +1,11 @@
 import { Client as AidboxClient } from "@aidbox/sdk-r4";
 import { AllergyIntolerance } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/AllergyIntolerance";
+import { CarePlan } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/CarePlan";
 import { Condition } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Condition";
+import { Consent } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Consent";
 import { DeviceUseStatement } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/DeviceUseStatement";
 import { DiagnosticReport } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/DiagnosticReport";
+import { Flag } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Flag";
 import { Immunization } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Immunization";
 import { Medication } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/Medication";
 import { MedicationRequest } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/MedicationRequest";
@@ -77,7 +80,11 @@ export type PatientData = Array<{
     | Procedure
     | DeviceUseStatement
     | DiagnosticReport
-    | Observation;
+    | Observation
+    | CarePlan
+    | Consent
+    | Flag
+    ;
 }>;
 
 export type SimpleNarrativeEntry = Array<{
@@ -95,20 +102,32 @@ export type SectionName =
   | "DiagnosticResults"
   | "VitalSigns"
   | "Pregnancy"
-  | "SocialHistory";
+  | "SocialHistory"
+  | "StatusFunctional"
+  | "CarePlan"
+  | "Alerts"
+  | "AdvancedDirectives";
 
 export type IpsProfile =
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationStatement-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips"
-  | "http://hl7.org/fhir/StructureDefinition/vitalsigns"
-  | "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips";
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/RegMedicamentos-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/MedicationRequest-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/AllergiaInt-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Procedimientos-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Inmunizacion-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Declaracion-uso-dispositivo-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/DiagnosticReport-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-resultado-laboratorio-patologico-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-resultado-radiology-cl-ips"
+  |  "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Condition-cl-ips"
+  |  "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-estado-del-embarazo-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-resultado-del-embarazo-cl-ips"
+  |  "http://hl7.org/fhir/StructureDefinition/CarePlan"  
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-uso-de-tabaco-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-uso-de-alcohol-cl-ips"
+  |  "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Flag-alerta-cl-ips"
+  |  "http://hl7.org/fhir/StructureDefinition/Consent";
 
 export type SectionToGenerateFuncMap = {
   [K in SectionName]?: any;
@@ -123,4 +142,8 @@ export type BundleEntry = Array<{
 
 export type SectionProfiles = {
   [K in SectionName]: Record<string, Array<string>>;
+};
+
+export type SectionProfilesSearches = {
+  [k in IpsProfile]: string | null;
 };
