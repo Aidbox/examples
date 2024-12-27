@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -58,8 +59,19 @@ metadata:
   name: ips-app
   namespace: ips
 data:
-  AIDBOX_BASE_URL: https://ips.hz.aidbox.dev
+  AIDBOX_BASE_URL: http://aidbox-api.aidbox.svc:80
   APP_PORT: "4000"
   APP_URL: http://ips-app.ips.svc.cluster.local:4000
   APP_CALLBACK_URL: /aidbox
   APP_ID: ips-app
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ips-app
+  namespace: ips
+data:
+  AIDBOX_CLIENT_SECRET:
+  AIDBOX_CLIENT_ID:
+  APP_SECRET:
+type: Opaque

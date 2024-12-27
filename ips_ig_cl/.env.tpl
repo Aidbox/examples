@@ -3,8 +3,8 @@ AIDBOX_LICENSE=
 AIDBOX_DEV_MODE=true
 AIDBOX_FHIR_VERSION=4.0.1
 AIDBOX_FHIR_SCHEMA_VALIDATION=true
-AIDBOX_FHIR_PACKAGES=hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.ips#1.1.0
-AIDBOX_TERMINOLOGY_SERVICE_BASE_URL="https://r4.ontoserver.csiro.au/fhir"
+AIDBOX_FHIR_PACKAGES=hl7.fhir.r4.core#4.0.1:hl7.fhir.cl.clips#0.3.0-ballot
+AIDBOX_TERMINOLOGY_SERVICE_BASE_URL="https://tx.health-samurai.io/fhir"
 AIDBOX_COMPLIANCE=enabled
 
 PGPORT=5432

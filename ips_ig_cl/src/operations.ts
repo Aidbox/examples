@@ -16,9 +16,7 @@ const generateSummary = async ({ http, appConfig }: Request, patient: Patient) =
   try {
     assert(patient.id, "Patient Id is required");
     const patientId = patient.id;
-    console.log('patient.id', patient.id);
     const { sections, bundleData }: any = await generateSections(http, patientId);
-    console.log(bundleData);
     const composition = createComposition(sections, patientId);
     const refResources = await getResourcesFromRefs(http, bundleData);
 
@@ -74,7 +72,6 @@ export const patientSummarySearch = {
   fhirResource: ["Patient"],
   path: ["fhir", "Patient", "$summary"],
   handlerFn: async (req: Request, reply: FastifyReply) => {
-    console.log(req);
     try {
       const patientIdentifier = req.body?.request?.params?.identifier;
 

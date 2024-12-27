@@ -7,9 +7,11 @@ import { Config } from "./types";
 export const isDev = process.env.NODE_ENV === "development";
 
 const envSchema = object({
-  AIDBOX_BASE_URL: string([url()]),
   AIDBOX_CLIENT_ID: string(),
   AIDBOX_CLIENT_SECRET: string(),
+  APP_SECRET: string(),
+
+  AIDBOX_BASE_URL: string([url()]),
   APP_PORT: transform(string(), (data) => {
     const port = parseInt(data);
     if (isNaN(port)) {
@@ -20,7 +22,6 @@ const envSchema = object({
   }),
   APP_URL: string([url()]),
   APP_CALLBACK_URL: string(),
-  APP_SECRET: string(),
   APP_ID: string(),
 });
 

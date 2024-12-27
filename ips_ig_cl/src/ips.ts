@@ -3,19 +3,25 @@ import { generateCompositionNarrative, generateSimpleNarrative } from "./narrati
 import {
   BundleEntry,
   HttpClient,
-  IpsProfile,
   PatientData,
   SectionName,
   SectionProfiles,
   SectionToGenerateFuncMap,
   SimpleNarrativeEntry,
 } from "./types";
+import { DomainResource } from "@aidbox/sdk-r4/types/index.js";
+import Fastify from "fastify";
+import { ClinicalImpressionStatus } from "@aidbox/sdk-r4/types/hl7-fhir-r4-core/ClinicalImpression.js";
+
+const buildReference = (resourceType: string, id: string) => {
+  return `${resourceType}/${id}`;
+}
 
 const addEntry = (patientData: PatientData) => {
   if (patientData.length === 0) return {};
   return {
     entry: patientData.map((resource) => ({
-      reference: `${resource.resource.resourceType}/${resource.resource.id}`,
+      reference: buildReference(resource.resource.resourceType, resource.resource.id!),
     })),
   };
 };
@@ -35,62 +41,97 @@ const buildSection = (
 const sectionProfiles: SectionProfiles = {
   MedicationSummary: {
     MedicationStatement: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationStatement-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/RegMedicamentos-cl-ips",
     ],
     MedicationRequest: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/MedicationRequest-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/MedicationRequest-cl-ips",
     ],
   },
   AllergyIntolerance: {
     AllergyIntolerance: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/AllergyIntolerance-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/AllergiaInt-cl-ips",
     ],
   },
   ProblemList: {
-    Condition: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips"],
+    Condition: ["https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Condition-cl-ips"],
   },
   Procedures: {
-    Procedure: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Procedure-uv-ips"],
+    Procedure: ["https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Procedimientos-cl-ips"],
   },
   Immunizations: {
-    Immunization: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Immunization-uv-ips"],
+    Immunization: ["https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Inmunizacion-cl-ips"],
   },
   MedicalDevices: {
     DeviceUseStatement: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/DeviceUseStatement-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Declaracion-uso-dispositivo-cl-ips",
     ],
   },
   DiagnosticResults: {
     DiagnosticReport: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/DiagnosticReport-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/DiagnosticReport-cl-ips",
     ],
     Observation: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-uv-ips",
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-results-laboratory-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-resultado-laboratorio-patologico-cl-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-resultado-radiology-cl-ips",
     ],
   },
   VitalSigns: { Observation: ["http://hl7.org/fhir/StructureDefinition/vitalsigns"] },
   IllnessHistory: {
-    Condition: ["http://hl7.org/fhir/uv/ips/StructureDefinition/Condition-uv-ips"],
+    Condition: ["https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Condition-cl-ips"],
+  },
+  StatusFunctional: {
+    Condition: [
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Condition-cl-ips",
+    ],
+    ClinicalImpression: [
+      "http://hl7.org/fhir/StructureDefinition/ClinicalImpression"
+    ]
   },
   Pregnancy: {
     Observation: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-status-uv-ips",
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-pregnancy-outcome-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-estado-del-embarazo-cl-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-resultado-del-embarazo-cl-ips",
     ],
+  },
+  CarePlan: {
+    CarePlan: [
+      "http://hl7.org/fhir/StructureDefinition/CarePlan"  
+    ]
   },
   SocialHistory: {
     Observation: [
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-tobaccouse-uv-ips",
-      "http://hl7.org/fhir/uv/ips/StructureDefinition/Observation-alcoholuse-uv-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-uso-de-tabaco-cl-ips",
+      "https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Observation-uso-de-alcohol-cl-ips",
     ],
   },
+  Alerts: {
+    Flag: ["https://hl7chile.cl/fhir/ig/clips/StructureDefinition/Flag-alerta-cl-ips"]
+  },
+  AdvancedDirectives: {
+    Consent: [
+      "http://hl7.org/fhir/StructureDefinition/Consent"
+    ]
+  }
 };
 
 const findIntersection = (
   sectionProfiles: Array<string>,
   resourceProfiles: Array<string>
 ) => sectionProfiles.find((profile) => resourceProfiles.includes(profile));
+
+const validateByAidbox = async (
+  http: HttpClient,
+  resource: DomainResource,
+  resourceType: string,
+  sectionProfile: string
+) => {
+  return http.post(`fhir/${resourceType}/$validate`, {
+    searchParams: {
+      "profile": sectionProfile
+    },
+    json: resource,
+  });
+}
 
 const getSectionResources = (
   patientData: PatientData,
@@ -113,13 +154,13 @@ const generateProblemListSection = (patientData: PatientData) => {
   const validConditions = getSectionResources(patientData, sectionProfiles.ProblemList);
 
   const section = {
-    title: "Active Problems",
+    title: "Problemas de Salud",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "11450-4",
-          display: "Problem list - Reported",
+          display: "Lista de problemas",
         },
       ],
     },
@@ -137,13 +178,13 @@ const generateAllergyIntoleranceSection = (patientData: PatientData) => {
   );
 
   const section = {
-    title: "Allergies and Intolerances",
+    title: "Alergias e Intolerancias",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "48765-2",
-          display: "Allergies and adverse reactions Document",
+          display: "Alergias y reacciones adversas",
         },
       ],
     },
@@ -160,16 +201,14 @@ const generateMedicationSummarySection = (patientData: PatientData) => {
     sectionProfiles.MedicationSummary
   );
 
-  console.log(patientData);
-
   const section = {
-    title: "Medication",
+    title: "Resumen de Medicamentos IPS",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "10160-0",
-          display: "History of Medication use Narrative",
+          display: "Antecedentes de consumo de medicaciones",
         },
       ],
     },
@@ -188,13 +227,13 @@ const generateImmunizationsSection = (patientData: PatientData) => {
   );
 
   const section = {
-    title: "Immunizations",
+    title: "Inmunizaciones",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "11369-6",
-          display: "History of Immunization Narrative",
+          display: "Antecedente de inmunización",
         },
       ],
     },
@@ -208,13 +247,13 @@ const generateProceduresSection = (patientData: PatientData) => {
   const validProcedures = getSectionResources(patientData, sectionProfiles.Procedures);
 
   const section = {
-    title: "Procedures",
+    title: "Procedimientos",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "47519-4",
-          display: "History of Procedures Document",
+          display: "Historia de los procedimientos",
         },
       ],
     },
@@ -228,13 +267,13 @@ const generateMedicalDevicesSection = (patientData: PatientData, http: HttpClien
   const validDevices = getSectionResources(patientData, sectionProfiles.MedicalDevices);
 
   const section = {
-    title: "Medical Devices",
+    title: "Dispositivos Médicos",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "46264-8",
-          display: "History of medical device use",
+          display: "Historial de uso de dispositivos médicos",
         },
       ],
     },
@@ -254,13 +293,13 @@ const generateDiagnosticResultsSection = (patientData: PatientData, http: HttpCl
   );
 
   const section = {
-    title: "Results",
+    title: "Resultados",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "30954-2",
-          display: "Relevant diagnostic tests/laboratory data Narrative",
+          display: "Pruebas diagnósticas relevantes y/o información de laboratorio",
         },
       ],
     },
@@ -279,13 +318,13 @@ const generateVitalSignsSection = (patientData: PatientData, http: HttpClient) =
   const validVitalSigns = getSectionResources(patientData, sectionProfiles.VitalSigns);
 
   const section = {
-    title: "Vital Signs",
+    title: "Signos Vitales",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "8716-3",
-          display: "Vital signs",
+          display: "Hallazgos físicos",
         },
       ],
     },
@@ -299,13 +338,13 @@ const generatePregnancySection = (patientData: PatientData, http: HttpClient) =>
   const validObservations = getSectionResources(patientData, sectionProfiles.Pregnancy);
 
   const section = {
-    title: "Pregnancy",
+    title: "Historial de Embarazos",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "10162-6",
-          display: "History of pregnancies Narrative",
+          display: "Antecedentes de embarazos",
         },
       ],
     },
@@ -315,6 +354,75 @@ const generatePregnancySection = (patientData: PatientData, http: HttpClient) =>
   return buildSection(section, validObservations);
 };
 
+const generateAlertsSection = (patientData: PatientData, http: HttpClient) => {
+  const resources = getSectionResources(
+    patientData,
+    sectionProfiles.Alerts
+  );
+
+  const section = {
+    title: "Flag - Alertas",
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "104605-1",
+          display: "Alerta",
+        },
+      ],
+    },
+    text: generateSimpleNarrative(resources as SimpleNarrativeEntry),
+  };
+
+  return buildSection(section, resources);
+};
+
+const generateCarePlanSection = (patientData: PatientData, http: HttpClient) => {
+  const resources = getSectionResources(
+    patientData,
+    sectionProfiles.CarePlan
+  );
+
+  const section = {
+    title: "Plan de Cuidado",
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "18776-5",
+          display: "Plan de tratamiento",
+        },
+      ],
+    },
+    text: generateSimpleNarrative(resources as SimpleNarrativeEntry),
+  };
+
+  return buildSection(section, resources);
+};
+
+const generateAdvencedDirectivesSection = (patientData: PatientData, http: HttpClient) => {
+  const resources = getSectionResources(
+    patientData,
+    sectionProfiles.AdvancedDirectives
+  );
+
+  const section = {
+    title: "Sección de Consentimientos",
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "42348-3",
+          display: "Directivas avanzadas",
+        },
+      ],
+    },
+    text: generateSimpleNarrative(resources as SimpleNarrativeEntry),
+  };
+
+  return buildSection(section, resources);
+};
+
 const generateSocialHistorySection = (patientData: PatientData, http: HttpClient) => {
   const validObservations = getSectionResources(
     patientData,
@@ -322,13 +430,13 @@ const generateSocialHistorySection = (patientData: PatientData, http: HttpClient
   );
 
   const section = {
-    title: "Social History",
+    title: "Historia Social",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "29762-2",
-          display: "Social history Narrative",
+          display: "Antecedentes sociales",
         },
       ],
     },
@@ -345,13 +453,13 @@ const generateIllnessHistorySection = (patientData: PatientData) => {
   );
 
   const section = {
-    title: "Past history of illnesses",
+    title: "Histórico de enfermedades",
     code: {
       coding: [
         {
           system: "http://loinc.org",
           code: "11348-0",
-          display: "History of Past illness Narrative",
+          display: "Antecedentes de enfermedades pasadas",
         },
       ],
     },
@@ -373,6 +481,9 @@ const sectionNames: Array<SectionName> = [
   "IllnessHistory",
   "Pregnancy",
   "SocialHistory",
+  "Alerts",
+  "CarePlan",
+  "AdvancedDirectives"
 ];
 
 const sectionToGenerateFuncMap: SectionToGenerateFuncMap = {
@@ -387,6 +498,9 @@ const sectionToGenerateFuncMap: SectionToGenerateFuncMap = {
   VitalSigns: generateVitalSignsSection,
   Pregnancy: generatePregnancySection,
   SocialHistory: generateSocialHistorySection,
+  Alerts: generateAlertsSection, 
+  CarePlan: generateCarePlanSection,
+  AdvancedDirectives: generateAdvencedDirectivesSection
 };
 
 export const addFullUrl = (
@@ -405,44 +519,35 @@ export const addFullUrl = (
   );
 };
 
-const buildQueriesForSection = (
-  sectionName: SectionName,
+const buildQueryForSection = (
+  resourceType: string,
   patientId: string
-): Array<string> | undefined => {
-  const profiles = sectionProfiles[sectionName];
-  if (!profiles) return undefined;
-
-  return Object.keys(profiles).map(
-    (resourceType) =>
-      `/fhir/${resourceType}?patient=${patientId}`
-  );
+): string => {
+    return `/fhir/${resourceType}?patient=${patientId}`;
 };
 
 const fetchSummaryResources = async (http: HttpClient, patientId: string) => {
-  const bundleEntry = sectionNames.reduce((acc: BundleEntry, sectionName) => {
-    if (sectionName === "IllnessHistory" && sectionNames.includes("ProblemList"))
-      return acc;
+  const resourceTypes = sectionNames.reduce((acc: Set<string>, sectionName) => {
 
-    const sectionsQueries = buildQueriesForSection(sectionName, patientId);
-    if (sectionsQueries) {
-      const entries = sectionsQueries.map((query) => ({
-        request: { method: "GET", url: query },
-      }));
+    Object.keys(sectionProfiles[sectionName]).map(
+      (resourceType) => acc.add(resourceType)
+    );
 
-      acc.push(...entries);
-    }
     return acc;
-  }, []);
+  }, new Set<string>());
+
+  const entries = [...resourceTypes].map((resourceType) => ({
+    request: { method: "GET", url: buildQueryForSection(resourceType, patientId) },
+  }));
 
   const { response }: any = await http.post("", {
     json: {
       resourceType: "Bundle",
       type: "transaction",
-      entry: bundleEntry,
+      entry: entries,
     },
   });
 
-  console.log('response', JSON.stringify(response));
 
   return response.data?.entry?.reduce((acc: PatientData, item: any) => {
     if (item.resource?.total > 0) {
@@ -452,8 +557,46 @@ const fetchSummaryResources = async (http: HttpClient, patientId: string) => {
   }, []);
 };
 
+const filterResourcesByProfiles = async (http: HttpClient, patientData: PatientData) => {
+  const newPatientData: PatientData = [];
+  const profileData: Record<string, Array<string>> = {};
+
+  for (const resource of patientData) {
+    let verifiedOnce = false;
+    const resourceType = resource.resource.resourceType;
+
+    for (const sectionName of sectionNames) {
+      const sectionProfileEntries = Object.entries(sectionProfiles[sectionName]);
+
+      for (const [profileResourceType, profiles] of sectionProfileEntries) {
+        if (resourceType === profileResourceType) {
+          for (const profile of profiles as Array<string>) {
+            const result = await validateByAidbox(http, resource.resource, resourceType, profile);
+            const validationResult = (result.response.data as Record<string, any>)["id"] as string;
+            if (validationResult === "allok") {
+              verifiedOnce = true;
+
+              if (!profileData[sectionName]) {
+                profileData[sectionName] = [];
+              }
+              profileData[sectionName].push(buildReference(resourceType, resource.resource.id!));
+            }
+          }
+        }
+      }
+    }
+
+    if (verifiedOnce) {
+      newPatientData.push(resource);
+    }
+  }
+
+  return { patientData: newPatientData, profileData: profileData };
+};
+
 export const generateSections = async (http: HttpClient, patientId: string) => {
-  const patientData = await fetchSummaryResources(http, patientId);
+  const resources = await fetchSummaryResources(http, patientId);
+  const {patientData, profileData} = await filterResourcesByProfiles(http, resources);
   const sections = sectionNames.reduce((acc: any, item) => {
     const section = sectionToGenerateFuncMap[item](patientData, http);
 
