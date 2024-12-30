@@ -1,0 +1,61 @@
+{
+  "type": "batch",
+  "entry": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS observation_resource_idx ON observation USING gin ((resource))"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS explanationofbenefit_resource_idx ON explanationofbenefit USING gin ((resource))"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS procedure_resource_idx ON procedure USING gin ((resource))"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS allergyintolerance_resource_idx ON allergyintolerance USING gin ((resource))"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS immunization_resource_idx ON immunization USING gin ((resource))"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS careplan_resource_idx ON careplan USING gin ((resource))"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS diagnosticreport_resource_idx ON diagnosticreport USING gin ((resource))"
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$sql"
+      },
+      "resource": "CREATE INDEX IF NOT EXISTS medicationrequest_resource_idx ON medicationrequest USING gin ((resource))"
+    }
+  ]
+}
