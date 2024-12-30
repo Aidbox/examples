@@ -198,3 +198,8 @@ stringData:
   AIDBOX_CLIENT_SECRET: <your_aidbox_client_secret>
   APP_SECRET: <your_app_secret> # allows aidbox safely communicate with this app
 ```
+
+## Indexes
+
+If your requests spend to much time on getting patient's resources, you may apply the [bundle](./idxs_init_bundle.json)
+to create indexes that will improve performance of your requests. 
