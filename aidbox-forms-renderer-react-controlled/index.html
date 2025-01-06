@@ -8987,6 +8987,7 @@
 
       const questionnaires = window.questionnaires;
 
+      const [sidebarOpen, setSidebarOpen] = React.useState(false);
       const [theme, setTheme] = React.useState();
 
       const formRendererRef = React.useRef();
@@ -9021,6 +9022,13 @@
           <header
             className="sticky top-0 z-20 flex flex-shrink-0 h-16 w-full items-center justify-between bg-white px-4 shadow-sm md:px-6">
             <nav className="flex items-center gap-6">
+              <button
+                className={`md:hidden text-2xl h-8 w-8 grid place-items-center leading-none rounded-full ${sidebarOpen ? 'bg-gray-200' : ''}`}
+                onClick={() => setSidebarOpen(!sidebarOpen)}>
+                <div className="-mt-1.5">
+                  ☰
+                </div>
+              </button>
               <a href="#" className="flex items-center gap-2 text-lg font-semibold md:text-base">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -9070,12 +9078,13 @@
               </button>
             </div>
           </header>
-          <div className="flex flex-1">
-            <div className="flex flex-col bg-gray-100 p-4 md:w-[260px]">
+          <div className="flex flex-1 relative">
+            <div
+              className={`flex flex-col bg-gray-100 p-4 w-[260px] z-10 max-w-full transition-all duration-100  top-0 bottom-0 absolute md:relative -left-full md:left-0 ${sidebarOpen ? 'left-0 shadow-lg' : ''}`}>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Questionnaires</h3>
               </div>
-              <div className="overflow-auto">
+              <div className="overflow-auto mb-4">
                 <nav className="grid gap-2">
                   {questionnaires.map((q, index) => (
                     <button
@@ -9083,6 +9092,7 @@
                       className="rounded-md bg-white p-2 text-sm font-medium transition-colors hover:bg-gray-200 text-left pr-4 relative"
                       onClick={() => {
                         setCurrentQuestionnaireIndex(index);
+                        setSidebarOpen(false);
                       }}
                     >
                       {q.title}
@@ -9112,7 +9122,7 @@
                 Apply custom theme
               </button>
             </div>
-            <main className="flex-1 flex">
+            <main className={`flex-1 flex ${sidebarOpen ? 'brightness-50' : ''}`}>
               <aidbox-form-renderer
                 ref={formRendererRef}
                 questionnaire={questionnaire}

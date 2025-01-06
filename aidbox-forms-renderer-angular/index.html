@@ -19,6 +19,13 @@
     <header
       class="sticky top-0 z-20 flex flex-shrink-0 h-16 w-full items-center justify-between bg-white px-4 shadow-sm md:px-6">
       <nav class="flex items-center gap-6">
+        <button class="md:hidden text-2xl h-8 w-8 grid place-items-center leading-none rounded-full"
+                ng-click="toggleSidebar()"
+                ng-class="{'bg-gray-200': sidebarOpen}">
+          <div class="-mt-1.5">
+            ☰
+          </div>
+        </button>
         <a href="#" class="flex items-center gap-2 text-lg font-semibold md:text-base">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -68,12 +75,13 @@
         </button>
       </div>
     </header>
-    <div class="flex flex-1">
-      <div class="flex flex-col bg-gray-100 p-4 md:w-[260px]">
+    <div class="flex flex-1 relative">
+      <div class="flex flex-col bg-gray-100 p-4 w-[260px] z-10 max-w-full transition-all duration-100  top-0 bottom-0 absolute md:relative -left-full md:left-0"
+           ng-class="{'left-0 shadow-lg': sidebarOpen}">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-lg font-semibold">Questionnaires</h3>
         </div>
-        <div class="overflow-auto">
+        <div class="overflow-auto mb-4">
           <nav class="grid gap-2">
             <button
               ng-repeat="questionnaire in questionnaires"
@@ -98,7 +106,8 @@
           Apply custom theme
         </button>
       </div>
-      <main class="flex-1 flex">
+      <main class="flex-1 flex"
+            ng-class="{'brightness-50': sidebarOpen}">
         <aidbox-form-renderer
           base-url="https://form-builder.aidbox.app"
           style="width: 100%; border: none; align-self: stretch; display: flex"
@@ -129,9 +138,16 @@
         ];
 
         $scope.id = $scope.questionnaires[0].id;
+        $scope.theme = '';
+        $scope.sidebarOpen = false;
 
         $scope.selectQuestionnaire = function (id) {
           $scope.id = id;
+          $scope.sidebarOpen = false;
+        };
+
+        $scope.toggleSidebar = function () {
+          $scope.sidebarOpen = !$scope.sidebarOpen;
         };
 
         const theme = {
