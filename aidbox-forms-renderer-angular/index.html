@@ -112,7 +112,7 @@
           base-url="https://form-builder.aidbox.app"
           style="width: 100%; border: none; align-self: stretch; display: flex"
           questionnaire-id="{{ id }}"
-          theme='{{ theme }}'
+          config='{{ config }}'
         >
         </aidbox-form-renderer>
       </main>
@@ -138,7 +138,7 @@
         ];
 
         $scope.id = $scope.questionnaires[0].id;
-        $scope.theme = '';
+        $scope.config = '';
         $scope.sidebarOpen = false;
 
         $scope.selectQuestionnaire = function (id) {
@@ -161,7 +161,13 @@
         };
 
         $scope.changeTheme = function() {
-          $scope.theme = JSON.stringify(theme);
+          $scope.config = JSON.stringify({ theme });
+          const [element] = document.getElementsByTagName('aidbox-form-renderer');
+          const parent = element.parentNode;
+          parent.removeChild(element);
+          setTimeout(() => {
+            parent.appendChild(element);
+          }, 0);
         };
       }]);
   </script>

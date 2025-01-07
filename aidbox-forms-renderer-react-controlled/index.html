@@ -8988,7 +8988,7 @@
       const questionnaires = window.questionnaires;
 
       const [sidebarOpen, setSidebarOpen] = React.useState(false);
-      const [theme, setTheme] = React.useState();
+      const [config, setConfig] = React.useState();
 
       const formRendererRef = React.useRef();
 
@@ -9109,15 +9109,17 @@
               </div>
               <button
                 className="mt-auto border rounded text-sm text-orange-600 hover:text-orange-500 hover:border-orange-500 active:bg-orange-600 active:text-white border-orange-600 p-2 pr-4"
-                onClick={() => setTheme(JSON.stringify({
-                  "base-font-size": "12px", // Base font size for the theme
-                  background: {
-                    "toolbar-color": "#2c3e50", // Background color of the toolbar
-                  },
-                  button: {
-                    "accent-color": "#27ae60", // General accent color for buttons
-                  },
-                }))}
+                onClick={() => setConfig({
+                  theme: {
+                    "base-font-size": "12px", // Base font size for the theme
+                    background: {
+                      "toolbar-color": "#2c3e50", // Background color of the toolbar
+                    },
+                    button: {
+                      "accent-color": "#27ae60", // General accent color for buttons
+                    },
+                  }
+                })}
               >
                 Apply custom theme
               </button>
@@ -9126,7 +9128,8 @@
               <aidbox-form-renderer
                 ref={formRendererRef}
                 questionnaire={questionnaire}
-                theme={theme}
+                key={JSON.stringify(config)}
+                config={JSON.stringify(config)}
                 style={{width: '100%', border: 'none', alignSelf: 'stretch', display: 'flex'}}
               >
               </aidbox-form-renderer>

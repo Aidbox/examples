@@ -39,10 +39,12 @@
 
       const [id, setId] = React.useState(questionnaires[0].id);
       const [sidebarOpen, setSidebarOpen] = React.useState(false);
-      const [theme, setTheme] = React.useState({
-        button: {
-          "accent-color": "#e34001", // General accent color for buttons
-        },
+      const [config, setConfig] = React.useState({
+        theme: {
+          button: {
+            "accent-color": "#e34001", // General accent color for buttons
+          },
+        }
       });
 
 
@@ -51,8 +53,9 @@
           <header
             className="sticky top-0 z-20 flex flex-shrink-0 h-16 w-full items-center justify-between bg-white px-4 shadow-sm md:px-6">
             <nav className="flex items-center gap-6">
-              <button className={`md:hidden text-2xl h-8 w-8 grid place-items-center leading-none rounded-full ${sidebarOpen ? 'bg-gray-200' : ''}`}
-                      onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <button
+                className={`md:hidden text-2xl h-8 w-8 grid place-items-center leading-none rounded-full ${sidebarOpen ? 'bg-gray-200' : ''}`}
+                onClick={() => setSidebarOpen(!sidebarOpen)}>
                 <div className="-mt-1.5">
                   ☰
                 </div>
@@ -107,7 +110,8 @@
             </div>
           </header>
           <div className="flex flex-1 relative">
-            <div className={`flex flex-col bg-gray-100 p-4 w-[260px] z-10 max-w-full transition-all duration-100  top-0 bottom-0 absolute md:relative -left-full md:left-0 ${sidebarOpen ? 'left-0 shadow-lg' : ''}`}>
+            <div
+              className={`flex flex-col bg-gray-100 p-4 w-[260px] z-10 max-w-full transition-all duration-100  top-0 bottom-0 absolute md:relative -left-full md:left-0 ${sidebarOpen ? 'left-0 shadow-lg' : ''}`}>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Questionnaires</h3>
               </div>
@@ -136,14 +140,16 @@
               </div>
               <button
                 className="mt-auto border rounded text-sm text-orange-600 hover:text-orange-500 hover:border-orange-500 active:bg-orange-600 active:text-white border-orange-600 p-2 pr-4"
-                onClick={() => setTheme({
-                  "base-font-size": "12px", // Base font size for the theme
-                  background: {
-                    "toolbar-color": "#2c3e50", // Background color of the toolbar
-                  },
-                  button: {
-                    "accent-color": "#27ae60", // General accent color for buttons
-                  },
+                onClick={() => setConfig({
+                  theme: {
+                    "base-font-size": "12px", // Base font size for the theme
+                    background: {
+                      "toolbar-color": "#2c3e50", // Background color of the toolbar
+                    },
+                    button: {
+                      "accent-color": "#27ae60", // General accent color for buttons
+                    },
+                  }
                 })}
               >
                 Apply custom theme
@@ -154,7 +160,8 @@
                 base-url="https://form-builder.aidbox.app"
                 style={{width: '100%', border: 'none', alignSelf: 'stretch', display: 'flex'}}
                 questionnaire-id={id}
-                theme={JSON.stringify(theme)}
+                key={JSON.stringify(config)}
+                config={JSON.stringify(config)}
                 disable-load-sdc-config={true}
               >
               </aidbox-form-renderer>
