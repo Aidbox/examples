@@ -113,7 +113,7 @@
           questionnaire="{{ questionnaire }}"
           ng-on-change="handleChange($event)"
           ng-on-ready="handleReady($event)"
-          theme='{{ theme }}'
+          config='{{ config }}'
         >
         </aidbox-form-renderer>
       </main>
@@ -9109,7 +9109,13 @@
         };
 
         $scope.changeTheme = function() {
-          $scope.theme = JSON.stringify(theme);
+          $scope.config = JSON.stringify({ theme });
+          const [element] = document.getElementsByTagName('aidbox-form-renderer');
+          const parent = element.parentNode;
+          parent.removeChild(element);
+          setTimeout(() => {
+            parent.appendChild(element);
+          }, 0);
         };
 
         $scope.questionnaire = JSON.stringify($scope.questionnaires[$scope.currentQuestionnaireIndex], null, 2);
