@@ -17,11 +17,11 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <script
-          src="https://form-builder.aidbox.app/static/aidbox-forms-renderer-webcomponent.js"
+          src={`${process.env.NEXT_PUBLIC_FORMS_WEBCOMPONENT_BASE_URL || "https://form-builder.aidbox.app"}/static/aidbox-forms-renderer-webcomponent.js`}
           async
         ></script>
         <script
-          src="https://form-builder.aidbox.app/static/aidbox-forms-builder-webcomponent.js"
+          src={`${process.env.NEXT_PUBLIC_FORMS_WEBCOMPONENT_BASE_URL || "https://form-builder.aidbox.app"}/static/aidbox-forms-builder-webcomponent.js`}
           async
         ></script>
       </head>

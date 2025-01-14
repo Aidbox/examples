@@ -32,7 +32,7 @@ export default async function EditQuestionnaireResponsePage({
     .then(getFirst);
 
   if (!questionnaire) {
-    throw new Error("Questionnaire not found");
+    throw new Error("Related questionnaire not found");
   }
 
   async function saveQuestionnaireResponse(

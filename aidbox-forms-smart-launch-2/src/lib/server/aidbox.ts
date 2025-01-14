@@ -56,5 +56,21 @@ export const getOrganizationalAidbox = cache(async (serverUrl: string) => {
 
   return aidbox.extend({
     prefixUrl: `${process.env.AIDBOX_BASE_URL}/Organization/${id}`,
+    hooks: {
+      afterResponse: [
+        async (request, options, response) => {
+          console.log(`[aidbox]`, request.method, request.url);
+          console.log(
+            "[aidbox]",
+            response.status,
+            response.headers.get("content-type"),
+            await response
+              .clone()
+              .json()
+              .catch(() => null),
+          );
+        },
+      ],
+    },
   });
 });

@@ -6,10 +6,14 @@ export function FormsRenderer({
   questionnaire,
   questionnaireResponse,
   onChange,
+  onSubmit,
+  hideFooter,
 }: {
   questionnaire: Questionnaire;
   questionnaireResponse?: QuestionnaireResponse;
   onChange?: (questionnaireResponse: QuestionnaireResponse) => void;
+  onSubmit?: (questionnaireResponse: QuestionnaireResponse) => void;
+  hideFooter?: boolean;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
 
@@ -18,7 +22,11 @@ export function FormsRenderer({
 
     if (current) {
       const handler = (e: Event) => {
-        onChange?.((e as CustomEvent<QuestionnaireResponse>).detail);
+        const questionnaireResponse = (e as CustomEvent<QuestionnaireResponse>)
+          .detail;
+        if (onChange && questionnaireResponse) {
+          onChange(questionnaireResponse);
+        }
       };
 
       current.addEventListener("change", handler);
@@ -28,6 +36,26 @@ export function FormsRenderer({
       };
     }
   }, [onChange]);
+
+  useEffect(() => {
+    const current = ref.current;
+
+    if (current) {
+      const handler = (e: Event) => {
+        const questionnaireResponse = (e as CustomEvent<QuestionnaireResponse>)
+          .detail;
+        if (onSubmit && questionnaireResponse) {
+          onSubmit(questionnaireResponse);
+        }
+      };
+
+      current.addEventListener("submit", handler);
+
+      return () => {
+        current.removeEventListener("submit", handler);
+      };
+    }
+  }, [onSubmit]);
 
   useAwaiter(ref);
 
@@ -42,6 +70,7 @@ export function FormsRenderer({
         border: "none",
         flex: 1,
       }}
+      hide-footer={hideFooter}
     />
   );
 }

@@ -2,6 +2,8 @@ import { getCurrentAidbox } from "@/lib/server/smart";
 import { PageHeader } from "@/components/page-header";
 import { Questionnaire } from "fhir/r4";
 import { QuestionnaireEditor } from "@/components/questionnaire-editor";
+import { HTTPError } from "ky";
+import { revalidatePath } from "next/cache";
 
 interface PageProps {
   params: Promise<{
@@ -20,12 +22,21 @@ export default async function EditQuestionnairePage({ params }: PageProps) {
   async function saveQuestionnaire(questionnaire: Questionnaire) {
     "use server";
 
-    const aidbox = await getCurrentAidbox();
-    return aidbox
-      .put(`fhir/Questionnaire/${id}`, {
-        json: questionnaire,
-      })
-      .json<Questionnaire>();
+    try {
+      const aidbox = await getCurrentAidbox();
+      await aidbox
+        .put(`fhir/Questionnaire/${id}`, {
+          json: questionnaire,
+        })
+        .json<Questionnaire>();
+
+      revalidatePath("/questionnaires");
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        console.dir(await error.response.json(), { depth: 1000 });
+      }
+      throw error;
+    }
   }
 
   return (

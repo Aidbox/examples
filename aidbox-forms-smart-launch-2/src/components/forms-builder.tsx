@@ -18,7 +18,10 @@ export function FormsBuilder({
 
     if (current) {
       const handler = (e: Event) => {
-        onChange?.((e as CustomEvent<Questionnaire>).detail);
+        const questionnaire = (e as CustomEvent<Questionnaire>).detail;
+        if (onChange && questionnaire) {
+          onChange(questionnaire);
+        }
       };
 
       current.addEventListener("change", handler);

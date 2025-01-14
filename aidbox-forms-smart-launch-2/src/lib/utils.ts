@@ -112,3 +112,26 @@ export function typeSafeObjectFromEntries<
 >(entries: T): { [K in T[number] as K[0]]: K[1] } {
   return Object.fromEntries(entries) as { [K in T[number] as K[0]]: K[1] };
 }
+
+export function ago(time: Date): string {
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const now = new Date();
+
+  const secondsElapsed = Math.round(
+    Math.max(0, now.getTime() - time.getTime()) / 1000,
+  );
+
+  const minutesElapsed = Math.floor(secondsElapsed / 60);
+  const hoursElapsed = Math.floor(minutesElapsed / 60);
+  const daysElapsed = Math.floor(hoursElapsed / 24);
+
+  if (secondsElapsed < 60) {
+    return formatter.format(-secondsElapsed, "second");
+  } else if (minutesElapsed < 60) {
+    return formatter.format(-minutesElapsed, "minute");
+  } else if (hoursElapsed < 24) {
+    return formatter.format(-hoursElapsed, "hour");
+  } else {
+    return formatter.format(-daysElapsed, "day");
+  }
+}

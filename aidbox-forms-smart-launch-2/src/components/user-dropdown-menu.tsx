@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, Settings2, UserPen } from "lucide-react";
+import { ChevronDown, Settings2, UserPen } from "lucide-react";
 import { getCurrentUser } from "@/lib/server/smart";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
@@ -10,9 +10,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { constructName } from "@/lib/utils";
+import { LogoutMenuItem } from "@/components/logout-menu-item";
+import { getSession } from "@/lib/server/session";
 
 export async function UserDropdownMenu() {
   const user = await getCurrentUser();
+
+  async function logoutAction() {
+    "use server";
+
+    const session = await getSession();
+    session.destroy();
+  }
 
   return (
     <DropdownMenu>
@@ -33,10 +42,7 @@ export async function UserDropdownMenu() {
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogOut className="h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
+        <LogoutMenuItem onClickAction={logoutAction} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
