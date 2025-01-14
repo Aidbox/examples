@@ -6,6 +6,10 @@ The integration:
 3. CQL Java engine evaluates the chosen file.
 
 ## Aidbox Integration Setup
+0. Start Aidbox and log in using Aidbox Portal.
+```
+docker compose up
+```
 1. Create new endpoint `http://<aidbox-url>/$evaluate-cql-library/<filename>/<evaluationName>`, which will redirect to 
 `localhost:8080`.
 ```
