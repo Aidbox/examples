@@ -1,0 +1,32 @@
+PUT /App/com.cql.app.example
+content-type: application/json
+accept: application/json
+
+{
+    "id": "com.cql.app.example",
+    "meta": {
+     "createdAt": "2025-01-13T13:01:18.680564Z",
+     "versionId": "153",
+     "lastUpdated": "2025-01-13T13:07:24.714455Z"
+    },
+    "type": "app",
+    "endpoint": {
+     "url": "http://localhost:8080",
+     "type": "http-rpc",
+     "secret": "mysecret"
+    },
+    "apiVersion": 1,
+    "operations": {
+     "evaluate-cql-library": {
+      "path": [
+       "$evaluate-cql",
+       {
+        "name": "library"
+       },
+        { "name": "expressionName" }
+      ],
+      "method": "GET"
+     }
+    },
+    "resourceType": "App"
+   }

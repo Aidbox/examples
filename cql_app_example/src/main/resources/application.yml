@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: example
+aidbox:
+  url: http://localhost:8888/fhir
+  client:
+    name: root
+    password: secret

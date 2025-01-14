@@ -1,0 +1,90 @@
+package com.cql.app.example.services;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.context.FhirVersionEnum;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor;
+import org.cqframework.cql.cql2elm.CqlCompiler;
+import org.cqframework.cql.cql2elm.CqlCompilerOptions;
+import org.cqframework.cql.cql2elm.LibraryManager;
+import org.cqframework.cql.cql2elm.ModelManager;
+import org.cqframework.cql.cql2elm.quick.FhirLibrarySourceProvider;
+import org.opencds.cqf.cql.engine.data.CompositeDataProvider;
+import org.opencds.cqf.cql.engine.execution.CqlEngine;
+import org.opencds.cqf.cql.engine.execution.Environment;
+import org.opencds.cqf.cql.engine.fhir.model.R4FhirModelResolver;
+import org.opencds.cqf.cql.engine.fhir.retrieve.RestFhirRetrieveProvider;
+import org.opencds.cqf.cql.engine.fhir.searchparam.SearchParameterResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+@Service
+public class CqlEvaluateService {
+
+    Logger logger = LoggerFactory.getLogger(CqlEvaluateService.class);
+
+    public class CachedR4FhirModelResolver extends R4FhirModelResolver {
+        public CachedR4FhirModelResolver() {
+            super(FhirContext.forCached(FhirVersionEnum.R4));
+        }
+    }
+
+    public LibraryManager libraryManager;
+
+    private CqlEngine engine;
+    private CqlCompiler compiler;
+
+    public CqlEvaluateService(
+            @Value("${aidbox.url}") String url,
+            @Value("${aidbox.client.name}") String username,
+            @Value("${aidbox.client.password}") String pass) {
+        var modelManager = new ModelManager();
+        var compilerOptions = CqlCompilerOptions.defaultOptions();
+        this.libraryManager = new LibraryManager(modelManager, compilerOptions);
+        this.libraryManager.getLibrarySourceLoader().clearProviders();
+        this.libraryManager.getLibrarySourceLoader().registerProvider(new FhirLibrarySourceProvider());
+        this.libraryManager.getLibrarySourceLoader().registerProvider(libraryIdentifier -> {
+            try {
+                var CqlFile = new ClassPathResource(libraryIdentifier.getId() + ".cql");
+                InputStream targetStream = CqlFile.getInputStream();
+                return targetStream;
+            } catch (Exception e) {
+                return null;
+            }
+        });
+
+        var r4Context = FhirContext.forCached(FhirVersionEnum.R4);
+        var r4ModelResolver = new CachedR4FhirModelResolver();
+
+        IGenericClient aidboxClient = r4Context.newRestfulGenericClient(url);
+        aidboxClient.registerInterceptor(new BasicAuthInterceptor(username, pass));
+
+        var r4RetrieveProvider = new RestFhirRetrieveProvider(new SearchParameterResolver(r4Context),
+                r4ModelResolver,
+                aidboxClient);
+
+        var r4Provider = new CompositeDataProvider(r4ModelResolver, r4RetrieveProvider);
+
+        this.engine = new CqlEngine(new Environment(libraryManager));
+        this.engine.getState().getEnvironment().registerDataProvider("http://hl7.org/fhir", r4Provider);
+        this.compiler = new CqlCompiler(libraryManager);
+    }
+
+    public String evaluate(String libraryName, String expressionName) {
+        var exampleCqlFile = new ClassPathResource(libraryName + ".cql");
+        try {
+            var library = compiler.run(exampleCqlFile.getFile());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        logger.info("Evaluating {} in file: {} ", expressionName, libraryName);
+        var result = engine.evaluate(libraryName);
+        return result.forExpression(expressionName).value().toString();
+    }
+}
