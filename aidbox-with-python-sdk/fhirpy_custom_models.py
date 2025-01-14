@@ -1,10 +1,9 @@
 #####################################################################
-# Use <https://github.com/beda-software/fhir-py>. With custom data models
+# Write custom data models for fhir-py Client
 
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from typing import List, Optional
-from dataclasses import asdict
 
 from fhirpy import SyncFHIRClient
 from fhirpy.base.resource_protocol import ResourceProtocol
