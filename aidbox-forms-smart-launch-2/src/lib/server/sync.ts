@@ -14,6 +14,9 @@ import {
 } from "@/lib/server/aidbox";
 import { getCapabilityStatement } from "@/lib/server/smart";
 import { isBundle, readableStreamToObject } from "@/lib/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import { getSession } from "@/lib/server/session";
+import assert from "node:assert";
 
 async function extractPatient(client: Client) {
   const patient = await client.patient.read().catch((e) => {
@@ -180,4 +183,46 @@ export async function sync(client: Client) {
   });
 
   return resources;
+}
+
+export type SyncStats = {
+  timestamp: number;
+  resources: { [resourceType: string]: number };
+};
+
+type SyncStatsSession = {
+  sync?: SyncStats;
+};
+
+export async function saveSyncStats(
+  resources: Resource[],
+  request?: NextApiRequest,
+  response?: NextApiResponse,
+): Promise<void> {
+  const session =
+    request && response
+      ? await getSession<SyncStatsSession>(request, response)
+      : await getSession<SyncStatsSession>();
+
+  session.sync = {
+    timestamp: Date.now(),
+    resources: resources.reduce(
+      (acc, { resourceType }) => {
+        acc[resourceType] = (acc[resourceType] || 0) + 1;
+        return acc;
+      },
+      {} as SyncStats["resources"],
+    ),
+  };
+
+  await session.save();
+}
+
+export async function getSyncStats(): Promise<SyncStats> {
+  const session = await getSession<{
+    sync?: SyncStats;
+  }>();
+
+  assert(session.sync, "Sync stats are not available");
+  return session.sync;
 }

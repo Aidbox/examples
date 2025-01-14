@@ -105,7 +105,13 @@ export function QuestionnaireResponsesActions({
                 onChange={() => {
                   toast({
                     title: "Not saved",
-                    description: "This is a preview, changes will not be saved",
+                    description: "This is a preview, changes are not saved",
+                  });
+                }}
+                onSubmit={() => {
+                  toast({
+                    title: "Not submitted",
+                    description: "This is a preview, changes are not submitted",
                   });
                 }}
               />

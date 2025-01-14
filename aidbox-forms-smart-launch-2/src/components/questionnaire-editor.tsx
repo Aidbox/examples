@@ -7,7 +7,7 @@ import { Spinner } from "@/components/spinner";
 
 interface QuestionnaireEditorProps {
   questionnaire: Questionnaire;
-  onSaveAction: (questionnaire: Questionnaire) => Promise<Questionnaire>;
+  onSaveAction: (questionnaire: Questionnaire) => Promise<void>;
 }
 
 export function QuestionnaireEditor({

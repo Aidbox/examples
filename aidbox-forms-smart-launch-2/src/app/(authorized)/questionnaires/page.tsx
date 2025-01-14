@@ -165,7 +165,8 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
               <TableRow>
                 <TableHead className="pl-6">Title</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>Version</TableHead>
+                <TableHead>Last Updated</TableHead>
                 <TableHead className="w-[1%] pr-6">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -174,7 +175,11 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
                 <TableRow key={resource.id}>
                   <TableCell className="pl-6">{resource.title}</TableCell>
                   <TableCell>{resource.status}</TableCell>
-                  <TableCell>{resource.date}</TableCell>
+                  <TableCell>{resource.version}</TableCell>
+                  <TableCell>
+                    {resource.meta?.lastUpdated &&
+                      new Date(resource.meta.lastUpdated).toLocaleString()}
+                  </TableCell>
                   <TableCell className="text-right pr-6">
                     <QuestionnairesActions
                       questionnaire={resource}
@@ -202,7 +207,7 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
                 (page - 1) * pageSize + 1
               }-${Math.min(
                 page * pageSize,
-                total
+                total,
               )} of ${total} practitioners`}</div>
             ) : null}
             <PageSizeSelect currentSize={pageSize} />

@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_VERSION: version,
   },
   output: "standalone",
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
 };
 
 export default nextConfig;

@@ -20,7 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -50,17 +50,29 @@ export function QuestionnairesActions({
 }) {
   const router = useRouter();
   const [viewing, setViewing] = useState(false);
+  const [running, setRunning] = useState(false);
   const { toast } = useToast();
+  const notSavedToast = useRef<ReturnType<typeof toast> | undefined>();
+
+  function withRunning<T>(promise: Promise<T>): Promise<T> {
+    setRunning(true);
+    promise.finally(() => setRunning(false));
+    return promise;
+  }
 
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
+        {running ? (
+          <Spinner className="h-8 w-8 inline-block" />
+        ) : (
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+        )}
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
@@ -93,7 +105,7 @@ export function QuestionnairesActions({
               className="text-destructive focus:text-destructive"
               onClick={async () => {
                 if (onDeleteAction) {
-                  await onDeleteAction(questionnaire);
+                  await withRunning(onDeleteAction(questionnaire));
 
                   toast({
                     title: "Questionnaire deleted",
@@ -112,22 +124,16 @@ export function QuestionnairesActions({
               onClick={async () => {
                 if (onCreateResponseAction) {
                   try {
-                    const { id } = await onCreateResponseAction(questionnaire);
+                    const { id } = await withRunning(
+                      onCreateResponseAction(questionnaire),
+                    );
 
                     toast({
-                      title: "Questionnaire response created",
-                      description: `New questionnaire response created and populated`,
-                      action: (
-                        <ToastAction
-                          altText="Edit"
-                          onClick={() => {
-                            router.push(`/questionnaire-responses/${id}`);
-                          }}
-                        >
-                          Edit
-                        </ToastAction>
-                      ),
+                      title: "New questionnaire response created and populated",
+                      description: `You are being redirected to the form filling page...`,
                     });
+
+                    router.push(`/questionnaire-responses/${id}`);
                   } catch {
                     toast({
                       title: "Questionnaire response creation failed",
@@ -147,7 +153,9 @@ export function QuestionnairesActions({
             <DropdownMenuItem
               onClick={async () => {
                 if (onImportAction) {
-                  const { id } = await onImportAction(questionnaire);
+                  const { id } = await withRunning(
+                    onImportAction(questionnaire),
+                  );
                   toast({
                     title: "Questionnaire imported",
                     description: `Questionnaire imported successfully`,
@@ -171,7 +179,16 @@ export function QuestionnairesActions({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      <Dialog onOpenChange={setViewing} open={viewing}>
+      <Dialog
+        open={viewing}
+        onOpenChange={(open) => {
+          setViewing(open);
+          if (!open && notSavedToast.current) {
+            notSavedToast.current.dismiss();
+            notSavedToast.current = undefined;
+          }
+        }}
+      >
         <DialogContent className="flex flex-col max-w-[calc(100vw_-_4rem)] h-[calc(100vh_-_4rem)]">
           <DialogHeader>
             <DialogTitle>Preview</DialogTitle>
@@ -179,12 +196,15 @@ export function QuestionnairesActions({
           {viewing && (
             <Suspense fallback={<Spinner expand="true" />}>
               <FormsRenderer
+                hideFooter
                 questionnaire={questionnaire}
                 onChange={() => {
-                  toast({
-                    title: "Not saved",
-                    description: "This is a preview, changes will not be saved",
-                  });
+                  if (!notSavedToast.current) {
+                    notSavedToast.current = toast({
+                      title: "Not saved",
+                      description: "This is a preview, changes are not saved",
+                    });
+                  }
                 }}
               />
             </Suspense>
