@@ -16,14 +16,23 @@ public class HelloController {
   @Autowired
   private CqlEvaluateService evaluateService;
 
+  public String cqlLibraryEvaluate(JsonNode body) {
+    String libraryName = body.path("request").path("route-params").path("libraryName").asText();
+    return evaluateService.evaluate(libraryName);
+  }
+
   @PostMapping("/")
   public String index(@RequestBody String body) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
-      JsonNode rootNode = objectMapper.readTree(body);
-      String libraryName = rootNode.path("request").path("route-params").path("library").asText();
-      String expressionName = rootNode.path("request").path("route-params").path("expressionName").asText();
-      return evaluateService.evaluate(libraryName, expressionName);
+      JsonNode jsonBody = objectMapper.readTree(body);
+      String operationID = jsonBody.path("operation").path("id").asText();
+      switch(operationID) {
+        case "cql-library-evaluate":
+          return cqlLibraryEvaluate(jsonBody);
+        default:
+          return "Operation " + operationID + " not founded in App";
+      }
 
     } catch (Exception e) {
       try {

@@ -1,5 +1,12 @@
 package com.cql.app.example.services;
 
+import org.opencds.cqf.cql.engine.execution.ExpressionResult;
+import org.hl7.fhir.instance.model.api.IBase;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.instance.model.api.IPrimitiveType;
+
+
+import java.util.Map;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.FhirVersionEnum;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
@@ -20,6 +27,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,15 +88,72 @@ public class CqlEvaluateService {
         this.compiler = new CqlCompiler(libraryManager);
     }
 
-    public String evaluate(String libraryName, String expressionName) {
+    private boolean isValidJson(String str) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.readTree(str);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public String buildResponse (Map<String, ExpressionResult> result) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode response = objectMapper.createObjectNode();
+            ArrayNode parameters = objectMapper.createArrayNode();
+            response.set("resourceType", objectMapper.getNodeFactory().textNode("Parameters"));
+
+            for (var entry : result.entrySet()) {
+                var expressionName = entry.getKey();
+                var expressionValue = entry.getValue().value();
+                for (var value : (Iterable)expressionValue) {
+                    ObjectNode parameter = objectMapper.createObjectNode();
+                    var valueStr = FhirContext.forR4().newJsonParser().encodeToString((IBase)value);
+                    parameter.set("name", objectMapper.getNodeFactory().textNode(expressionName));
+                    if (value instanceof IBaseResource) {
+                        parameter.set("valueResource", objectMapper.readTree(valueStr));
+                    } else if (value instanceof IPrimitiveType) {
+                        var chars = ((IPrimitiveType)value).fhirType().toCharArray();
+                        chars[0] = Character.toUpperCase(chars[0]);
+                        String formattedKey = "value" + new String(chars);
+                        if (value instanceof IPrimitiveType<?>) {
+                            String stringValue = ((IPrimitiveType<?>) value).getValueAsString();
+                            if (isValidJson(stringValue)) {
+                                parameter.set(formattedKey, objectMapper.readTree(stringValue));
+                            } else {
+                                parameter.set(formattedKey, objectMapper.getNodeFactory().textNode(stringValue));
+                            }
+                        }
+                    } else if (value instanceof IBase) {
+                        var chars = ((IBase)value).fhirType().toCharArray();
+                        chars[0] = Character.toUpperCase(chars[0]);
+                        parameter.set("value" + new String(chars), objectMapper.readTree(valueStr));
+                    }
+                    parameters.add(parameter);
+                }
+
+            }
+            response.set("parameters", parameters);
+
+            return objectMapper.writeValueAsString(response);
+        }  catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+    public String evaluate(String libraryName) {
         var exampleCqlFile = new ClassPathResource(libraryName + ".cql");
         try {
             var library = compiler.run(exampleCqlFile.getFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        logger.info("Evaluating {} in file: {} ", expressionName, libraryName);
+        logger.info("Evaluating file: {} ", libraryName);
         var result = engine.evaluate(libraryName);
-        return result.forExpression(expressionName).value().toString();
+        return buildResponse(result.expressionResults);
     }
 }
