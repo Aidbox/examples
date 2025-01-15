@@ -5,7 +5,7 @@ This Spring Boot sample application uses the [CQL Java engine](https://github.co
 [CQL Specification](https://build.fhir.org/ig/HL7/cql/)
 
 ## Integration Flow:
-1. The client sends a request to the custom Aidbox endpoint created using the [App resource](https://docs.aidbox.app/app-development/aidbox-sdk/aidbox-apps).
+1. The client sends a request to the custom Aidbox `$evaluate` endpoint created using the [App resource](https://docs.aidbox.app/app-development/aidbox-sdk/aidbox-apps).
 2. Aidbox redirects the request to the Spring Boot application.
 3. The CQL Java engine evaluates the specified file.
 
