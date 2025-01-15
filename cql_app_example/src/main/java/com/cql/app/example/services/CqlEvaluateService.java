@@ -11,7 +11,6 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.FhirVersionEnum;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.interceptor.BasicAuthInterceptor;
-import org.cqframework.cql.cql2elm.CqlCompiler;
 import org.cqframework.cql.cql2elm.CqlCompilerOptions;
 import org.cqframework.cql.cql2elm.LibraryManager;
 import org.cqframework.cql.cql2elm.ModelManager;
@@ -28,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -42,16 +40,14 @@ public class CqlEvaluateService {
 
     Logger logger = LoggerFactory.getLogger(CqlEvaluateService.class);
 
-    public class CachedR4FhirModelResolver extends R4FhirModelResolver {
+    public static class CachedR4FhirModelResolver extends R4FhirModelResolver {
         public CachedR4FhirModelResolver() {
             super(FhirContext.forCached(FhirVersionEnum.R4));
         }
     }
 
     public LibraryManager libraryManager;
-
-    private CqlEngine engine;
-    private CqlCompiler compiler;
+    private final CqlEngine engine;
 
     public CqlEvaluateService(
             @Value("${aidbox.url}") String url,
@@ -86,7 +82,6 @@ public class CqlEvaluateService {
 
         this.engine = new CqlEngine(new Environment(libraryManager));
         this.engine.getState().getEnvironment().registerDataProvider("http://hl7.org/fhir", r4Provider);
-        this.compiler = new CqlCompiler(libraryManager);
     }
 
     private boolean isValidJson(String str) {
@@ -119,15 +114,13 @@ public class CqlEvaluateService {
                         var chars = ((IPrimitiveType)value).fhirType().toCharArray();
                         chars[0] = Character.toUpperCase(chars[0]);
                         String formattedKey = "value" + new String(chars);
-                        if (value instanceof IPrimitiveType<?>) {
-                            String stringValue = ((IPrimitiveType<?>) value).getValueAsString();
-                            if (isValidJson(stringValue)) {
-                                parameter.set(formattedKey, objectMapper.readTree(stringValue));
-                            } else {
-                                parameter.set(formattedKey, objectMapper.getNodeFactory().textNode(stringValue));
-                            }
+                        String stringValue = ((IPrimitiveType<?>) value).getValueAsString();
+                        if (isValidJson(stringValue)) {
+                            parameter.set(formattedKey, objectMapper.readTree(stringValue));
+                        } else {
+                            parameter.set(formattedKey, objectMapper.getNodeFactory().textNode(stringValue));
                         }
-                    } else if (value instanceof IBase) {
+                    } else if (value != null) {
                         var chars = ((IBase)value).fhirType().toCharArray();
                         chars[0] = Character.toUpperCase(chars[0]);
                         parameter.set("value" + new String(chars), objectMapper.readTree(valueStr));
@@ -146,12 +139,6 @@ public class CqlEvaluateService {
 
 
     public String evaluate(String libraryName) {
-        var exampleCqlFile = new ClassPathResource(libraryName + ".cql");
-        try {
-            var library = compiler.run(exampleCqlFile.getFile());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         logger.info("Evaluating file: {} ", libraryName);
         var result = engine.evaluate(libraryName);
         return buildResponse(result.expressionResults);
