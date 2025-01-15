@@ -11,7 +11,7 @@ import java.io.StringWriter;
 
 
 @RestController
-public class HelloController {
+public class CqlController {
 
   @Autowired
   private CqlEvaluateService evaluateService;
