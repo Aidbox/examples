@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 
+
 @RestController
 public class CqlController {
 
@@ -27,12 +28,10 @@ public class CqlController {
       ObjectMapper objectMapper = new ObjectMapper();
       JsonNode jsonBody = objectMapper.readTree(body);
       String operationID = jsonBody.path("operation").path("id").asText();
-      switch(operationID) {
-        case "cql-library-evaluate":
-          return cqlLibraryEvaluate(jsonBody);
-        default:
-          return "Operation " + operationID + " not founded in App";
-      }
+        if (operationID.equals("cql-library-evaluate")) {
+            return cqlLibraryEvaluate(jsonBody);
+        }
+        return "Operation " + operationID + " not founded in App";
 
     } catch (Exception e) {
       try {
