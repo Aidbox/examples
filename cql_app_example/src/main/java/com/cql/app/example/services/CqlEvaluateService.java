@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -113,7 +114,7 @@ public class CqlEvaluateService {
                     var valueStr = FhirContext.forR4().newJsonParser().encodeToString((IBase)value);
                     parameter.set("name", objectMapper.getNodeFactory().textNode(expressionName));
                     if (value instanceof IBaseResource) {
-                        parameter.set("valueResource", objectMapper.readTree(valueStr));
+                        parameter.set("resource", objectMapper.readTree(valueStr));
                     } else if (value instanceof IPrimitiveType) {
                         var chars = ((IPrimitiveType)value).fhirType().toCharArray();
                         chars[0] = Character.toUpperCase(chars[0]);
@@ -133,10 +134,9 @@ public class CqlEvaluateService {
                     }
                     parameters.add(parameter);
                 }
-
             }
             response.set("parameters", parameters);
-
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
             return objectMapper.writeValueAsString(response);
         }  catch (IOException e) {
             throw new RuntimeException(e);
