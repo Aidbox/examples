@@ -15,13 +15,8 @@
 	<properties>
 		<java.version>17</java.version>
 		<cql.version>3.20.1</cql.version>
+		<hapi-fhir-client.version>7.4.5</hapi-fhir-client.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>sonatype</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -72,17 +67,17 @@
 		<dependency>
 			<groupId>ca.uhn.hapi.fhir</groupId>
 			<artifactId>hapi-fhir-base</artifactId>
-			<version>7.4.5</version>
+			<version>${hapi-fhir-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi.fhir</groupId>
 			<artifactId>hapi-fhir-client</artifactId>
-			<version>7.4.5</version>
+			<version>${hapi-fhir-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi.fhir</groupId>
 			<artifactId>hapi-fhir-structures-r4</artifactId>
-			<version>7.4.5</version>
+			<version>${hapi-fhir-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>info.cqframework</groupId>
