@@ -1,37 +1,37 @@
 # AWS S3 Aidbox integration example
 ![image](https://github.com/user-attachments/assets/fb3026ef-be1f-4ef8-845e-064e463adb0f)
+This guide demonstrates how to integrate [AWS S3 with Aidbox](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using a front-end application exclusively. 
 
-This example demonstrates how to use [AWS S3 Aidbox integration](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using front-end application only.
-This application allows front-end to save Patient photo to the AWS S3 bucket, and also access it. 
-Aidbox is a middleware between front-end and AWS S3. Aidbox knows the access key id and secret access key for an IAM user or role in AWS from created AwsAccount Aidbox resource.
+The application enables saving and retrieving a patient's photo in an AWS S3 bucket via Aidbox, which acts as a middleware between the front-end and AWS S3. Aidbox manages the **Access Key ID** and **Secret Access Key** for an IAM user or role through an AwsAccount resource.
 
-## The save file to bucket flow
-1. Front-end sends a POST request to Aidbox with filename to write to.
+## Saving a File to the Bucket: Workflow
+1. Send a POST request from the front-end to Aidbox with the desired filename:
 ```http
 POST /aws/storage/<your-account-id-in-aidbox>/<your-bucket-name>
 
 filename: patient.png
 ```
-2. Aidbox answers with [presigned AWS URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html)
+2. Receive a [pre-signed URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox:
 ```json
 {
   "url": "https://<your-bucket-name>.s3.amazonaws.com/patient.png?..."
 }
 ```
-3. Front-end sends POST request to this url. The body is a binary file, e.g. patient photo. The file as saved in the bucket.
+3. Upload the file directly to AWS S3 by sending a POST request to the pre-signed URL. The file content (e.g., the patient's photo) is sent in the request body and saved in the bucket.
 
-## The get file from bucket flow
-1. Front-end sends a request to Aidbox with filename to get to.
+## Retrieving a File from the Bucket: Workflow
+1. Send a GET request from the front-end to Aidbox with the filename:
 ```http
 GET /aws/storage/<your-account-id-in-aidbox>/<your-bucket-name>/<filename>
 ```
-2. Aidbox answers with [presigned AWS URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html)
+2. Receive a [presigned URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox: 
 ```json
 {
   "url": "https://<your-bucket-name>.s3.amazonaws.com/<filename>?..."
 }
 ```
-3. Front-end sends GET request to this url. If it is image, `<img>` html tag can be used to render the image.
+3. Use GET request to the URL to retrieve the file.
+For images, an <img> HTML tag can be used to render the image directly:
 ```react
 <img
   src="https://<your-bucket-name>.s3.amazonaws.com/<filename>?..."
@@ -39,8 +39,9 @@ GET /aws/storage/<your-account-id-in-aidbox>/<your-bucket-name>/<filename>
 ```
 
 ## FHIR & binary files
-In this example, we use [Attachment](https://build.fhir.org/datatypes.html#attachment) FHIR datatype to store the file url.
-More specifically, we use Patient.photo, which is Attachment.
+In this example, the [Attachment](https://build.fhir.org/datatypes.html#attachment) FHIR datatype is used to store the file's URL. Specifically, the Patient.photo field contains an attachment representing the saved photo.
+
+### Example: Patient Resource
 ```json
 {
   "resourceType": "Patient",
@@ -62,9 +63,9 @@ More specifically, we use Patient.photo, which is Attachment.
   ],
   "birthDate": "2000-01-01"
 }
-
 ```
-We also create [DocumentReference](https://build.fhir.org/documentreference.html) resource to save the image. See [DocumentReference's scope and usage](https://build.fhir.org/documentreference.html#scope).
+Additionally, a [DocumentReference](https://build.fhir.org/documentreference.html) resource can be created to store metadata about the image. See [DocumentReference's scope and usage](https://build.fhir.org/documentreference.html#scope)e.
+### Example: DocumentReference Resource
 ```json
 {
   "resourceType": "DocumentReference",
@@ -83,9 +84,9 @@ We also create [DocumentReference](https://build.fhir.org/documentreference.html
 
 ```
 
-## Setup Aidbox
+## Setting Up Aidbox
 
-1. Create an instance of AwsAccount that contains access credentials and region settings.
+1. Create an AwsAccount resource to store AWS credentials and region settings:
 
 ```http
 PUT /AwsAccount
@@ -96,8 +97,7 @@ secret-access-key: <your-secret-access-key> # e.g. wJalrXUtnFEMI/K7MDENG/bPxRfiC
 region: us-east-1
 ```
 
-2. Create [Basic Client](https://docs.aidbox.app/modules/security-and-access-control/auth/basic-auth) to allow front-end any request.
-
+2. **Set up a [Basic Client](https://docs.aidbox.app/modules/security-and-access-control/auth/basic-auth)** to allow front-end requests:
 ```http
 PUT /Client/basic?_pretty=true
 content-type: application/json
@@ -110,7 +110,7 @@ accept: application/json
  ]
 }
 ```
-
+3. **Define an Access Policy** to permit basic authentication:
 ```http
 PUT /AccessPolicy/basic-policy?_pretty=true
 content-type: application/json
@@ -127,17 +127,46 @@ accept: application/json
 }
 ```
 
-3. Now you can send requests from front-end using basic authorization header:
+3. **Use Basic Authorization header in the front-end**:
 ```
 "Authorization": "Basic YmFzaWM6c2VjcmV0"
 ```
 
-## Run application
+4. **Configure CORS on AWS side**:
+Use [this page](https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html) to allow front-end to interact with the bucket.
+Here's how your configuration JSON file should look like:
+```json
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "PUT",
+            "POST",
+            "GET"
+        ],
+        "AllowedOrigins": [
+            "http://localhost:3000"
+        ],
+        "ExposeHeaders": []
+    }
+]
+```
 
+## Running the application
+1. Install dependencies:
 ```bash
 npm install
 ```
-
+2. Start the development server:
 ```bash
 npm run dev
 ```
+3. Go to `http://localhost:3000`.
+
+To save Patient and DocumentReference resources and the photo in the bucket:
+- Fill the patient form,
+- Attach the patient photo,
+- Press submit button.
+To get Patient photo by the id, type the id and press Get Photo button.
