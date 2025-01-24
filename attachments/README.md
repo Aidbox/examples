@@ -1,4 +1,5 @@
 # AWS S3 Aidbox integration example
+![image](https://github.com/user-attachments/assets/fb3026ef-be1f-4ef8-845e-064e463adb0f)
 
 This example demonstrates how to use [AWS S3 Aidbox integration](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using front-end application only.
 This application allows front-end to save Patient photo to the AWS S3 bucket, and also access it. 
@@ -98,7 +99,7 @@ region: us-east-1
 2. Create [Basic Client](https://docs.aidbox.app/modules/security-and-access-control/auth/basic-auth) to allow front-end any request.
 
 ```http
-PUT/Client/basic?_pretty=true
+PUT /Client/basic?_pretty=true
 content-type: application/json
 accept: application/json
 
@@ -111,7 +112,7 @@ accept: application/json
 ```
 
 ```http
-PUT/AccessPolicy/basic-policy?_pretty=true
+PUT /AccessPolicy/basic-policy?_pretty=true
 content-type: application/json
 accept: application/json
 
