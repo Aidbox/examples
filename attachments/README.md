@@ -126,8 +126,7 @@ accept: application/json
  ]
 }
 ```
-
-3. **Use Basic Authorization header in the front-end**:
+Now we can use Basic Authorization header in the front-end:
 ```
 "Authorization": "Basic YmFzaWM6c2VjcmV0"
 ```
