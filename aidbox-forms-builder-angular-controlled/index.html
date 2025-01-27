@@ -123,6 +123,8 @@
           hide-back
           hide-save
           hide-publish
+          enable-fetch-proxy
+          fetch="proxyFetch"
         >
         </aidbox-form-builder>
       </main>
@@ -9127,6 +9129,25 @@
         $scope.handleFormReady = function () {
           $scope.ready = true;
         };
+
+        $scope.proxyFetch = function (url, opts) {
+          if (url === '/fhir/metadata') {
+            return false;
+          }
+
+          return {
+            status: 404,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              "resourceType": "OperationOutcome",
+              "text": {
+                "div": "This request is not proxied for brevity in this example. In a real-world scenario, the request would be proxied to the proper endpoint."
+              }
+            })
+          };
+        }
       }]);
   </script>
 </body>

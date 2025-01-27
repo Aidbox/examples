@@ -1,26 +1,93 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { useAwaiter } from "@/hooks/use-awaiter";
 import { Questionnaire } from "fhir/r4";
 
+function json(x: any) {
+  return new Response(JSON.stringify(x), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 export function FormsBuilder({
   questionnaire,
-  onChange,
+  onSave,
+  onGlobalProxy,
+  onCurrentProxy,
 }: {
   questionnaire: Questionnaire;
-  onChange?: (questionnaire: Questionnaire) => void;
+  onSave: (questionnaire: Questionnaire) => Promise<Questionnaire>;
+  onGlobalProxy: (url: string, init: RequestInit) => Promise<any>;
+  onCurrentProxy: (url: string, init: RequestInit) => Promise<any>;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
 
-  useEffect(() => {
+  const fetchProxy = useCallback(
+    async (url: string, init: RequestInit & { tag: string }) => {
+      if (init.tag === "get-questionnaire") {
+        return json(questionnaire);
+      }
+
+      if (init.tag === "save-questionnaire") {
+        const questionnaire = JSON.parse(init.body as string) as Questionnaire;
+        onSave(questionnaire);
+        return json(questionnaire);
+      }
+
+      if (
+        init.tag === "validate-questionnaire" ||
+        init.tag === "validate-response"
+      ) {
+        return json(
+          await onGlobalProxy(url, init),
+        );
+      }
+
+      if (
+        init.tag === "get-theme" ||
+        init.tag === "get-themes" ||
+        init.tag === "create-theme" ||
+        init.tag === "save-theme" ||
+        init.tag === "populate" ||
+        init.tag === "extract" ||
+        init.tag === "search-choice-options"
+      ) {
+        return json(
+          await onCurrentProxy(url, init),
+        );
+      }
+
+      if (init.tag === "get-questionnaire-by-id") {
+        return json(questionnaire);
+      }
+
+      if (init.tag === "check-sub-questionnaire-usage") {
+        return json([]);
+      }
+
+      if (init.tag === "search-questionnaires-by-url") {
+        return json([]);
+      }
+
+      console.log("Request url", url, init.tag);
+      return null;
+    },
+    [questionnaire, onSave],
+  );
+
+  useLayoutEffect(() => {
     const current = ref.current;
 
     if (current) {
+      // @ts-ignore fetch is a property of web component
+      current.fetch = fetchProxy;
+
       const handler = (e: Event) => {
         const questionnaire = (e as CustomEvent<Questionnaire>).detail;
-        if (onChange && questionnaire) {
-          onChange(questionnaire);
+        if (onSave && questionnaire) {
+          onSave(questionnaire);
         }
       };
 
@@ -30,25 +97,16 @@ export function FormsBuilder({
         current.removeEventListener("change", handler);
       };
     }
-  }, [onChange]);
+  }, [onSave, fetchProxy]);
 
   useAwaiter(ref);
 
   return (
     <aidbox-form-builder
+      enable-fetch-proxy={true}
       hide-back={true}
-      show-share={false}
-      hide-population={true}
-      hide-extraction={true}
-      hide-publish={true}
-      hide-add-theme={true}
-      hide-edit-theme={true}
-      hide-save-theme={true}
-      hide-convert={true}
-      hide-save={true}
-      disable-save={true}
       ref={ref}
-      value={JSON.stringify(questionnaire)}
+      form-id="proxied"
       style={{
         width: "100%",
         height: "100%",

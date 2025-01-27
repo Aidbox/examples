@@ -98,6 +98,8 @@
           form-id="{{ id }}"
           show-share
           hide-back
+          enable-fetch-proxy
+          ng-prop-fetch="proxyFetch"
         >
         </aidbox-form-builder>
       </main>
@@ -127,6 +129,23 @@
         $scope.selectQuestionnaire = function (id) {
           $scope.id = id;
         };
+
+        $scope.proxyFetch = function (url, opts) {
+          if (opts.method !== 'GET') {
+            return {
+              status: 404,
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                "resourceType": "OperationOutcome",
+                "text": {
+                  "div": "This builder is in read-only mode"
+                }
+              })
+            };
+          }
+        }
       }]);
   </script>
 </body>
