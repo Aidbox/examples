@@ -86,6 +86,11 @@ Additionally, a [DocumentReference](https://build.fhir.org/documentreference.htm
 
 ## Setting Up Aidbox
 
+0. Start Aidbox and log in using the Aidbox Portal:
+```
+docker compose up
+```
+
 1. Create an AwsAccount resource to store AWS credentials and region settings:
 
 ```http
