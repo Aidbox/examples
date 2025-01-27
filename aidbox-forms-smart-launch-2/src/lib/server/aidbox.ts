@@ -4,7 +4,7 @@ import { sha256 } from "@/lib/utils";
 import assert from "node:assert";
 import { cache } from "react";
 
-const aidbox = ky.extend({
+export const aidbox = ky.extend({
   prefixUrl: process.env.AIDBOX_BASE_URL,
   headers: {
     Authorization:
