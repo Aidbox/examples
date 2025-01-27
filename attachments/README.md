@@ -86,7 +86,8 @@ Additionally, a [DocumentReference](https://build.fhir.org/documentreference.htm
 
 ## Setting Up Aidbox
 
-0. Start Aidbox and log in using the Aidbox Portal:
+0. Start Aidbox and log in using the Aidbox Portal (See [Getting Started Guide](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally#id-4.-activate-your-aidbox-instance)):
+
 ```
 docker compose up
 ```
@@ -148,7 +149,8 @@ Here's how your configuration JSON file should look like:
         "AllowedMethods": [
             "PUT",
             "POST",
-            "GET"
+            "GET",
+            "DELETE"
         ],
         "AllowedOrigins": [
             "http://localhost:3000"

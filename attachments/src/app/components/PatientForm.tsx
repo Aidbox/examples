@@ -31,6 +31,26 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
     return url.split("?")[0];
   }
 
+  async function deleteFile(filename: string): Promise<void> {
+    const signedUrlResponse = await fetch(`${aidboxAWSBucketUrl}/${filename}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: basicAuthHeader,
+      }
+    });
+
+    if (!signedUrlResponse.ok) {
+      throw new Error(`Delete error: ${signedUrlResponse.status} ${signedUrlResponse.statusText}`);
+    }
+
+    const signedUrlData = await signedUrlResponse.json();
+    const fileSendUrl = signedUrlData.url;
+
+    await fetch(fileSendUrl, {
+      method: "DELETE"
+    });
+  }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -60,7 +80,7 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
     }
 
     try {
-      const newFileName = getFileName(file.name, formData.firstName, formData.lastName, formData.dob);
+      const filename = getFileName(file.name, formData.firstName, formData.lastName, formData.dob);
 
       const signedUrlResponse = await fetch(aidboxAWSBucketUrl, {
         method: "POST",
@@ -68,7 +88,7 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
           "Content-Type": "application/json",
           Authorization: basicAuthHeader,
         },
-        body: JSON.stringify({ filename: newFileName }),
+        body: JSON.stringify({ filename: filename }),
       });
 
       if (!signedUrlResponse.ok) {
@@ -101,8 +121,8 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
             {
               attachment: {
                 url: removeQueryString(fileSendUrl),
-                title: newFileName,
-                contentType: "image/" + fileExtension(newFileName),
+                title: filename,
+                contentType: "image/" + fileExtension(filename),
               },
             },
           ],
@@ -110,6 +130,7 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
       });
 
       if (!documentReferenceResponse.ok) {
+        await deleteFile(filename);
         throw new Error(
           `Error creating DocumentReference: ${documentReferenceResponse.status} ${documentReferenceResponse.statusText}`
         );
@@ -134,8 +155,8 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
           birthDate: formData.dob,
           photo: [
             {
-              title: newFileName,
-              contentType: "image/" + fileExtension(newFileName),
+              title: filename,
+              contentType: "image/" + fileExtension(filename),
               url: removeQueryString(fileSendUrl),
             },
           ],
@@ -143,6 +164,7 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
       });
 
       if (!patientResponse.ok) {
+        await deleteFile(filename);
         throw new Error(
           `Error creating Patient: ${patientResponse.status} ${patientResponse.statusText}`
         );
