@@ -16,6 +16,12 @@ A collection of examples on top of Aidbox FHIR platform
 - [Aidbox Notify via Custom Resources](aidbox-notify-via-custom-resources/)
 - [Topic-Based Subscription to Kafka](aidbox-subscriptions-to-kafka/)
 - [SMART App Launch with Aidbox and Keycloak](smart-app-launch/)
+- [IPS $summary implementation](ips-ig/)
+- [IPS Chile $summary implementation](ips-ig-cl/)
+- [IPS $summary implementation with FHIR Topic-Based Subscriptions](ips-subscriptions/)
+- [IPS $summary implementation with Aidbox Topic-Based Subscriptions](ips-subscriptions-no-zen/)
+- [CQL Java engine integration](cql-java-engine-integration) 
+- [AWS S3 Aidbox integration](aws-s3-aidbox-integration)
 
 ## Documentation
 
