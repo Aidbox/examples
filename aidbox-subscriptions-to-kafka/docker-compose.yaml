@@ -9,7 +9,7 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS:                      LISTENER_INSIDE://0.0.0.0:29092, LISTENER_OUTSIDE://0.0.0.0:9092,  CONTROLLER://0.0.0.0:29093
+      KAFKA_LISTENERS:                      LISTENER_INSIDE://kafka:29092,   LISTENER_OUTSIDE://localhost:9092,  CONTROLLER://localhost:29093
       KAFKA_ADVERTISED_LISTENERS:           LISTENER_INSIDE://kafka:29092,   LISTENER_OUTSIDE://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INSIDE:PLAINTEXT,       LISTENER_OUTSIDE:PLAINTEXT,       CONTROLLER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME:     LISTENER_INSIDE
@@ -21,10 +21,10 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_MIN_INSYNC_REPLICAS: 1
     healthcheck:
-      test: /opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server kafka:9092 || exit 1
+      test: /opt/kafka/bin/kafka-cluster.sh cluster-id --bootstrap-server localhost:9092 || exit 1
       interval: 1s
-      timeout: 60s
-      retries: 60
+      timeout: 100s
+      retries: 100
     ports:
       - "9092:9092"
       - "9093:29093"
