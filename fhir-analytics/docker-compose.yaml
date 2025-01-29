@@ -1,0 +1,85 @@
+volumes:
+  sql-on-fhir-pgdata:
+services:
+  aidbox-db:
+    image: docker.io/healthsamurai/aidboxdb:17
+    pull_policy: always
+    volumes:
+      - sql-on-fhir-pgdata:/data
+    environment:
+      PGDATA: /data
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: password
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: aidbox
+  aidbox:
+    image: docker.io/healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      - aidbox-db
+    ports:
+      - 8080:8080
+    environment:
+      AIDBOX_ADMIN_PASSWORD: password
+      AIDBOX_CLIENT_SECRET: secret
+      AIDBOX_COMPLIANCE: enabled
+      AIDBOX_CORRECT_AIDBOX_FORMAT: true
+      AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      AIDBOX_FHIR_SCHEMA_VALIDATION: true
+      AIDBOX_PORT: 8080
+      AIDBOX_TERMINOLOGY_SERVICE_BASE_URL: https://tx.fhir.org/r4
+      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
+      BOX_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_SEARCH_FHIR__COMPARISONS: true
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
+      PGDATABASE: aidbox
+      PGHOST: aidbox-db
+      PGPASSWORD: password
+      PGPORT: '5432'
+      PGUSER: aidbox
+      BOX_AUTH_KEYS_PRIVATE: |
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEpAIBAAKCAQEA1ZLLfz37l6vAqW0WEEnx7XSCBbdcc4yO6o6uypAE9RnTrf0p
+        /YvYVTb2xiKbtbYrtQLNlyHuz8UJd6ILMHxquQ3XxsRHS1gPxxm9BHu6eROd1QlY
+        ArhZfYMmo2ioRcCQDIVNimSoRPzldY+vul1Bq2wibxcg2Np/UCoOn+BDmXjOhaoM
+        mr2FuR4CB6Gk80J3wCDpf6bu5xj/hqmyI1K/p2OgJnJy8DBLMkHnzLA5nWkfZhOd
+        rtVU32KnL/udH/5h6kqH+VgksUCru491p/XeKC37RUR/kF9+l0CqcRLrTSPjOSrt
+        9ReGRZrlGWXtgm4SNx6FZWv82SJn3Y/n2cj58wIDAQABAoIBACBITZaLVcXHHNqf
+        QL1akq/hXgFOMN0jFbvdBbexovDczrMseBXj9wxpFU5oDyBINn1oZzodKMi4EFEd
+        1HzSOZwvkaTw/ekkw6cakV3QSU9MM0hvM/dJSqGfBY6gCbDCxXisXPGlJbgz1TKl
+        cvBZG02K4qjnFpHLc9YNXWOLgGb95c8PiZDNp3+cNbjeUV4ahVEExBk9lh9bQu50
+        Z9p98cfcQ+H1MhJt0tP6ZLXfXxr7zhCE4GnVQsddUu/dHr38X4WMuLd6g4hhc34+
+        VG65Rpo1+S4ATe9fAtrv4xW+E2E90qiftz3cufU5nseQPApdVb/jujMeoo9FVNiV
+        /uZtNAkCgYEA9PxjJEEGdmlJFqhMvnHymjqTiqWsFa0oHI6YM+3S0nGRVZtn5dhx
+        IKXkO048D1GwmRMTlkJOETKX3VYLpqgG3+Fzdr4lqlH+cQdnP30zn73mPJXBK0xW
+        R33/pVCzD+DRa2ky+xlnSowdsduaVj6lxZPJeJZKor8duDx71CuWBmsCgYEA3yzf
+        Xc3rM8BkU/n42QEj8rULVjGvO474Va/VjDWrKaOrBp520UZi8wJiAZPp8WPbDsFt
+        NOa7pgPr930VdR2Y0z8dsB1C5XUeGJ3k39slRbzPgt6YGGJZwqqp1RCQNIuxqVHA
+        taKiIduEbWUpYRMnhYzgLevtaZwML5uPkv2+bJkCgYEA81VpCA6KY7zp+tZJ+/Pk
+        W2qJN/KcvZ8TM2IzLYkwmRRyncxRY4wbuajszDdGEpU6SqEXGG1da1mMXC1mPy+w
+        PFmLvUra0JTGnPAUjoxGZYlSkaTRjLczD6nH7iT85m2QtRZ1q9Estm/74rhUUQvC
+        zj+fouXs1j/sPh3dhP2R82cCgYEAoj2ByDS5Zq7XgMD5afBNTNTWf/uwkxCVcd1Y
+        1gvx+VxVKYOrhumvZ0/1JYZ9DJH2Htz44ftWsRKqyQkyvygcAH4iu/QZvKuOjIDE
+        cQRkLTVceZwOX7On4z+kJRNccgaXyip3eNPZH9nwhIKFOV/uXEUUd+3KcvsRVM62
+        6jny5AkCgYAP3ERyTAu5HjpjMwxYNSm1tvuY3morhf0ARu3YTze+WyzHtSW/U9Xc
+        9JFOFC5FU29eN8PxQyKjy3jiujwbL0fs7ur4cCZrN/fmpVzhc/glrd9rtLZ0TVAJ
+        3IEq7/TRFe8Z3DX4kTj1Ako7f63FuTyb/MzIXcS9o+gnx7jo3eQCkg==
+        -----END RSA PRIVATE KEY-----
+      BOX_AUTH_KEYS_PUBLIC: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1ZLLfz37l6vAqW0WEEnx
+        7XSCBbdcc4yO6o6uypAE9RnTrf0p/YvYVTb2xiKbtbYrtQLNlyHuz8UJd6ILMHxq
+        uQ3XxsRHS1gPxxm9BHu6eROd1QlYArhZfYMmo2ioRcCQDIVNimSoRPzldY+vul1B
+        q2wibxcg2Np/UCoOn+BDmXjOhaoMmr2FuR4CB6Gk80J3wCDpf6bu5xj/hqmyI1K/
+        p2OgJnJy8DBLMkHnzLA5nWkfZhOdrtVU32KnL/udH/5h6kqH+VgksUCru491p/Xe
+        KC37RUR/kF9+l0CqcRLrTSPjOSrt9ReGRZrlGWXtgm4SNx6FZWv82SJn3Y/n2cj5
+        8wIDAQAB
+        -----END PUBLIC KEY-----
+  metabase:
+    depends_on:
+      - aidbox
+      - aidbox-db
+    image: docker.io/metabase/metabase:latest
+    ports:
+      - 3000:3000
