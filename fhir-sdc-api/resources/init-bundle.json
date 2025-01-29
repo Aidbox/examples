@@ -1,0 +1,394 @@
+{
+  "type": "batch",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "gender": "male",
+        "name": [
+          {
+            "given": [
+              "John"
+            ],
+            "family": "Doe"
+          }
+        ],
+        "birthDate": "1996-05-12",
+        "id": "john"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/Patient/john"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "gender": "female",
+        "name": [
+          {
+            "given": [
+              "Jane"
+            ],
+            "family": "Doe"
+          }
+        ],
+        "id": "jane",
+        "birthDate": "1993-09-11"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/Patient/jane"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Questionnaire",
+        "title": "CVD Reference Form",
+        "id": "cvd-reference-form",
+        "status": "draft",
+        "url": "http://forms.aidbox.io/questionnaire/cvd-form",
+        "item": [
+          {
+            "item": [
+              {
+                "text": "Given",
+                "type": "string",
+                "linkId": "kG70nh3M",
+                "extension": [
+                  {
+                    "url": "http://aidbox.io/questionnaire-itemColumnSize",
+                    "valueInteger": 4
+                  }
+                ]
+              },
+              {
+                "text": "Family",
+                "type": "string",
+                "linkId": "kpiXBdPU",
+                "extension": [
+                  {
+                    "url": "http://aidbox.io/questionnaire-itemColumnSize",
+                    "valueInteger": 4
+                  }
+                ]
+              },
+              {
+                "text": "Gender",
+                "type": "choice",
+                "linkId": "Jw_kMVir",
+                "extension": [
+                  {
+                    "url": "http://aidbox.io/questionnaire-itemColumnSize",
+                    "valueInteger": 4
+                  }
+                ],
+                "answerOption": [
+                  {
+                    "valueCoding": {
+                      "code": "male",
+                      "display": "Male"
+                    }
+                  },
+                  {
+                    "valueCoding": {
+                      "code": "female",
+                      "display": "Female"
+                    }
+                  }
+                ]
+              }
+            ],
+            "text": "Patient",
+            "type": "group",
+            "linkId": "Zicv0gIs"
+          },
+          {
+            "item": [
+              {
+                "text": "Height",
+                "type": "quantity",
+                "linkId": "height",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                    "valueCoding": {
+                      "display": "cm"
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Weight",
+                "type": "quantity",
+                "linkId": "weight",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                    "valueCoding": {
+                      "display": "kg"
+                    }
+                  }
+                ]
+              },
+              {
+                "code": [
+                  {
+                    "code": "60621009",
+                    "system": "http://snomed.info/sct",
+                    "display": "Body Mass Index "
+                  }
+                ],
+                "item": [
+                  {
+                    "text": "BMI=[Wt(kg) / Ht(cm) / Ht(cm)] * 10000",
+                    "type": "display",
+                    "linkId": "S1FZst5d",
+                    "extension": [
+                      {
+                        "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                        "valueCodeableConcept": {
+                          "coding": [
+                            {
+                              "code": "help"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "text": "BMI",
+                "type": "decimal",
+                "linkId": "Bx4DZWYr",
+                "readOnly": true,
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                    "valueExpression": {
+                      "language": "text/fhirpath",
+                      "expression": "(%resource.repeat(item).where(linkId='weight').answer.value.value / \n%resource.repeat(item).where(linkId='height').answer.value.value.power(2)) * 10000"
+                    }
+                  },
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+                    "valueDecimal": 4
+                  },
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "http://aidbox.io/questionnaire-itemColumnSize",
+                    "valueInteger": 10
+                  }
+                ]
+              },
+              {
+                "text": "Obesity",
+                "type": "boolean",
+                "linkId": "zZvgjBlR",
+                "readOnly": true,
+                "extension": [
+                  {
+                    "url": "http://aidbox.io/questionnaire-itemColumnSize",
+                    "valueInteger": 2
+                  },
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+                    "valueExpression": {
+                      "language": "text/fhirpath",
+                      "expression": "%resource.repeat(item).where(linkId='Bx4DZWYr').answer.value > 25.0"
+                    }
+                  }
+                ]
+              }
+            ],
+            "text": "Obesity",
+            "type": "group",
+            "linkId": "N6IfpJcM"
+          },
+          {
+            "code": [
+              {
+                "code": "365981007",
+                "system": "http://snomed.info/sct",
+                "display": "Tobacco smoking behavior - finding"
+              }
+            ],
+            "text": "Smoking Status",
+            "type": "choice",
+            "linkId": "m17jd1Yn",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                "valueBoolean": true
+              }
+            ],
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "266919005",
+                  "system": "http://snomed.info/sct",
+                  "display": "Never smoked tobacco"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "77176002",
+                  "system": "http://snomed.info/sct",
+                  "display": "Smoker"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "43381005",
+                  "system": "http://snomed.info/sct",
+                  "display": "Passive smoker"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "160617001",
+                  "system": "http://snomed.info/sct",
+                  "display": "Stopped smoking"
+                }
+              }
+            ]
+          },
+          {
+            "text": "Alcohol Intake",
+            "type": "choice",
+            "linkId": "mBMblYF9",
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "code": "never-consumed",
+                  "display": "Never Consumed"
+                }
+              },
+              {
+                "valueCoding": {
+                  "code": "yes",
+                  "display": "Yes"
+                }
+              }
+            ]
+          },
+          {
+            "item": [
+              {
+                "code": [
+                  {
+                    "code": "719848005",
+                    "system": "http://snomed.info/sct",
+                    "display": "Disorder caused by alcohol"
+                  }
+                ],
+                "text": "In the past 6 months had 5 drinks in a row",
+                "type": "choice",
+                "linkId": "Ua0r9Pmh",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                    "valueBoolean": true
+                  }
+                ],
+                "enableWhen": [
+                  {
+                    "answerCoding": {
+                      "code": "male",
+                      "display": "Male"
+                    },
+                    "operator": "=",
+                    "question": "Jw_kMVir"
+                  }
+                ],
+                "answerOption": [
+                  {
+                    "valueCoding": {
+                      "code": "373066001",
+                      "system": "http://snomed.info/sct",
+                      "display": "Yes"
+                    }
+                  },
+                  {
+                    "valueCoding": {
+                      "code": "373067005",
+                      "system": "http://snomed.info/sct",
+                      "display": "No"
+                    }
+                  }
+                ],
+                "enableBehavior": "all"
+              },
+              {
+                "code": [
+                  {
+                    "code": "719848005",
+                    "system": "http://snomed.info/sct",
+                    "display": "Disorder caused by alcohol"
+                  }
+                ],
+                "text": "In the past 6 months had 4 drinks in a row",
+                "type": "choice",
+                "linkId": "8nvUb8xC",
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-observationExtract",
+                    "valueBoolean": true
+                  }
+                ],
+                "enableWhen": [
+                  {
+                    "answerCoding": {
+                      "code": "female",
+                      "display": "Female"
+                    },
+                    "operator": "=",
+                    "question": "Jw_kMVir"
+                  }
+                ],
+                "answerOption": [
+                  {
+                    "valueCoding": {
+                      "code": "373066001",
+                      "system": "http://snomed.info/sct",
+                      "display": "Yes"
+                    }
+                  },
+                  {
+                    "valueCoding": {
+                      "code": "373067005",
+                      "system": "http://snomed.info/sct",
+                      "display": "No"
+                    }
+                  }
+                ],
+                "enableBehavior": "all"
+              }
+            ],
+            "text": "Excessive Alcohol Intake",
+            "type": "group",
+            "linkId": "qyIwVBRd",
+            "enableWhen": [
+              {
+                "answerCoding": {
+                  "code": "yes",
+                  "display": "Yes"
+                },
+                "operator": "=",
+                "question": "mBMblYF9"
+              }
+            ],
+            "enableBehavior": "all"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/Questionnaire/cvd-reference-form"
+      }
+    }
+  ]
+}
