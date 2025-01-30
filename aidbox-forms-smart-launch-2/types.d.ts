@@ -16,6 +16,7 @@ declare global {
       > & {
         questionnaire?: string;
         "questionnaire-response"?: string;
+        config?: string;
       };
       "aidbox-form-builder": React.DetailedHTMLProps<
         React.IframeHTMLAttributes<HTMLIFrameElement>,
