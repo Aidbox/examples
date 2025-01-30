@@ -64,6 +64,7 @@ export function FormsRenderer({
       ref={ref}
       questionnaire={JSON.stringify(questionnaire)}
       questionnaire-response={JSON.stringify(questionnaireResponse)}
+      config={JSON.stringify({ form: { "allow-amend": true } })}
       style={{
         width: "100%",
         height: "100%",

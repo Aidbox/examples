@@ -36,12 +36,14 @@ import { useRouter } from "next/navigation";
 export function QuestionnairesActions({
   questionnaire,
   library,
+  onCheckQuestionnaireUsageAction,
   onDeleteAction,
   onImportAction,
   onCreateResponseAction,
 }: {
   questionnaire: Questionnaire;
   library?: boolean;
+  onCheckQuestionnaireUsageAction?: (questionnaire: Questionnaire) => Promise<boolean>;
   onDeleteAction?: (questionnaire: Questionnaire) => Promise<void>;
   onImportAction?: (questionnaire: Questionnaire) => Promise<Questionnaire>;
   onCreateResponseAction?: (
@@ -105,12 +107,16 @@ export function QuestionnairesActions({
               className="text-destructive focus:text-destructive"
               onClick={async () => {
                 if (onDeleteAction) {
-                  await withRunning(onDeleteAction(questionnaire));
+                  const used = onCheckQuestionnaireUsageAction ? await onCheckQuestionnaireUsageAction(questionnaire) : false;
 
-                  toast({
-                    title: "Questionnaire deleted",
-                    description: `Questionnaire deleted successfully`,
-                  });
+                  if (confirm(`Are you sure you want to delete this questionnaire? ${used ? `\n\nWarning: This questionnaire is used in responses. Deleting it will make them invalid.` : ""}`)) {
+                    await withRunning(onDeleteAction(questionnaire));
+
+                    toast({
+                      title: "Questionnaire deleted",
+                      description: `Questionnaire deleted successfully`,
+                    });
+                  }
                 }
               }}
             >

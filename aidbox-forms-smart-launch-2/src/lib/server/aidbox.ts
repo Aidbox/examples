@@ -64,10 +64,13 @@ export const getOrganizationalAidbox = cache(async (serverUrl: string) => {
             "[aidbox]",
             response.status,
             response.headers.get("content-type"),
+          );
+          console.dir(
             await response
               .clone()
               .json()
               .catch(() => null),
+            { depth: 1000 },
           );
         },
       ],

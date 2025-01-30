@@ -61,6 +61,41 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
   const total = response.total || 0;
   const totalPages = Math.ceil(total / pageSize);
 
+  async function checkQuestionnaireUsage(questionnaire: Questionnaire) {
+    "use server";
+
+    let total = 0;
+    const aidbox = await getCurrentAidbox();
+
+    if (questionnaire.url) {
+      const response = await aidbox
+        .get("fhir/QuestionnaireResponse", {
+          searchParams: {
+            _summary: 'count',
+            questionnaire: questionnaire.url,
+          },
+        })
+        .json<Bundle<QuestionnaireResponse>>();
+
+      total += response.total || 0;
+
+      if (questionnaire.version && total === 0) {
+        const response = await aidbox
+          .get("fhir/QuestionnaireResponse", {
+            searchParams: {
+              _summary: 'count',
+              questionnaire: `${questionnaire.url}|${questionnaire.version}`,
+            },
+          })
+          .json<Bundle<QuestionnaireResponse>>();
+
+        total += response.total || 0;
+      }
+    }
+
+    return total !== 0;
+  }
+
   async function deleteQuestionnaire(questionnaire: Questionnaire) {
     "use server";
 
@@ -183,6 +218,7 @@ export default async function QuestionnairesPage({ searchParams }: PageProps) {
                   <TableCell className="text-right pr-6">
                     <QuestionnairesActions
                       questionnaire={resource}
+                      onCheckQuestionnaireUsageAction={checkQuestionnaireUsage}
                       onDeleteAction={deleteQuestionnaire}
                       onCreateResponseAction={createQuestionnaireResponse}
                     />
