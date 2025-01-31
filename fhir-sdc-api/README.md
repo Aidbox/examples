@@ -6,9 +6,9 @@ This demo shows how to use [FHIR SDC Api](https://hl7.org/fhir/uv/sdc/) in Aidbo
 
 1. Docker
 2. Cloned repository: [Github: Aidbox/examples](https://github.com/Aidbox/examples/tree/main)
-3. Working directory: `fhir-sdc`
+3. Working directory: `fhir-sdc-api`
 
-`git clone git@github.com:Aidbox/examples.git && cd examples/fhir-sdc`
+`git clone git@github.com:Aidbox/examples.git && cd examples/fhir-sdc-api`
 
 
 ## 1. Run Aidbox
@@ -28,7 +28,7 @@ To fill the form, you can use Aidbox Forms UI or use FHIR SDC API from Aidbox Re
 
 1. Open Aidbox Forms UI: [`localhost:8080/ui/sdc`](http://localhost:8080/ui/sdc)
 2. Click share on the **_CVD Reference Form_** (this is the form that was imported)
-3. Choose a patient 
+3. Choose a patient
 4. Click Attach button to get the link
 
 Now you can open the link you obtained on the last step and start filling the form.
@@ -54,14 +54,14 @@ parameter:
 
 ## 3. Extract and save resources from QuestionnaireResponse
 
-FHIR SDC defines an operation `$extract` to retrieve resources from `QuestionnaireResponse`. However, since it’s a stateless operation, it returns a `Bundle` that you need to save by yourself. 
+FHIR SDC defines an operation `$extract` to retrieve resources from `QuestionnaireResponse`. However, since it’s a stateless operation, it returns a `Bundle` that you need to save by yourself.
 
 ### 3.1 Using Aidbox Forms UI
 
 The Aidbox Forms UI has auto-save feature. That means it will save `QuestionnaireResponse` each time you
-changed answers in the form. 
+changed answers in the form.
 
-But after clicking **`Submit`** button it will extract resources from this QuestionnaireResponse and save it into database. So you don’t need to save extracted resources manually. 
+But after clicking **`Submit`** button it will extract resources from this QuestionnaireResponse and save it into database. So you don’t need to save extracted resources manually.
 
 ### 3.2 Using FHIR SDC API
 
@@ -81,7 +81,7 @@ parameter:
   - name: return
     resource:
       resourceType: Bundle
-      entry:  
+      entry:
        — resource:
            resourceType: Observation
       <<< list of resources >>>
@@ -95,10 +95,10 @@ Now we need to save this `Bundle` that we get in `return` parameter using `POST 
 POST /
 
 resourceType: Bundle
-entry: 
-  - resource: 
+entry:
+  - resource:
       resourceType: Observation
-  <<< list of extracted resources >>> 
+  <<< list of extracted resources >>>
 ```
 
 ## View extracted resources
@@ -107,9 +107,4 @@ entry:
 GET /Observation
 ```
 
-Since our form extracts only observation you should see two or three new Observations depending on your answers. 
-
-
-
-
-
+Since our form extracts only observation you should see two or three new Observations depending on your answers.

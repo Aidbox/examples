@@ -23,7 +23,7 @@ services:
       - 8080:8080
     environment:
       BOX_INIT_BUNDLE: 'file:///resources/init-bundle.json'
-      AIDBOX_ADMIN_PASSWORD: 1tF5MdpQxY
+      AIDBOX_ADMIN_PASSWORD: admin
       AIDBOX_CLIENT_SECRET: secret
       AIDBOX_COMPLIANCE: enabled
       AIDBOX_CORRECT_AIDBOX_FORMAT: true
