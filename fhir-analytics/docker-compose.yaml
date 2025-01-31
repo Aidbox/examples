@@ -17,10 +17,13 @@ services:
     pull_policy: always
     depends_on:
       - aidbox-db
+    volumes:
+      - ./resources:/resources
     ports:
       - 8080:8080
     environment:
-      AIDBOX_ADMIN_PASSWORD: password
+      BOX_INIT_BUNDLE: 'file:///resources/init-bundle.json'
+      AIDBOX_ADMIN_PASSWORD: admin
       AIDBOX_CLIENT_SECRET: secret
       AIDBOX_COMPLIANCE: enabled
       AIDBOX_CORRECT_AIDBOX_FORMAT: true
