@@ -1,0 +1,110 @@
+{
+  "type": "batch",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Client/growth_chart"
+      },
+      "resource": {
+        "resourceType": "Client",
+        "id": "growth_chart",
+        "auth": {
+          "authorization_code": {
+            "redirect_uri": "http://localhost:9000/",
+            "refresh_token": true,
+            "token_format": "jwt",
+            "access_token_expiration": 3600000
+          }
+        },
+        "smart": {
+          "launch_uri": "http://localhost:9000/launch.html"
+        },
+        "type": "smart-app",
+        "secret": "quOfCRS7ty1RMUQq",
+        "grant_types": [
+          "authorization_code"
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Client/ehr"
+      },
+      "resource": {
+        "id": "ehr",
+        "secret": "verysecret",
+        "grant_types": [
+          "basic"
+        ],
+        "resourceType": "Client"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/demo-clients-allow"
+      },
+      "resource": {
+        "id": "demo-clients-allow",
+        "link": [
+          {
+            "id": "ehr",
+            "resourceType": "Client"
+          },
+          {
+            "id": "growth_chart",
+            "resourceType": "Client"
+          }
+        ],
+        "engine": "allow",
+        "resourceType": "AccessPolicy"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/IdentityProvider/keycloak"
+      },
+      "resource": {
+        "resourceType": "IdentityProvider",
+        "scopes": [
+          "profile",
+          "openid"
+        ],
+        "system": "keycloak",
+        "userinfo_endpoint": "http://localhost:7777/realms/patients/protocol/openid-connect/userinfo",
+        "authorize_endpoint": "http://localhost:7777/realms/patients/protocol/openid-connect/auth",
+        "client": {
+          "id": "aidbox",
+          "secret": "HOuPXmduHfTjhtW0eqAeMsHZJbRNVc8x"
+        },
+        "title": "Keycloak",
+        "active": true,
+        "id": "keycloak",
+        "token_endpoint": "http://keycloak:7777/realms/patients/protocol/openid-connect/token",
+        "userinfo-source": "id-token"
+      }
+    },
+
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Patient/$load"
+      },
+      "resource": {
+        "source": "https://storage.googleapis.com/aidbox-public/synthea/v2/100/fhir/Patient.ndjson.gz"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Observation/$load"
+      },
+      "resource": {
+        "source": "https://storage.googleapis.com/aidbox-public/synthea/v2/100/fhir/Observation.ndjson.gz"
+      }
+    }
+  ]
+}
