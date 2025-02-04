@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y
 RUN apt-get install -y rsync
-RUN corepack enable
+RUN npm install -g corepack && corepack enable
 
 WORKDIR /usr/src/app-cache
 
