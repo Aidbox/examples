@@ -1,10 +1,9 @@
 FROM node:20
 
 WORKDIR /app
-RUN corepack enable
+RUN pnpm install -g corepack && corepack enable
 COPY . .
-RUN pnpm install --frozen-lockfile
-RUN pnpm run build
+RUN pnpm install --frozen-lockfile && pnpm run build
 
 EXPOSE 4000
 
