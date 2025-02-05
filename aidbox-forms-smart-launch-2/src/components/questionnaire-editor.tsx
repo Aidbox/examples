@@ -2,7 +2,7 @@
 
 import { FormsBuilder } from "@/components/forms-builder";
 import { Questionnaire } from "fhir/r4";
-import { Suspense, useTransition } from "react";
+import { Suspense } from "react";
 import { Spinner } from "@/components/spinner";
 
 interface QuestionnaireEditorProps {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { useAwaiter } from "@/hooks/use-awaiter";
 import { Questionnaire } from "fhir/r4";
 
@@ -74,14 +74,14 @@ export function FormsBuilder({
       console.log("Request url", url, init.tag);
       return null;
     },
-    [questionnaire, onSave],
+    [questionnaire, onSave, onGlobalProxy, onCurrentProxy],
   );
 
   useLayoutEffect(() => {
     const current = ref.current;
 
     if (current) {
-      // @ts-ignore fetch is a property of web component
+      // @ts-expect-error fetch is a property of web component
       current.fetch = fetchProxy;
 
       const handler = (e: Event) => {
