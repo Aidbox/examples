@@ -24,6 +24,21 @@ To clone the repository and navigate to the `smart-app-launch-smartbox` director
 git clone git@github.com:Aidbox/examples.git && cd examples/smart-app-launch-smartbox
 ```
 
+Edit a `docker-compose.yaml` file and paste there your license keys.
+
+```yaml
+# docker-compose.yaml
+...
+services:
+  portal:
+    environment:
+      AIDBOX_LICENSE: <YOUR_PORTAL_LICENSE>
+...
+  sandbox:
+    environment:
+      AIDBOX_LICENSE: <YOUR_SANDBOX_LICENSE>
+```
+
 ## Step 1: Run Demo Components
 
 Start all the demo components by running:
