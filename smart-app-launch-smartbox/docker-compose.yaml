@@ -1,0 +1,88 @@
+
+version: '3.7'
+
+volumes:
+  aidbox_pg_data: {}
+services:
+  aidbox-db:
+    image: healthsamurai/aidboxdb:14.5
+    volumes:
+    - aidbox_pg_data:/data:delegated
+    environment:
+      PGDATA: /data
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB:       postgres
+
+  portal:
+    image: healthsamurai/smartbox:2412
+    depends_on: ["aidbox-db"]
+    links:
+      - "aidbox-db:database"
+      - "sandbox:sandbox"
+    ports:
+      - "8888:8888"
+    volumes:
+    - ./aidbox.json:/tmp/aidbox.json
+    environment:
+      BOX_INIT_BUNDLE: file:///tmp/aidbox.json
+      PGHOST: "database"
+      PGDATABASE: "portal"
+      BOX_AUTH_LOGIN__REDIRECT: "/admin/portal"
+      BOX_PROJECT_ENTRYPOINT: "smartbox.portal/box"
+      AIDBOX_LICENSE: 
+      AIDBOX_BASE_URL: "http://localhost:8888"
+      BOX_SMARTBOX_SANDBOX__URL: "http://sandbox:8888"
+      BOX_SMARTBOX_SANDBOX__BASIC: "root:secret"
+      PGPORT: 5432
+      PGHOSTPORT: 5437
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      AIDBOX_PORT: 8888
+
+
+  sandbox:
+    image: healthsamurai/smartbox:2412
+    depends_on: ["aidbox-db"]
+    links:
+      - "aidbox-db:database"
+    ports:
+      - "9999:8888"
+    environment:
+      PGHOST: "database"
+      PGDATABASE: "sandbox"
+      BOX_AUTH_LOGIN__REDIRECT: "/"
+      BOX_PROJECT_ENTRYPOINT: "smartbox.dev-portal/box"
+      AIDBOX_LICENSE: 
+      AIDBOX_BASE_URL: "http://localhost:9999"
+      PGPORT: 5432
+      PGHOSTPORT: 5437
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      AIDBOX_PORT: 8888
+
+  growth_chart:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile.growthchart
+    ports:
+    - 9000:9000
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.6
+    volumes:
+    - ./keycloak.json:/opt/keycloak/data/import/keycloak.json
+    ports:
+      - 7777:7777
+    environment:
+      KC_HTTP_PORT: 7777
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm
+
+  launcher:
+    image: nginx:alpine
+    ports:
+      - "7070:80"
+    volumes:
+      - ./launcher.html:/usr/share/nginx/html/launcher.html:r
