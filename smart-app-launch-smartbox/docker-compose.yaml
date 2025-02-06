@@ -22,8 +22,6 @@ services:
       - "sandbox:sandbox"
     ports:
       - "8888:8888"
-    env_file:
-      - .env
     volumes:
     - ./aidbox.json:/tmp/aidbox.json
     environment:
@@ -50,8 +48,6 @@ services:
       - "aidbox-db:database"
     ports:
       - "9999:8888"
-    env_file:
-      - .env
     environment:
       PGHOST: "database"
       PGDATABASE: "sandbox"
