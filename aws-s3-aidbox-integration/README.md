@@ -4,6 +4,105 @@ This guide demonstrates how to integrate [AWS S3 with Aidbox](https://docs.aidbo
 
 The application enables saving and retrieving a patient's photo in an AWS S3 bucket via Aidbox, which acts as a middleware between the front-end and AWS S3. Aidbox manages the **Access Key ID** and **Secret Access Key** for an IAM user or role through an AwsAccount resource.
 
+## Setting Up Aidbox
+
+1. Start Aidbox and log in using the Aidbox Portal (See [Getting Started Guide](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally#id-4.-activate-your-aidbox-instance)):
+
+```
+docker compose up
+```
+
+2. Create an AwsAccount resource to store AWS credentials and region settings:
+
+```http
+PUT /AwsAccount
+
+id: my-account
+access-key-id: <your-key-id> # e.g. AKIAIOSFODNN7EXAMPLE
+secret-access-key: <your-secret-access-key> # e.g. wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+region: us-east-1
+```
+
+3. **Set up a [Basic Client](https://docs.aidbox.app/modules/security-and-access-control/auth/basic-auth)** to allow front-end requests:
+```http
+PUT /Client/basic?_pretty=true
+content-type: application/json
+accept: application/json
+
+{
+ "secret": "secret",
+ "grant_types": [
+  "basic"
+ ]
+}
+```
+4. **Define an Access Policy** to permit basic authentication:
+```http
+PUT /AccessPolicy/basic-policy?_pretty=true
+content-type: application/json
+accept: application/json
+
+{
+ "engine": "allow",
+ "link": [
+  {
+   "id": "basic",
+   "resourceType": "Client"
+  }
+ ]
+}
+```
+Now we can use Basic Authorization header in the front-end:
+```
+"Authorization": "Basic YmFzaWM6c2VjcmV0"
+```
+
+5. **Configure CORS on AWS side**:
+Use [this page](https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html) to allow front-end to interact with the bucket.
+Here's how your configuration JSON file should look like:
+```json
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "PUT",
+            "POST",
+            "GET",
+            "DELETE"
+        ],
+        "AllowedOrigins": [
+            "http://localhost:3000"
+        ],
+        "ExposeHeaders": []
+    }
+]
+```
+
+## Running the application
+1. Clone the repository 
+```bash
+git clone git@github.com:Aidbox/examples.git 
+```
+2. Change the directory to the current example.
+3. Install dependencies:
+```bash
+npm install
+```
+4. Start the development server:
+```bash
+npm run dev
+```
+5. Go to `http://localhost:3000`.
+
+To save Patient and DocumentReference resources and the photo in the bucket:
+- Fill the patient form,
+- Attach the patient photo,
+- Press submit button.
+To get Patient photo by the id, type the id and press Get Photo button.
+
+# What's going on under the hood?
 ## Saving a File to the Bucket: Workflow
 1. Send a POST request from the front-end to Aidbox with the desired filename:
 ```http
@@ -65,6 +164,7 @@ In this example, the [Attachment](https://build.fhir.org/datatypes.html#attachme
 }
 ```
 Additionally, a [DocumentReference](https://build.fhir.org/documentreference.html) resource can be created to store metadata about the image. See [DocumentReference's scope and usage](https://build.fhir.org/documentreference.html#scope)e.
+
 ### Example: DocumentReference Resource
 ```json
 {
@@ -83,96 +183,3 @@ Additionally, a [DocumentReference](https://build.fhir.org/documentreference.htm
 }
 
 ```
-
-## Setting Up Aidbox
-
-0. Start Aidbox and log in using the Aidbox Portal (See [Getting Started Guide](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally#id-4.-activate-your-aidbox-instance)):
-
-```
-docker compose up
-```
-
-1. Create an AwsAccount resource to store AWS credentials and region settings:
-
-```http
-PUT /AwsAccount
-
-id: my-account
-access-key-id: <your-key-id> # e.g. AKIAIOSFODNN7EXAMPLE
-secret-access-key: <your-secret-access-key> # e.g. wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-region: us-east-1
-```
-
-2. **Set up a [Basic Client](https://docs.aidbox.app/modules/security-and-access-control/auth/basic-auth)** to allow front-end requests:
-```http
-PUT /Client/basic?_pretty=true
-content-type: application/json
-accept: application/json
-
-{
- "secret": "secret",
- "grant_types": [
-  "basic"
- ]
-}
-```
-3. **Define an Access Policy** to permit basic authentication:
-```http
-PUT /AccessPolicy/basic-policy?_pretty=true
-content-type: application/json
-accept: application/json
-
-{
- "engine": "allow",
- "link": [
-  {
-   "id": "basic",
-   "resourceType": "Client"
-  }
- ]
-}
-```
-Now we can use Basic Authorization header in the front-end:
-```
-"Authorization": "Basic YmFzaWM6c2VjcmV0"
-```
-
-4. **Configure CORS on AWS side**:
-Use [this page](https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html) to allow front-end to interact with the bucket.
-Here's how your configuration JSON file should look like:
-```json
-[
-    {
-        "AllowedHeaders": [
-            "*"
-        ],
-        "AllowedMethods": [
-            "PUT",
-            "POST",
-            "GET",
-            "DELETE"
-        ],
-        "AllowedOrigins": [
-            "http://localhost:3000"
-        ],
-        "ExposeHeaders": []
-    }
-]
-```
-
-## Running the application
-1. Install dependencies:
-```bash
-npm install
-```
-2. Start the development server:
-```bash
-npm run dev
-```
-3. Go to `http://localhost:3000`.
-
-To save Patient and DocumentReference resources and the photo in the bucket:
-- Fill the patient form,
-- Attach the patient photo,
-- Press submit button.
-To get Patient photo by the id, type the id and press Get Photo button.
