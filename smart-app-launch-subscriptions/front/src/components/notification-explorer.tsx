@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { NotificationMessage } from './notification-message'
-import { EhrEvent } from '../types'
+import { EhrEvent, SmartAppLaunchSubscriptionsConfig } from '../types'
 
-export const NotificationExplorer = () => {
+export const NotificationExplorer = ({ config }: { config: SmartAppLaunchSubscriptionsConfig }) => {
   const [events, setEvents] = useState<EhrEvent[]>([])
 
   useEffect(() => {
-    const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/events`)
+    const eventSource = new EventSource(`${config.apiKey}/events`)
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data)

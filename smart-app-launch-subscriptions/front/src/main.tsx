@@ -1,7 +1,15 @@
-import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import { SmartAppLaunchSubscriptionsConfig } from './types'
 
-createRoot(document.getElementById('root')!).render(
-  <App />
-)
+export const init = (containerId: string, config: SmartAppLaunchSubscriptionsConfig) => {
+  if (!config.apiKey) {
+    throw new Error('SmartAppLaunchSubscriptions cannot be initialized - "apiKey" is not defined')
+  }
+
+  const container = document.getElementById(containerId)
+  if (container) {
+    ReactDOM.createRoot(container).render(<App config={config} />)
+  }
+}

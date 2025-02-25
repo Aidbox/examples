@@ -6,10 +6,11 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'debug', 'verbose']
   })
 
-  const allowedHosts = (process.env.ALLOWED_HOSTS ?? 'http://localhost:3100').split(',')
+  // const allowedHosts = (process.env.ALLOWED_HOSTS ?? 'http://localhost:3100').split(',')
 
   app.enableCors({
-    origin: allowedHosts,
+    origin: '*',
+    // origin: allowedHosts,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
     credentials: true

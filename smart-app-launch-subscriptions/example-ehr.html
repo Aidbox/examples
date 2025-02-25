@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Example EHR</title>
+</head>
+
+<body>
+
+  <div style="display: flex; background-color: grey; position: absolute; top: 0; left: 0; width: 100vw; height: 100px;">
+    Ima heada
+    <div id="notifications-container" style="margin-left: auto"></div>
+  </div>
+
+  <div style="margin-top: 100px;">
+    <h1>Example EHR</h1>
+    <p>Blah-blah-blah, i'm a supa ugly as f*** EHR!</p>
+  </div>
+
+  <script src="./front/dist/smart-app-launch.subscriptions.umd.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (SmartAppLaunchSubscriptions && typeof SmartAppLaunchSubscriptions.init === 'function') {
+        SmartAppLaunchSubscriptions.init('notifications-container', {
+          apiKey: 'http://localhost:4114'
+        })
+      } else {
+        console.error('renderSmartAppLaunchSubscriptions is not defined')
+      }
+
+      // window.postMessage({ type: 'NOTIFICATIONS_UPDATE_USER', userId: '12345' }, '*')
+    })
+  </script>
+</body>
+
+</html>

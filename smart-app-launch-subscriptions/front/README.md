@@ -1,16 +1,12 @@
 # smart-app-launch-subscriptions web app
 
-## Configuration
+This application is built as a JavaScript widget, so you need to build it before embedding it into a third-party project.
 
-Before running the project, create a `.env` file in the root directory and add the following environment variables:
-
-```ini
-VITE_API_URL=http://localhost:4114
-```
-
-## Local run
+## Local build
 
 ```sh
 npm i
-npm run dev
+npm run build
 ```
+
+The built files will be stored in the `dist` folder. You can then include them in your project as needed.
