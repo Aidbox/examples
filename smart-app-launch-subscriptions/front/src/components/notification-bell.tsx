@@ -1,12 +1,11 @@
 import { Badge, Button } from 'antd'
 import { BellOutlined } from '@ant-design/icons'
 
-interface NotificationBellProps {
+type NotificationBellProps = {
   count: number
-  onClick: () => void
 }
 
-export const NotificationBell = ({ count, onClick }: NotificationBellProps) => {
+export const NotificationBell = ({ count }: NotificationBellProps) => {
   return (
     <Badge count={count} overflowCount={99} offset={[-5, 5]}>
       <Button
@@ -14,7 +13,6 @@ export const NotificationBell = ({ count, onClick }: NotificationBellProps) => {
         shape="circle"
         size="large"
         icon={<BellOutlined />}
-        onClick={onClick}
       />
     </Badge>
   )

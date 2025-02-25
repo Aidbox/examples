@@ -1,36 +1,20 @@
-import { useEffect, useState } from 'react'
 import { NotificationMessage } from './notification-message'
-import { EhrEvent, SmartAppLaunchSubscriptionsConfig } from '../types'
+import { EhrEvent } from '../types'
+import { Empty, List } from 'antd'
 
-export const NotificationExplorer = ({ config }: { config: SmartAppLaunchSubscriptionsConfig }) => {
-  const [events, setEvents] = useState<EhrEvent[]>([])
-
-  // todo - store apiKey in context
-
-  useEffect(() => {
-    const eventSource = new EventSource(`${config.apiKey}/events`)
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log(event)
-      setEvents((prev) => [...prev, data])
-    }
-
-    // eventSource.onerror = () => {
-    //   eventSource.close()
-    // }
-
-    // return () => {
-    //   eventSource.close()
-    // }
-  }, [])
-
+export const NotificationExplorer = ({ events }: { events: EhrEvent[] }) => {
   return (
     <>
       {
-        events.map(event => (
-          <NotificationMessage event={event} />
-        ))
+        events.length ? (
+          <List
+            dataSource={events}
+            renderItem={(event) => <NotificationMessage event={event} />}
+            style={{ maxHeight: 200, overflowY: 'auto' }}
+          />
+        ) : (
+          <Empty description="No notifications" />
+        )
       }
     </>
   )
