@@ -1,0 +1,13 @@
+FROM docker.io/library/node:22
+
+WORKDIR /app
+
+COPY back/package*.json ./
+RUN npm install
+
+COPY back/ ./
+RUN npm run build
+
+EXPOSE 9000
+
+CMD ["npm", "run", "start:prod"]

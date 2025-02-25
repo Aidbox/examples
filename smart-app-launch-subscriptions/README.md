@@ -16,6 +16,6 @@ Build the frontend locally. See the README file in the frontend project for the 
 
 **3. Open the example page**
 
-After the frontend is built, open `example-ehr.html` in your browser.
+After the frontend is built, open `launch.html` in your browser.
 
 **4. Enjoy!**

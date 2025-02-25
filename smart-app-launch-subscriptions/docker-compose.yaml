@@ -1,0 +1,70 @@
+version: '3.7'
+volumes:
+  aidbox_pg_data: {}
+
+services:
+
+  subscriptions:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.subscriptions
+    ports:
+    - 9000:9000
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.6
+    volumes:
+    - ./keycloak.json:/opt/keycloak/data/import/keycloak.json
+    ports:
+      - 8888:8888
+    environment:
+      KC_HTTP_PORT: 8888
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm
+  
+  launch:
+    image: nginx:alpine
+    ports:
+      - "7070:80"
+    volumes:
+      - ./launch.html:/usr/share/nginx/html/launch.html:r
+
+  aidbox_db:
+    image: healthsamurai/aidboxdb:17
+    pull_policy: always
+    volumes:
+    - aidbox_pg_data:/data:delegated
+    environment:
+      PGDATA: /data
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: nP0s8ALcTk
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+    - aidbox_db
+    ports:
+    - 8080:8080
+    volumes:
+    - ./aidbox.json:/tmp/aidbox.json
+    environment:
+      BOX_INIT_BUNDLE: file:///tmp/aidbox.json
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      AIDBOX_FHIR_SCHEMA_VALIDATION: true
+      AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
+      AIDBOX_CLIENT_SECRET: vbDPgXnz0H
+      AIDBOX_ADMIN_PASSWORD: password
+      AIDBOX_COMPLIANCE: enabled
+      AIDBOX_LICENSE: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvZmZsaW5lIjpmYWxzZSwiY3JlYXRvciI6eyJpZCI6IjJkNTU0YWVkLWIxNmUtNDA2Ny05M2I2LWFlOGE5NmU2YjA1YyIsInJlc291cmNlVHlwZSI6IlVzZXIifSwia2V5Ijoib25saW5lLTIwMjIwNTI0LTE0MzY0NyIsIm5hbWUiOiJzbWFydGxhdW5jaGRlbW8iLCJleHBpcmF0aW9uIjoiMjEyMy0xMS0xMFQxMzozODoxMi4zMTVaIiwidHlwZSI6ImRldmVsb3BtZW50IiwiY3JlYXRlZCI6IjIwMjQtMTItMDNUMTM6Mzg6MTIuMzE1WiIsIm1heC1pbnN0YW5jZXMiOjIsIm1heC1kYi1zaXplIjo1MzY4NzA5MTIwLCJwcm9kdWN0IjoiYWlkYm94IiwicHJvamVjdCI6eyJpZCI6IjViMDc4NGNhLTdhNDEtNDQ5Zi1iYTE0LTMzNTBjZWZjOTVhMSIsInJlc291cmNlVHlwZSI6IlByb2plY3QifSwic3RhdHVzIjoiYWN0aXZlIiwiaWQiOiIzODIwOGVkOS1mMDg5LTQ5MGQtODZjOS0yMDdkMmU4ZDhkZDUiLCJpbmZvIjp7Imhvc3RpbmciOiJzZWxmLWhvc3RlZCJ9LCJpc3N1ZXIiOiJodHRwczovL2FpZGJveC5hcHAifQ.LPsOSFdM5xSxj4ibuGiWjP7dJidgUAbsjtNTOJRhlrxmZiMvG6lt23WtW8trEKos6lf5NXwt6IVpIig3dj0FkAxHVQt04R9tUBpevPvDe1NvBr4UUPH9bV_LpoG_C5xPG3ZkkLH7nOmhp4-JYxtxXvsX0BYD5Ql9wwDjqMqvmTg
+      BOX_SEARCH_FHIR__COMPARISONS: true
+      PGHOST: aidbox_db
+      PGUSER: aidbox
+      AIDBOX_PORT: 8080
+      PGDATABASE: aidbox
+      PGPASSWORD: nP0s8ALcTk
+      PGPORT: '5432'
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
