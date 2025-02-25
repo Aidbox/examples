@@ -5,11 +5,8 @@
 Before running the project, create a `.env` file in the root directory and add the following environment variables:
 
 ```ini
-# Port your server will listen on
+# Port for your server
 PORT=4114
-
-# Allowed origins for CORS requests (comma-separated if multiple)
-ALLOWED_HOSTS=http://localhost:5173
 ```
 
 ## Local run
