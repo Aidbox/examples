@@ -9,12 +9,12 @@ services:
       context: .
       dockerfile: ./Dockerfile.subscriptions
     ports:
-    - 9000:9000
+      - 9000:9000
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.6
     volumes:
-    - ./keycloak.json:/opt/keycloak/data/import/keycloak.json
+      - ./keycloak.json:/opt/keycloak/data/import/keycloak.json
     ports:
       - 8888:8888
     environment:
@@ -34,7 +34,7 @@ services:
     image: healthsamurai/aidboxdb:17
     pull_policy: always
     volumes:
-    - aidbox_pg_data:/data:delegated
+      - aidbox_pg_data:/data:delegated
     environment:
       PGDATA: /data
       POSTGRES_USER: aidbox
@@ -46,11 +46,11 @@ services:
     image: healthsamurai/aidboxone:edge
     pull_policy: always
     depends_on:
-    - aidbox_db
+      - aidbox_db
     ports:
-    - 8080:8080
+      - 8080:8080
     volumes:
-    - ./aidbox.json:/tmp/aidbox.json
+      - ./aidbox.json:/tmp/aidbox.json
     environment:
       BOX_INIT_BUNDLE: file:///tmp/aidbox.json
       AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
