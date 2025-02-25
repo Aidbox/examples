@@ -13,6 +13,7 @@ export default defineConfig({
       fileName: (format) => `smart-app-launch.subscriptions.${format}.js`,
       formats: ['umd', 'iife']
     },
+    cssCodeSplit: false,
     rollupOptions: {
       output: {
         globals: {

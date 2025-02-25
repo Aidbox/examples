@@ -2,6 +2,7 @@ import './index.css'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import { SmartAppLaunchSubscriptionsConfig } from './types'
+import { StyleProvider, createCache } from '@ant-design/cssinjs'
 
 export const init = (containerId: string, config: SmartAppLaunchSubscriptionsConfig) => {
   if (!config.apiKey) {
@@ -24,6 +25,7 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
   <head>
     <meta charset="UTF-8">
     <title>Widget</title>
+    <link rel="stylesheet" href="./smart-app-launch-subscriptions-front.css">
   </head>
   <body>
     <div id="app"></div>
@@ -42,8 +44,14 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
 
     const appContainer = doc.getElementsByTagName('body')
 
+    const cache = createCache()
+
     if (appContainer[0]) {
-      ReactDOM.createRoot(appContainer[0]).render(<App config={config} />)
+      ReactDOM.createRoot(appContainer[0]).render(
+        <StyleProvider container={doc.head} cache={cache}>
+          <App config={config} />
+        </StyleProvider>
+      )
     } else {
       throw new Error('iframe body not found')
     }

@@ -5,6 +5,8 @@ import { EhrEvent, SmartAppLaunchSubscriptionsConfig } from '../types'
 export const NotificationExplorer = ({ config }: { config: SmartAppLaunchSubscriptionsConfig }) => {
   const [events, setEvents] = useState<EhrEvent[]>([])
 
+  // todo - store apiKey in context
+
   useEffect(() => {
     const eventSource = new EventSource(`${config.apiKey}/events`)
 

@@ -1,6 +1,8 @@
-import { NotificationExplorer } from './components/notification-explorer'
+import { ConfigProvider } from 'antd'
 import { useEffect, useState } from 'react'
 import { SmartAppLaunchSubscriptionsConfig } from './types'
+import { NotificationExplorer } from './components/notification-explorer'
+import { NotificationBell } from './components/notification-bell'
 
 const App = ({ config }: { config: SmartAppLaunchSubscriptionsConfig }) => {
   const [userId, setUserId] = useState<string | null>(null)
@@ -13,11 +15,13 @@ const App = ({ config }: { config: SmartAppLaunchSubscriptionsConfig }) => {
     })
   }, [])
 
+  console.log(userId)
+
   return (
-    <>
-      <div style={{ border: '1px solid #ddd', padding: 10 }}>User ID: {userId ?? 'Guest'}</div>
+    <ConfigProvider>
+      <NotificationBell count={3} onClick={() => { }} />
       <NotificationExplorer config={config} />
-    </>
+    </ConfigProvider>
   )
 }
 
