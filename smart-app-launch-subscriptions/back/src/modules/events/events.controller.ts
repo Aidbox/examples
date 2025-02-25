@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Sse } from '@nestjs/common'
+import { Controller, Get, Sse } from '@nestjs/common'
 import { MessageEvent } from '@nestjs/common'
 import { Subject } from 'rxjs'
 
@@ -22,14 +22,6 @@ export class EventsController {
 
   @Get('testnotif')
   async testnotif() {
-    return this.sendMessage({
-      msg: 'test',
-      date: new Date().toISOString()
-    })
-  }
-
-  @Post('aendpointforaidbox')
-  async testnotif1() {
     return this.sendMessage({
       msg: 'test',
       date: new Date().toISOString()
