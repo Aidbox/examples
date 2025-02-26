@@ -4,9 +4,7 @@ import App from './App'
 import { SmartAppLaunchSubscriptionsConfig } from './types'
 import { StyleProvider, createCache } from '@ant-design/cssinjs'
 
-// ReactDOM.createRoot(document.getElementById('root')!).render(
-//   <App config={{ apiKey: 'asd' }} iframeDocument={document} />
-// )
+let iframeRef: HTMLIFrameElement | null = null
 
 export const init = (containerId: string, config: SmartAppLaunchSubscriptionsConfig) => {
   if (!config.apiKey) {
@@ -19,6 +17,7 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
   }
 
   const iframe = document.createElement('iframe')
+  iframeRef = iframe
   iframe.style.height = '100%'
   iframe.style.width = '100%'
   iframe.style.border = 'none'
@@ -44,31 +43,45 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
   container.appendChild(iframe)
 
   iframe.onload = () => {
-    console.log('iframe.onload')
-    const doc = iframe.contentDocument || iframe.contentWindow?.document
-    if (!doc) {
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+    const iframeWindow = iframe.contentWindow
+
+    if (!iframeDoc) {
       throw new Error('Failed to access iFrame document')
+    }
+
+    if (!iframeWindow) {
+      throw new Error('Failed to access iFrame window')
     }
 
     /* cruel hack to make antd popover work in iframe */
     try {
-      const iframeWindow = iframe.contentWindow
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Object.setPrototypeOf((iframeWindow as any).HTMLElement.prototype, HTMLElement.prototype)
     } catch (e) { console.log(e) }
+    /* cruel hack to make antd popover work in iframe */
 
-    const appContainer = doc.getElementsByTagName('body')
+    const appContainer = iframeDoc.getElementsByTagName('body')
 
     const cache = createCache()
 
     if (appContainer[0]) {
       ReactDOM.createRoot(appContainer[0]).render(
-        <StyleProvider container={doc.head} cache={cache}>
-          <App config={config} iframeDocument={doc} />
+        <StyleProvider container={iframeDoc.head} cache={cache}>
+          <App config={config} iframeDoc={iframeDoc} iframeWindow={iframeWindow} />
         </StyleProvider>
       )
     } else {
       throw new Error('iframe body not found')
     }
+  }
+}
+
+export const setUser = (uid: string) => {
+  if (iframeRef?.contentWindow) {
+    console.log('postMessage')
+    iframeRef.contentWindow.postMessage({ type: 'SET_USER', uid }, '*')
+  } else {
+    console.warn('iframe is not initialized yet')
   }
 }
