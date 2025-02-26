@@ -90,7 +90,7 @@ POST /aws/storage/<your-account-id-in-aidbox>/<your-bucket-name>
 
 filename: patient.png
 ```
-2. Receive a [pre-signed URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox:
+2. Receive a [pre-signed URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox.
 
 AWS:
 ```json
@@ -112,7 +112,8 @@ MinIO:
 ```http
 GET /aws/storage/<your-account-id-in-aidbox>/<your-bucket-name>/<filename>
 ```
-2. Receive a [presigned URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox: 
+2. Receive a [presigned URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox.
+ 
 AWS:
 ```json
 {
