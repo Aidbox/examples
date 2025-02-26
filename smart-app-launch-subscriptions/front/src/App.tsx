@@ -7,10 +7,11 @@ import { NotificationBell } from './components/notification-bell'
 const App = ({ config, iframeDocument }: { config: SmartAppLaunchSubscriptionsConfig, iframeDocument: Document }) => {
   // const [userId, setUserId] = useState<string | null>(null)
   const [events, setEvents] = useState<EhrEvent[]>([])
+  const userId = 'asd'
 
   useEffect(() => {
     // todo - store apiKey in context
-    const eventSource = new EventSource(`${config.apiKey}/events`)
+    const eventSource = new EventSource(`${config.apiKey}/events?userId=${userId}`)
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data)

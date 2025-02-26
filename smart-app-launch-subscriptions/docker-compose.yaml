@@ -1,4 +1,5 @@
 version: '3.7'
+name: smart-app-subscriptions
 volumes:
   aidbox_pg_data: {}
 
