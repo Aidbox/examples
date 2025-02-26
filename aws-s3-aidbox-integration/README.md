@@ -1,6 +1,6 @@
 # AWS S3 Aidbox integration example
 ![image](https://github.com/user-attachments/assets/fb3026ef-be1f-4ef8-845e-064e463adb0f)
-This guide demonstrates how to integrate [S3-compatible storage with Aidbox](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using [min.io](https://github.com/minio/minio) and a front-end application exclusively. 
+This guide demonstrates how to integrate [S3-compatible storage with Aidbox](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using local [min.io](https://github.com/minio/minio) and a front-end application exclusively. 
 
 The application enables saving and retrieving a patient's photo in an AWS S3 bucket via Aidbox, which acts as a middleware between the front-end and AWS S3. Aidbox manages the **Access Key ID** and **Secret Access Key** for an IAM user or role through an AwsAccount resource.
 
@@ -16,7 +16,7 @@ docker compose up
 ```
 4. Go to http://localhost:9001 and log in to min.io using username `minioadmin` and password `minioadmin`. 
 5. In Object Browser, click on the "Create Bucket" link. **Create a bucket with "mybucket" name**.
-6. In the navigation, click on Access Keys section. Create Access Key. Copy `Access Key` and `Secret Key`. Click "Create".
+6. In the navigation, click on Access Keys section. Create Access Key. Copy `Access Key` and `Secret Key`.
 7. Go to http://localhost:8888 and log in to Aidbox using the Aidbox Portal (See [Getting Started Guide](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally#id-4.-activate-your-aidbox-instance)):
 8. Create an AwsAccount resource to store AWS credentials and region settings:
 ```http
