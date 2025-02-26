@@ -23,8 +23,8 @@ docker compose up
 PUT /AwsAccount/my-account
 
 id: my-account
-access-key-id: ugQPrWcctDQuzdAzufXh
-secret-access-key: bUqJWhOimudbEGUHj3indSnAULtwqpwqBOnqO6Rm
+access-key-id: <your-access-key> # e.g. ugQPrWcctDQuzdAzufXh
+secret-access-key: <your-secret-access-key> # e.g. bUqJWhOimudbEGUHj3indSnAULtwqpwqBOnqO6Rm
 region: us-east-1
 host: 127.0.0.1:9000
 path-style: true
