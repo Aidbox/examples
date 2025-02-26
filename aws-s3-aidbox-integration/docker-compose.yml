@@ -1,5 +1,6 @@
 volumes:
   aidbox_pg_data: {}
+  minio_data: {}
 services:
   aidbox_db:
     image: healthsamurai/aidboxdb:17
@@ -13,6 +14,7 @@ services:
   aidbox:
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    pull_policy: always
     image: healthsamurai/aidboxone:edge
     depends_on:
       - aidbox_db
@@ -37,3 +39,15 @@ services:
       PGPASSWORD: M3ya7uZxdJ
       PGPORT: "5432"
       BOX_SEARCH_INCLUDE_CONFORMANT: true
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin

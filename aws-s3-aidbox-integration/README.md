@@ -1,29 +1,36 @@
 # AWS S3 Aidbox integration example
 ![image](https://github.com/user-attachments/assets/fb3026ef-be1f-4ef8-845e-064e463adb0f)
-This guide demonstrates how to integrate [AWS S3 with Aidbox](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using a front-end application exclusively. 
+This guide demonstrates how to integrate [S3-compatible storage with Aidbox](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using [min.io](https://github.com/minio/minio) and a front-end application exclusively. 
 
 The application enables saving and retrieving a patient's photo in an AWS S3 bucket via Aidbox, which acts as a middleware between the front-end and AWS S3. Aidbox manages the **Access Key ID** and **Secret Access Key** for an IAM user or role through an AwsAccount resource.
 
 ## Setting Up Aidbox
-
-1. Start Aidbox and log in using the Aidbox Portal (See [Getting Started Guide](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally#id-4.-activate-your-aidbox-instance)):
-
+1. Clone the repository 
+```bash
+git clone git@github.com:Aidbox/examples.git 
 ```
+2. Change the directory to the current example.
+3. Start Aidbox, AidboxDB, and min.io.
+```bash
 docker compose up
 ```
-
-2. Create an AwsAccount resource to store AWS credentials and region settings:
-
+4. Go to http://localhost:9001 and log in to min.io using username `minioadmin` and password `minioadmin`. 
+5. In Object Browser, click on the "Create Bucket" link. **Create a bucket with "mybucket" name**.
+6. In the navigation, click on Access Keys section. Create Access Key. Copy `Access Key` and `Secret Key`. Click "Create".
+7. Go to http://localhost:8888 and log in to Aidbox using the Aidbox Portal (See [Getting Started Guide](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker/run-aidbox-locally#id-4.-activate-your-aidbox-instance)):
+8. Create an AwsAccount resource to store AWS credentials and region settings:
 ```http
-PUT /AwsAccount
+PUT /AwsAccount/my-account
 
 id: my-account
-access-key-id: <your-key-id> # e.g. AKIAIOSFODNN7EXAMPLE
-secret-access-key: <your-secret-access-key> # e.g. wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+access-key-id: ugQPrWcctDQuzdAzufXh
+secret-access-key: bUqJWhOimudbEGUHj3indSnAULtwqpwqBOnqO6Rm
 region: us-east-1
+host: 127.0.0.1:9000
+path-style: true
+use-ssl: false
 ```
-
-3. **Set up a [Basic Client](https://docs.aidbox.app/modules/security-and-access-control/auth/basic-auth)** to allow front-end requests:
+9. **Set up a [Basic Client](https://docs.aidbox.app/modules/security-and-access-control/auth/basic-auth)** to allow front-end requests:
 ```http
 PUT /Client/basic?_pretty=true
 content-type: application/json
@@ -36,7 +43,7 @@ accept: application/json
  ]
 }
 ```
-4. **Define an Access Policy** to permit basic authentication:
+10. **Define an Access Policy** to permit basic authentication:
 ```http
 PUT /AccessPolicy/basic-policy?_pretty=true
 content-type: application/json
@@ -56,45 +63,18 @@ Now we can use Basic Authorization header in the front-end:
 ```
 "Authorization": "Basic YmFzaWM6c2VjcmV0"
 ```
-
-5. **Configure CORS on AWS side**:
-Use [this page](https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html) to allow front-end to interact with the bucket.
-Here's how your configuration JSON file should look like:
-```json
-[
-    {
-        "AllowedHeaders": [
-            "*"
-        ],
-        "AllowedMethods": [
-            "PUT",
-            "POST",
-            "GET",
-            "DELETE"
-        ],
-        "AllowedOrigins": [
-            "http://localhost:3000"
-        ],
-        "ExposeHeaders": []
-    }
-]
-```
+We use it in `src/constants.ts` file.
 
 ## Running the application
-1. Clone the repository 
-```bash
-git clone git@github.com:Aidbox/examples.git 
-```
-2. Change the directory to the current example.
-3. Install dependencies:
+1. Install dependencies:
 ```bash
 npm install
 ```
-4. Start the development server:
+2. Start the development server:
 ```bash
 npm run dev
 ```
-5. Go to `http://localhost:3000`.
+3. Go to `http://localhost:3000`.
 
 To save Patient and DocumentReference resources and the photo in the bucket:
 - Fill the patient form,
@@ -111,12 +91,21 @@ POST /aws/storage/<your-account-id-in-aidbox>/<your-bucket-name>
 filename: patient.png
 ```
 2. Receive a [pre-signed URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox:
+
+AWS:
 ```json
 {
   "url": "https://<your-bucket-name>.s3.amazonaws.com/patient.png?..."
 }
 ```
-3. Upload the file directly to AWS S3 by sending a POST request to the pre-signed URL. The file content (e.g., the patient's photo) is sent in the request body and saved in the bucket.
+
+MinIO:
+```json
+{
+  "url": "http://127.0.0.1:9000/mybucket/John_Smith_20250226.png?..."
+}
+```
+3. Upload the file directly to S3 by sending a POST request to the pre-signed URL. The file content (e.g., the patient's photo) is sent in the request body and saved in the bucket.
 
 ## Retrieving a File from the Bucket: Workflow
 1. Send a GET request from the front-end to Aidbox with the filename:
@@ -124,16 +113,24 @@ filename: patient.png
 GET /aws/storage/<your-account-id-in-aidbox>/<your-bucket-name>/<filename>
 ```
 2. Receive a [presigned URL](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html) from Aidbox: 
+AWS:
 ```json
 {
-  "url": "https://<your-bucket-name>.s3.amazonaws.com/<filename>?..."
+  "url": "https://<your-bucket-name>.s3.amazonaws.com/patient.png?..."
+}
+```
+
+MinIO:
+```json
+{
+  "url": "http://127.0.0.1:9000/mybucket/John_Smith_20250226.png?..."
 }
 ```
 3. Use GET request to the URL to retrieve the file.
 For images, an <img> HTML tag can be used to render the image directly:
 ```react
 <img
-  src="https://<your-bucket-name>.s3.amazonaws.com/<filename>?..."
+  src="<signed-url>"
 />
 ```
 
@@ -143,24 +140,34 @@ In this example, the [Attachment](https://build.fhir.org/datatypes.html#attachme
 ### Example: Patient Resource
 ```json
 {
-  "resourceType": "Patient",
-  "id": "e5ca087b-ec71-40a7-8c9b-e6093e8f1fdc",
-  "photo": [
-    {
-      "url": "https://thebucket.s3.amazonaws.com/john_smith_20000101.png",
-      "title": "john_smith_20000101.png",
-      "contentType": "image/png"
-    }
-  ],
   "name": [
     {
       "given": [
-        "john"
+        "John"
       ],
-      "family": "smith"
+      "family": "Smith"
     }
   ],
-  "birthDate": "2000-01-01"
+  "photo": [
+    {
+      "url": "http://127.0.0.1:9000/mybucket/John_Smith_20250226.png",
+      "title": "John_Smith_20250226.png",
+      "contentType": "image/png"
+    }
+  ],
+  "birthDate": "2025-02-26",
+  "resourceType": "Patient",
+  "id": "8f886cb7-fab3-448b-977c-0b7226b9fe9f",
+  "meta": {
+    "lastUpdated": "2025-02-26T13:50:59.295229Z",
+    "versionId": "38",
+    "extension": [
+      {
+        "url": "ex:createdAt",
+        "valueInstant": "2025-02-26T13:50:59.295229Z"
+      }
+    ]
+  }
 }
 ```
 Additionally, a [DocumentReference](https://build.fhir.org/documentreference.html) resource can be created to store metadata about the image. See [DocumentReference's scope and usage](https://build.fhir.org/documentreference.html#scope)e.
@@ -168,18 +175,28 @@ Additionally, a [DocumentReference](https://build.fhir.org/documentreference.htm
 ### Example: DocumentReference Resource
 ```json
 {
-  "resourceType": "DocumentReference",
-  "id": "f2473702-99eb-4efd-be07-8fa8ff21828c",
   "status": "current",
   "content": [
     {
       "attachment": {
-        "url": "https://thebucket.s3.amazonaws.com/john_smith_20000101.png",
-        "title": "john_smith_20000101.png",
+        "url": "http://127.0.0.1:9000/mybucket/John_Smith_20250226.png",
+        "title": "John_Smith_20250226.png",
         "contentType": "image/png"
       }
     }
-  ]
+  ],
+  "resourceType": "DocumentReference",
+  "id": "5e390018-2f27-49a4-839a-4b0e10391bf1",
+  "meta": {
+    "lastUpdated": "2025-02-26T13:50:59.277060Z",
+    "versionId": "37",
+    "extension": [
+      {
+        "url": "ex:createdAt",
+        "valueInstant": "2025-02-26T13:50:59.277060Z"
+      }
+    ]
+  }
 }
 
 ```
