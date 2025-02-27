@@ -1,6 +1,5 @@
 
 
-export class SubscriptionsDto {
+export interface SubscriptionsDto {
   name: string
 }
-  
