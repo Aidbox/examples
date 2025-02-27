@@ -18,7 +18,6 @@ export class EventsService {
     if (this.clientStreams.has(userId)) {
       this.clientStreams.get(userId).complete()
       this.clientStreams.delete(userId)
-      console.log(`User ${userId} unsubscribed`)
     }
   }
 

@@ -62,13 +62,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       if (SmartAppLaunchSubscriptions && typeof SmartAppLaunchSubscriptions.init === 'function') {
         SmartAppLaunchSubscriptions.init('notifications-container', {
-          apiKey: 'http://localhost:4114'
+          apiKey: 'http://localhost:9000'
         })
       } else {
         console.error('SmartAppLaunchSubscriptions is not defined')
       }
-
-      // window.postMessage({ type: 'NOTIFICATIONS_UPDATE_USER', userId: '12345' }, '*')
     })
   </script>
 </body>

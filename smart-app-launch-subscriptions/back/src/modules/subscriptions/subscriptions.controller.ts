@@ -1,20 +1,26 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Controller, Post, Req } from '@nestjs/common'
 import { SubscriptionsService } from './subscriptions.service'
-import { SubscriptionsDto } from './dto/subscriptions.dto'
+import { Request } from 'express'
+
+// todo - check for existing conventional solutions
+const parseFhirBody = (body: Buffer) => {
+  const raw = body.toString('utf8')
+  try {
+    return JSON.parse(raw)
+  } catch (error) {
+    throw new Error(`Cannot parse FHIR body: ${error?.message ?? 'unknown'}`)
+  }
+}
 
 @Controller('subscriptions')
 export class SubscriptionsController {
 
-  constructor (
+  constructor(
     private readonly subscriptionsService: SubscriptionsService
-  ) {}
-
-  
+  ) { }
 
   @Post('webhook-to-post-all-new-subscriptions-aidbox')
-  postAllNewSubscriptionEvents(
-    @Body() payload: SubscriptionsDto,
-  ) {
-    return this.subscriptionsService.postAllNewSubscriptionEvents(payload)
+  postAllNewSubscriptionEvents(@Req() req: Request) {
+    this.subscriptionsService.postAllNewSubscriptionEvents(parseFhirBody(req.body))
   }
 }
