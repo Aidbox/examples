@@ -127,3 +127,6 @@ PUT /Encounter
 }
 ```
 
+To connect wenhook to local backend instance provide
+
+"valueUrl": "http://host.docker.internal:9000/subscriptions/webhook-to-post-all-new-subscriptions-aidbox"

@@ -1,30 +1,38 @@
-import { Controller, Get, Sse } from '@nestjs/common'
+import { Controller, Get, Req, Res, Sse } from '@nestjs/common'
 import { MessageEvent } from '@nestjs/common'
-import { Subject } from 'rxjs'
-
-export interface EhrEvent {
-  date: string
-  msg: string
-}
+import { Request, Response } from 'express'
+import { Observable } from 'rxjs'
+import { EventsService } from './events.service'
 
 @Controller('events')
 export class EventsController {
-  private eventStream = new Subject<MessageEvent>()
+  constructor(
+    private readonly eventsService: EventsService
+  ) { }
 
   @Sse()
-  sendEvents() {
-    return this.eventStream.asObservable()
-  }
+  sendEvents(@Req() req: Request, @Res() res: Response): Observable<MessageEvent> {
+    const userId = req.query.userId as string
+    if (!userId) {
+      throw new Error('User ID is required')
+    }
 
-  sendMessage(data: EhrEvent) {
-    this.eventStream.next({ data })
+    const stream = this.eventsService.subscribe(userId)
+
+    res.on('close', () => {
+      this.eventsService.unsubscribe(userId)
+    })
+
+    return stream
   }
 
   @Get('testnotif')
   async testnotif() {
-    return this.sendMessage({
-      msg: 'test',
+    const testUids = ['asd', 'qwe', 'zxc']
+    testUids.forEach(userId => this.eventsService.sendMessage({
+      userId,
+      msg: `test message for "${userId}", patient "${Math.random().toString().slice(-2)}" has new encounter`,
       date: new Date().toISOString()
-    })
+    }))
   }
 }

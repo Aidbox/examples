@@ -8,11 +8,18 @@
 </head>
 
 <body>
-
+  <!-- Any third party application -->
   <div
     style="display: flex; background-color: #d9d9d9; position: absolute; top: 0; left: 0; width: 100vw; height: 100px;">
-    Ima heada
+    <span id="user-name"></span>
+    <div id="cnt-login">
+      <input id="login-uid" type="text" placeholder="Your user id" />
+      <button onClick="javascript:onLogin()">Log in</button>
+    </div>
     <div id="notifications-container" style="margin-left: auto; width: 700px; height: 700px;"></div>
+    <div>
+      <button id="cnt-logout" onClick="javascript:onLogout()">Log out</button>
+    </div>
   </div>
 
   <div style="margin-top: 100px;">
@@ -20,18 +27,46 @@
     <p>Blah-blah-blah, i'm a supa ugly as f*** EHR!</p>
   </div>
 
+  <script>
+    let User = 'asd'
+
+    function loginUser() {
+      document.getElementById('user-name').innerText = User ? `Hi, ${User}` : ''
+      document.getElementById('cnt-login').style.display = User ? 'none' : null
+      document.getElementById('cnt-logout').style.display = User ? null : 'none'
+      document.getElementById('login-uid').value = ''
+      if (SmartAppLaunchSubscriptions) {
+        SmartAppLaunchSubscriptions.setUser(User)
+      }
+    }
+
+    function onLogout() {
+      User = ''
+      loginUser()
+    }
+
+    function onLogin() {
+      User = document.getElementById('login-uid').value
+      loginUser()
+    }
+
+    setTimeout(loginUser, 1000)
+  </script>
+
+
+
+
+  <!-- Smart App Integration -->
   <script src="./front/dist/smart-app-launch.subscriptions.umd.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (SmartAppLaunchSubscriptions && typeof SmartAppLaunchSubscriptions.init === 'function') {
         SmartAppLaunchSubscriptions.init('notifications-container', {
-          apiKey: 'http://localhost:4114'
+          apiKey: 'http://localhost:9000'
         })
       } else {
-        console.error('renderSmartAppLaunchSubscriptions is not defined')
+        console.error('SmartAppLaunchSubscriptions is not defined')
       }
-
-      // window.postMessage({ type: 'NOTIFICATIONS_UPDATE_USER', userId: '12345' }, '*')
     })
   </script>
 </body>

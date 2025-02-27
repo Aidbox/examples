@@ -6,6 +6,7 @@ import { EventsController } from './events.controller'
 @Module({
   imports: [ConfigModule.forRoot()],
   providers: [EventsService],
+  exports: [EventsService],
   controllers: [EventsController],
 })
 export class EventsModule { }
