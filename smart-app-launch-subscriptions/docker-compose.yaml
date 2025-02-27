@@ -56,7 +56,7 @@ services:
       - ./aidbox.json:/tmp/aidbox.json
     environment:
       BOX_INIT_BUNDLE: file:///tmp/aidbox.json
-      AIDBOX_FHIR_PACKAGES: hl7.fhir.r5.core#5.0.0
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
       AIDBOX_FHIR_SCHEMA_VALIDATION: true
       AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
       AIDBOX_CLIENT_SECRET: vbDPgXnz0H
