@@ -1,7 +1,7 @@
 import './index.css'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import { SmartAppLaunchSubscriptionsConfig } from './types'
+import { SmartAppLaunchSubscriptionsConfig } from './interfaces'
 import { StyleProvider, createCache } from '@ant-design/cssinjs'
 
 let iframeRef: HTMLIFrameElement | null = null

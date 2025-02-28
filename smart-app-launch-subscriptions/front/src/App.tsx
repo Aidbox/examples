@@ -1,6 +1,6 @@
 import { ConfigProvider, Popover } from 'antd'
 import { useEffect, useRef, useState } from 'react'
-import { EhrEvent, SmartAppLaunchSubscriptionsConfig } from './types'
+import { EhrEvent, SmartAppLaunchSubscriptionsConfig } from './interfaces'
 import { NotificationExplorer } from './components/notification-explorer'
 import { NotificationBell } from './components/notification-bell'
 

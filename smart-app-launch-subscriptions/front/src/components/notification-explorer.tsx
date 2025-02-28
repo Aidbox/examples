@@ -1,5 +1,5 @@
 import { NotificationMessage } from './notification-message'
-import { EhrEvent } from '../types'
+import { EhrEvent } from '../interfaces'
 import { Empty, List } from 'antd'
 
 export const NotificationExplorer = ({ events }: { events: EhrEvent[] }) => {

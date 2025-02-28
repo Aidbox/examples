@@ -3,6 +3,7 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import { switchCase } from '@babel/types'
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -24,7 +25,7 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       indent: ['error', 2],
-      quotes: ['error', 'single', { avoidEscape: true }],
+      quotes: ['error', 'single', { avoidEscape: true, switchCase: 1 }],
       semi: ['error', 'never'],
     },
   },
