@@ -1,10 +1,23 @@
 export interface EhrEventBase {
-  userId: string
+  recipient: string
   date: string
-  msg: string
 }
 
 export interface EhrEventCreateEncounter extends EhrEventBase {
-  patientId: number
-  doctorId: number
+  type: 'encounter_created'
+  params: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    encounter: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    patient: any
+  }
 }
+
+export interface EhrEventTest extends EhrEventBase {
+  type: 'test'
+  params: {
+    testParam: string
+  }
+}
+
+export type EhrEvent = EhrEventCreateEncounter | EhrEventTest

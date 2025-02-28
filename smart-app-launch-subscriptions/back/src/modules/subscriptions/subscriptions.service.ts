@@ -43,24 +43,26 @@ export class SubscriptionsService {
       headers
     })
 
-    const body = await res.json()
+    const patient = await res.json()
 
-    const generalPractitioner = body.generalPractitioner[0]?.reference
-
-    const patientName = `${body.name[0].prefix[0]} ${body.name[0].given.join(', ')}`
+    const generalPractitioner = patient.generalPractitioner[0]?.reference
 
     // todo - this .split looks ugly
     const practitionerId = generalPractitioner ? generalPractitioner.split('/')[1] : null
 
     console.log('\n\n\n')
 
-    console.dir(body, { depth: 10 })
+    console.dir(patient, { depth: 10 })
 
     if (practitionerId) {
       this.eventsService.sendMessage({
-        userId: practitionerId,
+        type: 'encounter_created',
+        recipient: practitionerId,
         date: new Date().toISOString(),
-        msg: `New encounter for ${patientName}`
+        params: {
+          encounter,
+          patient
+        }
       })
     }
   }

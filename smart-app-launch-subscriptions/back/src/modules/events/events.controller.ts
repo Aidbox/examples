@@ -1,4 +1,4 @@
-import { Controller, Get, Req, Res, Sse } from '@nestjs/common'
+import { Controller, Req, Res, Sse } from '@nestjs/common'
 import { MessageEvent } from '@nestjs/common'
 import { Request, Response } from 'express'
 import { Observable } from 'rxjs'
@@ -24,15 +24,5 @@ export class EventsController {
     })
 
     return stream
-  }
-
-  @Get('testnotif')
-  async testnotif() {
-    const testUids = ['asd', 'qwe', 'zxc']
-    testUids.forEach(userId => this.eventsService.sendMessage({
-      userId,
-      msg: `test message for "${userId}", patient "${Math.random().toString().slice(-2)}" has new encounter`,
-      date: new Date().toISOString()
-    }))
   }
 }
