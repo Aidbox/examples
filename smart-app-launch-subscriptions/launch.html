@@ -28,29 +28,70 @@
   </div>
 
   <script>
-    let User = 'asd'
+    let User = ''
 
-    function loginUser() {
-      document.getElementById('user-name').innerText = User ? `Hi, ${User}` : ''
-      document.getElementById('cnt-login').style.display = User ? 'none' : null
-      document.getElementById('cnt-logout').style.display = User ? null : 'none'
+    async function loginAidbox(username, password) {
+      const AIDBOX_URL = 'http://localhost:8080'
+
+      try {
+        const response = await fetch(`${AIDBOX_URL}/auth/token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            grant_type: 'password',
+            client_id: 'ehr-outpatient',
+            client_secret: 'verysecret',
+            username,
+            password
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Login failed: ${response.statusText}`);
+        }
+
+        return response.json()
+      } catch (e) {
+        return null
+      }
+    }
+
+    const setAuthState = (id, name) => {
+      document.getElementById('user-name').innerText = id ? `User: ${name}` : ''
+      document.getElementById('cnt-login').style.display = id ? 'none' : null
+      document.getElementById('cnt-logout').style.display = id ? null : 'none'
       document.getElementById('login-uid').value = ''
-      if (SmartAppLaunchSubscriptions) {
-        SmartAppLaunchSubscriptions.setUser(User)
+    }
+
+    async function loginUser(uid, pwd) {
+      const loginData = await loginAidbox(uid, pwd)
+      if (loginData) {
+        const token = loginData.access_token
+        const userId = loginData.userinfo.id
+        const practitionerId = loginData.userinfo.data?.practitioner?.id
+        if (SmartAppLaunchSubscriptions) {
+          SmartAppLaunchSubscriptions.setUser(practitionerId)
+        }
+        setAuthState(loginData.userinfo.id, loginData.userinfo.email)
       }
     }
 
     function onLogout() {
-      User = ''
-      loginUser()
+      if (SmartAppLaunchSubscriptions) {
+        SmartAppLaunchSubscriptions.setUser(null)
+      }
+      setAuthState(null)
     }
 
     function onLogin() {
-      User = document.getElementById('login-uid').value
-      loginUser()
+      const uid = document.getElementById('login-uid').value
+      const pwd = document.getElementById('login-pwd').value
+
     }
 
-    setTimeout(loginUser, 1000)
+    setTimeout(() => {
+      loginUser('house@example.com', 'securepassword')
+    }, 500)
   </script>
 
 

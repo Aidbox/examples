@@ -11,13 +11,8 @@ export class SubscriptionsService {
 
   async postAllNewSubscriptionEvents(payload: SubscriptionsDto) {
     console.log('postAllNewSubscriptionEvents:')
-    console.dir(payload, {depth: 10 })
 
-    this.eventsService.sendMessage({
-      userId: 'asd', // doctor's id in our case,
-      date: new Date().toISOString(),
-      msg: payload ? JSON.stringify(payload) : ''
-    })
+    console.dir(payload, { depth: 10 })
 
 
     // TODO refactor
@@ -25,7 +20,7 @@ export class SubscriptionsService {
     // Client credentials
     const client_id = 'subscriptions'
     const client_secret = 'quOfCRS7ty1RMUQq'
-    
+
     // Encode credentials in Base64
     const credentials = btoa(client_id + ':' + client_secret)
 
@@ -42,10 +37,21 @@ export class SubscriptionsService {
 
     const body = await res.json()
 
+    const generalPractitioner = body.generalPractitioner[0]?.reference
+
+    // todo - this .split looks ugly
+    const practitionerId = generalPractitioner ? generalPractitioner.split('/')[1] : null
+
     console.log('\n\n\n')
 
-    console.dir(body, {depth: 10 })
+    console.dir(body, { depth: 10 })
 
-    return []
+    if (practitionerId) {
+      this.eventsService.sendMessage({
+        userId: practitionerId,
+        date: new Date().toISOString(),
+        msg: payload ? JSON.stringify(payload) : ''
+      })
+    }
   }
 }
