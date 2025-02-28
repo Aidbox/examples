@@ -39,7 +39,7 @@ const App = ({ config, iframeDoc, iframeWindow }: { config: SmartAppLaunchSubscr
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data)
         console.log('New SSE event:', data)
-        setEvents((prev) => [...prev, data])
+        setEvents((prev) => [data, ...prev])
       }
 
       eventSource.onerror = () => {
