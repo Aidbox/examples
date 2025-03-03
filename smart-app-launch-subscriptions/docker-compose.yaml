@@ -32,6 +32,14 @@ services:
       dockerfile: ./Dockerfile.launch
     ports:
       - "7070:80"
+  
+  example-react:
+    build:
+      context: ./example-react-ehr
+      args:
+        VITE_SMARTAPP_SUBSCRIPTIONS_API: http://subscriptions:9000
+    ports:
+      - "7080:4173"
 
   aidbox_db:
     image: healthsamurai/aidboxdb:17
