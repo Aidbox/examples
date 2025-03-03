@@ -19,19 +19,14 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
   const iframe = document.createElement('iframe')
   iframeRef = iframe
   iframe.allowFullscreen = true
-  // iframe.style.height = '100%'
-  // iframe.style.width = '100%'
   iframe.style.border = 'none'
   iframe.style.colorScheme = 'none'
 
-  iframe.style.width = '300px'
-  iframe.style.height = '400px'
   iframe.style.position = 'fixed'
   iframe.style.right = '10px'
   iframe.style.bottom = '10px'
 
-  // todo - use iframe.src instead of iframe.srcdoc
-  // todo - fix smart-app-launch-subscriptions-front.css path
+  // todo - try iframe.src instead of iframe.srcdoc
   // iframe.src = './widget.html'
   iframe.srcdoc = `
   <!DOCTYPE html>

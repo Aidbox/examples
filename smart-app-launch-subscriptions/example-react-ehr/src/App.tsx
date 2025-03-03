@@ -103,8 +103,8 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-      <div id="notifications-container"></div>
-      {/* <div id="notifications-container" style={{ display: user ? 'inherit' : 'none' }}></div> */}
+      {/* <div id="notifications-container"></div> */}
+      <div id="notifications-container" style={{ display: user ? 'block' : 'none' }}></div>
     </>
   )
 }

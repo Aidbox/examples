@@ -6,11 +6,22 @@ import { NotificationBell } from './components/notification-bell'
 
 // todo - store apiKey in context
 
+const DefaultConfig = {
+  height: 400,
+  width: 300
+}
+
 const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaunchSubscriptionsConfig, iframe: HTMLIFrameElement, iframeDoc: Document, iframeWindow: Window }) => {
+  const bellOffset = 10
+  const [bellSize] = useState({ width: 60, height: 60 })
   const [events, setEvents] = useState<EhrEvent[]>([])
   const [uid, setUid] = useState<string | null>(null)
 
   const eventSourceRef = useRef<EventSource | null>(null)
+  const bellRef = useRef<HTMLSpanElement | null>(null)
+
+  const height = config.height ?? DefaultConfig.height
+  const width = config.width ?? DefaultConfig.width
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -60,30 +71,45 @@ const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaun
     setEvents([])
   }, [uid])
 
-  const onOpenChange = useCallback((open: boolean) => {
+  useEffect(() => {
+    setFrameSize(false)
+  }, [])
+
+  const setFrameSize = useCallback((open: boolean) => {
     if (open) {
-      iframe.style.width = '300px'
-      iframe.style.height = '400px'
+      iframe.style.width = `${width}px`
+      iframe.style.height = `${height}px`
     } else {
       setTimeout(() => {
-        iframe.style.width = '60px'
-        iframe.style.height = '60px'
+        iframe.style.width = `${bellSize.width}px`
+        iframe.style.height = `${bellSize.height}px`
       }, 250)
     }
   }, [])
 
   return (
     <ConfigProvider>
-      <div style={{ margin: 0, position: 'fixed', right: 10, bottom: 10 }}>
+      <div style={{
+        margin: 0,
+        position: 'fixed',
+        right: bellOffset,
+        bottom: bellOffset
+      }}>
         <Popover
           content={<NotificationExplorer events={events} />}
           getPopupContainer={() => iframeDoc.body}
           placement='top'
           trigger={['click']}
-          styles={{ body: { width: 300, height: 320, overflowY: 'auto' } }}
-          onOpenChange={onOpenChange}
+          styles={{
+            body: {
+              height: height - bellSize.height - bellOffset * 2,
+              overflowY: 'auto',
+              width
+            }
+          }}
+          onOpenChange={setFrameSize}
         >
-          <span>
+          <span style={{ display: 'inline-block' }} ref={bellRef}>
             <NotificationBell count={events.length} />
           </span>
         </Popover>

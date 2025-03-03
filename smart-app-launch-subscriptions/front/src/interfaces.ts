@@ -1,5 +1,7 @@
 export interface SmartAppLaunchSubscriptionsConfig {
   apiKey: string
+  height?: number
+  width?: number
 }
 
 // todo - make shared between front and back

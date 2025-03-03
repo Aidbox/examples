@@ -25,6 +25,7 @@ const LoginForm = ({ onSubmit }: { onSubmit: (username: string, password: string
         <input
           type="password"
           placeholder="Password"
+          style={{ margin: '0 10px' }}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
