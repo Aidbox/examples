@@ -13,6 +13,8 @@ services:
       - 9000:9000
     environment:
       AIDBOX_URL: http://aidbox:8080
+      CLIENT_ID: subscriptions
+      CLIENT_SECRET: quOfCRS7ty1RMUQq
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.6
@@ -25,7 +27,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     command: start-dev --import-realm
-  
+
   example-html:
     build:
       context: .
