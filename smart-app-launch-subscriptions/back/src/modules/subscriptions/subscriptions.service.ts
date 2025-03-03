@@ -1,58 +1,30 @@
 import { Injectable } from '@nestjs/common'
-import { SubscriptionsDto } from './dto/subscriptions.dto'
 import { EventsService } from '../events/events.service'
+import { AuthService } from '../auth/auth.service'
+import { Encounter, SubscriptionBundle } from '../../interfaces/subscription'
+import { Patient } from 'src/interfaces/patient'
 
 @Injectable()
 export class SubscriptionsService {
 
   constructor(
-    private readonly eventsService: EventsService
+    private readonly eventsService: EventsService,
+    private readonly authService: AuthService
   ) { }
 
-  async postAllNewSubscriptionEvents(payload: SubscriptionsDto) {
-
-    // TODO refactor
+  async postAllNewSubscriptionEvents(payload: SubscriptionBundle) {
     console.log('postAllNewSubscriptionEvents:')
-
     console.dir(payload, { depth: 10 })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const encounter = (payload as any).entry[1].resource
-    const patientRef = encounter.subject.reference
-    const patientId = patientRef.split('/')[1]
-
-    if (!patientId) {
-      throw new Error('patient id is not defined')
-    }
-
-    // Client credentials
-    const client_id = 'subscriptions'
-    const client_secret = 'quOfCRS7ty1RMUQq'
-
-    // Encode credentials in Base64
-    const credentials = btoa(client_id + ':' + client_secret)
-
-    // Headers for Basic Authentication
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ' + credentials
-    }
-
-    const res = await fetch(`http://localhost:8080/fhir/Patient/${patientId}`, {
-      method: 'GET',
-      headers
-    })
-
-    const patient = await res.json()
-
-    const generalPractitioner = patient.generalPractitioner[0]?.reference
-
-    // todo - this .split looks ugly
-    const practitionerId = generalPractitioner ? generalPractitioner.split('/')[1] : null
+    const encounter = this.getEncounter(payload)
+    const patientId = this.getPatientId(encounter)
+    const patient = await this.fetchPatientData(patientId)
 
     console.log('\n\n\n')
-
+    console.log('patient: ')
     console.dir(patient, { depth: 10 })
+
+    const practitionerId = this.getPractitionerId(patient)
 
     if (practitionerId) {
       this.eventsService.sendMessage({
@@ -65,5 +37,63 @@ export class SubscriptionsService {
         }
       })
     }
+  }
+
+  private async fetchPatientData(patientId: string): Promise<Patient> {
+    const credentials = this.authService.getSmartAppCredentials()
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Basic ' + credentials
+    }
+
+    const res = await fetch(`http://localhost:8080/fhir/Patient/${patientId}`, {
+      method: 'GET',
+      headers
+    })
+
+    return await res.json()
+  }
+
+  private getPractitionerId(patient: Patient): string {
+    const generalPractitionerRef = patient.generalPractitioner?.[0]?.reference
+    if (!generalPractitionerRef) {
+      throw new Error('General practitioner reference is not defined')
+    }
+
+    const practitionerId = generalPractitionerRef.split('/')[1]
+    if (!practitionerId) {
+      throw new Error('Practitioner ID is not defined')
+    }
+
+    return practitionerId
+  }
+
+  private getEncounter(payload: SubscriptionBundle): Encounter {
+    if (!payload || !payload.entry || !Array.isArray(payload.entry)) {
+      throw new Error('Invalid payload structure')
+    }
+
+    const encounter = payload.entry.find(entry => entry.resource?.resourceType === 'Encounter')?.resource as Encounter
+
+    if (!encounter) {
+      throw new Error('Encounter resource not found in payload')
+    }
+
+    return encounter
+  }
+
+  private getPatientId(encounter: Encounter): string {
+    const patientRef = encounter.subject?.reference
+    if (!patientRef) {
+      throw new Error('Patient reference is not defined')
+    }
+
+    const patientId = patientRef.split('/')[1]
+
+    if (!patientId) {
+      throw new Error('patient id is not defined')
+    }
+
+    return patientId
   }
 }

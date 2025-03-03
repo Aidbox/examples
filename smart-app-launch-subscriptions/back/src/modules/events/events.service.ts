@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { MessageEvent } from '@nestjs/common'
 import { Observable, Subject } from 'rxjs'
-import { EhrEvent } from 'src/interfaces'
+import { EhrEvent } from '../../interfaces/ehr-event'
 
 @Injectable()
 export class EventsService {
