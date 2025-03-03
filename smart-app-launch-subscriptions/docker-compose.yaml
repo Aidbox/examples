@@ -11,6 +11,8 @@ services:
       dockerfile: ./Dockerfile.subscriptions
     ports:
       - 9000:9000
+    environment:
+      AIDBOX_URL: http://aidbox:8080
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0.6

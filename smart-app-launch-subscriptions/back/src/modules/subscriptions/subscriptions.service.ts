@@ -3,14 +3,24 @@ import { EventsService } from '../events/events.service'
 import { AuthService } from '../auth/auth.service'
 import { Encounter, SubscriptionBundle } from '../../interfaces/subscription'
 import { Patient } from 'src/interfaces/patient'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class SubscriptionsService {
 
+  private aidboxUrl: string
+
   constructor(
+    private readonly configService: ConfigService,
     private readonly eventsService: EventsService,
     private readonly authService: AuthService
-  ) { }
+  ) {
+    const aidboxUrl = this.configService.get<string>('AIDBOX_URL')
+    if (!aidboxUrl) {
+      throw new Error('Missing AIDBOX_URL in environment variables')
+    }
+    this.aidboxUrl = aidboxUrl
+  }
 
   async postAllNewSubscriptionEvents(payload: SubscriptionBundle) {
     console.log('postAllNewSubscriptionEvents:')
@@ -46,7 +56,7 @@ export class SubscriptionsService {
       'Authorization': 'Basic ' + credentials
     }
 
-    const res = await fetch(`http://localhost:8080/fhir/Patient/${patientId}`, {
+    const res = await fetch(`${this.aidboxUrl}/fhir/Patient/${patientId}`, {
       method: 'GET',
       headers
     })
