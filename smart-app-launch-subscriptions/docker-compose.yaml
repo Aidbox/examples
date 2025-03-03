@@ -37,6 +37,7 @@ services:
     build:
       context: ./example-react-ehr
       args:
+        VITE_AIDBOX_URL: http://aidbox:8080
         VITE_SMARTAPP_SUBSCRIPTIONS_API: http://subscriptions:9000
     ports:
       - "7080:4173"

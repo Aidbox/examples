@@ -21,6 +21,7 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
   iframe.style.height = '100%'
   iframe.style.width = '100%'
   iframe.style.border = 'none'
+  iframe.style.colorScheme = 'none'
   iframe.allowFullscreen = true
 
   // todo - use iframe.src instead of iframe.srcdoc
@@ -79,7 +80,6 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
 
 export const setUser = (uid: string) => {
   if (iframeRef?.contentWindow) {
-    console.log('postMessage')
     iframeRef.contentWindow.postMessage({ type: 'SET_USER', uid }, '*')
   } else {
     console.warn('iframe is not initialized yet')
