@@ -1,0 +1,129 @@
+volumes:
+  aidbox_pg_data: {}
+
+services:
+  aidbox_db:
+    image: healthsamurai/aidboxdb:17
+    pull_policy: always
+    volumes:
+    - aidbox_pg_data:/data:delegated
+    environment:
+      PGDATA: /data
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: 8[_!fZ3\'}6Gj%
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+    - aidbox_db
+    ports:
+    - 8080:8080
+    environment:
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      AIDBOX_FHIR_SCHEMA_VALIDATION: true
+      AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
+      AIDBOX_ADMIN_PASSWORD: password
+      AIDBOX_COMPLIANCE: enabled
+      AIDBOX_LICENSE: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJvZmZsaW5lIjpmYWxzZSwiY3JlYXRvciI6eyJpZCI6IjJkNTU0YWVkLWIxNmUtNDA2Ny05M2I2LWFlOGE5NmU2YjA1YyIsInJlc291cmNlVHlwZSI6IlVzZXIifSwia2V5Ijoib25saW5lLTIwMjIwNTI0LTE0MzY0NyIsIm5hbWUiOiJPVEVMLWRlbW8iLCJleHBpcmF0aW9uIjoiMjEyNC0wMi0wOFQxMToxMzo1NS44MDJaIiwidHlwZSI6ImRldmVsb3BtZW50IiwiY3JlYXRlZCI6IjIwMjUtMDMtMDNUMTE6MTM6NTUuODAyWiIsIm1heC1pbnN0YW5jZXMiOjIsIm1heC1kYi1zaXplIjo1MzY4NzA5MTIwLCJwcm9kdWN0IjoiYWlkYm94IiwicHJvamVjdCI6eyJpZCI6IjcwOTcyMTZjLTU0ZjgtNDI1Ny1hYzBiLTI4ZmIwNGRiNDY0ZCIsInJlc291cmNlVHlwZSI6IlByb2plY3QifSwic3RhdHVzIjoiYWN0aXZlIiwiaWQiOiJmY2FkOWQ4ZS04MjZhLTRmNmUtYmQwNS0xOTE5ZTFhN2JhNjUiLCJpbmZvIjp7ImdvYWwiOiJkZXZlbG9wbWVudCIsImhvc3RpbmciOiJzZWxmLWhvc3RlZCJ9LCJpc3N1ZXIiOiJodHRwczovL2FpZGJveC5hcHAifQ.ov_inaZDc9znZMVlZqNCTwfb2mLav39o1oCvKqesx7mDPoj-Rx6_emJyvdX1e88UkThmZkQM12mEvu6yyIkLWYJjjqayaS7s5He6mY3kxXZ1VlnpZo2j6ohegd1IywJHX85CVPmHht6gBtuUUJq09R5QLrtkCKXqApHrBdGPK8M 
+      BOX_SEARCH_FHIR__COMPARISONS: true
+      PGHOST: aidbox_db
+      PGUSER: aidbox
+      AIDBOX_PORT: 8080
+      PGDATABASE: aidbox
+      PGPASSWORD: 8[_!fZ3\'}6Gj%
+      PGPORT: '5432'
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
+      AIDBOX_STDOUT_JSON: all
+      BOX_OBSERVABILITY_OTEL_LOGS_URL: http://otel-collector:4318/v1/logs
+      BOX_OBSERVABILITY_OTEL_METRICS_URL: http://otel-collector:4318/v1/metrics
+      BOX_OBSERVABILITY_OTEL_TRACES_URL: http://otel-collector:4318/v1/traces
+      
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    restart: unless-stopped
+    volumes:
+    - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+    - 1888:1888 # pprof extension
+    - 18888:8888 # Prometheus metrics exposed by the collector
+    - 18889:8889 # Prometheus exporter metrics
+    - 13133:13133 # health_check extension
+    - 4318:4318 # OTLP http receiver
+    - 55679:55679 # zpages extension
+
+  # Logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
+    container_name: es
+    environment:
+      - node.name=es
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./elastic-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.2
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es:9200
+      - SERVER_NAME=kibana
+      - SERVER_HOST=0.0.0.0
+    ports:
+      - "5602:5601"
+
+  # Metrics
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    environment:
+      V: 'v5'
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus/:cached
+      - ./prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  grafana:
+    environment:
+      V: 'v5'
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_SECURITY_COOKIE_SECURITY: "true"
+      GF_SECURITY_COOKIE_SAMESITE: "none"
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+      - ./grafana/datasources:/etc/grafana/datasources:cached
+    image: grafana/grafana:11.5.2
+
+    ports:
+      - 3001:3000
+
+  zipkin:
+    image: openzipkin/zipkin:3.5
+    ports:
+      - 9411:9411

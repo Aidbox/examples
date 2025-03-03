@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  # external_labels:
+  #   monitor: 'aidbox'
+
+scrape_configs:
+  - job_name: otel
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'otel-collector:8889' ]
