@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class AuthService {
+  constructor(private configService: ConfigService) {}
 
   getSmartAppCredentials() {
-    // Client credentials
-    const client_id = 'subscriptions'
-    const client_secret = 'quOfCRS7ty1RMUQq'
+    const client_id = this.configService.get<string>('CLIENT_ID')
+    const client_secret = this.configService.get<string>('CLIENT_SECRET')
 
-    // Encode credentials in Base64
-    const credentials = btoa(client_id + ':' + client_secret)
+    const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64')
 
     return credentials
   }

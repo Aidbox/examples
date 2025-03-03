@@ -2,12 +2,11 @@
 
 ## Configuration
 
-Before running the project, create a `.env` file in the root directory and add the following environment variables:
+1. Copy the `.env.tpl` file to `.env`:
 
-```ini
-# Port for your server
-PORT=4114
-```
+    ```shell
+    cp .env.tpl .env
+    ```
 
 ## Local run
 

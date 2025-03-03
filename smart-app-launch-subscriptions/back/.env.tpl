@@ -1,0 +1,2 @@
+CLIENT_ID=subscriptions
+CLIENT_SECRET=
