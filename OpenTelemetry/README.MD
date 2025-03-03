@@ -40,7 +40,7 @@ Go to [Index Management](http://localhost:5602/app/management/data/index_managem
 
 ![Index Management](./resources/index-management.png)
 
-Then we shoould go to [Data Views](http://localhost:5602/app/management/kibana/dataViews) page (Menu → Stack Management → Data Views) and create a data view there.
+Then we should go to [Data Views](http://localhost:5602/app/management/kibana/dataViews) page (Menu → Stack Management → Data Views) and create a data view there.
 
 ![Data Views](./resources/data-views.png)
 
