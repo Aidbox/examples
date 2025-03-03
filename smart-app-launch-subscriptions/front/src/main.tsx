@@ -18,11 +18,17 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
 
   const iframe = document.createElement('iframe')
   iframeRef = iframe
-  iframe.style.height = '100%'
-  iframe.style.width = '100%'
+  iframe.allowFullscreen = true
+  // iframe.style.height = '100%'
+  // iframe.style.width = '100%'
   iframe.style.border = 'none'
   iframe.style.colorScheme = 'none'
-  iframe.allowFullscreen = true
+
+  iframe.style.width = '300px'
+  iframe.style.height = '400px'
+  iframe.style.position = 'fixed'
+  iframe.style.right = '10px'
+  iframe.style.bottom = '10px'
 
   // todo - use iframe.src instead of iframe.srcdoc
   // todo - fix smart-app-launch-subscriptions-front.css path
@@ -69,7 +75,7 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
     if (appContainer[0]) {
       ReactDOM.createRoot(appContainer[0]).render(
         <StyleProvider container={iframeDoc.head} cache={cache}>
-          <App config={config} iframeDoc={iframeDoc} iframeWindow={iframeWindow} />
+          <App config={config} iframe={iframe} iframeDoc={iframeDoc} iframeWindow={iframeWindow} />
         </StyleProvider>
       )
     } else {

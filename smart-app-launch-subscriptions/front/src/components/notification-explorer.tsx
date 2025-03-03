@@ -10,10 +10,11 @@ export const NotificationExplorer = ({ events }: { events: EhrEvent[] }) => {
           <List
             dataSource={events}
             renderItem={(event) => <NotificationMessage event={event} />}
-            style={{ maxHeight: 200, overflowY: 'auto' }}
           />
         ) : (
-          <Empty description="No notifications" />
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Empty description="No notifications" />
+          </div>
         )
       }
     </>

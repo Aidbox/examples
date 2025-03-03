@@ -1,12 +1,12 @@
 import { ConfigProvider, Popover } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { EhrEvent, SmartAppLaunchSubscriptionsConfig } from './interfaces'
 import { NotificationExplorer } from './components/notification-explorer'
 import { NotificationBell } from './components/notification-bell'
 
 // todo - store apiKey in context
 
-const App = ({ config, iframeDoc, iframeWindow }: { config: SmartAppLaunchSubscriptionsConfig, iframeDoc: Document, iframeWindow: Window }) => {
+const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaunchSubscriptionsConfig, iframe: HTMLIFrameElement, iframeDoc: Document, iframeWindow: Window }) => {
   const [events, setEvents] = useState<EhrEvent[]>([])
   const [uid, setUid] = useState<string | null>(null)
 
@@ -60,15 +60,28 @@ const App = ({ config, iframeDoc, iframeWindow }: { config: SmartAppLaunchSubscr
     setEvents([])
   }, [uid])
 
+  const onOpenChange = useCallback((open: boolean) => {
+    if (open) {
+      iframe.style.width = '300px'
+      iframe.style.height = '400px'
+    } else {
+      setTimeout(() => {
+        iframe.style.width = '60px'
+        iframe.style.height = '60px'
+      }, 250)
+    }
+  }, [])
+
   return (
     <ConfigProvider>
-      <div style={{ margin: 10, position: 'relative' }}>
+      <div style={{ margin: 0, position: 'fixed', right: 10, bottom: 10 }}>
         <Popover
           content={<NotificationExplorer events={events} />}
           getPopupContainer={() => iframeDoc.body}
-          placement='bottom'
+          placement='top'
           trigger={['click']}
-          styles={{ root: { minWidth: 300, maxHeight: 400 } }}
+          styles={{ body: { width: 300, height: 320, overflowY: 'auto' } }}
+          onOpenChange={onOpenChange}
         >
           <span>
             <NotificationBell count={events.length} />
