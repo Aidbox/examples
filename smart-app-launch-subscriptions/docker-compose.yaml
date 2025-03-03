@@ -24,12 +24,12 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     command: start-dev --import-realm
   
-  launch:
-    image: nginx:alpine
+  example-html:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.launch
     ports:
       - "7070:80"
-    volumes:
-      - ./launch.html:/usr/share/nginx/html/launch.html:r
 
   aidbox_db:
     image: healthsamurai/aidboxdb:17

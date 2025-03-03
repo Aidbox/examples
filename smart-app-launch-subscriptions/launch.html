@@ -95,12 +95,12 @@
 
 
   <!-- Smart App Integration -->
-  <script src="./front/dist/smart-app-launch.subscriptions.umd.js"></script>
+  <script src="./smart-app-launch.subscriptions.umd.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (SmartAppLaunchSubscriptions && typeof SmartAppLaunchSubscriptions.init === 'function') {
         SmartAppLaunchSubscriptions.init('notifications-container', {
-          apiKey: 'http://localhost:9000'
+          apiKey: 'http://subscriptions:9000'
         })
       } else {
         console.error('SmartAppLaunchSubscriptions is not defined')
