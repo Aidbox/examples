@@ -66,14 +66,8 @@ export class SubscriptionsService {
 
   private getPractitionerId(patient: Patient): string {
     const generalPractitionerRef = patient.generalPractitioner?.[0]?.reference
-    if (!generalPractitionerRef) {
-      throw new Error('General practitioner reference is not defined')
-    }
 
-    const practitionerId = generalPractitionerRef.split('/')[1]
-    if (!practitionerId) {
-      throw new Error('Practitioner ID is not defined')
-    }
+    const practitionerId = generalPractitionerRef ? generalPractitionerRef.split('/')[1] : null
 
     return practitionerId
   }

@@ -185,33 +185,3 @@ PUT /Encounter
 To connect wenhook to local backend instance provide
 
 "valueUrl": "http://host.docker.internal:9000/subscriptions/webhook-to-post-all-new-subscriptions-aidbox"
-<!-- TODO move to aidbox.json -->
-```
-POST /Client
-Content-Type: application/json
-
-{
-  "resourceType": "Client",
-  "id": "ehr-outpatient",
-  "secret": "verysecret",
-  "grant_types": ["password"]
-}
-```
-<!-- TODO move to aidbox.json -->
-```
-POST /fhir/User
-Content-Type: application/json
-
-{
-  "resourceType": "User",
-  "id": "doctor-user",
-  "email": "house@example.com",
-  "password": "securepassword",
-  "data": {
-    "practitioner": {
-      "id": "doctor-id",
-      "resourceType": "Practitioner"
-    }
-  }
-}
-```

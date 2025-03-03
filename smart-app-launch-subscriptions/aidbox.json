@@ -62,6 +62,20 @@
     {
       "request": {
         "method": "PUT",
+        "url": "/Client/ehr-outpatient"
+      },
+      "resource": {
+        "id": "ehr-outpatient",
+        "secret": "verysecret",
+        "grant_types": [
+          "password"
+        ]
+      },
+      "resourceType": "Client"
+    },
+    {
+      "request": {
+        "method": "PUT",
         "url": "/AccessPolicy/demo-clients-allow"
       },
       "resource": {
@@ -73,6 +87,10 @@
           },
           {
             "id": "subscriptions",
+            "resourceType": "Client"
+          },
+          {
+            "id": "ehr-outpatient",
             "resourceType": "Client"
           }
         ],
@@ -105,23 +123,31 @@
         "userinfo-source": "id-token"
       }
     },
-
     {
       "request": {
         "method": "POST",
-        "url": "/Patient/$load"
+        "url": "/fhir/User"
       },
       "resource": {
-        "source": "https://storage.googleapis.com/aidbox-public/synthea/v2/100/fhir/Patient.ndjson.gz"
-      }
+        "id": "doctor-user",
+        "email": "house@example.com",
+        "password": "securepassword",
+        "data": {
+          "practitioner": {
+            "id": "doctor-id",
+            "resourceType": "Practitioner"
+          }
+        }
+      },
+      "resourceType": "User"
     },
     {
       "request": {
         "method": "POST",
-        "url": "/Observation/$load"
+        "url": "/fhir/$load"
       },
       "resource": {
-        "source": "https://storage.googleapis.com/aidbox-public/synthea/v2/100/fhir/Observation.ndjson.gz"
+        "source": "https://storage.googleapis.com/aidbox-public/synthea/100/all.ndjson.gz"
       }
     }
   ]
