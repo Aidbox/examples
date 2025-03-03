@@ -1,0 +1,32 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+  elasticsearch:
+    endpoints: ["http://es:9200"]
+    logs_index: aidbox_logs
+
+  debug:
+    verbosity: detailed
+
+  zipkin:
+    endpoint: "http://host.docker.internal:9411/api/v2/spans"
+    format: proto
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      exporters: [prometheus, debug]
+    logs:
+      receivers: [otlp]
+      exporters: [elasticsearch, debug]
+    traces:
+      receivers: [otlp]
+      exporters: [zipkin, debug]
