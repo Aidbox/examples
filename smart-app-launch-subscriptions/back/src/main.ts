@@ -13,11 +13,11 @@ async function bootstrap() {
   // const allowedHosts = (process.env.ALLOWED_HOSTS ?? 'http://localhost:3100').split(',')
 
   app.enableCors({
-    origin: '*',
+    origin: true,
     // origin: allowedHosts,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type'],
-    credentials: true
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    // allowedHeaders: ['Content-Type'],
+    // credentials: true
   })
 
   await app.listen(process.env.PORT ?? 9000)

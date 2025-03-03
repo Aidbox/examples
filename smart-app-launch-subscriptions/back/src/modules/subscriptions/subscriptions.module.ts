@@ -9,7 +9,7 @@ import { ConfigModule } from '@nestjs/config'
   imports: [
     EventsModule,
     AuthModule,
-    ConfigModule.forRoot()
+    ConfigModule
   ],
   providers: [SubscriptionsService],
   controllers: [SubscriptionsController],
