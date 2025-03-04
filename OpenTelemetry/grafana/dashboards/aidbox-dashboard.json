@@ -1038,17 +1038,17 @@
     "targets": [
      {
       "exemplar": true,
-      "expr": "process_runtime_jvm_memory_usage_bytes{instance=\"$Instance\",type=\"heap\"}",
+      "expr": "jvm_memory_usage_bytes{instance=\"$Instance\",type=\"heap\"}",
       "legendFormat": "heap"
      },
      {
       "exemplar": true,
-      "expr": "process_runtime_jvm_memory_usage_bytes{instance=\"$Instance\",type=\"non-heap\"}",
+      "expr": "jvm_memory_usage_bytes{instance=\"$Instance\",type=\"non-heap\"}",
       "legendFormat": "non-heap"
      },
      {
       "exemplar": true,
-      "expr": "process_runtime_jvm_memory_size_max_bytes{instance=\"$Instance\"}",
+      "expr": "jvm_memory_size_max_bytes{instance=\"$Instance\"}",
       "legendFormat": "max"
      }
     ],
