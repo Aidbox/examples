@@ -50,7 +50,7 @@ Then go to [Discover](http://localhost:5602/app/discover) page (Menu → Discove
 
 ## 3. Discover Aidbox metrics with Grafana
 
-Prometheus should be available on [http://localhost:3001](http://localhost:3001) address, login with `admin`/`password` credentials.
+Grafana should be available on [http://localhost:3001](http://localhost:3001) address, login with `admin`/`password` credentials.
 
 ![Prometheus](./resources/grafana-login.png)
 
