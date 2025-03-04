@@ -112,12 +112,13 @@ services:
   grafana:
     environment:
       V: 'v5'
-      GF_SECURITY_ALLOW_EMBEDDING: "true"
-      GF_SECURITY_COOKIE_SECURITY: "true"
-      GF_SECURITY_COOKIE_SAMESITE: "none"
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "password"
+      GF_SERVER_ROOT_URL: http://localhost:3001
     volumes:
       - ./grafana-data:/var/lib/grafana
-      - ./grafana/datasources:/etc/grafana/datasources:cached
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
     image: grafana/grafana:11.5.2
 
     ports:

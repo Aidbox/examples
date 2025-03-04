@@ -1,0 +1,1066 @@
+{
+  "templating": {
+   "list": [
+    {
+     "skipUrlSync": false,
+     "definition": "label_values(http_server_request_duration_seconds_count, instance)",
+     "datasource": "Prometheus",
+     "refresh": 1,
+     "name": "Instance",
+     "type": "query",
+     "multi": false,
+     "query": {
+      "query": "label_values(http_server_request_duration_seconds_count, instance)",
+      "refId": "StandardVariableQuery"
+     }
+    }
+   ]
+  },
+  "timezone": "browser",
+  "refresh": "10s",
+  "editable": true,
+  "uid": "aidbox-metrics-dashboard",
+  "time": {
+   "from": "now-1h",
+   "to": "now"
+  },
+  "title": "Aidbox dashboard",
+  "style": "auto",
+  "panels": [
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "justifyMode": "auto",
+     "orientation": "auto",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+     },
+     "text": {},
+     "textMode": "auto"
+    },
+    "datasource": "Prometheus",
+    "type": "stat",
+    "description": "> Shows the count of requests per second",
+    "title": "HTTP RPS",
+    "fieldConfig": {
+     "defaults": {
+      "unit": "reqps"
+     }
+    },
+    "targets": [
+     {
+      "expr": "sum(rate(http_server_request_duration_seconds_count{}[$__rate_interval]))"
+     }
+    ],
+    "gridPos": {
+     "x": 0,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "justifyMode": "auto",
+     "orientation": "auto",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+     },
+     "text": {},
+     "textMode": "auto"
+    },
+    "datasource": "Prometheus",
+    "type": "stat",
+    "description": "> Shows the average HTTP request duration",
+    "title": "Duration",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        },
+        {
+         "color": "red",
+         "value": 0.5
+        }
+       ]
+      },
+      "unit": "s"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "(sum(rate(http_server_request_duration_seconds_sum{}[$__rate_interval]))/sum(rate(http_server_request_duration_seconds_count{}[$__rate_interval])))",
+      "legendFormat": "avg"
+     }
+    ],
+    "gridPos": {
+     "x": 3,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+     }
+    },
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        },
+        {
+         "color": "red",
+         "value": 1
+        }
+       ]
+      },
+      "unit": "s"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "histogram_quantile(0.99,sum(rate(http_server_request_duration_seconds_bucket{}[$__rate_interval])) by (le))",
+      "legendFormat": "d99",
+      "refId": "A"
+     }
+    ],
+    "type": "stat",
+    "description": "> 99th Percentile of http request du ration",
+    "title": "Durattion P99",
+    "gridPos": {
+     "x": 6,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "values": false
+     }
+    },
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        },
+        {
+         "color": "red",
+         "value": 1
+        }
+       ]
+      },
+      "unit": "s"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "histogram_quantile(0.99,sum(rate(http_server_request_wait_seconds_bucket{}[$__rate_interval])) by (le))",
+      "legendFormat": "wait99"
+     }
+    ],
+    "type": "stat",
+    "description": "> 99th Percentile of HTTP queue wait time",
+    "title": "HTTP Queue wait P99",
+    "gridPos": {
+     "x": 9,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+     }
+    },
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        },
+        {
+         "color": "red",
+         "value": 1000
+        }
+       ]
+      }
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "httpkit_queue_count{instance=\"$Instance\"}",
+      "legendFormat": "HTTP queue"
+     }
+    ],
+    "type": "stat",
+    "description": "> HTTP wait queue size",
+    "title": "HTTP wait queue",
+    "gridPos": {
+     "x": 12,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+     }
+    },
+    "datasource": "Prometheus",
+    "type": "stat",
+    "description": "> Shows the ratio of the number of SELECT queries to data modification queries",
+    "title": "PG read/write ration",
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "(rate(pg_requests_total{instance=\"$Instance\"}[$__range])/(rate(pg_updates_total{instance=\"$Instance\"}[$__range])+rate(pg_inserts_total{instance=\"$Instance\"}[$__range])+rate(pg_deletes_total{instance=\"$Instance\"}[$__range])))",
+      "legendFormat": "read/write"
+     }
+    ],
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        }
+       ]
+      }
+     }
+    },
+    "gridPos": {
+     "x": 15,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "values": false
+     }
+    },
+    "datasource": "Prometheus",
+    "type": "stat",
+    "title": "DB Size",
+    "description": "> Shows the current size of the database",
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "sum(db_size_bytes{instance=\"$Instance\"})"
+     }
+    ],
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        }
+       ]
+      },
+      "unit": "decbytes"
+     }
+    },
+    "gridPos": {
+     "x": 18,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "options": {
+     "colorMode": "value",
+     "graphMode": "area",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ]
+     }
+    },
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        }
+       ]
+      },
+      "unit": "short"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "sum(rate(http_server_request_duration_seconds_count{}[1m]))"
+     }
+    ],
+    "type": "stat",
+    "title": "Requests per minute",
+    "description": "> Show count requests in [1m] window",
+    "gridPos": {
+     "x": 21,
+     "y": 0,
+     "w": 3,
+     "h": 3
+    }
+   },
+   {
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "palette-classic"
+      },
+      "custom": {
+       "scaleDistribution": {
+        "type": "linear"
+       },
+       "thresholdsStyle": {
+        "mode": "off"
+       },
+       "hideFrom": {
+        "legend": false,
+        "tooltip": false,
+        "viz": false
+       },
+       "showPoints": "never",
+       "pointSize": 5,
+       "fillOpacity": 22,
+       "drawStyle": "line",
+       "lineInterpolation": "linear",
+       "stacking": {
+        "group": "A",
+        "mode": "none"
+       },
+       "spanNulls": false,
+       "lineWidth": 1,
+       "barAlignment": 0,
+       "axisPlacement": "auto",
+       "gradientMode": "none"
+      },
+      "mappings": [],
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        },
+        {
+         "color": "red",
+         "value": 80
+        }
+       ]
+      },
+      "unit": "reqps"
+     },
+     "overrides": []
+    },
+    "options": {
+     "legend": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "displayMode": "table",
+      "placement": "right"
+     },
+     "tooltip": {
+      "mode": "single"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "sum(rate(http_server_request_duration_seconds_count{}[$__rate_interval]))",
+      "instant": false,
+      "legendFormat": "box req",
+      "refId": "A"
+     },
+     {
+      "exemplar": true,
+      "expr": "(sum(rate(http_server_request_duration_seconds_bucket{le=\"+Inf\"}[$__rate_interval]))-sum(rate(http_server_request_duration_seconds_bucket{le=\"0.5\"}[$__rate_interval])))",
+      "hide": false,
+      "instant": false,
+      "legendFormat": "> 0.5 sec",
+      "refId": "B"
+     },
+     {
+      "exemplar": true,
+      "expr": "rate(pg_requests_total{instance=\"$Instance\"}[$__rate_interval])",
+      "hide": false,
+      "legendFormat": "db req",
+      "refId": "C"
+     }
+    ],
+    "title": "Requests Per Second",
+    "description": "> `box req` - shows how many requests per second are processed on average.\n\n> `>0.5  sec` - Shows how many requests are processed on average for an interval of more than 0.5 seconds.\n\n> `db req` - shows the average number of all read requests to the database per second",
+    "type": "timeseries",
+    "gridPos": {
+     "x": 0,
+     "y": 2,
+     "w": 12,
+     "h": 5
+    }
+   },
+   {
+    "description": "> Shows information about routes. Contains information about the endpoint, average query execution time, 99th percentile, number of queries, and the amount of time to execute a query in a given interval",
+    "datasource": "Prometheus",
+    "gridPos": {
+     "x": 0,
+     "y": 12,
+     "w": 24,
+     "h": 10
+    },
+    "transformations": [
+     {
+      "id": "merge"
+     },
+     {
+      "id": "organize",
+      "options": {
+       "indexByName": {
+        "route": 0,
+        "Time": 1,
+        "Value #Total time": 2,
+        "Value #Count": 3,
+        "Value #Mean": 4,
+        "Value #99 percentile": 5
+       },
+       "excludeByName": {
+        "Time": true
+       },
+       "renameByName": {
+        "route": "Route",
+        "Value #Total time": "Total time",
+        "Value #Count": "Count",
+        "Value #Mean": "Mean",
+        "Value #99 percentile": "99 percentile"
+       }
+      }
+     }
+    ],
+    "type": "table",
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "(sum(increase(http_server_request_duration_seconds_sum{}[$__range])) by (route)>0)",
+      "format": "table",
+      "instant": true,
+      "legendFormat": "Total time",
+      "refId": "Total time"
+     },
+     {
+      "exemplar": true,
+      "expr": "(sum(increase(http_server_request_duration_seconds_count{}[$__range])) by (route)>0)",
+      "format": "table",
+      "instant": true,
+      "legendFormat": "Count",
+      "refId": "Count"
+     },
+     {
+      "exemplar": true,
+      "expr": "((sum(increase(http_server_request_duration_seconds_sum{}[$__range])) by (route)/sum(increase(http_server_request_duration_seconds_count{}[$__range])) by (route))>0)",
+      "format": "table",
+      "instant": true,
+      "legendFormat": "Mean",
+      "refId": "Mean"
+     },
+     {
+      "exemplar": true,
+      "expr": "(histogram_quantile(0.99,sum(rate(http_server_request_duration_seconds_bucket{}[$__range])) by (le,route))>0)",
+      "format": "table",
+      "instant": true,
+      "legendFormat": "99 percentile",
+      "refId": "99 percentile"
+     }
+    ],
+    "title": "Requests summary",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "thresholds"
+      },
+      "custom": {
+       "scaleDistribution": {
+        "type": "linear"
+       },
+       "thresholdsStyle": {
+        "mode": "off"
+       },
+       "hideFrom": {
+        "legend": false,
+        "tooltip": false,
+        "viz": false
+       },
+       "showPoints": "never",
+       "pointSize": 5,
+       "fillOpacity": 22,
+       "drawStyle": "line",
+       "lineInterpolation": "linear",
+       "stacking": {
+        "group": "A",
+        "mode": "none"
+       },
+       "spanNulls": false,
+       "lineWidth": 1,
+       "barAlignment": 0,
+       "axisPlacement": "auto",
+       "gradientMode": "none"
+      },
+      "mappings": [],
+      "thresholds": {
+       "mode": "absolute"
+      },
+      "unit": "reqps"
+     },
+     "overrides": [
+      {
+       "properties": [
+        {
+         "value": "s",
+         "id": "unit"
+        }
+       ],
+       "matcher": {
+        "id": "byName",
+        "options": "Total time"
+       }
+      },
+      {
+       "properties": [
+        {
+         "value": "short",
+         "id": "unit"
+        }
+       ],
+       "matcher": {
+        "id": "byName",
+        "options": "Count"
+       }
+      },
+      {
+       "properties": [
+        {
+         "value": "s",
+         "id": "unit"
+        }
+       ],
+       "matcher": {
+        "id": "byName",
+        "options": "Mean"
+       }
+      },
+      {
+       "properties": [
+        {
+         "value": "s",
+         "id": "unit"
+        },
+        {
+         "value": "color-background-solid",
+         "id": "custom.displayMode"
+        },
+        {
+         "value": {
+          "mode": "thresholds"
+         },
+         "id": "color"
+        },
+        {
+         "value": {
+          "steps": [
+           {
+            "color": "green",
+            "value": null
+           },
+           {
+            "color": "dark-yellow",
+            "value": 0.5
+           },
+           {
+            "color": "red",
+            "value": 1
+           }
+          ],
+          "mode": "absolute"
+         },
+         "id": "thresholds"
+        }
+       ],
+       "matcher": {
+        "id": "byName",
+        "options": "Value #99 percentile"
+       }
+      }
+     ]
+    },
+    "options": {
+     "legend": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "displayMode": "table",
+      "placement": "right"
+     },
+     "tooltip": {
+      "mode": "single"
+     }
+    }
+   },
+   {
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "palette-classic"
+      },
+      "custom": {
+       "hideFrom": {
+        "legend": false,
+        "tooltip": false,
+        "viz": false
+       }
+      },
+      "unit": "s"
+     }
+    },
+    "options": {
+     "legend": {
+      "displayMode": "table",
+      "placement": "right",
+      "values": [
+       "percent",
+       "value"
+      ]
+     },
+     "pieType": "donut",
+     "tooltip": {
+      "mode": "single"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "sum((topk(30,increase(http_server_request_duration_seconds_sum{}[$__range]))>0)) by (route)",
+      "legendFormat": "{{route}}",
+      "refId": "A"
+     }
+    ],
+    "description": "> Shows the top 30 longest requests in percentage terms by Endpoint",
+    "title": "Request distribution by time",
+    "type": "piechart",
+    "gridPos": {
+     "x": 12,
+     "y": 2,
+     "w": 6,
+     "h": 5
+    }
+   },
+   {
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "palette-classic"
+      },
+      "custom": {
+       "hideFrom": {
+        "legend": false,
+        "tooltip": false,
+        "viz": false
+       }
+      },
+      "unit": "short",
+      "decimals": 0
+     }
+    },
+    "options": {
+     "legend": {
+      "displayMode": "table",
+      "placement": "right",
+      "values": [
+       "percent",
+       "value"
+      ]
+     },
+     "pieType": "donut",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ]
+     },
+     "tooltip": {
+      "mode": "single"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "(topk(30,increase(http_server_request_duration_seconds_count{}[$__range]))>0)",
+      "legendFormat": "{{route}}"
+     }
+    ],
+    "description": "> Request distribution by calls count ",
+    "title": "Request distribution by calls",
+    "type": "piechart",
+    "gridPos": {
+     "x": 18,
+     "y": 2,
+     "w": 6,
+     "h": 5
+    }
+   },
+   {
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "palette-classic"
+      },
+      "custom": {
+       "scaleDistribution": {
+        "type": "linear"
+       },
+       "thresholdsStyle": {
+        "mode": "off"
+       },
+       "hideFrom": {
+        "legend": false,
+        "tooltip": false,
+        "viz": false
+       },
+       "showPoints": "never",
+       "pointSize": 5,
+       "fillOpacity": 17,
+       "drawStyle": "line",
+       "lineInterpolation": "linear",
+       "stacking": {
+        "group": "A",
+        "mode": "none"
+       },
+       "spanNulls": false,
+       "lineWidth": 1,
+       "barAlignment": 0,
+       "axisPlacement": "auto",
+       "gradientMode": "none"
+      },
+      "mappings": [],
+      "decimals": 0,
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "dark-red",
+         "value": null
+        },
+        {
+         "color": "red",
+         "value": 10
+        }
+       ]
+      }
+     },
+     "overrides": []
+    },
+    "options": {
+     "legend": {
+      "calcs": [
+       "lastNotNull",
+       "sum"
+      ],
+      "displayMode": "hidden",
+      "placement": "right"
+     },
+     "tooltip": {
+      "mode": "single"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "sum(increase(http_server_request_duration_seconds_count{status=~\"4..\"}[$__rate_interval]))",
+      "hide": false,
+      "legendFormat": "4xx",
+      "refId": "A"
+     },
+     {
+      "exemplar": true,
+      "expr": "sum(increase(http_server_request_duration_seconds_count{status=~\"5..\"}[$__rate_interval]))",
+      "hide": false,
+      "legendFormat": "5xx",
+      "refId": "B"
+     },
+     {
+      "exemplar": true,
+      "expr": "rate(hikari_timeout_total{}[$__rate_interval])",
+      "hide": false,
+      "legendFormat": "db conn err",
+      "refId": "C"
+     },
+     {
+      "hide": false,
+      "refId": "D",
+      "expr": ""
+     }
+    ],
+    "description": "> Shows the number of requests processed with `4xx` and `5xx` errors",
+    "title": "Errors",
+    "type": "timeseries",
+    "gridPos": {
+     "x": 12,
+     "y": 7,
+     "w": 6,
+     "h": 5
+    }
+   },
+   {
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "palette-classic"
+      },
+      "custom": {
+       "hideFrom": {
+        "legend": false,
+        "tooltip": false,
+        "viz": false
+       }
+      },
+      "decimals": 0
+     }
+    },
+    "options": {
+     "legend": {
+      "displayMode": "table",
+      "placement": "right",
+      "values": [
+       "value",
+       "percent"
+      ]
+     },
+     "pieType": "donut",
+     "reduceOptions": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "fields": "",
+      "values": false
+     },
+     "tooltip": {
+      "mode": "single"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "(sum(increase(http_server_request_duration_seconds_count{}[$__range])) by (status)>0)",
+      "legendFormat": "{{status}}",
+      "refId": "A"
+     }
+    ],
+    "description": "> Shows the rate of change in the number of requests with different statuses",
+    "title": "Response statuses",
+    "type": "piechart",
+    "gridPos": {
+     "x": 18,
+     "y": 7,
+     "w": 6,
+     "h": 5
+    }
+   },
+   {
+    "datasource": "Prometheus",
+    "fieldConfig": {
+     "defaults": {
+      "color": {
+       "mode": "palette-classic"
+      },
+      "custom": {
+       "scaleDistribution": {
+        "type": "linear"
+       },
+       "thresholdsStyle": {
+        "mode": "off"
+       },
+       "hideFrom": {
+        "legend": false,
+        "tooltip": false,
+        "viz": false
+       },
+       "showPoints": "never",
+       "pointSize": 5,
+       "fillOpacity": 22,
+       "drawStyle": "line",
+       "lineInterpolation": "linear",
+       "stacking": {
+        "group": "A",
+        "mode": "none"
+       },
+       "spanNulls": false,
+       "lineWidth": 1,
+       "barAlignment": 0,
+       "axisPlacement": "auto",
+       "gradientMode": "none"
+      },
+      "mappings": [],
+      "thresholds": {
+       "mode": "absolute",
+       "steps": [
+        {
+         "color": "green",
+         "value": null
+        },
+        {
+         "color": "red",
+         "value": 80
+        }
+       ]
+      },
+      "unit": "bytes"
+     },
+     "overrides": []
+    },
+    "options": {
+     "legend": {
+      "calcs": [
+       "lastNotNull"
+      ],
+      "displayMode": "table",
+      "placement": "right"
+     },
+     "tooltip": {
+      "mode": "single"
+     }
+    },
+    "targets": [
+     {
+      "exemplar": true,
+      "expr": "process_runtime_jvm_memory_usage_bytes{instance=\"$Instance\",type=\"heap\"}",
+      "legendFormat": "heap"
+     },
+     {
+      "exemplar": true,
+      "expr": "process_runtime_jvm_memory_usage_bytes{instance=\"$Instance\",type=\"non-heap\"}",
+      "legendFormat": "non-heap"
+     },
+     {
+      "exemplar": true,
+      "expr": "process_runtime_jvm_memory_size_max_bytes{instance=\"$Instance\"}",
+      "legendFormat": "max"
+     }
+    ],
+    "description": "> Shows the JVM memory usage",
+    "title": "JVM Memory",
+    "type": "timeseries",
+    "gridPos": {
+     "x": 0,
+     "y": 7,
+     "w": 12,
+     "h": 5
+    }
+   }
+  ]
+ }

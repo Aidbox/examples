@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: "Aidbox Dashboards"            
+    folder: "Aidbox Dashboards"      
+    type: file
+    options:
+      path: /etc/grafana/dashboards  
+    editable: true
+    allowUiUpdates: true
