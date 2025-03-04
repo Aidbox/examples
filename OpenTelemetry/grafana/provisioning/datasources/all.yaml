@@ -9,11 +9,11 @@ datasources:
     jsonData:
       interval: Daily
       timeField: "ts"
-      esVersion: "7.0.0"
+      esVersion: "8.17.2"
       logMessageField: message
       logLevelField: fields.level
-  - name: Prometheus 
+  - name: Prometheus
     type: prometheus
     access: proxy
-    database: "*"
     url: http://prometheus:9090
+    isDefault: true
