@@ -55,6 +55,7 @@ Prometheus should be available on [http://localhost:3001](http://localhost:3001)
 ![Prometheus](./resources/grafana-login.png)
 
 Navigate to `Dashboards->Aidbox Dashboards->Aidbox Dashboard` to see the dashboard.
+You probably need to wait for a while until the data is collected.
 
 ![Grafana](./resources/grafana-dashboard.png)
 
