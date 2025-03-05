@@ -1,40 +1,75 @@
 import { useState } from "react"
+import { Form, Input, Button, Typography, Card } from "antd"
+import { LockOutlined, UserOutlined } from "@ant-design/icons"
+
+const { Title } = Typography
 
 const LoginForm = ({ onSubmit }: { onSubmit: (username: string, password: string) => Promise<void> }) => {
-  const [email, setEmail] = useState('house@example.com')
-  const [password, setPassword] = useState('securepassword')
+  const [email, setEmail] = useState("house@example.com")
+  const [password, setPassword] = useState("securepassword")
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     onSubmit(email, password)
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2>Login</h2>
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#001529"
+      }}
+    >
+      <Card
+        style={{
+          width: 400,
+          padding: 24,
+          borderRadius: 8,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: 16 }}>
+          <Title level={3} style={{ marginBottom: 48 }}>
+            Smar App Subscriptions Example React EHR
+          </Title>
+        </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <Form onFinish={handleSubmit} layout="vertical">
+          <Form.Item
+            name="email"
+            rules={[{ required: true, message: "Please enter your email" }]}
+          >
+            <Input
+              prefix={<UserOutlined />}
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              size="large"
+            />
+          </Form.Item>
 
-        <input
-          type="password"
-          placeholder="Password"
-          style={{ margin: '0 10px' }}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: "Please enter your password" }]}
+          >
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              size="large"
+            />
+          </Form.Item>
 
-        <button type="submit">
-          Login
-        </button>
-      </form>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" size="large" block>
+              Log In
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   )
 }
