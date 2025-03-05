@@ -10,122 +10,138 @@
 
 <body>
   <div id="root">
-    <div style="height: 100vh; width: 100vw; display: flex;">
-      <aside
-        class="ant-layout-sider ant-layout-sider-dark ant-layout-sider-has-trigger css-dev-only-do-not-override-240cud"
-        style="flex: 0 0 200px; max-width: 200px; min-width: 200px; width: 200px;">
-        <div class="ant-layout-sider-children">
-          <ul class="ant-menu ant-menu-root ant-menu-inline ant-menu-dark css-dev-only-do-not-override-240cud"
-            role="menu" tabindex="0" data-menu-list="true" style="height: 100%;">
-            <div eventkey="tmp_key-0" style="padding: 16px; text-align: center; color: rgb(255, 255, 255);">
-              <h4 class="ant-typography css-dev-only-do-not-override-240cud" style="margin: 0px; color: white;">
-                Example EHR
-              </h4>
-            </div>
-            <li class="ant-menu-item ant-menu-item-selected" style="padding-left: 24px;">
-              <span class="ant-menu-title-content">
-                My Patients
-              </span>
-            </li>
-          </ul>
-          <div aria-hidden="true" style="display: none;">
-            <div eventkey="tmp_key-0" style="padding: 16px; text-align: center; color: rgb(255, 255, 255);">
-              <h4 class="ant-typography css-dev-only-do-not-override-240cud" style="margin: 0px; color: white;">Example
-                EHR</h4>
-            </div>
-          </div>
-        </div>
-        <div class="ant-layout-sider-trigger" style="width: 200px;">
-          Logout
-        </div>
-      </aside>
-      <div style="flex: 1 1 0%;">
-        <div style="padding: 10px;">
-          <nav class="ant-breadcrumb css-dev-only-do-not-override-240cud">
-            <ol>
-              <li><span class="ant-breadcrumb-link">Smar App Subscriptions Example HTML EHR</span></li>
-              <li class="ant-breadcrumb-separator" aria-hidden="true">/</li>
-              <li><span class="ant-breadcrumb-link">My Patients</span></li>
-            </ol>
-          </nav>
+    <div id="login-page" style="height: 100vh; width: 100vw;">
+      <div
+        style="display: flex; background-color: #d9d9d9; position: absolute; top: 0; left: 0; width: 100vw; height: 100px;">
+        <span id="user-name"></span>
+        <div id="cnt-login">
+          <input id="login-uid" type="text" placeholder="Your user id" />
+          <button onClick="javascript:onLogin()">Log in</button>
         </div>
         <div>
-          <div class="ant-table-wrapper css-dev-only-do-not-override-240cud">
-            <div class="ant-spin-nested-loading css-dev-only-do-not-override-240cud">
-              <div class="ant-spin-container">
-                <div class="ant-table css-dev-only-do-not-override-240cud">
-                  <div class="ant-table-container">
-                    <div class="ant-table-content">
-                      <table style="table-layout: auto;">
-                        <colgroup></colgroup>
-                        <thead class="ant-table-thead">
-                          <tr>
-                            <th class="ant-table-cell" scope="col">Name</th>
-                            <th class="ant-table-cell" scope="col">Age</th>
-                            <th class="ant-table-cell" scope="col">Gender</th>
-                            <th class="ant-table-cell" scope="col">Diagnosis</th>
-                            <th class="ant-table-cell" scope="col">Last Visit</th>
-                          </tr>
-                        </thead>
-                        <tbody class="ant-table-tbody">
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="1">
-                            <td class="ant-table-cell">John Doe</td>
-                            <td class="ant-table-cell">32</td>
-                            <td class="ant-table-cell">Male</td>
-                            <td class="ant-table-cell">Hypertension</td>
-                            <td class="ant-table-cell">2024-03-05</td>
-                          </tr>
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="2">
-                            <td class="ant-table-cell">Jane Smith</td>
-                            <td class="ant-table-cell">28</td>
-                            <td class="ant-table-cell">Female</td>
-                            <td class="ant-table-cell">Diabetes</td>
-                            <td class="ant-table-cell">2024-02-25</td>
-                          </tr>
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="3">
-                            <td class="ant-table-cell">Mark Johnson</td>
-                            <td class="ant-table-cell">45</td>
-                            <td class="ant-table-cell">Male</td>
-                            <td class="ant-table-cell">Asthma</td>
-                            <td class="ant-table-cell">2024-03-01</td>
-                          </tr>
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="4">
-                            <td class="ant-table-cell">Emily Brown</td>
-                            <td class="ant-table-cell">36</td>
-                            <td class="ant-table-cell">Female</td>
-                            <td class="ant-table-cell">Allergy</td>
-                            <td class="ant-table-cell">2024-02-18</td>
-                          </tr>
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="5">
-                            <td class="ant-table-cell">Michael Wilson</td>
-                            <td class="ant-table-cell">50</td>
-                            <td class="ant-table-cell">Male</td>
-                            <td class="ant-table-cell">Heart Disease</td>
-                            <td class="ant-table-cell">2024-01-20</td>
-                          </tr>
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="6">
-                            <td class="ant-table-cell">Sophia Martinez</td>
-                            <td class="ant-table-cell">41</td>
-                            <td class="ant-table-cell">Female</td>
-                            <td class="ant-table-cell">Migraine</td>
-                            <td class="ant-table-cell">2024-02-10</td>
-                          </tr>
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="7">
-                            <td class="ant-table-cell">Daniel Taylor</td>
-                            <td class="ant-table-cell">29</td>
-                            <td class="ant-table-cell">Male</td>
-                            <td class="ant-table-cell">Back Pain</td>
-                            <td class="ant-table-cell">2024-02-15</td>
-                          </tr>
-                          <tr class="ant-table-row ant-table-row-level-0" data-row-key="8">
-                            <td class="ant-table-cell ant-table-cell-row-hover">Olivia Anderson</td>
-                            <td class="ant-table-cell ant-table-cell-row-hover">33</td>
-                            <td class="ant-table-cell ant-table-cell-row-hover">Female</td>
-                            <td class="ant-table-cell ant-table-cell-row-hover">Depression</td>
-                            <td class="ant-table-cell ant-table-cell-row-hover">2024-03-02</td>
-                          </tr>
-                        </tbody>
-                      </table>
+          <button id="cnt-logout" onClick="javascript:onLogout()">Log out</button>
+        </div>
+      </div>
+    </div>
+    <div id="patients-page" style="display: none;">
+      <div style="height: 100vh; width: 100vw; display: flex;">
+        <aside
+          class="ant-layout-sider ant-layout-sider-dark ant-layout-sider-has-trigger css-dev-only-do-not-override-240cud"
+          style="flex: 0 0 200px; max-width: 200px; min-width: 200px; width: 200px;">
+          <div class="ant-layout-sider-children">
+            <ul class="ant-menu ant-menu-root ant-menu-inline ant-menu-dark css-dev-only-do-not-override-240cud"
+              role="menu" tabindex="0" data-menu-list="true" style="height: 100%;">
+              <div eventkey="tmp_key-0" style="padding: 16px; text-align: center; color: rgb(255, 255, 255);">
+                <h4 class="ant-typography css-dev-only-do-not-override-240cud" style="margin: 0px; color: white;">
+                  Example EHR
+                </h4>
+              </div>
+              <li class="ant-menu-item ant-menu-item-selected" style="padding-left: 24px;">
+                <span class="ant-menu-title-content">
+                  My Patients
+                </span>
+              </li>
+            </ul>
+            <div aria-hidden="true" style="display: none;">
+              <div eventkey="tmp_key-0" style="padding: 16px; text-align: center; color: rgb(255, 255, 255);">
+                <h4 class="ant-typography css-dev-only-do-not-override-240cud" style="margin: 0px; color: white;">
+                  Example
+                  EHR</h4>
+              </div>
+            </div>
+          </div>
+          <div class="ant-layout-sider-trigger" style="width: 200px;">
+            Logout
+          </div>
+        </aside>
+        <div style="flex: 1 1 0%;">
+          <div style="padding: 10px;">
+            <nav class="ant-breadcrumb css-dev-only-do-not-override-240cud">
+              <ol>
+                <li><span class="ant-breadcrumb-link">Smar App Subscriptions Example HTML EHR</span></li>
+                <li class="ant-breadcrumb-separator" aria-hidden="true">/</li>
+                <li><span class="ant-breadcrumb-link">My Patients</span></li>
+              </ol>
+            </nav>
+          </div>
+          <div>
+            <div class="ant-table-wrapper css-dev-only-do-not-override-240cud">
+              <div class="ant-spin-nested-loading css-dev-only-do-not-override-240cud">
+                <div class="ant-spin-container">
+                  <div class="ant-table css-dev-only-do-not-override-240cud">
+                    <div class="ant-table-container">
+                      <div class="ant-table-content">
+                        <table style="table-layout: auto;">
+                          <colgroup></colgroup>
+                          <thead class="ant-table-thead">
+                            <tr>
+                              <th class="ant-table-cell" scope="col">Name</th>
+                              <th class="ant-table-cell" scope="col">Age</th>
+                              <th class="ant-table-cell" scope="col">Gender</th>
+                              <th class="ant-table-cell" scope="col">Diagnosis</th>
+                              <th class="ant-table-cell" scope="col">Last Visit</th>
+                            </tr>
+                          </thead>
+                          <tbody class="ant-table-tbody">
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="1">
+                              <td class="ant-table-cell">John Doe</td>
+                              <td class="ant-table-cell">32</td>
+                              <td class="ant-table-cell">Male</td>
+                              <td class="ant-table-cell">Hypertension</td>
+                              <td class="ant-table-cell">2024-03-05</td>
+                            </tr>
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="2">
+                              <td class="ant-table-cell">Jane Smith</td>
+                              <td class="ant-table-cell">28</td>
+                              <td class="ant-table-cell">Female</td>
+                              <td class="ant-table-cell">Diabetes</td>
+                              <td class="ant-table-cell">2024-02-25</td>
+                            </tr>
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="3">
+                              <td class="ant-table-cell">Mark Johnson</td>
+                              <td class="ant-table-cell">45</td>
+                              <td class="ant-table-cell">Male</td>
+                              <td class="ant-table-cell">Asthma</td>
+                              <td class="ant-table-cell">2024-03-01</td>
+                            </tr>
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="4">
+                              <td class="ant-table-cell">Emily Brown</td>
+                              <td class="ant-table-cell">36</td>
+                              <td class="ant-table-cell">Female</td>
+                              <td class="ant-table-cell">Allergy</td>
+                              <td class="ant-table-cell">2024-02-18</td>
+                            </tr>
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="5">
+                              <td class="ant-table-cell">Michael Wilson</td>
+                              <td class="ant-table-cell">50</td>
+                              <td class="ant-table-cell">Male</td>
+                              <td class="ant-table-cell">Heart Disease</td>
+                              <td class="ant-table-cell">2024-01-20</td>
+                            </tr>
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="6">
+                              <td class="ant-table-cell">Sophia Martinez</td>
+                              <td class="ant-table-cell">41</td>
+                              <td class="ant-table-cell">Female</td>
+                              <td class="ant-table-cell">Migraine</td>
+                              <td class="ant-table-cell">2024-02-10</td>
+                            </tr>
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="7">
+                              <td class="ant-table-cell">Daniel Taylor</td>
+                              <td class="ant-table-cell">29</td>
+                              <td class="ant-table-cell">Male</td>
+                              <td class="ant-table-cell">Back Pain</td>
+                              <td class="ant-table-cell">2024-02-15</td>
+                            </tr>
+                            <tr class="ant-table-row ant-table-row-level-0" data-row-key="8">
+                              <td class="ant-table-cell ant-table-cell-row-hover">Olivia Anderson</td>
+                              <td class="ant-table-cell ant-table-cell-row-hover">33</td>
+                              <td class="ant-table-cell ant-table-cell-row-hover">Female</td>
+                              <td class="ant-table-cell ant-table-cell-row-hover">Depression</td>
+                              <td class="ant-table-cell ant-table-cell-row-hover">2024-03-02</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -166,10 +182,9 @@
     }
 
     const setAuthState = (id, name) => {
-      document.getElementById('user-name').innerText = id ? `User: ${name}` : ''
-      document.getElementById('cnt-login').style.display = id ? 'none' : null
-      document.getElementById('cnt-logout').style.display = id ? null : 'none'
-      document.getElementById('login-uid').value = ''
+      document.getElementById('login-page').style.display = id ? 'none' : null
+      document.getElementById('patients-page').style.display = id ? null : 'none'
+      document.getElementById('notifications-container').style.display = id ? null : 'none'
     }
 
     async function loginUser(uid, pwd) {
