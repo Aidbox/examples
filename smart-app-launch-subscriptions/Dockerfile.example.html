@@ -1,5 +1,5 @@
 # smart app builder
-FROM docker.io/library/node:22 AS builder
+FROM docker.io/library/node:22 AS smart-app-builder
 
 WORKDIR /app
 
@@ -14,9 +14,10 @@ FROM docker.io/library/nginx:latest
 
 WORKDIR /usr/share/nginx/html
 
-COPY --from=builder /app/dist/ ./
+COPY ./example-html-ehr/index.html ./
+COPY ./example-html-ehr/index.css ./
 
-COPY ./launch.html ./index.html
+COPY --from=smart-app-builder /app/dist/ ./
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
