@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import LoginForm from './login'
-import Patients from './patients'
+import Patients from './patients-page'
 
 declare global {
   interface Window {
@@ -73,15 +73,10 @@ function App() {
   return (
     <>
       {
-        user ?
-          <button onClick={logout}>
-            Logout
-          </button>
-          :
-          <LoginForm onSubmit={login} />
+        !user && <LoginForm onSubmit={login} />
       }
       {
-        user && <Patients />
+        user && <Patients onLogout={logout} />
       }
 
       {/* <div id="notifications-container"></div> */}
