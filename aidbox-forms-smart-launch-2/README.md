@@ -61,6 +61,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 Aidbox server will be available at [http://localhost:8888](http://localhost:8888).
 
+## Component Diagram
+
+![Diagram](docs/images/diagram.png)
+
 ## Interaction Diagram
 
 ```mermaid
