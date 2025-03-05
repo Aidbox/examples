@@ -20,6 +20,11 @@ After the frontend is built, open `launch.html` in your browser.
 
 **4. Enjoy!**
 
+# Component Diagram
+
+![Diagram](docs/images/diagram.png)
+
+# Interaction Diagram
 
 ```mermaid
 sequenceDiagram
@@ -58,7 +63,6 @@ sequenceDiagram
     Note left of EHR2: Practitioner sees<br/>Encounter event
     deactivate AppBack
 ```
-
 
 # How to mock trigger in Aidbox
 
