@@ -100,31 +100,6 @@
     },
     {
       "request": {
-        "method": "PUT",
-        "url": "/IdentityProvider/keycloak"
-      },
-      "resource": {
-        "resourceType": "IdentityProvider",
-        "scopes": [
-          "profile",
-          "openid"
-        ],
-        "system": "keycloak",
-        "userinfo_endpoint": "http://localhost:8888/realms/patients/protocol/openid-connect/userinfo",
-        "authorize_endpoint": "http://localhost:8888/realms/patients/protocol/openid-connect/auth",
-        "client": {
-          "id": "aidbox",
-          "secret": "HOuPXmduHfTjhtW0eqAeMsHZJbRNVc8x"
-        },
-        "title": "Keycloak",
-        "active": true,
-        "id": "keycloak",
-        "token_endpoint": "http://keycloak:8888/realms/patients/protocol/openid-connect/token",
-        "userinfo-source": "id-token"
-      }
-    },
-    {
-      "request": {
         "method": "POST",
         "url": "/Practitioner"
       },

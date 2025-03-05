@@ -1,71 +1,45 @@
-# smart-app-launch-subscriptions
+# Smart App Launch Subscriptions
 
+<!-- TODO description -->
 The Smart App has a frontend and a backend.
 
-## Running local example
+# Components
 
-To run the smart-app example locally, follow these steps:
+1. [Aidbox](https://docs.aidbox.app/modules/security-and-access-control/smart-on-fhir) 
+    FHIR server with SMART-on-FHIR support.
+2. **Subscriptions Widget**  
+   A widget that receives and displays notifications from Subscriptions resource.
 
-**1. Start the backend**
+# Prerequisites
 
-Run the backend on your local machine. See the README file in the backend project for detailed instructions.
+- [Docker](https://www.docker.com/)
+- Cloned repository: [Github: Aidbox/examples](https://github.com/Aidbox/examples/tree/main)
+- Working directory: `smart-app-launch-subscriptions`
 
-**2. Build the frontend**
+For cloning of the repository and navigation to the `smart-app-launch-subscriptions` directory, run:
 
-Build the frontend locally. See the README file in the frontend project for the required steps.
-
-**3. Open the example page**
-
-After the frontend is built, open `launch.html` in your browser.
-
-**4. Enjoy!**
-
-# Component Diagram
-
-![Diagram](docs/images/diagram.png)
-
-# Interaction Diagram
-
-```mermaid
-sequenceDiagram
-    actor PCP as PCP Practitioner
-    participant EHR1 as EHR-like <br/>(inpatient)
-    participant Aidbox
-    participant AppBack as Smart App<br/>(backend)
-    participant AppFront as Smart App<br/>(frontend)
-    participant EHR2 as EHR UI<br/>(outpatient)
-    Note left of EHR2: Smart App widget <br/>integrated within EHR UI
-    AppFront->>EHR2: 
-    PCP->>EHR2: Log In
-    activate EHR2
-    EHR2-->>AppFront: Pass authentication<br/>data downstream
-    deactivate EHR2
-    activate AppFront
-    AppFront->>AppBack: Authenticate
-    activate AppBack
-    AppBack-->>AppFront: Authentication<br/>Success
-    deactivate AppBack
-    deactivate AppFront
-    loop 
-        AppFront->>AppFront: Waiting for<br/>Server-Sent Event
-    end
-    loop Aidbox<br/>Subscription<br/>Topic
-        Aidbox->>Aidbox: Waiting for trigger
-    end
-    EHR1->>Aidbox: Encounter <br/>(in-progress)
-    activate AppBack
-    Aidbox->>+AppBack: Webhook Event by<br/>AidboxTopicDestination
-    AppBack->>Aidbox: Fetch Patient Data
-    activate Aidbox
-    Aidbox-->>AppBack: Return Patient Data
-    deactivate Aidbox
-    AppBack->>AppFront: Server-Sent Event
-    Note left of EHR2: Practitioner sees<br/>Encounter event
-    deactivate AppBack
+``` sh
+git clone git@github.com:Aidbox/examples.git && cd examples/smart-app-launch-subscriptions
 ```
 
-# How to mock trigger in Aidbox
+# Step 1: Run Demo Components
 
+Start all the demo components by running:
+
+```sh
+docker compose up
+```
+
+Wait until all components are pulled and started. The components are accessible at:
+
+- Aidbox - http://localhost:8080   
+- Growth Chart - http://localhost:9000    
+- Example HTML page - http://localhost:7070/launcher.html
+- Example React page - http://localhost:7080
+
+# Step 2: Create Subscription resources in Aidbox
+
+Open [API REST console](http://localhost:8080/ui/console#/rest) in Aidbox and run the following requests:
 
 **1. Create SubscriptionTopic**
 ```
@@ -125,7 +99,17 @@ accept: application/json
 }
 ```
 
-**3. Create encounter**
+# Step 3: Open Launcher Pages
+
+There are two examples:
+- go to `localhost:7070` to see example in plain HTML
+- go to `localhost:7080` to see example in React
+
+# Step 4: Trigger EHR Encounter
+
+Open [API REST console](http://localhost:8080/ui/console#/rest) in Aidbox and run the following requests:
+
+**1. Mock Encounter**
 ```
 PUT /Encounter
 
@@ -144,6 +128,54 @@ PUT /Encounter
   "status": "in-progress"
 }
 ```
+
+# Component Diagram
+
+![Diagram](docs/images/diagram.png)
+
+# Interaction Diagram
+
+```mermaid
+sequenceDiagram
+    actor PCP as PCP Practitioner
+    participant EHR1 as EHR-like <br/>(inpatient)
+    participant Aidbox
+    participant AppBack as Smart App<br/>(backend)
+    participant AppFront as Smart App<br/>(frontend)
+    participant EHR2 as EHR UI<br/>(outpatient)
+    Note left of EHR2: Smart App widget <br/>integrated within EHR UI
+    AppFront->>EHR2: 
+    PCP->>EHR2: Log In
+    activate EHR2
+    EHR2-->>AppFront: Pass authentication<br/>data downstream
+    deactivate EHR2
+    activate AppFront
+    AppFront->>AppBack: Authenticate
+    activate AppBack
+    AppBack-->>AppFront: Authentication<br/>Success
+    deactivate AppBack
+    deactivate AppFront
+    loop 
+        AppFront->>AppFront: Waiting for<br/>Server-Sent Event
+    end
+    loop Aidbox<br/>Subscription<br/>Topic
+        Aidbox->>Aidbox: Waiting for trigger
+    end
+    EHR1->>Aidbox: Encounter <br/>(in-progress)
+    activate AppBack
+    Aidbox->>+AppBack: Webhook Event by<br/>AidboxTopicDestination
+    AppBack->>Aidbox: Fetch Patient Data
+    activate Aidbox
+    Aidbox-->>AppBack: Return Patient Data
+    deactivate Aidbox
+    AppBack->>AppFront: Server-Sent Event
+    Note left of EHR2: Practitioner sees<br/>Encounter event
+    deactivate AppBack
+```
+
+# How to integrate widget in your EHR UI
+
+[View frontend README](front/README.md)
 
 # Misc
 

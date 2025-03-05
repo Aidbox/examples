@@ -23,6 +23,8 @@ export class SubscriptionsService {
   }
 
   async postAllNewSubscriptionEvents(payload: SubscriptionBundle) {
+    
+    // TODO refactor, display less data
     console.log('postAllNewSubscriptionEvents:')
     console.dir(payload, { depth: 10 })
 
@@ -30,6 +32,7 @@ export class SubscriptionsService {
     const patientId = this.getPatientId(encounter)
     const patient = await this.fetchPatientData(patientId)
 
+    // TODO refactor, display less data
     console.log('\n\n\n')
     console.log('patient: ')
     console.dir(patient, { depth: 10 })

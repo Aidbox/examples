@@ -21,7 +21,7 @@ To use this widget in your project, copy the JavaScript and CSS files from the `
 <script src="./smart-app-launch.subscriptions.umd.js"></script>
 ```
 
-After adding the script to your page, the window.SmartAppLaunchSubscriptions object should be available. This allows you to initialize the widget using the following script:
+After adding the script to your page, the `window.SmartAppLaunchSubscriptions` object should be available. This allows you to initialize the widget using the following script:
 
 ```html
 <script>

@@ -5,7 +5,7 @@ This is the backend service for the **Smart App Launch Subscriptions** widget. T
 ## Overview
 
 The server is responsible for:  
-- Receiving webhooks from **8Box**.  
+- Receiving webhooks from **Aidbox**.  
 - Establishing **server-side event (SSE) connections** with the frontend widget to deliver real-time updates. 
 
 ## Local Setup and Run

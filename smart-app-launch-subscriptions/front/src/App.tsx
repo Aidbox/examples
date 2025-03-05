@@ -35,7 +35,7 @@ const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaun
     return () => iframeWindow.removeEventListener('message', handleMessage)
   }, [iframeWindow])
 
-  useEffect(() => {
+  useEffect(() => {//
     if (eventSourceRef.current) {
       console.log('Closing existing SSE connection...')
       eventSourceRef.current.close()

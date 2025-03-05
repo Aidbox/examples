@@ -16,18 +16,6 @@ services:
       CLIENT_ID: subscriptions
       CLIENT_SECRET: quOfCRS7ty1RMUQq
 
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.0.6
-    volumes:
-      - ./keycloak.json:/opt/keycloak/data/import/keycloak.json
-    ports:
-      - 8888:8888
-    environment:
-      KC_HTTP_PORT: 8888
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    command: start-dev --import-realm
-
   example-html:
     build:
       context: .
