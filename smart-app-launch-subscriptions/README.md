@@ -1,7 +1,7 @@
 # Smart App Launch Subscriptions
 
-<!-- TODO description -->
-The Smart App has a frontend and a backend.
+The Smart App Launch Subscriptions is an fullstack application which allows to integrate widget into your EHR UI.
+Widget allows to receive and display notifications about Encounter of relevant Patient of PCP Practitioner
 
 # Components
 
@@ -32,8 +32,8 @@ docker compose up
 
 Wait until all components are pulled and started. The components are accessible at:
 
-- Aidbox - http://localhost:8080   
-- Growth Chart - http://localhost:9000    
+- Aidbox - http://localhost:8080  
+- Smart App Subscriptions backend - http://localhost:9000
 - Example HTML page - http://localhost:7070/launcher.html
 - Example React page - http://localhost:7080
 
@@ -101,9 +101,16 @@ accept: application/json
 
 # Step 3: Open Launcher Pages
 
-There are two examples:
-- go to `localhost:7070` to see example in plain HTML
-- go to `localhost:7080` to see example in React
+**1. There are two examples:**
+- open `http://localhost:7070` to see example in plain HTML
+- open `http://localhost:7080` to see example in React
+
+**2. Login into account**
+
+Use login credentials from `aidbox.json`:
+
+- Email: `house@example.com`
+- Password: `securepassword`
 
 # Step 4: Trigger EHR Encounter
 

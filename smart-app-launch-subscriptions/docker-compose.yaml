@@ -28,7 +28,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.example.react
       args:
-        VITE_AIDBOX_URL: http://aidbox:8080
+        VITE_AIDBOX_URL: http://localhost:8080
         VITE_SMARTAPP_SUBSCRIPTIONS_API: http://localhost:9000
     ports:
       - "7080:4173"
