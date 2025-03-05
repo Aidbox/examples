@@ -12,14 +12,60 @@
   <div id="root">
     <div id="login-page" style="height: 100vh; width: 100vw;">
       <div
-        style="display: flex; background-color: #d9d9d9; position: absolute; top: 0; left: 0; width: 100vw; height: 100px;">
-        <span id="user-name"></span>
-        <div id="cnt-login">
-          <input id="login-uid" type="text" placeholder="Your user id" />
-          <button onClick="javascript:onLogin()">Log in</button>
-        </div>
-        <div>
-          <button id="cnt-logout" onClick="javascript:onLogout()">Log out</button>
+        style="height: 100vh; display: flex; justify-content: center; align-items: center; background: rgb(0, 21, 41);">
+        <div class="ant-card ant-card-bordered css-dev-only-do-not-override-240cud"
+          style="width: 400px; padding: 24px; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;">
+          <div class="ant-card-body">
+            <div style="text-align: center; margin-bottom: 16px;">
+              <h3 class="ant-typography css-dev-only-do-not-override-240cud" style="margin-bottom: 48px;">Smar App
+                Subscriptions Example Html EHR</h3>
+            </div>
+            <div class="ant-form ant-form-vertical css-dev-only-do-not-override-240cud">
+              <div class="ant-form-item css-dev-only-do-not-override-240cud ant-form-item-has-success">
+                <div class="ant-row ant-form-item-row css-dev-only-do-not-override-240cud">
+                  <div class="ant-col ant-form-item-control css-dev-only-do-not-override-240cud">
+                    <div class="ant-form-item-control-input">
+                      <div class="ant-form-item-control-input-content">
+                        <span
+                          class="ant-input-affix-wrapper ant-input-affix-wrapper-lg css-dev-only-do-not-override-240cud ant-input-outlined ant-input-status-success">
+                          <input id="login-uid" placeholder="Email" id="email" aria-required="true"
+                            class="ant-input ant-input-lg css-dev-only-do-not-override-240cud" type="text"
+                            value="house@example.com">
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ant-form-item css-dev-only-do-not-override-240cud ant-form-item-has-success">
+                <div class="ant-row ant-form-item-row css-dev-only-do-not-override-240cud">
+                  <div class="ant-col ant-form-item-control css-dev-only-do-not-override-240cud">
+                    <div class="ant-form-item-control-input">
+                      <div class="ant-form-item-control-input-content">
+                        <span
+                          class="ant-input-affix-wrapper ant-input-affix-wrapper-lg css-dev-only-do-not-override-240cud ant-input-outlined ant-input-status-success ant-input-password ant-input-password-large">
+                          <input id="login-pwd" placeholder="Password" id="password" aria-required="true"
+                            class="ant-input ant-input-lg css-dev-only-do-not-override-240cud" type="password"
+                            value="securepassword">
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ant-form-item css-dev-only-do-not-override-240cud">
+                <div class="ant-row ant-form-item-row css-dev-only-do-not-override-240cud">
+                  <div class="ant-col ant-form-item-control css-dev-only-do-not-override-240cud">
+                    <div class="ant-form-item-control-input">
+                      <div class="ant-form-item-control-input-content"><button onClick="javascript:onLogin()"
+                          class="ant-btn css-dev-only-do-not-override-240cud ant-btn-primary ant-btn-color-primary ant-btn-variant-solid ant-btn-lg ant-btn-block"><span>Log
+                            In</span></button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -50,7 +96,7 @@
               </div>
             </div>
           </div>
-          <div class="ant-layout-sider-trigger" style="width: 200px;">
+          <div onClick="javascript:onLogout()" class="ant-layout-sider-trigger" style="width: 200px;">
             Logout
           </div>
         </aside>
@@ -58,7 +104,7 @@
           <div style="padding: 10px;">
             <nav class="ant-breadcrumb css-dev-only-do-not-override-240cud">
               <ol>
-                <li><span class="ant-breadcrumb-link">Smar App Subscriptions Example HTML EHR</span></li>
+                <li><span class="ant-breadcrumb-link">Smar App Subscriptions Example Html EHR</span></li>
                 <li class="ant-breadcrumb-separator" aria-hidden="true">/</li>
                 <li><span class="ant-breadcrumb-link">My Patients</span></li>
               </ol>
@@ -210,11 +256,10 @@
       const uid = document.getElementById('login-uid').value
       const pwd = document.getElementById('login-pwd').value
 
+      loginUser(uid, pwd)
     }
 
-    setTimeout(() => {
-      loginUser('house@example.com', 'securepassword')
-    }, 500)
+    setAuthState(null)
   </script>
 
 
