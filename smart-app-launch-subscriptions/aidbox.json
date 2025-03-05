@@ -1,5 +1,5 @@
 {
-  "type": "batch",
+  "type": "transaction",
   "entry": [
     {
       "request": {
@@ -126,7 +126,43 @@
     {
       "request": {
         "method": "POST",
-        "url": "/fhir/User"
+        "url": "/Practitioner"
+      },
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "example-practitioner",
+        "name": [
+          {
+            "use": "official",
+            "family": "Smith",
+            "given": ["John"]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+1-555-555-5555",
+            "use": "work"
+          }
+        ],
+        "address": [
+          {
+            "use": "work",
+            "line": ["123 Main Street"],
+            "city": "Metropolis",
+            "state": "NY",
+            "postalCode": "12345",
+            "country": "USA"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1980-01-01"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/User"
       },
       "resource": {
         "id": "doctor-user",
@@ -134,7 +170,7 @@
         "password": "securepassword",
         "data": {
           "practitioner": {
-            "id": "doctor-id",
+            "id": "example-practitioner",
             "resourceType": "Practitioner"
           }
         }
@@ -144,10 +180,238 @@
     {
       "request": {
         "method": "POST",
-        "url": "/fhir/$load"
+        "url": "/Patient"
       },
       "resource": {
-        "source": "https://storage.googleapis.com/aidbox-public/synthea/100/all.ndjson.gz"
+        "resourceType": "Patient",
+        "id": "example-patient",
+        "address": [
+          {
+            "city": "Athol",
+            "line": [
+              "163 Reichert Haven"
+            ],
+            "state": "MA",
+            "country": "US",
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/geolocation",
+                "extension": [
+                  {
+                    "url": "latitude",
+                    "valueDecimal": 42.59398793497171
+                  },
+                  {
+                    "url": "longitude",
+                    "valueDecimal": -72.26834276950088
+                  }
+                ]
+              }
+            ],
+            "postalCode": "01331"
+          }
+        ],
+        "birthDate": "1973-02-21",
+        "communication": [
+          {
+            "language": {
+              "text": "English",
+              "coding": [
+                {
+                  "code": "en-US",
+                  "system": "urn:ietf:bcp:47",
+                  "display": "English"
+                }
+              ]
+            }
+          }
+        ],
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "code": "2106-3",
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "display": "White"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "White"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "code": "2186-5",
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
+            "valueString": "Trinh Aufderhar"
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+            "valueCode": "F"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+            "valueAddress": {
+              "city": "Peabody",
+              "state": "Massachusetts",
+              "country": "US"
+            }
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/disability-adjusted-life-years",
+            "valueDecimal": 3.1375058969679297
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/quality-adjusted-life-years",
+            "valueDecimal": 46.86249410303207
+          }
+        ],
+        "gender": "female",
+        "identifier": [
+          {
+            "value": "095a7381-ead9-1c6f-baa5-c52460aacbb7",
+            "system": "https://github.com/synthetichealth/synthea"
+          },
+          {
+            "type": {
+              "text": "Medical Record Number",
+              "coding": [
+                {
+                  "code": "MR",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "display": "Medical Record Number"
+                }
+              ]
+            },
+            "value": "095a7381-ead9-1c6f-baa5-c52460aacbb7",
+            "system": "http://hospital.smarthealthit.org"
+          },
+          {
+            "type": {
+              "text": "Social Security Number",
+              "coding": [
+                {
+                  "code": "SS",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "display": "Social Security Number"
+                }
+              ]
+            },
+            "value": "999-26-8130",
+            "system": "http://hl7.org/fhir/sid/us-ssn"
+          },
+          {
+            "type": {
+              "text": "Driver's License",
+              "coding": [
+                {
+                  "code": "DL",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "display": "Driver's License"
+                }
+              ]
+            },
+            "value": "S99962599",
+            "system": "urn:oid:2.16.840.1.113883.4.3.25"
+          },
+          {
+            "type": {
+              "text": "Passport Number",
+              "coding": [
+                {
+                  "code": "PPN",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "display": "Passport Number"
+                }
+              ]
+            },
+            "value": "X27890515X",
+            "system": "http://standardhealthrecord.org/fhir/StructureDefinition/passportNumber"
+          }
+        ],
+        "maritalStatus": {
+          "text": "S",
+          "coding": [
+            {
+              "code": "S",
+              "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+              "display": "S"
+            }
+          ]
+        },
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+          ],
+          "lastUpdated": "2025-03-03T15:44:40.137979Z",
+          "versionId": "208",
+          "extension": [
+            {
+              "url": "ex:createdAt",
+              "valueInstant": "2025-03-03T15:44:40.137979Z"
+            }
+          ]
+        },
+        "multipleBirthBoolean": false,
+        "name": [
+          {
+            "use": "official",
+            "given": [
+              "Michiko",
+              "Gerald"
+            ],
+            "family": "Sanford",
+            "prefix": [
+              "Ms."
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "use": "home",
+            "value": "555-524-6651",
+            "system": "phone"
+          }
+        ],
+        "text": {
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Generated by <a href=\"https://github.com/synthetichealth/synthea\">Synthea</a>.Version identifier: synthea-java .   Person seed: -4676908703119022748  Population seed: 123123123</div>",
+          "status": "generated"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PATCH",
+        "url": "/Patient/example-patient"
+      },
+      "resource": {
+        "resourceType": "Patient",
+        "id": "example-patient",
+        "generalPractitioner": [
+          {
+            "reference": "Practitioner/example-practitioner"
+          }
+        ]
       }
     }
   ]

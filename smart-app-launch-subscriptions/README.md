@@ -21,6 +21,45 @@ After the frontend is built, open `launch.html` in your browser.
 **4. Enjoy!**
 
 
+```mermaid
+sequenceDiagram
+    actor PCP as PCP Practitioner
+    participant EHR1 as EHR-like <br/>(inpatient)
+    participant Aidbox
+    participant AppBack as Smart App<br/>(backend)
+    participant AppFront as Smart App<br/>(frontend)
+    participant EHR2 as EHR UI<br/>(outpatient)
+    Note left of EHR2: Smart App widget <br/>integrated within EHR UI
+    AppFront->>EHR2: 
+    PCP->>EHR2: Log In
+    activate EHR2
+    EHR2-->>AppFront: Pass authentication<br/>data downstream
+    deactivate EHR2
+    activate AppFront
+    AppFront->>AppBack: Authenticate
+    activate AppBack
+    AppBack-->>AppFront: Authentication<br/>Success
+    deactivate AppBack
+    deactivate AppFront
+    loop 
+        AppFront->>AppFront: Waiting for<br/>Server-Sent Event
+    end
+    loop Aidbox<br/>Subscription<br/>Topic
+        Aidbox->>Aidbox: Waiting for trigger
+    end
+    EHR1->>Aidbox: Encounter <br/>(in-progress)
+    activate AppBack
+    Aidbox->>+AppBack: Webhook Event by<br/>AidboxTopicDestination
+    AppBack->>Aidbox: Fetch Patient Data
+    activate Aidbox
+    Aidbox-->>AppBack: Return Patient Data
+    deactivate Aidbox
+    AppBack->>AppFront: Server-Sent Event
+    Note left of EHR2: Practitioner sees<br/>Encounter event
+    deactivate AppBack
+```
+
+
 # How to mock trigger in Aidbox
 
 
@@ -82,106 +121,26 @@ accept: application/json
 }
 ```
 
-**3. Create Practitioner**
-```
-PUT /Practitioner
-
-{
-  "resourceType": "Practitioner",
-  "id": "example-practitioner",
-  "name": [
-    {
-      "use": "official",
-      "family": "Smith",
-      "given": ["John"]
-    }
-  ],
-  "telecom": [
-    {
-      "system": "phone",
-      "value": "+1-555-555-5555",
-      "use": "work"
-    }
-  ],
-  "address": [
-    {
-      "use": "work",
-      "line": ["123 Main Street"],
-      "city": "Metropolis",
-      "state": "NY",
-      "postalCode": "12345",
-      "country": "USA"
-    }
-  ],
-  "gender": "male",
-  "birthDate": "1980-01-01"
-}
-```
-
-**5. Link Practitioner to Patient**
-
-```
-PATCH /fhir/Patient/01a12c22-f97a-2804-90f6-d77b5c68387c
-
-{
-  "resourceType": "Patient",
-  "id": "01a12c22-f97a-2804-90f6-d77b5c68387c",
-  "generalPractitioner": [
-    {
-      "reference": "Practitioner/example-practitioner"
-    }
-  ]
-}
-```
-
-**6. Create encounter**
-```
-PUT /Encounter
-
-{
-    "resourceType": "Encounter",
-    "id": "enc-1",
-    "subject": {
-        "resourceType": "Patient",
-        "id": "01a12c22-f97a-2804-90f6-d77b5c68387c"
-    },
-    "status": "in-progress"
-}
-```
-
-**How to create Encounter with linked Practitioner**
-
+**3. Create encounter**
 ```
 PUT /Encounter
 
 {
   "resourceType": "Encounter",
   "id": "example-encounter",
-  "status": "in-progress",
   "subject": {
-    "reference": "Patient/01a12c22-f97a-2804-90f6-d77b5c68387c"
+    "resourceType": "Patient",
+    "id": "example-patient"
   },
-  "participant": [
-    {
-      "actor": {
-        "reference": "Practitioner/example-practitioner"
-      },
-      "type": [
-        {
-          "coding": [
-            {
-              "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
-              "code": "PPRF",
-              "display": "primary performer"
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "class": {
+    "code": "IMP",
+    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+    "display": "inpatient encounter"
+  },
+  "status": "in-progress"
 }
 ```
 
-To connect wenhook to local backend instance provide
+# Misc
 
-"valueUrl": "http://host.docker.internal:9000/subscriptions/webhook-to-post-all-new-subscriptions-aidbox"
+For connection of webhook to local backend instance change `valueUrl` to this url: `http://host.docker.internal:9000/subscriptions/webhook-to-post-all-new-subscriptions-aidbox`
