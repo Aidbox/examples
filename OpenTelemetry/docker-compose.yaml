@@ -7,6 +7,11 @@ services:
     pull_policy: always
     volumes:
     - aidbox_pg_data:/data:delegated
+    - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql/postgresql.conf"
     environment:
       PGDATA: /data
       POSTGRES_USER: aidbox
@@ -63,19 +68,16 @@ services:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-
       - xpack.security.enabled=false
       - xpack.security.enrollment.enabled=false
-
-
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
     volumes:
       - ./elastic-data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.17.2
