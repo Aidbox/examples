@@ -29,7 +29,11 @@ docker compose up --force-recreate
 
 Wait until all components are pulled and started. 
 
-## 2. Discover Aidbox logs with Kibana
+## 2. Activate Aidbox
+
+Open Aidbox on [http://localhost:8080](http://localhost:8080) address, activate it and login with `admin`/`password` credentials.
+
+## 3. Discover Aidbox logs with Kibana
 
 Kibana should be available on [http://localhost:5602](http://localhost:5602) address. To see logs in Kibana we should
 
@@ -48,7 +52,7 @@ Then go to [Discover](http://localhost:5602/app/discover) page (Menu → Discove
 
 ![Discover](./resources/discover.png)
 
-## 3. Discover Aidbox metrics with Grafana
+## 4. Discover Aidbox metrics with Grafana
 
 Grafana should be available on [http://localhost:3001](http://localhost:3001) address, login with `admin`/`password` credentials.
 
@@ -59,7 +63,7 @@ You probably need to wait for a while until the data is collected.
 
 ![Grafana](./resources/grafana-dashboard.png)
 
-## 4. Discover Aidbox traces with Zipkin
+## 6. Discover Aidbox traces with Zipkin
 
 Zipkin should be available on [http://localhost:9411/](http://localhost:9411/zipkin/) address. To see traces in Zipkin click the `Run query` button.
 

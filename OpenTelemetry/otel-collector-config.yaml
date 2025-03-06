@@ -23,10 +23,10 @@ service:
   pipelines:
     metrics:
       receivers: [otlp]
-      exporters: [prometheus, debug]
+      exporters: [prometheus]
     logs:
       receivers: [otlp]
-      exporters: [elasticsearch, debug]
+      exporters: [elasticsearch]
     traces:
       receivers: [otlp]
-      exporters: [zipkin, debug]
+      exporters: [zipkin]
