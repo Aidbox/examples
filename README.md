@@ -24,6 +24,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [CQL Java engine integration](cql-java-engine-integration)
 - [AWS S3 Aidbox integration](aws-s3-aidbox-integration)
 - [FHIR SDC API in AIdbox](fhir-sdc-api/)
+- [OpenTelemetry](OpenTelemetry/)
 
 ## Documentation
 
