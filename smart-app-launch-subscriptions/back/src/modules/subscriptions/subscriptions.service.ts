@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { EventsService } from '../events/events.service'
 import { AuthService } from '../auth/auth.service'
-import { Encounter, SubscriptionBundle } from '../../interfaces/subscription'
+import { Encounter, EncounterDetailed, SubscriptionBundle } from '../../interfaces/subscription'
 import { Patient } from 'src/interfaces/patient'
 import { ConfigService } from '@nestjs/config'
 
@@ -23,7 +23,7 @@ export class SubscriptionsService {
   }
 
   async postAllNewSubscriptionEvents(payload: SubscriptionBundle) {
-    
+
     // TODO refactor, display less data
     console.log('postAllNewSubscriptionEvents:')
     console.dir(payload, { depth: 10 })
@@ -31,6 +31,9 @@ export class SubscriptionsService {
     const encounter = this.getEncounter(payload)
     const patientId = this.getPatientId(encounter)
     const patient = await this.fetchPatientData(patientId)
+    const encounterDetailed = await this.fetchEncounterDetailed(encounter.id)
+
+    console.log(encounterDetailed)
 
     // TODO refactor, display less data
     console.log('\n\n\n')
@@ -60,6 +63,22 @@ export class SubscriptionsService {
     }
 
     const res = await fetch(`${this.aidboxUrl}/fhir/Patient/${patientId}`, {
+      method: 'GET',
+      headers
+    })
+
+    return await res.json()
+  }
+
+  private async fetchEncounterDetailed(patientId: string): Promise<EncounterDetailed> {
+    const credentials = this.authService.getSmartAppCredentials()
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Basic ' + credentials
+    }
+
+    // todo - using _include=Encounter:* is not good practice
+    const res = await fetch(`${this.aidboxUrl}/fhir/Encounter/?_id=${patientId}&_include=Encounter:*`, {
       method: 'GET',
       headers
     })

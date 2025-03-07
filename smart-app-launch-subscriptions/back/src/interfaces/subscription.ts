@@ -1,8 +1,8 @@
 interface SubscriptionEvent {
     eventNumber: number;
     focus: { reference: string };
-  }
-  
+}
+
 interface AidboxSubscriptionStatus {
     resourceType: 'AidboxSubscriptionStatus';
     status: string;
@@ -31,15 +31,23 @@ export interface Encounter {
     meta: Meta;
 }
 
+export interface EncounterDetailed {
+    id: string;
+    status: string;
+    subject: { reference: string };
+    resourceType: string;
+    meta: Meta;
+}
+
 interface Entry {
     resource?: AidboxSubscriptionStatus | Encounter;
     request?: Request;
     fullUrl?: string;
 }
-  
+
 export interface SubscriptionBundle {
     resourceType: 'Bundle';
     type: string;
     timestamp: string;
     entry: Entry[];
-  }
+}
