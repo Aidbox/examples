@@ -3,13 +3,19 @@ import { List, Typography } from 'antd'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import updateLocale from 'dayjs/plugin/updateLocale'
+import { RightOutlined } from '@ant-design/icons'
 
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
 
 const { Text } = Typography
 
-export const NotificationMessage = ({ event }: { event: EhrEvent }) => {
+interface NotificationMessageProps {
+  event: EhrEvent
+  onClick: (event: EhrEvent) => void
+}
+
+export const NotificationMessage = ({ event, onClick }: NotificationMessageProps) => {
 
   const getMessage = (event: EhrEvent) => {
     switch (event.type) {
@@ -22,7 +28,13 @@ export const NotificationMessage = ({ event }: { event: EhrEvent }) => {
   }
 
   return (
-    <List.Item>
+    <List.Item
+      onClick={() => onClick(event)}
+      style={{ cursor: 'pointer' }}
+      actions={[<RightOutlined key="arrow" />]}
+      className="ant-list-item-action"
+      extra={<RightOutlined />}
+    >
       <List.Item.Meta
         title={
           <Text>{getMessage(event)}</Text>

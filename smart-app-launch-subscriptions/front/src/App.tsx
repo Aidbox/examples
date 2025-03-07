@@ -7,13 +7,15 @@ import { NotificationBell } from './components/notification-bell'
 // todo - store apiKey in context
 
 const DefaultConfig = {
-  height: 400,
-  width: 300
+  height: 550,
+  width: 350
 }
 
 const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaunchSubscriptionsConfig, iframe: HTMLIFrameElement, iframeDoc: Document, iframeWindow: Window }) => {
-  const bellOffset = 10
-  const [bellSize] = useState({ width: 60, height: 60 })
+  const defaultBellSize = 50
+  const shadowOffset = 20
+  const bellOffset = shadowOffset
+  const [bellSize] = useState({ width: defaultBellSize + bellOffset, height: defaultBellSize + bellOffset })
   const [events, setEvents] = useState<EhrEvent[]>([])
   const [uid, setUid] = useState<string | null>(null)
 
@@ -77,7 +79,7 @@ const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaun
 
   const setFrameSize = useCallback((open: boolean) => {
     if (open) {
-      iframe.style.width = `${width}px`
+      iframe.style.width = `${width + shadowOffset * 2}px`
       iframe.style.height = `${height}px`
     } else {
       setTimeout(() => {
@@ -99,10 +101,11 @@ const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaun
           content={<NotificationExplorer events={events} />}
           getPopupContainer={() => iframeDoc.body}
           placement='top'
+          align={{ offset: [shadowOffset * -1, 0] }}
           trigger={['click']}
           styles={{
             body: {
-              height: height - bellSize.height - bellOffset * 2,
+              height: height - bellSize.height - bellOffset,
               overflowY: 'auto',
               width
             }
