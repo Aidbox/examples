@@ -1,3 +1,5 @@
+// todo - make shared between front and back
+
 interface Meta {
   versionId: string
   lastUpdated?: string
@@ -52,24 +54,31 @@ interface Diagnosis {
   condition: Condition
 }
 
-interface Class {
+interface EncounterClass {
   code: string
   system: string
   display: string
 }
 
-interface Resource {
-  resourceType: string
+export interface EncounterResource {
+  resourceType: 'Encounter'
   id: string
   meta: Meta
-  class?: Class
+  class?: EncounterClass
   status?: string
   subject?: Condition
   diagnosis?: Diagnosis[]
+  generalPractitioner?: Condition[]
+}
+
+export interface PatientResource {
+  resourceType: 'Patient'
+  id: string
+  meta: Meta
   multipleBirthBoolean?: boolean
   address?: Address[]
   managingOrganization?: Organization
-  name?: Name[]
+  name?: PatientName[]
   birthDate?: string
   extension?: Extension[]
   communication?: Communication[]
@@ -79,11 +88,26 @@ interface Resource {
   gender?: string
   maritalStatus?: Code
   text?: Text
+}
+
+export interface OrganizationResource {
+  resourceType: 'Organization'
+  id: string
+  name?: string
+}
+
+export interface ConditionResource {
+  resourceType: 'Condition'
+  id: string
+  meta: Meta
   code?: Code
+  subject?: Condition
   clinicalStatus?: Code
 }
 
-interface Name {
+type Resource = EncounterResource | PatientResource | OrganizationResource | ConditionResource
+
+interface PatientName {
   use: string
   given: string[]
   family: string
@@ -131,13 +155,6 @@ export interface CreateEncounterBundle {
   entry: Entry[]
 }
 
-export interface SmartAppLaunchSubscriptionsConfig {
-  apiKey: string
-  height?: number
-  width?: number
-}
-
-// todo - make shared between front and back
 export interface EhrEventBase {
   recipient: string
   date: string

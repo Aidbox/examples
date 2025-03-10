@@ -122,7 +122,6 @@ POST /fhir/Encounter
 
 {
   "resourceType": "Encounter",
-  "id": "example-encounter-with-condition",
   "subject": {
     "resourceType": "Patient",
     "id": "example-patient"

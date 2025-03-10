@@ -1,8 +1,9 @@
 import { ConfigProvider, Popover } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { EhrEvent, SmartAppLaunchSubscriptionsConfig } from './interfaces'
+import { SmartAppLaunchSubscriptionsConfig } from './interfaces'
 import { NotificationExplorer } from './components/notification-explorer'
 import { NotificationBell } from './components/notification-bell'
+import { EhrEvent } from './interfaces/bundle'
 
 // todo - store apiKey in context
 

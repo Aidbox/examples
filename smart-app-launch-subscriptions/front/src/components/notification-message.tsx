@@ -1,8 +1,8 @@
-import { EhrEvent } from '../interfaces'
 import { List, Typography } from 'antd'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import updateLocale from 'dayjs/plugin/updateLocale'
+import { EhrEvent, PatientResource } from '../interfaces/bundle'
 
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
@@ -21,7 +21,7 @@ const getMessage = (event: EhrEvent) => {
       const patientEntry = event.bundle.entry.find(e => e.resource.resourceType === 'Patient')
 
       const encounter = encounterEntry?.resource
-      const patient = patientEntry?.resource
+      const patient = patientEntry?.resource as PatientResource | undefined
 
       if (!encounter || !patient) return 'Encounter created, but details are missing'
 

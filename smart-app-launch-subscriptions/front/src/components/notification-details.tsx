@@ -1,7 +1,7 @@
-import { CreateEncounterBundle, EhrEvent, EhrEventCreateEncounter } from '../interfaces'
 import { Button, Typography } from 'antd'
 import { LeftOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
+import { ConditionResource, CreateEncounterBundle, EhrEvent, EhrEventCreateEncounter, EncounterResource, PatientResource } from '../interfaces/bundle'
 
 const { Text } = Typography
 
@@ -30,16 +30,13 @@ const flattenFhirObject = (obj: Object, prefix = '', result: Record<string, stri
 const extractCreateEncounterData = (bundle: CreateEncounterBundle): { label: string, value: string }[] => {
   const encounterEntry = bundle.entry.find(e => e.resource.resourceType === 'Encounter')
   const patientEntry = bundle.entry.find(e => e.resource.resourceType === 'Patient')
-  const organizationEntry = bundle.entry.find(e => e.resource.resourceType === 'Organization')
   const conditionEntries = bundle.entry.filter(e => e.resource.resourceType === 'Condition')
 
-  const encounter = encounterEntry?.resource
-  const patient = patientEntry?.resource
-  const organization = organizationEntry?.resource
-  const conditions = conditionEntries.map(c => c.resource)
+  const encounter = encounterEntry?.resource as EncounterResource | undefined
+  const patient = patientEntry?.resource as PatientResource | undefined
+  const conditions = conditionEntries.map(c => c.resource) as ConditionResource[]
 
   return [
-    { label: 'Encounter ID', value: encounter?.id ?? 'N/A' },
     { label: 'Encounter Status', value: encounter?.status ?? 'N/A' },
     { label: 'Encounter Class', value: encounter?.class?.display ?? 'N/A' },
     { label: 'Encounter Created At', value: encounter?.meta?.extension?.find(e => e.url === 'ex:createdAt')?.valueInstant ?? 'N/A' },
@@ -49,9 +46,7 @@ const extractCreateEncounterData = (bundle: CreateEncounterBundle): { label: str
     { label: 'Patient Gender', value: patient?.gender ?? 'N/A' },
     { label: 'Patient Address', value: patient?.address?.map(a => `${a.line?.join(' ')}, ${a.city}, ${a.state}, ${a.country}`).join('; ') ?? 'N/A' },
     { label: 'Patient Phone', value: patient?.telecom?.map(t => `${t.system}: ${t.value}`).join('; ') ?? 'N/A' },
-    { label: 'Patient Organization', value: patient?.managingOrganization?.display ?? 'N/A' },
-
-    { label: 'Managing Organization', value: organization?.name ?? 'N/A' },
+    { label: 'Patient Managing Organization', value: patient?.managingOrganization?.display ?? 'N/A' },
 
     { label: 'Practitioner Reference', value: encounter?.generalPractitioner?.map(gp => gp.reference).join(', ') ?? 'N/A' },
 
