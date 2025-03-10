@@ -34,12 +34,12 @@ Wait until all components are pulled and started. The components are accessible 
 
 - Aidbox - http://localhost:8080  
 - Smart App Subscriptions backend - http://localhost:9000
-- Example HTML page - http://localhost:7070/launcher.html
+- Example HTML page - http://localhost:7070
 - Example React page - http://localhost:7080
 
 # Step 2: Create Subscription resources in Aidbox
 
-Open [API REST console](http://localhost:8080/ui/console#/rest) in Aidbox and run the following requests:
+Open [Aidbox](http://localhost:8080), log in using the username `admin` and the password `password`, then go to [API REST console](http://localhost:8080/ui/console#/rest) and run the following requests:
 
 **1. Create SubscriptionTopic**
 ```
@@ -118,11 +118,10 @@ Open [API REST console](http://localhost:8080/ui/console#/rest) in Aidbox and ru
 
 **1. Mock Encounter**
 ```
-PUT /Encounter
+PUT /fhir/Encounter
 
 {
   "resourceType": "Encounter",
-  "id": "example-encounter",
   "subject": {
     "resourceType": "Patient",
     "id": "example-patient"
