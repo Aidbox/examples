@@ -1,3 +1,4 @@
+// TODO make compliant with encounterDetailed
 export interface EhrEventBase {
   recipient: string
   date: string

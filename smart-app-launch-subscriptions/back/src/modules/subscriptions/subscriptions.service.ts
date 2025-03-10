@@ -59,7 +59,7 @@ export class SubscriptionsService {
         recipient: practitionerId,
         date: new Date().toISOString(),
         params: {
-          encounter,
+          encounter: encounterDetailed,
           patient
         }
       })
