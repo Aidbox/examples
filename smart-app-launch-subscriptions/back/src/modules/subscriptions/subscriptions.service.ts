@@ -4,6 +4,7 @@ import { AuthService } from '../auth/auth.service'
 import { Encounter, SubscriptionBundle } from '../../interfaces/subscription'
 import { Patient } from 'src/interfaces/patient'
 import { ConfigService } from '@nestjs/config'
+import { Bundle } from 'src/interfaces/bundle'
 
 @Injectable()
 export class SubscriptionsService {
@@ -75,9 +76,7 @@ export class SubscriptionsService {
     return await res.json()
   }
 
-  // TODO add types
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async fetchEncounterDetailed(encounterId: string): Promise<any> {
+  private async fetchEncounterDetailed(encounterId: string): Promise<Bundle> {
     const credentials = this.authService.getSmartAppCredentials()
     const headers = {
       'Content-Type': 'application/json',
@@ -96,9 +95,7 @@ export class SubscriptionsService {
     return await res.json()
   }
 
-  // TODO add types
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private getPractitionerId(bundle: any): string {
+  private getPractitionerId(bundle: Bundle): string {
     
     const patient = bundle.entry.find(entry => entry.resource?.resourceType === 'Patient')?.resource as Patient
 

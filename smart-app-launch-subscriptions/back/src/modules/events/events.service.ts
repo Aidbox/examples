@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { MessageEvent } from '@nestjs/common'
 import { Observable, Subject } from 'rxjs'
-import { EhrEventBase } from '../../interfaces/ehr-event'
+import { Notification } from 'src/interfaces/bundle'
 
 @Injectable()
 export class EventsService {
@@ -21,7 +21,7 @@ export class EventsService {
     }
   }
 
-  sendMessage<T extends EhrEventBase>(data: T) {
+  sendMessage<T extends Notification>(data: T) {
     const { recipient } = data
 
     console.log('\n\n\n')
