@@ -118,11 +118,11 @@ Open [API REST console](http://localhost:8080/ui/console#/rest) in Aidbox and ru
 
 **1. Mock Encounter**
 ```
-PUT /Encounter
+POST /fhir/Encounter
 
 {
   "resourceType": "Encounter",
-  "id": "example-encounter",
+  "id": "example-encounter-with-condition",
   "subject": {
     "resourceType": "Patient",
     "id": "example-patient"
@@ -132,7 +132,14 @@ PUT /Encounter
     "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
     "display": "inpatient encounter"
   },
-  "status": "in-progress"
+  "status": "in-progress",
+  "diagnosis": [
+    {
+      "condition": {
+        "reference": "Condition/example-condition-from-encounter"
+      }
+    }
+  ]
 }
 ```
 

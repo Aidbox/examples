@@ -28,12 +28,23 @@ export class SubscriptionsService {
     console.log('postAllNewSubscriptionEvents:')
     console.dir(payload, { depth: 10 })
 
+    // TODO make getEncounterId instead of getEncounter and getPatientId and fetchpatientData
     const encounter = this.getEncounter(payload)
+
+    console.log('\n\n\n')
+    console.log('encounter:')
+    console.log(encounter)
+
     const patientId = this.getPatientId(encounter)
     const patient = await this.fetchPatientData(patientId)
     const encounterDetailed = await this.fetchEncounterDetailed(encounter.id)
 
-    console.log(encounterDetailed)
+    // TODO find patient in encounterDetailed
+    // TODO find practitionerId in encounterDetailed
+
+    console.log('\n\n\n')
+    console.log('encounterDetailed:')
+    console.dir(encounterDetailed, { depth: 10 })
 
     // TODO refactor, display less data
     console.log('\n\n\n')
@@ -70,15 +81,18 @@ export class SubscriptionsService {
     return await res.json()
   }
 
-  private async fetchEncounterDetailed(patientId: string): Promise<EncounterDetailed> {
+  private async fetchEncounterDetailed(encounterId: string): Promise<EncounterDetailed> {
     const credentials = this.authService.getSmartAppCredentials()
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Basic ' + credentials
     }
 
-    // todo - using _include=Encounter:* is not good practice
-    const res = await fetch(`${this.aidboxUrl}/fhir/Encounter/?_id=${patientId}&_include=Encounter:*`, {
+    const url = `${this.aidboxUrl}/fhir/Encounter/?_id=${encounterId}&_include=Encounter:patient&_include=Encounter:practitioner&_revinclude:iterate=Condition:subject`
+
+    console.log(url)
+
+    const res = await fetch(url, {
       method: 'GET',
       headers
     })
