@@ -25,31 +25,16 @@ export class SubscriptionsService {
 
   async postAllNewSubscriptionEvents(payload: SubscriptionBundle) {
 
-    // TODO refactor, display less data
-    console.log('postAllNewSubscriptionEvents:')
-    console.dir(payload, { depth: 10 })
+    console.log('Webhook from Aidbox received!')
 
-    // TODO make getEncounterId instead of getEncounter and getPatientId and fetchpatientData
     const encounterId = this.getEncounterId(payload)
-
-    console.log('\n\n\n')
-    console.log('encounterId:')
-    console.log(encounterId)
+    console.log(`Encounter ID: ${encounterId}`)
 
     const bundle = await this.fetchEncounterDetailed(encounterId)
 
-    // TODO find patient in encounterDetailed
-    // TODO find practitionerId in encounterDetailed
-
-    console.log('\n\n\n')
-    console.log('encounterDetailed (bundle):')
-    console.dir(bundle, { depth: 10 })
-
     const practitionerId = this.getPractitionerId(bundle)
 
-    console.log('\n\n\n')
-    console.log('practitionerId:')
-    console.log(practitionerId)
+    console.log(`Practitioner ID: ${practitionerId}`)
 
     if (practitionerId) {
       this.eventsService.sendMessage({

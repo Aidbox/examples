@@ -25,7 +25,7 @@ export class EventsService {
     const { recipient } = data
 
     console.log('\n\n\n')
-    console.log('sendMessage:')
+    console.log('This data will be send to the client:')
     console.dir(data, { depth: 10 })
 
     if (this.clientStreams.has(recipient)) {
