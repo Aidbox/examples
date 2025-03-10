@@ -8,15 +8,15 @@ Widget allows to receive and display notifications about Encounter of relevant P
  **Use Case**: Integration of Inpatient and Outpatient EHR Systems with Smart App for PCP Practitioners
 
 #### Actors:
-- 3rd Party EHR (Inpatient): An external Electronic Health Record system used for inpatient encounters.
+- **3rd Party EHR (Inpatient)**: An external Electronic Health Record system used for inpatient encounters.
 
-- Aidbox: A FHIR-based backend that aggregates and manages healthcare data.
+- **Aidbox**: A FHIR-based backend that aggregates and manages healthcare data.
 
-- Smart App: A healthcare application that processes patient encounter data and integrates with outpatient EHR systems.
+- **Smart App**: A healthcare application that processes patient encounter data and integrates with outpatient EHR systems.
 
-- EHR UI (Outpatient, Ambulatory): The front-end system used by healthcare practitioners for outpatient and ambulatory care.
+- **EHR UI (Outpatient, Ambulatory)**: The front-end system used by healthcare practitioners for outpatient and ambulatory care.
 
-- PCP Practitioner: The primary care provider (PCP) who interacts with the system through the EHR UI and Smart App.
+- **PCP Practitioner**: The primary care provider (PCP) who interacts with the system through the EHR UI and Smart App.
 
 ### Component Diagram
 
@@ -24,9 +24,7 @@ Widget allows to receive and display notifications about Encounter of relevant P
 
 ### Workflow
 **1. Encounter Creation in 3rd Party EHR (Inpatient):**
-
 - A patient has an encounter in an inpatient setting.
-- This encounter data is stored in the 3rd party EHR.
 
 **2.Data Transfer to Aidbox:**
 - The encounter information is sent to Aidbox, which acts as an intermediary FHIR-based data storage and processing layer.
