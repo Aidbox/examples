@@ -27,4 +27,4 @@ module.exports = [
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
-];
+]

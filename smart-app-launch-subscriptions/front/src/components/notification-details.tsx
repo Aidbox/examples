@@ -51,7 +51,7 @@ const extractCreateEncounterData = (bundle: CreateEncounterBundle): { label: str
     { label: 'Patient Phone', value: patient?.telecom?.map(t => `${t.system}: ${t.value}`).join('; ') ?? 'N/A' },
     { label: 'Patient Organization', value: patient?.managingOrganization?.display ?? 'N/A' },
 
-    { label: 'Managing Organization', value: organization?.name as unknown as string ?? 'N/A' },
+    { label: 'Managing Organization', value: organization?.name ?? 'N/A' },
 
     { label: 'Practitioner Reference', value: encounter?.generalPractitioner?.map(gp => gp.reference).join(', ') ?? 'N/A' },
 
