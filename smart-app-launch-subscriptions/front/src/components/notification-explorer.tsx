@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { NotificationMessage } from './notification-message'
 import { NotificationDetails } from './notification-details'
-import { EhrEvent } from '../interfaces'
 import { Empty, List, Drawer } from 'antd'
+import { EhrEvent } from '../interfaces/bundle'
 
 export const NotificationExplorer = ({ events }: { events: EhrEvent[] }) => {
   const [selectedEvent, setSelectedEvent] = useState<EhrEvent | null>(null)

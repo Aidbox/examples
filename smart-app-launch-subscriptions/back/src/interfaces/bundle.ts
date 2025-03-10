@@ -1,3 +1,5 @@
+// todo - make shared between front and back
+
 interface Meta {
   versionId: string
   lastUpdated?: string
@@ -148,9 +150,21 @@ export interface CreateEncounterBundle {
   entry: Entry[]
 }
 
-export interface Notification {
-  type: string
+export interface EhrEventBase {
   recipient: string
   date: string
+}
+
+export interface EhrEventCreateEncounter extends EhrEventBase {
+  type: 'encounter_created'
   bundle: CreateEncounterBundle
 }
+
+export interface EhrEventTest extends EhrEventBase {
+  type: 'test'
+  bundle: {
+    testParam: string
+  }
+}
+
+export type EhrEvent = EhrEventCreateEncounter | EhrEventTest
