@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { MessageEvent } from '@nestjs/common'
 import { Observable, Subject } from 'rxjs'
-import { EhrEvent } from '../../interfaces/ehr-event'
+import { EhrEventBase } from '../../interfaces/ehr-event'
 
 @Injectable()
 export class EventsService {
@@ -21,8 +21,12 @@ export class EventsService {
     }
   }
 
-  sendMessage<T extends EhrEvent>(data: T) {
+  sendMessage<T extends EhrEventBase>(data: T) {
     const { recipient } = data
+
+    console.log('\n\n\n')
+    console.log('sendMessage:')
+    console.dir(data, { depth: 10 })
 
     if (this.clientStreams.has(recipient)) {
       this.clientStreams.get(recipient).next({ data })

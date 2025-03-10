@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { EventsService } from '../events/events.service'
 import { AuthService } from '../auth/auth.service'
-import { Encounter, EncounterDetailed, SubscriptionBundle } from '../../interfaces/subscription'
+import { Encounter, SubscriptionBundle } from '../../interfaces/subscription'
 import { Patient } from 'src/interfaces/patient'
 import { ConfigService } from '@nestjs/config'
 
@@ -29,39 +29,33 @@ export class SubscriptionsService {
     console.dir(payload, { depth: 10 })
 
     // TODO make getEncounterId instead of getEncounter and getPatientId and fetchpatientData
-    const encounter = this.getEncounter(payload)
+    const encounterId = this.getEncounterId(payload)
 
     console.log('\n\n\n')
-    console.log('encounter:')
-    console.log(encounter)
+    console.log('encounterId:')
+    console.log(encounterId)
 
-    const patientId = this.getPatientId(encounter)
-    const patient = await this.fetchPatientData(patientId)
-    const encounterDetailed = await this.fetchEncounterDetailed(encounter.id)
+    const bundle = await this.fetchEncounterDetailed(encounterId)
 
     // TODO find patient in encounterDetailed
     // TODO find practitionerId in encounterDetailed
 
     console.log('\n\n\n')
-    console.log('encounterDetailed:')
-    console.dir(encounterDetailed, { depth: 10 })
+    console.log('encounterDetailed (bundle):')
+    console.dir(bundle, { depth: 10 })
 
-    // TODO refactor, display less data
+    const practitionerId = this.getPractitionerId(bundle)
+
     console.log('\n\n\n')
-    console.log('patient: ')
-    console.dir(patient, { depth: 10 })
-
-    const practitionerId = this.getPractitionerId(patient)
+    console.log('practitionerId:')
+    console.log(practitionerId)
 
     if (practitionerId) {
       this.eventsService.sendMessage({
         type: 'encounter_created',
         recipient: practitionerId,
         date: new Date().toISOString(),
-        params: {
-          encounter: encounterDetailed,
-          patient
-        }
+        bundle
       })
     }
   }
@@ -81,7 +75,9 @@ export class SubscriptionsService {
     return await res.json()
   }
 
-  private async fetchEncounterDetailed(encounterId: string): Promise<EncounterDetailed> {
+  // TODO add types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async fetchEncounterDetailed(encounterId: string): Promise<any> {
     const credentials = this.authService.getSmartAppCredentials()
     const headers = {
       'Content-Type': 'application/json',
@@ -100,7 +96,12 @@ export class SubscriptionsService {
     return await res.json()
   }
 
-  private getPractitionerId(patient: Patient): string {
+  // TODO add types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private getPractitionerId(bundle: any): string {
+    
+    const patient = bundle.entry.find(entry => entry.resource?.resourceType === 'Patient')?.resource as Patient
+
     const generalPractitionerRef = patient.generalPractitioner?.[0]?.reference
 
     const practitionerId = generalPractitionerRef ? generalPractitionerRef.split('/')[1] : null
@@ -108,7 +109,7 @@ export class SubscriptionsService {
     return practitionerId
   }
 
-  private getEncounter(payload: SubscriptionBundle): Encounter {
+  private getEncounterId(payload: SubscriptionBundle): string {
     if (!payload || !payload.entry || !Array.isArray(payload.entry)) {
       throw new Error('Invalid payload structure')
     }
@@ -119,7 +120,7 @@ export class SubscriptionsService {
       throw new Error('Encounter resource not found in payload')
     }
 
-    return encounter
+    return encounter?.id
   }
 
   private getPatientId(encounter: Encounter): string {
