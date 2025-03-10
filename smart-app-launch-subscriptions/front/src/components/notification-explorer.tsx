@@ -44,7 +44,6 @@ export const NotificationExplorer = ({ events }: { events: EhrEvent[] }) => {
         width="100%"
         getContainer={false}
         mask={false}
-        // style={{ position: 'absolute' }}
         styles={{
           wrapper: { boxShadow: 'none' },
           content: { boxShadow: 'none', padding: 0 },

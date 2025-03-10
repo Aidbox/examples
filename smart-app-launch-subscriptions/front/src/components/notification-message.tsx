@@ -3,7 +3,6 @@ import { List, Typography } from 'antd'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import updateLocale from 'dayjs/plugin/updateLocale'
-import { RightOutlined } from '@ant-design/icons'
 
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
@@ -15,25 +14,35 @@ interface NotificationMessageProps {
   onClick: (event: EhrEvent) => void
 }
 
-export const NotificationMessage = ({ event, onClick }: NotificationMessageProps) => {
+const getMessage = (event: EhrEvent) => {
+  switch (event.type) {
+    case 'encounter_created': {
+      const encounterEntry = event.bundle.entry.find(e => e.resource.resourceType === 'Encounter')
+      const patientEntry = event.bundle.entry.find(e => e.resource.resourceType === 'Patient')
 
-  const getMessage = (event: EhrEvent) => {
-    switch (event.type) {
-      case 'encounter_created':
-        const { patient, encounter } = event.params
-        const patientName = `${patient.name[0].prefix[0]} ${patient.name[0].given.join(', ')}`
-        return `New encounter for ${patientName}: ${encounter.id}`
+      const encounter = encounterEntry?.resource
+      const patient = patientEntry?.resource
+
+      if (!encounter || !patient) return 'Encounter created, but details are missing'
+
+      const patientPrefix = patient.name?.[0]?.prefix?.[0] ?? ''
+      const patientGiven = patient.name?.[0]?.given?.join(' ') ?? 'Unknown'
+      const patientFamily = patient.name?.[0]?.family ?? ''
+      const patientName = [patientPrefix, patientGiven, patientFamily].filter(Boolean).join(' ')
+
+      return `New encounter for ${patientName || 'Unknown Patient'}: ${encounter.id ?? 'No ID'}`
     }
-    return ''
+    default:
+      return ''
   }
+}
 
+export const NotificationMessage = ({ event, onClick }: NotificationMessageProps) => {
   return (
     <List.Item
       onClick={() => onClick(event)}
       style={{ cursor: 'pointer' }}
-      actions={[<RightOutlined key="arrow" />]}
       className="ant-list-item-action"
-      extra={<RightOutlined />}
     >
       <List.Item.Meta
         title={
