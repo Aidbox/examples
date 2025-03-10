@@ -135,8 +135,36 @@ POST /fhir/Encounter
   "status": "in-progress",
   "diagnosis": [
     {
+      "use": {
+        "coding": [
+          {
+            "code": "DD"
+          }
+        ]
+      },
       "condition": {
         "reference": "Condition/example-condition-from-encounter"
+      }
+    }
+  ],
+  "serviceProvider": {
+      "display": "Test Hospital",
+      "reference": "Organization/example-organization"
+  },
+  "participant": [
+    {
+      "type": [
+        {
+          "coding": [
+            {
+              "code": "PPRF"
+            }
+          ]
+        }
+      ],
+      "individual": {
+        "display": "Doe John",
+        "reference": "Practitioner/example-practitioner-as-participant"
       }
     }
   ]

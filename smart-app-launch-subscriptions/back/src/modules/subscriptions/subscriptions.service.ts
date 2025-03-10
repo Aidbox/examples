@@ -45,22 +45,7 @@ export class SubscriptionsService {
       })
     }
   }
-
-  private async fetchPatientData(patientId: string): Promise<Patient> {
-    const credentials = this.authService.getSmartAppCredentials()
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Basic ' + credentials
-    }
-
-    const res = await fetch(`${this.aidboxUrl}/fhir/Patient/${patientId}`, {
-      method: 'GET',
-      headers
-    })
-
-    return await res.json()
-  }
-
+  
   private async fetchEncounterDetailed(encounterId: string): Promise<CreateEncounterBundle> {
     const credentials = this.authService.getSmartAppCredentials()
     const headers = {

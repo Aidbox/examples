@@ -165,6 +165,42 @@
     {
       "request": {
         "method": "POST",
+        "url": "/Practitioner"
+      },
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "example-practitioner-as-participant",
+        "name": [
+          {
+            "use": "official",
+            "family": "Doe",
+            "given": ["John"]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+1-444-444-4444",
+            "use": "work"
+          }
+        ],
+        "address": [
+          {
+            "use": "work",
+            "line": ["123 Main Street"],
+            "city": "New York",
+            "state": "NY",
+            "postalCode": "67890",
+            "country": "USA"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1975-02-25"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
         "url": "/User"
       },
       "resource": {
@@ -391,6 +427,11 @@
         ],
         "telecom": [
           {
+            "use": "mobile",
+            "value": "+1-773-239-3564",
+            "system": "phone"
+          },
+          {
             "use": "home",
             "value": "555-524-6651",
             "system": "phone"
@@ -417,7 +458,9 @@
         "clinicalStatus": {
           "coding": [
             {
-              "code": "active"
+              "code": "active",
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "display": "Active"
             }
           ]
         },
