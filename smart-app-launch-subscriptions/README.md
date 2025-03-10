@@ -1,7 +1,45 @@
 # Smart App Launch Subscriptions
 
+## Description
 The Smart App Launch Subscriptions is an fullstack application which allows to integrate widget into your EHR UI.
-Widget allows to receive and display notifications about Encounter of relevant Patient of PCP Practitioner
+Widget allows to receive and display notifications about Encounter of relevant Patient of PCP Practitioner.
+
+## Use Case Description
+ **Use Case**: Integration of Inpatient and Outpatient EHR Systems with Smart App for PCP Practitioners
+
+#### Actors:
+- 3rd Party EHR (Inpatient): An external Electronic Health Record system used for inpatient encounters.
+
+- Aidbox: A FHIR-based backend that aggregates and manages healthcare data.
+
+- Smart App: A healthcare application that processes patient encounter data and integrates with outpatient EHR systems.
+
+- EHR UI (Outpatient, Ambulatory): The front-end system used by healthcare practitioners for outpatient and ambulatory care.
+
+- PCP Practitioner: The primary care provider (PCP) who interacts with the system through the EHR UI and Smart App.
+
+### Component Diagram
+
+![Diagram](docs/images/diagram.png)
+
+### Workflow
+**1. Encounter Creation in 3rd Party EHR (Inpatient):**
+
+- A patient has an encounter in an inpatient setting.
+- This encounter data is stored in the 3rd party EHR.
+
+**2.Data Transfer to Aidbox:**
+- The encounter information is sent to Aidbox, which acts as an intermediary FHIR-based data storage and processing layer.
+
+**3.Subscription to Updates by Smart App:**
+- Smart App subscribes to Aidbox to receive real-time updates on patient encounters.
+
+**4.Integration with Outpatient EHR UI:**
+- The Smart App processes the encounter data and integrates with the EHR UI (Outpatient, Ambulatory) through an embedded widget.
+
+**5.PCP Practitioner Interaction:**
+- The PCP Practitioner accesses patient encounter data through the EHR UI.
+- The practitioner can view and interact with the encounter data via the Smart App widget integrated into the EHR system.
 
 # Components
 
@@ -170,10 +208,6 @@ POST /fhir/Encounter
   ]
 }
 ```
-
-# Component Diagram
-
-![Diagram](docs/images/diagram.png)
 
 # Interaction Diagram
 
