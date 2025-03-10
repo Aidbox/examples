@@ -47,20 +47,27 @@ interface Diagnosis {
   condition: Condition
 }
 
-interface Class {
+interface EncounterClass {
   code: string
   system: string
   display: string
+}
+
+interface EncounterResource {
+  resourceType: 'Encounter'
+  id: string
+  meta: Meta
+  class?: EncounterClass
+  status?: string
+  subject?: Condition
+  diagnosis?: Diagnosis[]
+  generalPractitioner?: Condition[]
 }
 
 interface PatientResource {
   resourceType: 'Patient'
   id: string
   meta: Meta
-  class?: Class
-  status?: string
-  subject?: Condition
-  diagnosis?: Diagnosis[]
   multipleBirthBoolean?: boolean
   address?: Address[]
   managingOrganization?: Condition
@@ -74,11 +81,24 @@ interface PatientResource {
   gender?: string
   maritalStatus?: Code
   text?: Text
+}
+
+interface OrganizationResource {
+  resourceType: 'Organization'
+  id: string
+  name?: string
+}
+
+interface ConditionResource {
+  resourceType: 'Condition'
+  id: string
+  meta: Meta
   code?: Code
+  subject?: Condition
   clinicalStatus?: Code
 }
 
-type Resource = PatientResource
+type Resource = EncounterResource | PatientResource | OrganizationResource | ConditionResource
 
 interface PatientName {
   use: string
