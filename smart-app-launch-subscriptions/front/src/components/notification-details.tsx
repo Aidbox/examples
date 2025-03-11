@@ -1,5 +1,5 @@
-import { Button, Col, Divider, Row, Space, Typography } from 'antd'
-import { LeftOutlined, UserOutlined } from '@ant-design/icons'
+import { Avatar, Button, Col, Divider, Row, Space, Typography } from 'antd'
+import { LeftOutlined } from '@ant-design/icons'
 import { ConditionResource, CreateEncounterBundle, EhrEvent, EhrEventCreateEncounter, EncounterDetailsData, EncounterResource, PatientResource } from '../interfaces/bundle'
 import Title from 'antd/es/typography/Title'
 import dayjs from 'dayjs'
@@ -72,7 +72,9 @@ const EventEncounterCreated = ({ event }: { event: EhrEventCreateEncounter }) =>
     // <Card style={{ maxWidth: 500, margin: "auto", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
     <div>
       <Space align="start" style={{ display: "flex" }}>
-        <UserOutlined style={{ fontSize: 40, color: "#ccc" }} />
+        <Avatar style={{ backgroundColor: "#ccc", verticalAlign: 'middle' }} size="large">
+        {data.name[0]}
+      </Avatar>
         <div>
           <Text style={{ margin: 0 }}><strong>{data.name}</strong>, {data.yearsOld}, {data.gender}</Text>
           <br />
