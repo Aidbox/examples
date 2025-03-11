@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import { Observable, from, concat } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { EventsService } from './events.service'
+import { parseFhirBody } from 'src/utils'
 
 @Controller('events')
 export class EventsController {
@@ -32,6 +33,7 @@ export class EventsController {
 
   @Post('mark-as-read')
   markAsRead(@Req() req: Request) {
-    this.eventsService.markAsRead(req.body.ids)
+    const body = parseFhirBody(req.body)
+    this.eventsService.markAsRead(body.ids)
   }
 }

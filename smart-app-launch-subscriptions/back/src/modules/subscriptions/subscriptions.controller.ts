@@ -1,16 +1,7 @@
 import { Controller, Post, Req } from '@nestjs/common'
 import { SubscriptionsService } from './subscriptions.service'
 import { Request } from 'express'
-
-// todo - check for existing conventional solutions
-const parseFhirBody = (body: Buffer) => {
-  const raw = body.toString('utf8')
-  try {
-    return JSON.parse(raw)
-  } catch (error) {
-    throw new Error(`Cannot parse FHIR body: ${error?.message ?? 'unknown'}`)
-  }
-}
+import { parseFhirBody } from 'src/utils'
 
 @Controller('subscriptions')
 export class SubscriptionsController {

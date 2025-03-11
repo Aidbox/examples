@@ -1,23 +1,24 @@
 import { ConfigProvider, Popover } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { SmartAppLaunchSubscriptionsConfig } from './interfaces'
 import { NotificationExplorer } from './components/notification-explorer'
 import { NotificationBell } from './components/notification-bell'
-import { EhrEvent } from './interfaces/bundle'
+import { EhrEventState } from './interfaces/bundle'
+import { useApp } from './context/app'
 
-// todo - store apiKey and iframeDoc (maybe all iFrame data) in context
+// todo - store iframeDoc (maybe all iFrame data) in context
 
 const DefaultConfig = {
   height: 550,
   width: 350
 }
 
-const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaunchSubscriptionsConfig, iframe: HTMLIFrameElement, iframeDoc: Document, iframeWindow: Window }) => {
+const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, iframeDoc: Document, iframeWindow: Window }) => {
   const defaultBellSize = 50
   const shadowOffset = 20
   const bellOffset = shadowOffset
+  const { config } = useApp()
   const [bellSize] = useState({ width: defaultBellSize + bellOffset, height: defaultBellSize + bellOffset })
-  const [events, setEvents] = useState<EhrEvent[]>([])
+  const [events, setEvents] = useState<EhrEventState[]>([])
   const [uid, setUid] = useState<string | null>(null)
 
   const eventSourceRef = useRef<EventSource | null>(null)
@@ -53,7 +54,19 @@ const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaun
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data)
         console.log('New SSE event:', data)
-        setEvents((prev) => [data, ...prev])
+
+
+        setEvents((prev) => {
+          const index = prev.findIndex(e => e.uuid === data.uuid)
+
+          if (index !== -1) {
+            const updatedEvents = [...prev]
+            updatedEvents[index] = data
+            return updatedEvents
+          } else {
+            return [data, ...prev]
+          }
+        })
       }
 
       eventSource.onerror = () => {
@@ -114,7 +127,7 @@ const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaun
           onOpenChange={setFrameSize}
         >
           <span style={{ display: 'inline-block' }} ref={bellRef}>
-            <NotificationBell count={events.length} />
+            <NotificationBell count={events.filter(e => e.unread).length} />
           </span>
         </Popover>
       </div>

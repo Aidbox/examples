@@ -100,13 +100,11 @@ const EventEncounterCreated = ({ event }: { event: EhrEventCreateEncounter }) =>
 }
 
 interface NotificationDetailsProps {
-  event: EhrEvent | null
+  event: EhrEvent
   onBack: () => void
 }
 
 export const NotificationDetails = ({ event, onBack }: NotificationDetailsProps) => {
-  if (!event) return null
-
   const getEventTitle = (event: EhrEvent) => {
     switch (event.type) {
       case 'encounter_created':
