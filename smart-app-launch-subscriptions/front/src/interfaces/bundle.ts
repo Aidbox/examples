@@ -69,6 +69,11 @@ export interface EncounterResource {
   subject?: Condition
   diagnosis?: Diagnosis[]
   generalPractitioner?: Condition[]
+  serviceProvider?: Organization
+  period?: {
+    start: string
+    end: string
+  }
 }
 
 export interface PatientResource {

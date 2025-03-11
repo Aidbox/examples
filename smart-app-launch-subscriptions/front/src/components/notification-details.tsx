@@ -1,6 +1,5 @@
 import { Button, Typography } from 'antd'
 import { LeftOutlined } from '@ant-design/icons'
-import dayjs from 'dayjs'
 import { ConditionResource, CreateEncounterBundle, EhrEvent, EhrEventCreateEncounter, EncounterResource, PatientResource } from '../interfaces/bundle'
 
 const { Text } = Typography
@@ -39,7 +38,6 @@ const extractCreateEncounterData = (bundle: CreateEncounterBundle): { label: str
   return [
     { label: 'Encounter Status', value: encounter?.status ?? 'N/A' },
     { label: 'Encounter Class', value: encounter?.class?.display ?? 'N/A' },
-    { label: 'Encounter Created At', value: encounter?.meta?.extension?.find(e => e.url === 'ex:createdAt')?.valueInstant ?? 'N/A' },
 
     { label: 'Patient Name', value: patient?.name?.map(n => `${n.prefix?.join(' ')} ${n.given?.join(' ')} ${n.family}`).join(', ') ?? 'N/A' },
     { label: 'Patient Birth Date', value: patient?.birthDate ?? 'N/A' },
@@ -117,12 +115,12 @@ export const NotificationDetails = ({ event, onBack }: NotificationDetailsProps)
           onClick={onBack}
           style={{ position: 'absolute' }}
         />
-        <div style={{ flex: 1, textAlign: 'center' }}>
+        <div style={{ flex: 1 }}>
           <Text strong>{getEventTitle(event)}</Text>
-          <br />
+          {/* <br />
           <Text type="secondary" style={{ fontSize: '12px' }}>
             Received {dayjs(event.date).format('MMM D, YYYY HH:mm')}
-          </Text>
+          </Text> */}
         </div>
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '0 10px' }}>

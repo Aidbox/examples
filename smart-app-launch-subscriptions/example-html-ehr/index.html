@@ -263,6 +263,9 @@
 
 
 
+  <!-- Smart App Local Development -->
+  <!-- <script src="../front/dist/smart-app-launch.subscriptions.umd.js"></script> -->
+
 
   <!-- Smart App Integration -->
   <script src="./smart-app-launch.subscriptions.umd.js"></script>
@@ -270,7 +273,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       if (SmartAppLaunchSubscriptions) {
         SmartAppLaunchSubscriptions.init('notifications-container', {
-          apiKey: 'http://localhost:9000'
+          apiKey: 'http://localhost:9000',
+          width: 460
         })
       } else {
         console.error('SmartAppLaunchSubscriptions is not defined')
