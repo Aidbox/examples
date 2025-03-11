@@ -133,10 +133,6 @@ export const NotificationDetails = ({ event, onBack }: NotificationDetailsProps)
         />
         <div style={{ flex: 1 }}>
           <Text strong>{getEventTitle(event)}</Text>
-          {/* <br />
-          <Text type="secondary" style={{ fontSize: '12px' }}>
-            Received {dayjs(event.date).format('MMM D, YYYY HH:mm')}
-          </Text> */}
         </div>
       </div>
       <div style={{ flex: 1, overflow: 'auto', padding: '0 10px' }}>

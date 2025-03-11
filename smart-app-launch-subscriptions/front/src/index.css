@@ -1,1 +1,5 @@
-@import 'antd/dist/reset.css'
+@import 'antd/dist/reset.css';
+
+.ant-popover-inner-content {
+  height: 100% !important;
+}

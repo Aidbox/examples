@@ -5,7 +5,7 @@ import { NotificationExplorer } from './components/notification-explorer'
 import { NotificationBell } from './components/notification-bell'
 import { EhrEvent } from './interfaces/bundle'
 
-// todo - store apiKey in context
+// todo - store apiKey and iframeDoc (maybe all iFrame data) in context
 
 const DefaultConfig = {
   height: 550,
@@ -99,7 +99,7 @@ const App = ({ config, iframe, iframeDoc, iframeWindow }: { config: SmartAppLaun
         bottom: bellOffset
       }}>
         <Popover
-          content={<NotificationExplorer events={events} />}
+          content={<NotificationExplorer events={events} iframeDoc={iframeDoc} />}
           getPopupContainer={() => iframeDoc.body}
           placement='top'
           align={{ offset: [shadowOffset * -1, 0] }}
