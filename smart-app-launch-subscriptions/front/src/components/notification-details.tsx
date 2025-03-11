@@ -39,7 +39,7 @@ const extractCreateEncounterData = (bundle: CreateEncounterBundle): EncounterDet
   const conditions = conditionEntries.map(c => c.resource) as ConditionResource[]
 
   return {
-    name: patient?.name?.map(n => `${n.prefix?.join(' ')} ${n.given?.join(' ')} ${n.family}`).join(', ') ?? 'N/A',
+    name: patient?.name?.map(n => `${n.given?.join(' ')} ${n.family}`).join(', ') ?? 'N/A',
     yearsOld: patient?.birthDate ? `${Math.floor((new Date().getTime() - new Date(patient.birthDate).getTime()) / (1000 * 60 * 60 * 24 * 365))} y.o.` : 'N/A',
     gender: patient?.gender ?? 'N/A',
     phone: patient?.telecom?.map(t => t.value).join('; ') ?? 'N/A',
@@ -74,7 +74,8 @@ const EventEncounterCreated = ({ event }: { event: EhrEventCreateEncounter }) =>
       <Space align="start" style={{ display: "flex" }}>
         <UserOutlined style={{ fontSize: 40, color: "#ccc" }} />
         <div>
-          <Title level={5} style={{ margin: 0 }}>{data.name}, {data.yearsOld}, {data.gender}</Title>
+          <Text style={{ margin: 0 }}><strong>{data.name}</strong>, {data.yearsOld}, {data.gender}</Text>
+          <br />
           <Text type="secondary">Phone: {data.phone}</Text>
         </div>
       </Space>
@@ -88,7 +89,7 @@ const EventEncounterCreated = ({ event }: { event: EhrEventCreateEncounter }) =>
       <Title level={5}>Diagnosis</Title>
       {data.diagnosis.map((condition, index) => (
         <div key={index} style={{ marginBottom: '8px' }}>
-          <Text><strong>{condition.code?.coding[0]?.display ?? 'Unknown Condition'}</strong> (<Text code>{condition.code?.coding?.[0]?.code ?? 'N/A'}</Text>)</Text>
+          <Text>{++index + `)`} {condition.code?.coding[0]?.display ?? 'Unknown Condition'} <strong>{`(`}{condition.code?.coding?.[0]?.code ?? 'N/A'}{`)`}</strong></Text>
         </div>
       ))}
     </div>

@@ -89,19 +89,4 @@ export class SubscriptionsService {
 
     return encounter?.id
   }
-
-  private getPatientId(encounter: Encounter): string {
-    const patientRef = encounter.subject?.reference
-    if (!patientRef) {
-      throw new Error('Patient reference is not defined')
-    }
-
-    const patientId = patientRef.split('/')[1]
-
-    if (!patientId) {
-      throw new Error('patient id is not defined')
-    }
-
-    return patientId
-  }
 }
