@@ -2,22 +2,45 @@ import { useState } from 'react'
 import { NotificationMessage } from './notification-message'
 import { NotificationDetails } from './notification-details'
 import { Empty, List, Drawer, Button, Row, Col, Tooltip, Typography } from 'antd'
-import { EhrEvent } from '../interfaces/bundle'
+import { EhrEvent, EhrEventState } from '../interfaces/bundle'
 import { SettingOutlined } from '@ant-design/icons'
 import { ScrollableContent } from './scrollable-content'
 import { NotificationSettings } from './notification-settings'
+import { useApp } from '../context/app'
 
 const { Title } = Typography
 
-export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEvent[], iframeDoc: Document }) => {
+export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventState[], iframeDoc: Document }) => {
   const [selectedEvent, setSelectedEvent] = useState<EhrEvent | null>(null)
   const [drawerVisible, setDrawerVisible] = useState(false)
   const [drawerMode, setDrawerMode] = useState<'settings' | 'details'>('details')
+  const { config } = useApp()
 
-  const handleNotificationClick = (event: EhrEvent) => {
+  const handleNotificationClick = async (event: EhrEventState) => {
     setSelectedEvent(event)
     setDrawerMode('details')
     setDrawerVisible(true)
+
+    if (event.unread) {
+      try {
+        const response = await fetch(`${config.apiKey}/events/mark-as-read`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ids: [event.uuid] })
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+
+        const data = await response.json()
+        console.log('Marked as read:', data)
+      } catch (error) {
+        console.error('Error marking notification as read:', error)
+      }
+    }
   }
 
   const handleSettingsClick = () => {
@@ -42,7 +65,7 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEvent[]
                 <Button
                   type="text"
                   icon={<SettingOutlined style={{ fontSize: 20 }} />}
-                  onClick={handleSettingsClick} // Открываем настройки
+                  onClick={handleSettingsClick}
                 />
               </Tooltip>
             </Col>
@@ -54,7 +77,7 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEvent[]
             renderItem={(event) => (
               <NotificationMessage
                 event={event}
-                onClick={handleNotificationClick}
+                onClick={(event) => handleNotificationClick(event)}
               />
             )}
             locale={{ emptyText: <Empty description="No notifications" /> }}
@@ -81,7 +104,7 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEvent[]
         {drawerMode === 'settings' ? (
           <NotificationSettings onBack={handleBackClick} />
         ) : (
-          <NotificationDetails event={selectedEvent} onBack={handleBackClick} />
+          selectedEvent && <NotificationDetails event={selectedEvent} onBack={handleBackClick} />
         )}
       </Drawer>
     </>

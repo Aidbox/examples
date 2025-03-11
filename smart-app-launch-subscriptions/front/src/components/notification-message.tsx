@@ -1,9 +1,9 @@
 import { Badge, List, Typography } from 'antd'
-import { RightOutlined} from '@ant-design/icons'
+import { RightOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import updateLocale from 'dayjs/plugin/updateLocale'
-import { EhrEvent, EncounterResource, PatientResource } from '../interfaces/bundle'
+import { EhrEventState, EncounterResource, PatientResource } from '../interfaces/bundle'
 
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
@@ -11,11 +11,11 @@ dayjs.extend(updateLocale)
 const { Text } = Typography
 
 interface NotificationMessageProps {
-  event: EhrEvent
-  onClick: (event: EhrEvent) => void
+  event: EhrEventState
+  onClick: (event: EhrEventState) => void
 }
 
-const getMessage = (event: EhrEvent) => {
+const getMessage = (event: EhrEventState) => {
   switch (event.type) {
     case 'encounter_created': {
       const encounterEntry = event.bundle.entry.find(e => e.resource.resourceType === 'Encounter')
@@ -24,7 +24,9 @@ const getMessage = (event: EhrEvent) => {
       const encounter = encounterEntry?.resource as EncounterResource | undefined
       const patient = patientEntry?.resource as PatientResource | undefined
 
-      if (!encounter || !patient) return 'Encounter created, but details are missing'
+      if (!encounter || !patient) {
+        return 'Details are missing'
+      }
 
       const patientPrefix = patient.name?.[0]?.prefix?.[0] ?? ''
       const patientGiven = patient.name?.[0]?.given?.join(' ') ?? 'Unknown'
@@ -53,7 +55,7 @@ export const NotificationMessage = ({ event, onClick }: NotificationMessageProps
       actions={[<RightOutlined />]}
     >
       <List.Item.Meta
-        avatar={<Badge color="green" />}
+        avatar={<Badge color={event.unread ? 'green' : 'grey'} />}
         title={
           <Text>{getMessage(event)}</Text>
         }

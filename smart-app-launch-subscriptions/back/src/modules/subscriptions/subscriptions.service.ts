@@ -37,7 +37,7 @@ export class SubscriptionsService {
     console.log(`Practitioner ID: ${practitionerId}`)
 
     if (practitionerId) {
-      this.eventsService.sendMessage({
+      this.eventsService.createEvent({
         type: 'encounter_created',
         recipient: practitionerId,
         date: new Date().toISOString(),
@@ -45,7 +45,7 @@ export class SubscriptionsService {
       })
     }
   }
-  
+
   private async fetchEncounterDetailed(encounterId: string): Promise<CreateEncounterBundle> {
     const credentials = this.authService.getSmartAppCredentials()
     const headers = {

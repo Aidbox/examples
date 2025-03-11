@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import { SmartAppLaunchSubscriptionsConfig } from './interfaces'
 import { StyleProvider, createCache } from '@ant-design/cssinjs'
+import { AppProvider } from './context/app'
 
 let iframeRef: HTMLIFrameElement | null = null
 
@@ -70,7 +71,9 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
     if (appContainer[0]) {
       ReactDOM.createRoot(appContainer[0]).render(
         <StyleProvider container={iframeDoc.head} cache={cache}>
-          <App config={config} iframe={iframe} iframeDoc={iframeDoc} iframeWindow={iframeWindow} />
+          <AppProvider config={config}>
+            <App iframe={iframe} iframeDoc={iframeDoc} iframeWindow={iframeWindow} />
+          </AppProvider>
         </StyleProvider>
       )
     } else {

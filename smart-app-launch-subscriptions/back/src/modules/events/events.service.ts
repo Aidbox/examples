@@ -4,7 +4,7 @@ import { Observable, Subject } from 'rxjs'
 import { EhrEvent, EhrEventState } from 'src/interfaces/bundle'
 import { randomUUID } from 'crypto'
 
-const Storage: EhrEventState[] = []
+const EventStorage: EhrEventState[] = []
 
 @Injectable()
 export class EventsService {
@@ -24,6 +24,16 @@ export class EventsService {
     }
   }
 
+  createEvent<T extends EhrEvent>(data: T) {
+    const eventWithState: EhrEventState = {
+      ...data,
+      uuid: randomUUID(),
+      unread: true
+    }
+    EventStorage.push(eventWithState)
+    this.sendMessage(eventWithState)
+  }
+
   sendMessage<T extends EhrEvent>(data: T) {
     const { recipient } = data
 
@@ -31,27 +41,20 @@ export class EventsService {
     console.log('This data will be send to the client:')
     console.dir(data, { depth: 10 })
 
-    const eventWithState: EhrEventState = {
-      ...data,
-      uuid: randomUUID(),
-      unread: true
-    }
-
     if (this.clientStreams.has(recipient)) {
-      this.clientStreams.get(recipient).next({ data: eventWithState })
+      this.clientStreams.get(recipient).next({ data })
     }
-
-    Storage.push(eventWithState)
   }
 
   getHistoryMessages(recipient: string) {
-    return Storage.filter((data) => data.recipient === recipient)
+    return EventStorage.filter((data) => data.recipient === recipient)
   }
 
   markAsRead(ids: string[]) {
-    Storage.forEach((message) => {
+    EventStorage.forEach((message) => {
       if (ids.includes(message.uuid)) {
         message.unread = false
+        this.sendMessage(message)
       }
     })
   }
