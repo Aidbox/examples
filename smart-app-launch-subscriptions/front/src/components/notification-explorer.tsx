@@ -60,7 +60,7 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventSt
         header={
           <Row align="middle" justify="space-between">
             <Col>
-              <Title level={4} style={{ margin: 0 }}>Notifications</Title>
+              <Title level={5} style={{ margin: 0 }}>Notifications</Title>
             </Col>
             <Col>
               <Tooltip title="Mark all as read" getPopupContainer={() => iframeDoc.body}>

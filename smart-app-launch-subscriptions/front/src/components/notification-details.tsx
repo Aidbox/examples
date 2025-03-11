@@ -73,8 +73,8 @@ const EventEncounterCreated = ({ event }: { event: EhrEventCreateEncounter }) =>
     <div>
       <Space align="start" style={{ display: "flex" }}>
         <Avatar style={{ backgroundColor: "#ccc", verticalAlign: 'middle' }} size="large">
-        {data.name[0]}
-      </Avatar>
+          {data.name[0]}
+        </Avatar>
         <div>
           <Text style={{ margin: 0 }}><strong>{data.name}</strong>, {data.yearsOld}, {data.gender}</Text>
           <br />
@@ -136,7 +136,7 @@ export const NotificationDetails = ({ event, onBack }: NotificationDetailsProps)
               />
             </Col>
             <Col>
-              <Title level={4} style={{ margin: 0 }}>{getEventTitle(event)}</Title>
+              <Title level={5} style={{ margin: 0 }}>{getEventTitle(event)}</Title>
             </Col>
           </Row>
         </>
