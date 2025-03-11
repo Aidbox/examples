@@ -3,7 +3,7 @@ import { NotificationMessage } from './notification-message'
 import { NotificationDetails } from './notification-details'
 import { Empty, List, Drawer, Button, Row, Col, Tooltip, Typography } from 'antd'
 import { EhrEvent, EhrEventState } from '../interfaces/bundle'
-import { SettingOutlined } from '@ant-design/icons'
+import { CheckOutlined, SettingOutlined } from '@ant-design/icons'
 import { ScrollableContent } from './scrollable-content'
 import { NotificationSettings } from './notification-settings'
 import { useApp } from '../context/app'
@@ -16,30 +16,27 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventSt
   const [drawerMode, setDrawerMode] = useState<'settings' | 'details'>('details')
   const { config } = useApp()
 
-  const handleNotificationClick = async (event: EhrEventState) => {
+  const fetchMarkAllAsRead = async (ids: string[]) => {
+    try {
+      await fetch(`${config.apiKey}/events/mark-as-read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids })
+      })
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+    }
+  }
+
+  const handleNotificationClick = (event: EhrEventState) => {
     setSelectedEvent(event)
     setDrawerMode('details')
     setDrawerVisible(true)
 
     if (event.unread) {
-      try {
-        const response = await fetch(`${config.apiKey}/events/mark-as-read`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ ids: [event.uuid] })
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
-        }
-
-        const data = await response.json()
-        console.log('Marked as read:', data)
-      } catch (error) {
-        console.error('Error marking notification as read:', error)
-      }
+      fetchMarkAllAsRead([event.uuid])
     }
   }
 
@@ -52,6 +49,11 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventSt
     setDrawerVisible(false)
   }
 
+  const handleMarkAllAsRead = () => {
+    const unread = events.filter(e => e.unread).map(e => e.uuid)
+    fetchMarkAllAsRead(unread)
+  }
+
   return (
     <>
       <ScrollableContent
@@ -61,6 +63,15 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventSt
               <Title level={4} style={{ margin: 0 }}>Notifications</Title>
             </Col>
             <Col>
+              <Tooltip title="Mark all as read" getPopupContainer={() => iframeDoc.body}>
+                <Button
+                  type="text"
+                  icon={<CheckOutlined style={{ fontSize: 18 }} />}
+                  onClick={handleMarkAllAsRead}
+                >
+                  Mark all as read
+                </Button>
+              </Tooltip>
               <Tooltip title="Settings" getPopupContainer={() => iframeDoc.body}>
                 <Button
                   type="text"
@@ -77,7 +88,7 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventSt
             renderItem={(event) => (
               <NotificationMessage
                 event={event}
-                onClick={(event) => handleNotificationClick(event)}
+                onClick={handleNotificationClick}
               />
             )}
             locale={{ emptyText: <Empty description="No notifications" /> }}

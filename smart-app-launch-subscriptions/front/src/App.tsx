@@ -127,7 +127,7 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
           onOpenChange={setFrameSize}
         >
           <span style={{ display: 'inline-block' }} ref={bellRef}>
-            <NotificationBell count={events.length} />
+            <NotificationBell count={events.filter(e => e.unread).length} />
           </span>
         </Popover>
       </div>
