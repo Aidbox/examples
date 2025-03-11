@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { MessageEvent } from '@nestjs/common'
 import { Observable, Subject } from 'rxjs'
-import { EhrEvent } from 'src/interfaces/bundle'
+import { EhrEvent, EhrEventState } from 'src/interfaces/bundle'
+import { randomUUID } from 'crypto'
+
+const Storage: EhrEventState[] = []
 
 @Injectable()
 export class EventsService {
@@ -28,9 +31,29 @@ export class EventsService {
     console.log('This data will be send to the client:')
     console.dir(data, { depth: 10 })
 
-    if (this.clientStreams.has(recipient)) {
-      this.clientStreams.get(recipient).next({ data })
+    const eventWithState: EhrEventState = {
+      ...data,
+      uuid: randomUUID(),
+      unread: true
     }
+
+    if (this.clientStreams.has(recipient)) {
+      this.clientStreams.get(recipient).next({ data: eventWithState })
+    }
+
+    Storage.push(eventWithState)
+  }
+
+  getHistoryMessages(recipient: string) {
+    return Storage.filter((data) => data.recipient === recipient)
+  }
+
+  markAsRead(ids: string[]) {
+    Storage.forEach((message) => {
+      if (ids.includes(message.uuid)) {
+        message.unread = false
+      }
+    })
   }
 
   onModuleDestroy() {

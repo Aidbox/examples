@@ -19,7 +19,7 @@ export const NotificationSettings = ({ onBack }: { onBack: () => void }) => {
                 />
               </Col>
               <Col>
-                <Title level={4} style={{ margin: 0 }}>Settings</Title>
+                <Title level={5} style={{ margin: 0 }}>Notifications Settings</Title>
               </Col>
             </Row>
           </>

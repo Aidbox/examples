@@ -168,3 +168,5 @@ export interface EhrEventTest extends EhrEventBase {
 }
 
 export type EhrEvent = EhrEventCreateEncounter | EhrEventTest
+
+export type EhrEventState = EhrEvent & { uuid: string, unread: boolean }
