@@ -60,6 +60,30 @@ interface EncounterClass {
   display: string
 }
 
+interface Coding {
+  code: string;
+}
+
+interface Type {
+  coding: Coding[];
+}
+
+interface Individual {
+  display: string;
+  reference: string;
+}
+
+interface Participant {
+  type: Type[];
+  individual: Individual;
+}
+
+interface Length {
+  code: string;
+  unit: string;
+  value: number;
+  system: string;
+}
 export interface EncounterResource {
   resourceType: 'Encounter'
   id: string
@@ -68,12 +92,13 @@ export interface EncounterResource {
   status?: string
   subject?: Condition
   diagnosis?: Diagnosis[]
-  generalPractitioner?: Condition[]
+  participant?: Participant[]
   serviceProvider?: Organization
   period?: {
     start: string
     end: string
-  }
+  },
+  length?: Length
 }
 
 export interface PatientResource {
@@ -178,3 +203,15 @@ export interface EhrEventTest extends EhrEventBase {
 }
 
 export type EhrEvent = EhrEventCreateEncounter | EhrEventTest
+
+export interface EncounterDetailsData {
+  name: string;
+  yearsOld: string;
+  gender: string;
+  phone: string;
+  hospital: string;
+  class: string;
+  admissionDate: string;
+  attendingPhysician: string;
+  diagnosis: ConditionResource[];
+}

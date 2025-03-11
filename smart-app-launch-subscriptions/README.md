@@ -186,6 +186,15 @@ POST /fhir/Encounter
       "display": "Test Hospital",
       "reference": "Organization/example-organization"
   },
+   "period": {
+    "start": "2025-03-11T00:00:00-04:56"
+  },
+  "length": {
+    "code": "d",
+    "unit": "days",
+    "value": 6,
+    "system": "http://unitsofmeasure.org"
+  },
   "participant": [
     {
       "type": [

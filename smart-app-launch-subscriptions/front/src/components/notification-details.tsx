@@ -1,6 +1,8 @@
-import { Button, Typography } from 'antd'
-import { LeftOutlined } from '@ant-design/icons'
-import { ConditionResource, CreateEncounterBundle, EhrEvent, EhrEventCreateEncounter, EncounterResource, PatientResource } from '../interfaces/bundle'
+import { Button, Divider, Space, Typography } from 'antd'
+import { LeftOutlined, UserOutlined } from '@ant-design/icons'
+import { ConditionResource, CreateEncounterBundle, EhrEvent, EhrEventCreateEncounter, EncounterDetailsData, EncounterResource, PatientResource } from '../interfaces/bundle'
+import Title from 'antd/es/typography/Title'
+import dayjs from 'dayjs'
 
 const { Text } = Typography
 
@@ -26,7 +28,7 @@ const flattenFhirObject = (obj: Object, prefix = '', result: Record<string, stri
   return result;
 }
 
-const extractCreateEncounterData = (bundle: CreateEncounterBundle): { label: string, value: string }[] => {
+const extractCreateEncounterData = (bundle: CreateEncounterBundle): EncounterDetailsData => {
   const encounterEntry = bundle.entry.find(e => e.resource.resourceType === 'Encounter')
   const patientEntry = bundle.entry.find(e => e.resource.resourceType === 'Patient')
   const conditionEntries = bundle.entry.filter(e => e.resource.resourceType === 'Condition')
@@ -35,21 +37,17 @@ const extractCreateEncounterData = (bundle: CreateEncounterBundle): { label: str
   const patient = patientEntry?.resource as PatientResource | undefined
   const conditions = conditionEntries.map(c => c.resource) as ConditionResource[]
 
-  return [
-    { label: 'Encounter Status', value: encounter?.status ?? 'N/A' },
-    { label: 'Encounter Class', value: encounter?.class?.display ?? 'N/A' },
-
-    { label: 'Patient Name', value: patient?.name?.map(n => `${n.prefix?.join(' ')} ${n.given?.join(' ')} ${n.family}`).join(', ') ?? 'N/A' },
-    { label: 'Patient Birth Date', value: patient?.birthDate ?? 'N/A' },
-    { label: 'Patient Gender', value: patient?.gender ?? 'N/A' },
-    { label: 'Patient Address', value: patient?.address?.map(a => `${a.line?.join(' ')}, ${a.city}, ${a.state}, ${a.country}`).join('; ') ?? 'N/A' },
-    { label: 'Patient Phone', value: patient?.telecom?.map(t => `${t.system}: ${t.value}`).join('; ') ?? 'N/A' },
-    { label: 'Patient Managing Organization', value: patient?.managingOrganization?.display ?? 'N/A' },
-
-    { label: 'Practitioner Reference', value: encounter?.generalPractitioner?.map(gp => gp.reference).join(', ') ?? 'N/A' },
-
-    { label: 'Conditions', value: conditions.length > 0 ? conditions.map(c => `${c.code?.coding?.[0]?.display} (${c.clinicalStatus?.coding?.[0]?.code})`).join('; ') : 'N/A' }
-  ]
+  return {
+    name: patient?.name?.map(n => `${n.prefix?.join(' ')} ${n.given?.join(' ')} ${n.family}`).join(', ') ?? 'N/A',
+    yearsOld: patient?.birthDate ? `${Math.floor((new Date().getTime() - new Date(patient.birthDate).getTime()) / (1000 * 60 * 60 * 24 * 365))} y.o.` : 'N/A',
+    gender: patient?.gender ?? 'N/A',
+    phone: patient?.telecom?.map(t => t.value).join('; ') ?? 'N/A',
+    hospital: encounter?.serviceProvider?.display ?? 'N/A',
+    class: encounter?.class?.display ?? 'N/A',
+    admissionDate: encounter?.period?.start ? dayjs(encounter.period.start).format('MMMM D, YYYY') : 'N/A',
+    attendingPhysician: encounter?.participant?.map(p => p.individual?.display).join(', ') ?? 'N/A',
+    diagnosis: conditions
+  }
 }
 
 const EventCommon = ({ event }: { event: EhrEvent }) => {
@@ -70,13 +68,31 @@ const EventEncounterCreated = ({ event }: { event: EhrEventCreateEncounter }) =>
   const data = extractCreateEncounterData(event.bundle)
 
   return (
-    <>
-      {data.map(({ label, value }) => (
-        <div key={label} style={{ marginBottom: '8px' }}>
-          <Text strong>{label}:</Text> <Text>{value}</Text>
-        </div>
-      ))}
-    </>
+    // <Card style={{ maxWidth: 500, margin: "auto", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+    <div>
+        <Title level={4}>New Hospitalization</Title>
+        <Space align="start" style={{ display: "flex" }}>
+          <UserOutlined style={{ fontSize: 40, color: "#ccc" }} />
+          <div>
+            <Title level={5} style={{ margin: 0 }}>{data.name}, {data.yearsOld}, {data.gender}</Title>
+            <Text type="secondary">Phone: {data.phone}</Text>
+          </div>
+        </Space>
+        <Divider />
+        <Title level={5}>Hospitalization Info</Title>
+        <Text><strong>Hospital:</strong> {data.hospital}</Text><br />
+        <Text><strong>Class:</strong> {data.class}</Text><br />
+        <Text><strong>Admission Date:</strong> {data.admissionDate}</Text><br />
+        <Text><strong>Attending Physician:</strong> {data.attendingPhysician}</Text>
+        <Divider />
+        <Title level={5}>Diagnosis</Title>
+        {data.diagnosis.map((condition, index) => (
+          <div key={index} style={{ marginBottom: '8px' }}>
+            <Text><strong>{condition.code?.coding[0]?.display ?? 'Unknown Condition'}</strong> (<Text code>{condition.code?.coding?.[0]?.code ?? 'N/A'}</Text>)</Text>
+          </div>
+        ))}
+    </div>
+      // </Card>
   )
 }
 
