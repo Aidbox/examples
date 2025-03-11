@@ -1,8 +1,9 @@
-import { Button, Divider, Space, Typography } from 'antd'
+import { Button, Col, Divider, Row, Space, Typography } from 'antd'
 import { LeftOutlined, UserOutlined } from '@ant-design/icons'
 import { ConditionResource, CreateEncounterBundle, EhrEvent, EhrEventCreateEncounter, EncounterDetailsData, EncounterResource, PatientResource } from '../interfaces/bundle'
 import Title from 'antd/es/typography/Title'
 import dayjs from 'dayjs'
+import { ScrollableContent } from './scrollable-content'
 
 const { Text } = Typography
 
@@ -70,29 +71,28 @@ const EventEncounterCreated = ({ event }: { event: EhrEventCreateEncounter }) =>
   return (
     // <Card style={{ maxWidth: 500, margin: "auto", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
     <div>
-        <Title level={4}>New Hospitalization</Title>
-        <Space align="start" style={{ display: "flex" }}>
-          <UserOutlined style={{ fontSize: 40, color: "#ccc" }} />
-          <div>
-            <Title level={5} style={{ margin: 0 }}>{data.name}, {data.yearsOld}, {data.gender}</Title>
-            <Text type="secondary">Phone: {data.phone}</Text>
-          </div>
-        </Space>
-        <Divider />
-        <Title level={5}>Hospitalization Info</Title>
-        <Text><strong>Hospital:</strong> {data.hospital}</Text><br />
-        <Text><strong>Class:</strong> {data.class}</Text><br />
-        <Text><strong>Admission Date:</strong> {data.admissionDate}</Text><br />
-        <Text><strong>Attending Physician:</strong> {data.attendingPhysician}</Text>
-        <Divider />
-        <Title level={5}>Diagnosis</Title>
-        {data.diagnosis.map((condition, index) => (
-          <div key={index} style={{ marginBottom: '8px' }}>
-            <Text><strong>{condition.code?.coding[0]?.display ?? 'Unknown Condition'}</strong> (<Text code>{condition.code?.coding?.[0]?.code ?? 'N/A'}</Text>)</Text>
-          </div>
-        ))}
+      <Space align="start" style={{ display: "flex" }}>
+        <UserOutlined style={{ fontSize: 40, color: "#ccc" }} />
+        <div>
+          <Title level={5} style={{ margin: 0 }}>{data.name}, {data.yearsOld}, {data.gender}</Title>
+          <Text type="secondary">Phone: {data.phone}</Text>
+        </div>
+      </Space>
+      <Divider />
+      <Title level={5}>Hospitalization Info</Title>
+      <Text><strong>Hospital:</strong> {data.hospital}</Text><br />
+      <Text><strong>Class:</strong> {data.class}</Text><br />
+      <Text><strong>Admission Date:</strong> {data.admissionDate}</Text><br />
+      <Text><strong>Attending Physician:</strong> {data.attendingPhysician}</Text>
+      <Divider />
+      <Title level={5}>Diagnosis</Title>
+      {data.diagnosis.map((condition, index) => (
+        <div key={index} style={{ marginBottom: '8px' }}>
+          <Text><strong>{condition.code?.coding[0]?.display ?? 'Unknown Condition'}</strong> (<Text code>{condition.code?.coding?.[0]?.code ?? 'N/A'}</Text>)</Text>
+        </div>
+      ))}
     </div>
-      // </Card>
+    // </Card>
   )
 }
 
@@ -107,7 +107,7 @@ export const NotificationDetails = ({ event, onBack }: NotificationDetailsProps)
   const getEventTitle = (event: EhrEvent) => {
     switch (event.type) {
       case 'encounter_created':
-        return 'New Encounter'
+        return 'New Hospitalization'
       default:
         return 'New Event'
     }
@@ -123,21 +123,40 @@ export const NotificationDetails = ({ event, onBack }: NotificationDetailsProps)
   }
 
   return (
-    <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'relative', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
-        <Button
-          type="text"
-          icon={<LeftOutlined />}
-          onClick={onBack}
-          style={{ position: 'absolute' }}
-        />
-        <div style={{ flex: 1 }}>
-          <Text strong>{getEventTitle(event)}</Text>
-        </div>
-      </div>
-      <div style={{ flex: 1, overflow: 'auto', padding: '0 10px' }}>
-        {getEventContent(event)}
-      </div>
-    </div>
+    <ScrollableContent
+      header={
+        <>
+          <Row align="middle" gutter={8}>
+            <Col>
+              <Button
+                type="text"
+                icon={<LeftOutlined />}
+                onClick={onBack}
+              />
+            </Col>
+            <Col>
+              <Title level={4} style={{ margin: 0 }}>{getEventTitle(event)}</Title>
+            </Col>
+          </Row>
+        </>
+      }
+      body={getEventContent(event)}
+    />
+    // <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    //   <div style={{ position: 'relative', marginBottom: '16px', display: 'flex', alignItems: 'center' }}>
+    //     <Button
+    //       type="text"
+    //       icon={<LeftOutlined />}
+    //       onClick={onBack}
+    //       style={{ position: 'absolute' }}
+    //     />
+    //     <div style={{ flex: 1 }}>
+    //       <Text strong>{getEventTitle(event)}</Text>
+    //     </div>
+    //   </div>
+    //   <div style={{ flex: 1, overflow: 'auto', padding: '0 10px' }}>
+    //     {getEventContent(event)}
+    //   </div>
+    // </div>
   )
 } 
