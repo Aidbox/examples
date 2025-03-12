@@ -1,0 +1,134 @@
+volumes:
+  aidbox_pg_data: {}
+
+services:
+  aidbox_db:
+    image: healthsamurai/aidboxdb:17
+    pull_policy: always
+    volumes:
+    - aidbox_pg_data:/data:delegated
+    - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql/postgresql.conf"
+    environment:
+      PGDATA: /data
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: 8[_!fZ3\'}6Gj%
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+    - aidbox_db
+    ports:
+    - 8080:8080
+    environment:
+      BOX_SETTINGS_MODE: read-write
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_FHIR_SCHEMA_VALIDATION: true
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
+      BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: true
+      BOX_FHIR_SEARCH_COMPARISONS: true
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_FHIR_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_FHIR_JSON_SCHEMA_DATETIME_REGEX: '#{:fhir-datetime}'
+      BOX_FHIR_COMPLIANT_MODE: true
+      BOX_SECURITY_AUDIT_LOG_ENABLED: true
+      BOX_WEB_PORT: 8080
+      BOX_OBSERVABILITY_OTEL_LOGS_URL: http://otel-collector:4318/v1/logs
+      BOX_OBSERVABILITY_OTEL_METRICS_URL: http://otel-collector:4318/v1/metrics
+      BOX_OBSERVABILITY_OTEL_TRACES_URL: http://otel-collector:4318/v1/traces
+      PGHOST: aidbox_db
+      PGUSER: aidbox
+      PGDATABASE: aidbox
+      PGPASSWORD: 8[_!fZ3\'}6Gj%
+      PGPORT: '5432'
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    restart: unless-stopped
+    volumes:
+    - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+    - 1888:1888 # pprof extension
+    - 18888:8888 # Prometheus metrics exposed by the collector
+    - 18889:8889 # Prometheus exporter metrics
+    - 13133:13133 # health_check extension
+    - 4318:4318 # OTLP http receiver
+    - 55679:55679 # zpages extension
+
+  # Logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
+    container_name: es
+    environment:
+      - node.name=es
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    volumes:
+      - ./elastic-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.2
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es:9200
+      - SERVER_NAME=kibana
+      - SERVER_HOST=0.0.0.0
+    ports:
+      - "5602:5601"
+
+  # Metrics
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    environment:
+      V: 'v5'
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus/:cached
+      - ./prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  grafana:
+    environment:
+      V: 'v5'
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "password"
+      GF_SERVER_ROOT_URL: http://localhost:3001
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+    image: grafana/grafana:11.5.2
+
+    ports:
+      - 3001:3000
+
+  zipkin:
+    image: openzipkin/zipkin:3.5
+    ports:
+      - 9411:9411
