@@ -1,0 +1,74 @@
+version: '3.7'
+name: smart-app-subscriptions
+volumes:
+  aidbox_pg_data: {}
+
+services:
+
+  subscriptions:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.subscriptions
+    ports:
+      - 9000:9000
+    environment:
+      AIDBOX_URL: http://aidbox:8080
+      CLIENT_ID: subscriptions
+      CLIENT_SECRET: quOfCRS7ty1RMUQq
+
+  example-html:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.example.html
+    ports:
+      - "7070:80"
+  
+  example-react:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.example.react
+      args:
+        VITE_AIDBOX_URL: http://localhost:8080
+        VITE_SMARTAPP_SUBSCRIPTIONS_API: http://localhost:9000
+    ports:
+      - "7080:4173"
+
+  aidbox_db:
+    image: healthsamurai/aidboxdb:17
+    pull_policy: always
+    ports:
+      - 5435:5432
+    volumes:
+      - aidbox_pg_data:/data:delegated
+    environment:
+      PGDATA: /data
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: nP0s8ALcTk
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      - aidbox_db
+    ports:
+      - 8080:8080
+    volumes:
+      - ./aidbox.json:/tmp/aidbox.json
+    environment:
+      BOX_INIT_BUNDLE: file:///tmp/aidbox.json
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      AIDBOX_FHIR_SCHEMA_VALIDATION: true
+      AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
+      AIDBOX_CLIENT_SECRET: vbDPgXnz0H
+      AIDBOX_ADMIN_PASSWORD: password
+      AIDBOX_COMPLIANCE: enabled
+      BOX_SEARCH_FHIR__COMPARISONS: true
+      PGHOST: aidbox_db
+      PGUSER: aidbox
+      AIDBOX_PORT: 8080
+      PGDATABASE: aidbox
+      PGPASSWORD: nP0s8ALcTk
+      PGPORT: '5432'
+      BOX_SEARCH_INCLUDE_CONFORMANT: true

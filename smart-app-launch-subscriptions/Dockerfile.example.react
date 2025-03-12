@@ -1,0 +1,32 @@
+# smart app builder
+FROM docker.io/library/node:22 AS smart-app-builder
+
+WORKDIR /app
+
+COPY front/package*.json ./
+RUN npm install
+
+COPY front/ ./
+RUN npm run build
+
+# example ehr app builder
+FROM node:18 AS builder
+
+ARG VITE_AIDBOX_URL
+ARG VITE_SMARTAPP_SUBSCRIPTIONS_API
+
+# Set environment variables during the build process
+ENV VITE_AIDBOX_URL=$VITE_AIDBOX_URL
+ENV VITE_SMARTAPP_SUBSCRIPTIONS_API=$VITE_SMARTAPP_SUBSCRIPTIONS_API
+
+WORKDIR /app
+
+COPY ./example-react-ehr/package.json ./example-react-ehr/package-lock.json ./
+RUN npm install
+
+COPY ./example-react-ehr/ ./
+COPY --from=smart-app-builder /app/dist/ ./public
+
+RUN npm run build
+
+CMD ["npm", "run", "preview"]
