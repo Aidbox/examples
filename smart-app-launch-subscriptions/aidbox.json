@@ -18,7 +18,7 @@
           }
         },
         "smart": {
-          "launch_uri": "http://localhost:9000/launch.html"
+          "launch_uri": "http://localhost:7070"
         },
         "type": "smart-app",
         "secret": "quOfCRS7ty1RMUQq",

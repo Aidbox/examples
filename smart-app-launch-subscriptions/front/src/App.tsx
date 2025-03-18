@@ -39,7 +39,7 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
     return () => iframeWindow.removeEventListener('message', handleMessage)
   }, [iframeWindow])
 
-  useEffect(() => {//
+  useEffect(() => {
     if (eventSourceRef.current) {
       console.log('Closing existing SSE connection...')
       eventSourceRef.current.close()
