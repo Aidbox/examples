@@ -82,6 +82,10 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
   }
 }
 
+init('root', {
+  apiKey: 'http://localhost:9000'
+})
+
 export const setUser = (uid: string) => {
   if (iframeRef?.contentWindow) {
     iframeRef.contentWindow.postMessage({ type: 'SET_USER', uid }, '*')
