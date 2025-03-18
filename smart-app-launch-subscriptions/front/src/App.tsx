@@ -4,6 +4,8 @@ import { NotificationExplorer } from './components/notification-explorer'
 import { NotificationBell } from './components/notification-bell'
 import { EhrEventState } from './interfaces/bundle'
 import { useApp } from './context/app'
+import { useLocation } from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
 
 // todo - store iframeDoc (maybe all iFrame data) in context
 
@@ -13,6 +15,15 @@ const DefaultConfig = {
 }
 
 const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, iframeDoc: Document, iframeWindow: Window }) => {
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+
+  const token = params.get('code') ?? ''
+
+  const decoded = jwtDecode(token)
+
+  console.log(token, decoded)
+
   const defaultBellSize = 50
   const shadowOffset = 20
   const bellOffset = shadowOffset

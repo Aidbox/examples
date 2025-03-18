@@ -203,49 +203,50 @@
   </iframe>
 
   <script>
-    
+
 
     function launch(userId) {
-            const fhirUrl = 'http://localhost:8080/rpc';
-            let body = {
-                method: "aidbox.smart/get-launch-uri",
-                params: {
-                    user: "practitioner",
-                    iss: "http://localhost:8080/fhir", //
-                    client: "subscriptions",
-                    ctx: { user: userId }
-                }
-            };
-
-
-            // Client credentials
-            const client_id = 'subscriptions';
-            const client_secret = 'quOfCRS7ty1RMUQq';
-
-            // Encode credentials in Base64
-            const credentials = btoa(client_id + ':' + client_secret);
-
-
-            fetch(fhirUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Basic ' + credentials,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            })
-            .then(response => response.json())
-            .then(resp => {
-                console.log('Launch response:', resp);
-
-                const testSmartApp = document.getElementById('test-smart-app')
-
-                testSmartApp.src = resp.result.uri
-            })
-            .catch(error => {
-                console.error('Error launching app:', error);
-            });
+      const fhirUrl = 'http://localhost:8080/rpc';
+      let body = {
+        method: "aidbox.smart/get-launch-uri",
+        params: {
+          user: "practitioner",
+          iss: "http://localhost:8080/fhir", //
+          client: "subscriptions",
+          ctx: { user: userId }
         }
+      };
+
+
+      // Client credentials
+      const client_id = 'subscriptions';
+      const client_secret = 'quOfCRS7ty1RMUQq';
+
+      // Encode credentials in Base64
+      const credentials = btoa(client_id + ':' + client_secret);
+
+
+      fetch(fhirUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Basic ' + credentials,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+        .then(response => response.json())
+        .then(resp => {
+          console.log('Launch response:', resp);
+
+          const testSmartApp = document.getElementById('test-smart-app')
+
+          // testSmartApp.src = resp.result.uri
+          window.open(resp.result.uri, '_blank');
+        })
+        .catch(error => {
+          console.error('Error launching app:', error);
+        });
+    }
 
   </script>
 

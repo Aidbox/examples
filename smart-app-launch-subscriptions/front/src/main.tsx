@@ -4,6 +4,7 @@ import App from './App'
 import { SmartAppLaunchSubscriptionsConfig } from './interfaces'
 import { StyleProvider, createCache } from '@ant-design/cssinjs'
 import { AppProvider } from './context/app'
+import { BrowserRouter } from 'react-router-dom'
 
 let iframeRef: HTMLIFrameElement | null = null
 
@@ -72,7 +73,9 @@ export const init = (containerId: string, config: SmartAppLaunchSubscriptionsCon
       ReactDOM.createRoot(appContainer[0]).render(
         <StyleProvider container={iframeDoc.head} cache={cache}>
           <AppProvider config={config}>
-            <App iframe={iframe} iframeDoc={iframeDoc} iframeWindow={iframeWindow} />
+            <BrowserRouter>
+              <App iframe={iframe} iframeDoc={iframeDoc} iframeWindow={iframeWindow} />
+            </BrowserRouter>
           </AppProvider>
         </StyleProvider>
       )
