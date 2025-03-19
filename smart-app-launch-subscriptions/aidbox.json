@@ -11,37 +11,20 @@
         "id": "subscriptions",
         "auth": {
           "authorization_code": {
-            "redirect_uri": "http://localhost:9000/",
-            "refresh_token": true,
+            "redirect_uri": "http://localhost:5173/",
             "token_format": "jwt",
+            "refresh_token": true,
             "access_token_expiration": 3600000
           }
         },
         "smart": {
-          "launch_uri": "http://localhost:7070"
+          "launch_uri": "http://localhost:5173/launch.html"
         },
         "type": "smart-app",
         "secret": "quOfCRS7ty1RMUQq",
         "grant_types": [
+          "basic",
           "authorization_code"
-        ]
-      }
-    },
-    {
-      "request": {
-        "method": "PUT",
-        "url": "/Client/subscriptions"
-      },
-      "resource": {
-        "resourceType": "Client",
-        "id": "subscriptions",
-        "smart": {
-          "launch_uri": "http://localhost:9000/launch.html"
-        },
-        "type": "smart-app",
-        "secret": "quOfCRS7ty1RMUQq",
-        "grant_types": [
-          "basic"
         ]
       }
     },
