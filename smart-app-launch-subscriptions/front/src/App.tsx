@@ -39,6 +39,13 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
   const width = config.width ?? DefaultConfig.width
 
   useEffect(() => {
+    if (window.opener) {
+      window.opener.postMessage({ iframeUrl: window.location.href }, "*");
+      window.close();
+    }
+  }, [])
+
+  useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'SET_USER') {
         setUid(event.data.uid)

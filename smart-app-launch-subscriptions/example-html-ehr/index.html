@@ -113,6 +113,7 @@
             <div class="table-wrapper css-dev-only-do-not-override-240cud">
               <div class="spin-nested-loading css-dev-only-do-not-override-240cud">
                 <div class="spin-container">
+                  <button id="launchButton">launch</button>
                   <div class="table css-dev-only-do-not-override-240cud">
                     <div class="table-container">
                       <div class="table-content">
@@ -199,122 +200,9 @@
     <div id="notifications-container"></div>
   </div>
 
-  <iframe id="test-smart-app">
-  </iframe>
+  <iframe id="test-smart-app" style="position: fixed;bottom: 0;right: 0;border:none;"></iframe>
 
-  <script>
-
-
-    function launch(userId) {
-      const fhirUrl = 'http://localhost:8080/rpc';
-      let body = {
-        method: "aidbox.smart/get-launch-uri",
-        params: {
-          user: "practitioner",
-          iss: "http://localhost:8080/fhir", //
-          client: "subscriptions",
-          ctx: { user: userId }
-        }
-      };
-
-
-      // Client credentials
-      const client_id = 'subscriptions';
-      const client_secret = 'quOfCRS7ty1RMUQq';
-
-      // Encode credentials in Base64
-      const credentials = btoa(client_id + ':' + client_secret);
-
-
-      fetch(fhirUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Basic ' + credentials,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      })
-        .then(response => response.json())
-        .then(resp => {
-          console.log('Launch response:', resp);
-
-          const testSmartApp = document.getElementById('test-smart-app')
-
-          // testSmartApp.src = resp.result.uri
-          window.open(resp.result.uri, '_blank');
-        })
-        .catch(error => {
-          console.error('Error launching app:', error);
-        });
-    }
-
-  </script>
-
-
-  <script>
-    async function loginAidbox(username, password) {
-      const AIDBOX_URL = 'http://localhost:8080'
-
-      try {
-        const response = await fetch(`${AIDBOX_URL}/auth/token`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            grant_type: 'password',
-            client_id: 'ehr-outpatient',
-            client_secret: 'verysecret',
-            username,
-            password
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Login failed: ${response.statusText}`);
-        }
-
-        launch('doctor-user')
-
-        return response.json()
-      } catch (e) {
-        return null
-      }
-    }
-
-    const setAuthState = (id, name) => {
-      document.getElementById('login-page').style.display = id ? 'none' : null
-      document.getElementById('patients-page').style.display = id ? null : 'none'
-      document.getElementById('notifications-container').style.display = id ? null : 'none'
-    }
-
-    async function loginUser(uid, pwd) {
-      const loginData = await loginAidbox(uid, pwd)
-      if (loginData) {
-        const token = loginData.access_token
-        const practitionerId = loginData.userinfo.data?.practitioner?.id
-        if (SmartAppLaunchSubscriptions) {
-          SmartAppLaunchSubscriptions.setUser(practitionerId)
-        }
-        setAuthState(loginData.userinfo.id, loginData.userinfo.email)
-      }
-    }
-
-    function onLogout() {
-      if (SmartAppLaunchSubscriptions) {
-        SmartAppLaunchSubscriptions.setUser(null)
-      }
-      setAuthState(null)
-    }
-
-    function onLogin() {
-      const uid = document.getElementById('login-uid').value
-      const pwd = document.getElementById('login-pwd').value
-
-      loginUser(uid, pwd)
-    }
-
-    setAuthState(null)
-  </script>
-
+  <script src="./scripts.js"></script>
 
 
   <!-- Smart App Local Development -->
@@ -322,7 +210,7 @@
 
 
   <!-- Smart App Integration -->
-  <script src="./smart-app-launch.subscriptions.umd.js"></script>
+  <!-- <script src="./smart-app-launch.subscriptions.umd.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (SmartAppLaunchSubscriptions) {
@@ -334,7 +222,7 @@
         console.error('SmartAppLaunchSubscriptions is not defined')
       }
     })
-  </script>
+  </script> -->
 </body>
 
 </html>
