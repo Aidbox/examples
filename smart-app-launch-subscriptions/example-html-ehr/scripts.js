@@ -28,9 +28,6 @@ const launch = (userId) => {
     .then(resp => {
       console.log('Launch response:', resp)
 
-      const testSmartApp = document.getElementById('test-smart-app')
-
-      // testSmartApp.src = resp.result.uri
       // window.open(resp.result.uri, '_blank')
       window.open(resp.result.uri, 'smartAuthPopup', 'width=800,height=600')
     })
@@ -99,14 +96,13 @@ const onLogin = () => {
 
 (() => {
   document.getElementById('launchButton').addEventListener('click', function () {
-    const authUrl = 'https://your-auth-url.com'
     launch('doctor-user')
   })
 
   window.addEventListener('message', (event) => {
-    if (event.data.iframeUrl) {
-      console.log('Received iFrame URL:', event.data.iframeUrl)
-      document.getElementById('test-smart-app').src = event.data.iframeUrl
+    if (event.data.smartappSubscriptionsUrl) {
+      console.log('Received SmartAppSubscriptions URL:', event.data.smartappSubscriptionsUrl)
+      document.getElementById('test-smart-app').src = event.data.smartappSubscriptionsUrl
     }
   }, false)
 

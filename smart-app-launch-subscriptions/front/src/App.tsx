@@ -40,8 +40,8 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
 
   useEffect(() => {
     if (window.opener) {
-      window.opener.postMessage({ iframeUrl: window.location.href }, "*");
-      window.close();
+      window.opener.postMessage({ smartappSubscriptionsUrl: window.location.href }, "*")
+      window.close()
     }
   }, [])
 
