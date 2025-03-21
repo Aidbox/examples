@@ -38,14 +38,14 @@ export class EventsService {
     const { recipient } = data
 
     console.log('\n\n\n')
-    // console.log('This data will be send to the client:')
-    // console.dir(data, { depth: 10 })
+    console.log('This data will be send to the client:')
+    console.dir(data, { depth: 10 })
 
     if (this.clientStreams.has(recipient)) {
-      console.log(`has client stream for ${recipient}`)
+      // console.log(`has client stream for ${recipient}`)
       this.clientStreams.get(recipient).next({ data })
     } else {
-      console.log(`тщ client stream for ${recipient}`)
+      console.log(`no client stream for ${recipient}`)
     }
   }
 

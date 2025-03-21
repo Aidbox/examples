@@ -17,7 +17,7 @@
           style="width: 400px; padding: 24px; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;">
           <div class="card-body">
             <div style="text-align: center; margin-bottom: 16px;">
-              <h3 class="typography css-dev-only-do-not-override-240cud" style="margin-bottom: 48px;">Smar App
+              <h3 class="typography css-dev-only-do-not-override-240cud" style="margin-bottom: 48px;">Smart App
                 Subscriptions Example Html EHR</h3>
             </div>
             <div class="form form-vertical css-dev-only-do-not-override-240cud">
@@ -57,9 +57,12 @@
                 <div class="row form-item-row css-dev-only-do-not-override-240cud">
                   <div class="col form-item-control css-dev-only-do-not-override-240cud">
                     <div class="form-item-control-input">
-                      <div class="form-item-control-input-content"><button onClick="javascript:onLogin()"
-                          class="btn css-dev-only-do-not-override-240cud btn-primary btn-color-primary btn-varisolid btn-lg btn-block"><span>Log
-                            In</span></button></div>
+                      <div class="form-item-control-input-content">
+                        <button onClick="javascript:onLogin()"
+                          class="btn css-dev-only-do-not-override-240cud btn-primary btn-color-primary btn-varisolid btn-lg btn-block">
+                          <span>Log In</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -103,7 +106,7 @@
           <div style="padding: 10px;">
             <nav class="breadcrumb css-dev-only-do-not-override-240cud">
               <ol>
-                <li><span class="breadcrumb-link">Smar App Subscriptions Example Html EHR</span></li>
+                <li><span class="breadcrumb-link">Smart App Subscriptions Example Html EHR</span></li>
                 <li class="breadcrumb-separator" aria-hidden="true">/</li>
                 <li><span class="breadcrumb-link">My Patients</span></li>
               </ol>
@@ -113,7 +116,12 @@
             <div class="table-wrapper css-dev-only-do-not-override-240cud">
               <div class="spin-nested-loading css-dev-only-do-not-override-240cud">
                 <div class="spin-container">
-                  <button id="launchButton">launch</button>
+                  <div class="button-container">
+                    <button id="launchButton" onClick="javascript:onLogin()"
+                      class="btn css-dev-only-do-not-override-240cud btn-primary btn-color-primary btn-varisolid btn-lg btn-block">
+                      <span>Launch Subscriptions</span>
+                    </button>
+                  </div>
                   <div class="table css-dev-only-do-not-override-240cud">
                     <div class="table-container">
                       <div class="table-content">
