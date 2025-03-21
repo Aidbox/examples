@@ -10,7 +10,7 @@ import { useApp } from '../context/app'
 
 const { Title } = Typography
 
-export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventState[], iframeDoc: Document }) => {
+export const NotificationExplorer = ({ events }: { events: EhrEventState[] }) => {
   const [selectedEvent, setSelectedEvent] = useState<EhrEvent | null>(null)
   const [drawerVisible, setDrawerVisible] = useState(false)
   const [drawerMode, setDrawerMode] = useState<'settings' | 'details'>('details')
@@ -63,7 +63,10 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventSt
               <Title level={5} style={{ margin: 0 }}>Notifications</Title>
             </Col>
             <Col>
-              <Tooltip title="Mark all as read" getPopupContainer={() => iframeDoc.body}>
+              <Tooltip
+                title="Mark all as read"
+              // getPopupContainer={() => iframeDoc.body}
+              >
                 <Button
                   type="text"
                   icon={<CheckOutlined style={{ fontSize: 18 }} />}
@@ -72,7 +75,10 @@ export const NotificationExplorer = ({ events, iframeDoc }: { events: EhrEventSt
                   Mark all as read
                 </Button>
               </Tooltip>
-              <Tooltip title="Settings" getPopupContainer={() => iframeDoc.body}>
+              <Tooltip
+                title="Settings"
+              // getPopupContainer={() => iframeDoc.body}
+              >
                 <Button
                   type="text"
                   icon={<SettingOutlined style={{ fontSize: 20 }} />}

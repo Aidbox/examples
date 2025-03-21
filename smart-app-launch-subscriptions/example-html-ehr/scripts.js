@@ -15,7 +15,6 @@ const launch = (userId) => {
 
   const credentials = btoa(client_id + ':' + client_secret)
 
-
   fetch(fhirUrl, {
     method: 'POST',
     headers: {
@@ -96,13 +95,15 @@ const onLogin = () => {
 
 (() => {
   document.getElementById('launchButton').addEventListener('click', function () {
-    launch('doctor-user')
+    launch('example-practitioner')
   })
 
   window.addEventListener('message', (event) => {
     if (event.data.smartappSubscriptionsUrl) {
       console.log('Received SmartAppSubscriptions URL:', event.data.smartappSubscriptionsUrl)
-      document.getElementById('test-smart-app').src = event.data.smartappSubscriptionsUrl
+      const iframe = document.getElementById('test-smart-app')
+      iframe.src = event.data.smartappSubscriptionsUrl
+      iframe.classList.remove('hidden')
     }
   }, false)
 

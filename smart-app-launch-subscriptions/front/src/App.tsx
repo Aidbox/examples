@@ -1,5 +1,5 @@
 import { ConfigProvider, Popover } from 'antd'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NotificationExplorer } from './components/notification-explorer'
 import { NotificationBell } from './components/notification-bell'
 import { EhrEventState } from './interfaces/bundle'
@@ -14,16 +14,8 @@ const DefaultConfig = {
   width: 350
 }
 
-const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, iframeDoc: Document, iframeWindow: Window }) => {
+const App = () => {
   const location = useLocation()
-  const params = new URLSearchParams(location.search)
-
-  const token = params.get('code') ?? ''
-
-  const decoded = jwtDecode(token)
-
-  console.log(token, decoded)
-
   const defaultBellSize = 50
   const shadowOffset = 20
   const bellOffset = shadowOffset
@@ -40,22 +32,29 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
 
   useEffect(() => {
     if (window.opener) {
+      /* launch */
       window.opener.postMessage({ smartappSubscriptionsUrl: window.location.href }, "*")
       window.close()
+    } else {
+      /* work */
+      const params = new URLSearchParams(location.search)
+      const token = params.get('code') ?? ''
+      const decoded = jwtDecode<{ ctx: { user: string } }>(token)
+      setUid(decoded.ctx.user)
     }
   }, [])
 
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'SET_USER') {
-        setUid(event.data.uid)
-      }
-    }
+  // useEffect(() => {
+  //   const handleMessage = (event: MessageEvent) => {
+  //     if (event.data?.type === 'SET_USER') {
+  //       setUid(event.data.uid)
+  //     }
+  //   }
 
-    iframeWindow.addEventListener('message', handleMessage)
+  //   iframeWindow.addEventListener('message', handleMessage)
 
-    return () => iframeWindow.removeEventListener('message', handleMessage)
-  }, [iframeWindow])
+  //   return () => iframeWindow.removeEventListener('message', handleMessage)
+  // }, [iframeWindow])
 
   useEffect(() => {
     if (eventSourceRef.current) {
@@ -105,21 +104,21 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
     setEvents([])
   }, [uid])
 
-  useEffect(() => {
-    setFrameSize(false)
-  }, [])
+  // useEffect(() => {
+  //   setFrameSize(false)
+  // }, [])
 
-  const setFrameSize = useCallback((open: boolean) => {
-    if (open) {
-      iframe.style.width = `${width + shadowOffset * 2}px`
-      iframe.style.height = `${height}px`
-    } else {
-      setTimeout(() => {
-        iframe.style.width = `${bellSize.width}px`
-        iframe.style.height = `${bellSize.height}px`
-      }, 250)
-    }
-  }, [])
+  // const setFrameSize = useCallback((open: boolean) => {
+  //   if (open) {
+  //     iframe.style.width = `${width + shadowOffset * 2}px`
+  //     iframe.style.height = `${height}px`
+  //   } else {
+  //     setTimeout(() => {
+  //       iframe.style.width = `${bellSize.width}px`
+  //       iframe.style.height = `${bellSize.height}px`
+  //     }, 250)
+  //   }
+  // }, [])
 
   return (
     <ConfigProvider>
@@ -130,8 +129,8 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
         bottom: bellOffset
       }}>
         <Popover
-          content={<NotificationExplorer events={events} iframeDoc={iframeDoc} />}
-          getPopupContainer={() => iframeDoc.body}
+          content={<NotificationExplorer events={events} />}
+          // getPopupContainer={() => iframeDoc.body}
           placement='top'
           align={{ offset: [shadowOffset * -1, 0] }}
           trigger={['click']}
@@ -142,7 +141,7 @@ const App = ({ iframe, iframeDoc, iframeWindow }: { iframe: HTMLIFrameElement, i
               width
             }
           }}
-          onOpenChange={setFrameSize}
+        // onOpenChange={setFrameSize}
         >
           <span style={{ display: 'inline-block' }} ref={bellRef}>
             <NotificationBell count={events.filter(e => e.unread).length} />

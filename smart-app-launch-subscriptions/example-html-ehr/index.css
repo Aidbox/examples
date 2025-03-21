@@ -14269,3 +14269,16 @@ mark {
   padding: 0.2em;
   background-color: #feffe6;
 }
+
+#test-smart-app {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  border: none;
+  width: 380px;
+  height: 530px;
+}
+
+.hidden {
+  display: none
+}
