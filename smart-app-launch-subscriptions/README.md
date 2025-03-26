@@ -1,7 +1,7 @@
 # Smart App Launch Subscriptions
 
 ## Description
-The Smart App Launch Subscriptions is an fullstack application which allows to integrate widget into your EHR UI.
+The Smart App Launch Subscriptions is a fullstack application which allows to integrate widget into your EHR UI.
 Widget allows to receive and display notifications about Encounter of relevant Patient of PCP Practitioner.
 
 ## Use Case Description
