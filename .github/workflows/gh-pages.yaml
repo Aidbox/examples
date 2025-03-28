@@ -14,6 +14,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: |
+          cd fhirpath-editor
+          npm install
+
+      - name: Build
+        run: |
+          cd fhirpath-editor
+          npm run build -- --base=/examples/fhirpath-editor
+
+      - name: Prepare for deployment
+        run: |
+          cd fhirpath-editor
+          find . -mindepth 1 -maxdepth 1 ! -name 'dist' -exec rm -rf {} \;
+          mv dist/* .
+          rm -rf dist
+
       - name: Publish
         uses: JamesIves/github-pages-deploy-action@v4
         with:
