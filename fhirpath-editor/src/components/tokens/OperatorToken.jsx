@@ -1,6 +1,17 @@
 import React from "react";
 import { findCompatibleOperators } from "../../utils/types";
 
+// Group operators by category for better organization in the dropdown
+const operatorGroups = {
+  "Math Operators": ["+", "-", "*", "/", "mod", "div"],
+  "Comparison Operators": ["=", "==", "!=", "<", ">", "<=", ">=", "~", "!~"],
+  "Logical Operators": ["and", "or", "xor", "implies"],
+  "Collection Operators": ["in", "contains", "&", "|"],
+};
+
+// Flatten groups for easier lookup
+const allOperators = Object.values(operatorGroups).flat();
+
 const OperatorToken = React.forwardRef(
   ({ token, onChange, expression, bindings }, ref) => {
     const compatibleOperators = findCompatibleOperators(bindings, [
@@ -21,11 +32,27 @@ const OperatorToken = React.forwardRef(
             ⚠️ {token.value}
           </option>
         )}
-        {compatibleOperators.map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
+
+        {/* Render operators by category */}
+        {Object.entries(operatorGroups).map(([groupName, operators]) => {
+          // Filter operators by compatibility
+          const groupOperators = operators.filter((op) =>
+            compatibleOperators.includes(op)
+          );
+
+          // Only render group if it has compatible operators
+          if (groupOperators.length === 0) return null;
+
+          return (
+            <optgroup key={groupName} label={groupName}>
+              {groupOperators.map((op) => (
+                <option key={op} value={op}>
+                  {op}
+                </option>
+              ))}
+            </optgroup>
+          );
+        })}
       </select>
     );
   }

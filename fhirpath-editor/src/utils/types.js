@@ -46,6 +46,9 @@ export const operatorTypes = {
       ["Decimal"]: "Quantity",
       ["Quantity"]: "Quantity",
     },
+    ["String"]: {
+      ["String"]: "String", // String concatenation with +
+    },
   },
   "-": {
     ["Integer"]: {
@@ -106,6 +109,32 @@ export const operatorTypes = {
       ["Quantity"]: "Decimal", // Quantity / Quantity = unitless Decimal
     },
   },
+  // modulus
+  "mod": {
+    ["Integer"]: {
+      ["Integer"]: "Integer",
+    },
+    ["Decimal"]: {
+      ["Decimal"]: "Decimal",
+      ["Integer"]: "Decimal",
+    },
+    ["Integer"]: {
+      ["Decimal"]: "Decimal",
+    },
+  },
+  // integer division
+  "div": {
+    ["Integer"]: {
+      ["Integer"]: "Integer",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Integer",
+      ["Decimal"]: "Integer",
+    },
+    ["Integer"]: {
+      ["Decimal"]: "Integer",
+    },
+  },
   // string operators
   "&": {
     ["String"]: {
@@ -128,8 +157,96 @@ export const operatorTypes = {
       ["Boolean"]: "Boolean",
     },
   },
+  "implies": {
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
+    },
+  },
+  // union operator
+  "|": {
+    // Can be applied to collections of any type - we'll implement basic cases
+    ["String"]: {
+      ["String"]: "String",
+    },
+    ["Integer"]: {
+      ["Integer"]: "Integer",
+      ["Decimal"]: "Decimal",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Decimal",
+      ["Decimal"]: "Decimal",
+    },
+    ["Quantity"]: {
+      ["Quantity"]: "Quantity",
+    },
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Date",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "DateTime",
+    },
+    ["Time"]: {
+      ["Time"]: "Time",
+    },
+  },
+  // containment operators
+  "in": {
+    ["String"]: {
+      ["String"]: "Boolean", // item in collection
+    },
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+    },
+    ["Decimal"]: {
+      ["Decimal"]: "Boolean",
+    },
+    ["Quantity"]: {
+      ["Quantity"]: "Boolean",
+    },
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
+    },
+  },
+  "contains": {
+    ["String"]: {
+      ["String"]: "Boolean", // collection contains item
+    },
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+    },
+    ["Decimal"]: {
+      ["Decimal"]: "Boolean",
+    },
+    ["Quantity"]: {
+      ["Quantity"]: "Boolean",
+    },
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
+    },
+  },
   // comparison operators
-  "==": {
+  "=": { // FHIRPath equality (same as ==)
     ["Integer"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
@@ -193,6 +310,17 @@ export const operatorTypes = {
       ["Quantity"]: "Boolean",
     },
   },
+  // regex operators
+  "~": { // regex match
+    ["String"]: {
+      ["String"]: "Boolean",
+    },
+  },
+  "!~": { // regex not match
+    ["String"]: {
+      ["String"]: "Boolean",
+    },
+  },
   "<": {
     ["Integer"]: {
       ["Integer"]: "Boolean",
@@ -217,6 +345,9 @@ export const operatorTypes = {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
       ["Quantity"]: "Boolean",
+    },
+    ["String"]: {
+      ["String"]: "Boolean", // String comparison
     },
   },
   ">": {
@@ -244,6 +375,9 @@ export const operatorTypes = {
       ["Decimal"]: "Boolean",
       ["Quantity"]: "Boolean",
     },
+    ["String"]: {
+      ["String"]: "Boolean", // String comparison
+    },
   },
   "<=": {
     ["Integer"]: {
@@ -270,6 +404,9 @@ export const operatorTypes = {
       ["Decimal"]: "Boolean",
       ["Quantity"]: "Boolean",
     },
+    ["String"]: {
+      ["String"]: "Boolean", // String comparison
+    },
   },
   ">=": {
     ["Integer"]: {
@@ -295,6 +432,9 @@ export const operatorTypes = {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
       ["Quantity"]: "Boolean",
+    },
+    ["String"]: {
+      ["String"]: "Boolean", // String comparison
     },
   },
 };

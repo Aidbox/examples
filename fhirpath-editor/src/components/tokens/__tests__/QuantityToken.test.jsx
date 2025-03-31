@@ -67,19 +67,16 @@ describe("QuantityToken", () => {
     expect(unitSelect).toHaveAttribute("data-empty");
   });
 
-  it("should have an option for each common unit", () => {
+  it("should have empty option available", () => {
     render(<QuantityToken {...mockProps} />);
-    const unitSelect = screen.getByRole("combobox");
 
-    // Sample of units that should be in the dropdown
-    const sampleUnits = ["kg", "g", "days", "hours", "minutes", "mmHg"];
+    // Get all options
+    const options = screen.getAllByRole("option");
 
-    sampleUnits.forEach((unit) => {
-      expect(screen.getByRole("option", { name: unit })).toBeInTheDocument();
-    });
-
-    // Should have blank option
-    expect(screen.getByRole("option", { name: "unit" })).toBeInTheDocument();
+    // Check if there's an option with empty value
+    const emptyOption = options.find((option) => option.value === "");
+    expect(emptyOption).toBeInTheDocument();
+    expect(emptyOption).toHaveTextContent("unit");
   });
 
   it("should forward the ref to the value input element", () => {

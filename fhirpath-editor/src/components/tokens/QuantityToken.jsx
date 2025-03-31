@@ -87,6 +87,7 @@ const QuantityToken = React.forwardRef(({ token, onChange }, ref) => {
         value={valueAndUnit.unit}
         onChange={handleUnitChange}
       >
+        <option value="">unit</option>
         {commonUnits.map((unit) => (
           <option key={unit} value={unit}>
             {unit}
