@@ -40,6 +40,11 @@ vi.mock("../tokens/QuantityToken", () => ({
     <div data-testid="quantity-token">Quantity Token</div>
   ),
 }));
+vi.mock("../tokens/TypeToken", () => ({
+  default: ({ token, onChange, ref }) => (
+    <div data-testid="type-token">Type Token</div>
+  ),
+}));
 vi.mock("../tokens/OperatorToken", () => ({
   default: ({ token, onChange, expression, bindings, ref }) => (
     <div data-testid="operator-token">Operator Token</div>
@@ -117,6 +122,11 @@ describe("Token", () => {
       />
     );
     expect(screen.getByTestId("quantity-token")).toBeInTheDocument();
+  });
+
+  it("should render type token", () => {
+    render(<Token {...mockProps} value={{ type: "type", value: "String" }} />);
+    expect(screen.getByTestId("type-token")).toBeInTheDocument();
   });
 
   it("should render operator token", () => {

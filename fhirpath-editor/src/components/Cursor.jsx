@@ -25,6 +25,7 @@ import {
   Timer,
   Percent,
   Scales,
+  Tag,
 } from "@phosphor-icons/react";
 import React, { forwardRef } from "react";
 import { createPortal } from "react-dom";
@@ -41,6 +42,7 @@ const labels = {
   datetime: "DateTime",
   time: "Time",
   quantity: "Quantity",
+  type: "Type",
 };
 
 const Cursor = forwardRef(
@@ -279,6 +281,8 @@ const Cursor = forwardRef(
                         <Timer size={16} className="text-gray-500" />
                       ) : token.type === "quantity" ? (
                         <Scales size={16} className="text-gray-500" />
+                      ) : token.type === "type" ? (
+                        <Tag size={16} className="text-gray-500" />
                       ) : token.type === "field" ? (
                         <ArrowElbowDownRight
                           size={16}

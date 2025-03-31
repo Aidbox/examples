@@ -6,6 +6,7 @@ import {
   getExpressionType,
   findCompatibleVariables,
   findCompatibleOperators,
+  typeDefinitions,
 } from "../utils/types";
 import mergeRefs, { useCommitableState } from "../utils/react";
 
@@ -72,6 +73,8 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
       // Initialize with current time in hh:mm format
       const now = new Date();
       token.value = now.toTimeString().slice(0, 5);
+    } else if (token.type === "type") {
+      token.value = token.value || "String";
     } else if (token.type === "quantity" && token.value === undefined) {
       // Initialize with an empty value and unit as an object
       token.value = { value: "", unit: "seconds" };

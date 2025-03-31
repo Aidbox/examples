@@ -7,6 +7,7 @@ const operatorGroups = {
   "Comparison Operators": ["=", "==", "!=", "<", ">", "<=", ">=", "~", "!~"],
   "Logical Operators": ["and", "or", "xor", "implies"],
   "Collection Operators": ["in", "contains", "&", "|"],
+  "Type Operators": ["is", "as"],
 };
 
 // Flatten groups for easier lookup

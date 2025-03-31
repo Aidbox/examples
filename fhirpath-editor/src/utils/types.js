@@ -1,4 +1,6 @@
-// Type definitions for our fields
+const literalTypes = ["Boolean", "Integer", "Decimal", "Quantity", "String", "Date", "DateTime", "Time"];
+
+
 export const typeDefinitions = {
   Patient: {
     id: "string",
@@ -26,6 +28,8 @@ export const typeDefinitions = {
     line2: "String",
   },
 };
+
+export const types = [...literalTypes, ...Object.keys(typeDefinitions)];
 
 // Define operator type compatibility
 export const operatorTypes = {
@@ -437,6 +441,15 @@ export const operatorTypes = {
       ["String"]: "Boolean", // String comparison
     },
   },
+  // Type operators
+  "is": {
+    // All types can be checked with "is"
+    // Special handling in getExpressionType and in findCompatibleOperators
+  },
+  "as": {
+    // All types can be cast with "as"
+    // Special handling in getExpressionType and in findCompatibleOperators
+  }
 };
 
 function isChainingExpression(expression) {
@@ -473,6 +486,7 @@ export const getExpressionType = (expression, bindings) => {
     if (token.type === "datetime") return "DateTime";
     if (token.type === "time") return "Time";
     if (token.type === "quantity") return "Quantity";
+    if (token.type === "type") return token.value; // Return the actual type value
     if (token.type === "variable") {
       const binding = bindings.find((b) => b.name === token.value);
       if (!binding) return;
@@ -505,6 +519,15 @@ export const getExpressionType = (expression, bindings) => {
   // For expressions with operators
   if (isOperatorExpression(expression)) {
     const [left, op, right] = expression;
+
+    // Special handling for "is" and "as" operators with type tokens
+    if ((op.value === "is" || op.value === "as") && right.type === "type") {
+      const leftType = getExpressionType([left], bindings);
+      if (!leftType) return;
+
+      if (op.value === "is") return "Boolean";
+      if (op.value === "as") return right.value;
+    }
 
     const leftType = getExpressionType([left], bindings);
     const rightType = getExpressionType([right], bindings);
@@ -544,7 +567,9 @@ export const findCompatibleOperators = (bindings, currentExpression) => {
   if (currentExpression.length !== 1) return [];
 
   const leftType = getExpressionType([currentExpression[0]], bindings);
-  return Object.keys(operatorTypes).filter((op) => operatorTypes[op]?.[leftType]);
+  return Object.keys(operatorTypes).filter((op) =>
+    op === "is" || op === "as" || operatorTypes[op]?.[leftType]
+  );
 };
 
 const typeToTokenType = {
@@ -572,6 +597,7 @@ export const suggestNextToken = (expression, bindings) => {
       { type: "datetime" },
       { type: "time" },
       { type: "quantity" },
+      { type: "type" },
       { type: "variable" }
     ];
   }
@@ -585,8 +611,14 @@ export const suggestNextToken = (expression, bindings) => {
   }
 
   if (expression.length === 2 && expression[1].type === "operator") {
+    const operator = expression[1].value;
+
+    if (operator === "is" || operator === "as") {
+      return [{ type: "type" }];
+    }
+
     const leftType = getExpressionType([expression[0]], bindings);
-    return distinct(Object.keys(operatorTypes[expression[1].value]?.[leftType] || {}).concat(["variable"]).map(type => typeToTokenType[type] || type)).map(type => ({ type }));
+    return distinct(Object.keys(operatorTypes[operator]?.[leftType] || {}).concat(["variable"]).map(type => typeToTokenType[type] || type)).map(type => ({ type }));
   }
   
   if (isChainingExpression(expression)) {

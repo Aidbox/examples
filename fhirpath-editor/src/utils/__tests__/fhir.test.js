@@ -147,4 +147,31 @@ describe('FHIRPath conversion', () => {
     expect(appToFhirPath(app))
       .toBe("defineVariable(patient, %Resource)\n.select(%patient.age > 18)");
   });
+
+  it('should convert type tokens correctly', () => {
+    const expression = [
+      { type: 'type', value: 'String' }
+    ];
+    expect(expressionToFhirPath(expression)).toBe("String");
+  });
+
+  it('should convert is operator with type token correctly', () => {
+    const expression = [
+      { type: 'variable', value: 'patient' },
+      { type: 'field', value: 'name' },
+      { type: 'operator', value: 'is' },
+      { type: 'type', value: 'String' }
+    ];
+    expect(expressionToFhirPath(expression)).toBe("%patient.name is String");
+  });
+
+  it('should convert as operator with type token correctly', () => {
+    const expression = [
+      { type: 'variable', value: 'patient' },
+      { type: 'field', value: 'age' },
+      { type: 'operator', value: 'as' },
+      { type: 'type', value: 'Decimal' }
+    ];
+    expect(expressionToFhirPath(expression)).toBe("%patient.age as Decimal");
+  });
 }); 

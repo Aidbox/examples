@@ -19,11 +19,17 @@ const expressionToFhirPath = (expression) => {
       } else {
         return '0 \'\'';
       }
+    } else if (token.type === 'type') {
+      // Handle type tokens
+      return token.value;
     } else if (token.type === 'operator') {
       if (token.value === '=') {
         return ' = ';
       } else if (token.value === '&') {
         return ' & ';
+      } else if (token.value === 'is' || token.value === 'as') {
+        // Special handling for type operators
+        return ` ${token.value} `;
       } else {
         return ` ${token.value} `;
       }
