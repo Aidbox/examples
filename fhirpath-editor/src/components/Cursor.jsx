@@ -20,6 +20,10 @@ import {
   Info,
   Lightning,
   Quotes,
+  Calendar,
+  Clock,
+  Timer,
+  Percent,
 } from "@phosphor-icons/react";
 import React, { forwardRef } from "react";
 import { createPortal } from "react-dom";
@@ -32,6 +36,9 @@ const labels = {
   field: "Field",
   operator: "Operator",
   boolean: "Boolean",
+  date: "Date",
+  datetime: "DateTime",
+  time: "Time",
 };
 
 const Cursor = forwardRef(
@@ -56,7 +63,10 @@ const Cursor = forwardRef(
     const [selected, setSelected] = React.useState(0);
 
     const tokens = nextTokens.filter((token) => {
-      const label = token.value || labels[token.type];
+      const label = token.value || labels[token.type] || token.type;
+      if (!label) {
+        debugger;
+      }
       return label.toLowerCase().includes(search.toLowerCase());
     });
 
@@ -70,8 +80,15 @@ const Cursor = forwardRef(
       }
 
       const number = nextTokens.find(({ type }) => type === "number");
-      if (number && search.match(/^\-?\d+$/)) {
-        tokens.push({ ...number, value: search });
+      if (number) {
+        // Integer pattern
+        if (search.match(/^\-?\d+$/)) {
+          tokens.push({ ...number, value: search });
+        }
+        // Decimal pattern
+        else if (search.match(/^\-?\d*\.\d+$/)) {
+          tokens.push({ ...number, value: search });
+        }
       }
 
       const string = nextTokens.find(({ type }) => type === "string");
@@ -252,6 +269,12 @@ const Cursor = forwardRef(
                         <Code size={16} className="text-gray-500" />
                       ) : token.type === "boolean" ? (
                         <Flag size={16} className="text-gray-500" />
+                      ) : token.type === "date" ? (
+                        <Calendar size={16} className="text-gray-500" />
+                      ) : token.type === "datetime" ? (
+                        <Clock size={16} className="text-gray-500" />
+                      ) : token.type === "time" ? (
+                        <Timer size={16} className="text-gray-500" />
                       ) : token.type === "field" ? (
                         <ArrowElbowDownRight
                           size={16}

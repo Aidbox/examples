@@ -5,6 +5,9 @@ import OperatorToken from "./tokens/OperatorToken";
 import VariableToken from "./tokens/VariableToken";
 import FieldToken from "./tokens/FieldToken";
 import BooleanToken from "./tokens/BooleanToken";
+import DateToken from "./tokens/DateToken";
+import DateTimeToken from "./tokens/DateTimeToken";
+import TimeToken from "./tokens/TimeToken";
 
 const Token = React.forwardRef(
   ({ value, onChange, bindings, expression, deleting, index }, ref) => {
@@ -23,6 +26,12 @@ const Token = React.forwardRef(
           <StringToken token={value} onChange={onChange} ref={ref} />
         ) : value.type === "boolean" ? (
           <BooleanToken token={value} onChange={onChange} ref={ref} />
+        ) : value.type === "date" ? (
+          <DateToken token={value} onChange={onChange} ref={ref} />
+        ) : value.type === "datetime" ? (
+          <DateTimeToken token={value} onChange={onChange} ref={ref} />
+        ) : value.type === "time" ? (
+          <TimeToken token={value} onChange={onChange} ref={ref} />
         ) : value.type === "operator" ? (
           <OperatorToken
             token={value}

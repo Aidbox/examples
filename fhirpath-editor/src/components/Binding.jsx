@@ -60,6 +60,18 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
       token.value = "";
     } else if (token.type === "boolean" && token.value === undefined) {
       token.value = "true";
+    } else if (token.type === "date" && token.value === undefined) {
+      // Initialize with current date in YYYY-MM-DD format
+      const today = new Date();
+      token.value = today.toISOString().split("T")[0];
+    } else if (token.type === "datetime" && token.value === undefined) {
+      // Initialize with current datetime in YYYY-MM-DDThh:mm format (browser compatible)
+      const now = new Date();
+      token.value = now.toISOString().slice(0, 16);
+    } else if (token.type === "time" && token.value === undefined) {
+      // Initialize with current time in hh:mm format
+      const now = new Date();
+      token.value = now.toTimeString().slice(0, 5);
     } else if (token.type === "operator" && token.value === undefined) {
       const compatibleOperators = findCompatibleOperators(
         bindings,

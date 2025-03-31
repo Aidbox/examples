@@ -2,21 +2,27 @@
 export const typeDefinitions = {
   Patient: {
     id: "string",
-    age: "number",
-    name: "string",
+    age: "Integer",
+    name: "String",
     address: "Address",
+    birthDate: "Date",
+    lastVisit: "DateTime", 
+    appointmentTime: "Time",
+    height: "Decimal",
   },
   Questionnaire: {
-    id: "string",
-    status: "string",
-    item: "string",
+    id: "String",
+    status: "String",
+    item: "String",
+    createdDate: "Date",
+    lastUpdated: "DateTime",
   },
   Address: {
-    state: "string",
-    city: "string",
-    zip: "string",
-    line1: "string",
-    line2: "string",
+    state: "String",
+    city: "String",
+    zip: "String",
+    line1: "String",
+    line2: "String",
   },
 };
 
@@ -24,88 +30,201 @@ export const typeDefinitions = {
 export const operatorTypes = {
   // math operators
   "+": {
-    ["number"]: {
-      ["number"]: "number",
+    ["Integer"]: {
+      ["Integer"]: "Integer",
+      ["Decimal"]: "Decimal",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Decimal",
+      ["Decimal"]: "Decimal",
     },
   },
   "-": {
-    ["number"]: {
-      ["number"]: "number",
+    ["Integer"]: {
+      ["Integer"]: "Integer",
+      ["Decimal"]: "Decimal",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Decimal",
+      ["Decimal"]: "Decimal",
+    },
+    ["Date"]: {
+      ["Date"]: "Integer", // Days between dates
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Integer", // Days between datetimes
+    },
+    ["Time"]: {
+      ["Time"]: "Integer", // Minutes between times
     },
   },
   "*": {
-    ["number"]: {
-      ["number"]: "number",
+    ["Integer"]: {
+      ["Integer"]: "Integer",
+      ["Decimal"]: "Decimal",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Decimal",
+      ["Decimal"]: "Decimal",
     },
   },
   "/": {
-    ["number"]: {
-      ["number"]: "number",
+    ["Integer"]: {
+      ["Integer"]: "Decimal",
+      ["Decimal"]: "Decimal",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Decimal",
+      ["Decimal"]: "Decimal",
     },
   },
   // string operators
   "&": {
-    ["string"]: {
-      ["string"]: "string",
+    ["String"]: {
+      ["String"]: "String",
     },
   },
   // logical operators
   "or": {
-    ["boolean"]: {
-      ["boolean"]: "boolean",
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
     },
   },
   "and": {
-    ["boolean"]: {
-      ["boolean"]: "boolean",
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
     },
   },
   "xor": {
-    ["boolean"]: {
-      ["boolean"]: "boolean",
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
     },
   },
   // comparison operators
   "==": {
-    ["number"]: {
-      ["number"]: "boolean",
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
     },
-    ["string"]: {
-      ["string"]: "boolean",
+    ["Decimal"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
     },
-    ["boolean"]: {
-      ["boolean"]: "boolean",
+    ["String"]: {
+      ["String"]: "Boolean",
+    },
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
     },
   },
   "!=": {
-    ["number"]: {
-      ["number"]: "boolean",
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
     },
-    ["string"]: {
-      ["string"]: "boolean",
+    ["Decimal"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
     },
-    ["boolean"]: {
-      ["boolean"]: "boolean",
+    ["String"]: {
+      ["String"]: "Boolean",
+    },
+    ["Boolean"]: {
+      ["Boolean"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
     },
   },
   "<": {
-    ["number"]: {
-      ["number"]: "boolean",
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
     },
   },
   ">": {
-    ["number"]: {
-      ["number"]: "boolean",
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
     },
   },
   "<=": {
-    ["number"]: {
-      ["number"]: "boolean",
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
     },
   },
   ">=": {
-    ["number"]: {
-      ["number"]: "boolean",
+    ["Integer"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Decimal"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+    },
+    ["Date"]: {
+      ["Date"]: "Boolean",
+    },
+    ["DateTime"]: {
+      ["DateTime"]: "Boolean",
+    },
+    ["Time"]: {
+      ["Time"]: "Boolean",
     },
   },
 };
@@ -134,9 +253,15 @@ export const getExpressionType = (expression, bindings) => {
 
   if (expression.length === 1) {
     const token = expression[0];
-    if (token.type === "number") return "number";
-    if (token.type === "string") return "string";
-    if (token.type === "boolean") return "boolean";
+    if (token.type === "number") {
+      // Determine if the number is an integer or decimal based on its value
+      return token.value.includes(".") ? "Decimal" : "Integer";
+    }
+    if (token.type === "string") return "String";
+    if (token.type === "boolean") return "Boolean";
+    if (token.type === "date") return "Date";
+    if (token.type === "datetime") return "DateTime";
+    if (token.type === "time") return "Time";
     if (token.type === "variable") {
       const binding = bindings.find((b) => b.name === token.value);
       if (!binding) return;
@@ -211,11 +336,31 @@ export const findCompatibleOperators = (bindings, currentExpression) => {
   return Object.keys(operatorTypes).filter((op) => operatorTypes[op]?.[leftType]);
 };
 
+const typeToTokenType = {
+  "Integer": "number",
+  "Decimal": "number",
+  "String": "string",
+  "Boolean": "boolean",
+  "Date": "date",
+  "DateTime": "datetime",
+  "Time": "time",
+};
+
+const distinct = (array) => Array.from(new Set(array));
+
 // Suggest next tokens based on current expression
 export const suggestNextToken = (expression, bindings) => {
-  // if the expression is empty, suggest number, string, boolean and variable
+  // if the expression is empty, suggest all primitive types and variable
   if (expression.length === 0) {
-    return [{ type: "number" }, { type: "string" }, { type: "boolean" }, { type: "variable" }];
+    return [
+      { type: "number" }, 
+      { type: "string" }, 
+      { type: "boolean" }, 
+      { type: "date" },
+      { type: "datetime" },
+      { type: "time" },
+      { type: "variable" }
+    ];
   }
 
   const firstTokenType = getExpressionType([expression[0]], bindings);
@@ -228,9 +373,9 @@ export const suggestNextToken = (expression, bindings) => {
 
   if (expression.length === 2 && expression[1].type === "operator") {
     const leftType = getExpressionType([expression[0]], bindings);
-    return Object.keys(operatorTypes[expression[1].value]?.[leftType] || {}).concat(["variable"]).map(type => ({ type }));
+    return distinct(Object.keys(operatorTypes[expression[1].value]?.[leftType] || {}).concat(["variable"]).map(type => typeToTokenType[type] || type)).map(type => ({ type }));
   }
-
+  
   if (isChainingExpression(expression)) {
     const resultType = getExpressionType(expression, bindings);
     return Object.keys(typeDefinitions[resultType] || {}).map(field => ({ type: "field", value: field }));

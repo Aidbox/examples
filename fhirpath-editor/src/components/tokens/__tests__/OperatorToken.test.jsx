@@ -7,7 +7,7 @@ import { operatorTypes } from "../../../utils/types";
 
 // Mock the utility function
 vi.mock("../../../utils/types", () => ({
-  getCompatibleOperators: vi.fn(() => ["+", "-", "*", "/"]),
+  findCompatibleOperators: vi.fn(() => ["+", "-", "*", "/"]),
   getExpressionType: vi.fn(() => "number"),
   operatorTypes: {
     "+": {

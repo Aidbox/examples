@@ -20,6 +20,21 @@ vi.mock("../tokens/BooleanToken", () => ({
     <div data-testid="boolean-token">Boolean Token</div>
   ),
 }));
+vi.mock("../tokens/DateToken", () => ({
+  default: ({ token, onChange, ref }) => (
+    <div data-testid="date-token">Date Token</div>
+  ),
+}));
+vi.mock("../tokens/DateTimeToken", () => ({
+  default: ({ token, onChange, ref }) => (
+    <div data-testid="datetime-token">DateTime Token</div>
+  ),
+}));
+vi.mock("../tokens/TimeToken", () => ({
+  default: ({ token, onChange, ref }) => (
+    <div data-testid="time-token">Time Token</div>
+  ),
+}));
 vi.mock("../tokens/OperatorToken", () => ({
   default: ({ token, onChange, expression, bindings, ref }) => (
     <div data-testid="operator-token">Operator Token</div>
@@ -62,6 +77,28 @@ describe("Token", () => {
   it("should render boolean token", () => {
     render(<Token {...mockProps} value={{ type: "boolean", value: "true" }} />);
     expect(screen.getByTestId("boolean-token")).toBeInTheDocument();
+  });
+
+  it("should render date token", () => {
+    render(
+      <Token {...mockProps} value={{ type: "date", value: "2023-05-15" }} />
+    );
+    expect(screen.getByTestId("date-token")).toBeInTheDocument();
+  });
+
+  it("should render datetime token", () => {
+    render(
+      <Token
+        {...mockProps}
+        value={{ type: "datetime", value: "2023-05-15T14:30" }}
+      />
+    );
+    expect(screen.getByTestId("datetime-token")).toBeInTheDocument();
+  });
+
+  it("should render time token", () => {
+    render(<Token {...mockProps} value={{ type: "time", value: "14:30" }} />);
+    expect(screen.getByTestId("time-token")).toBeInTheDocument();
   });
 
   it("should render operator token", () => {
