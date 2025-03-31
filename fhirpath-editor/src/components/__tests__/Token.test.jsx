@@ -35,6 +35,11 @@ vi.mock("../tokens/TimeToken", () => ({
     <div data-testid="time-token">Time Token</div>
   ),
 }));
+vi.mock("../tokens/QuantityToken", () => ({
+  default: ({ token, onChange, ref }) => (
+    <div data-testid="quantity-token">Quantity Token</div>
+  ),
+}));
 vi.mock("../tokens/OperatorToken", () => ({
   default: ({ token, onChange, expression, bindings, ref }) => (
     <div data-testid="operator-token">Operator Token</div>
@@ -99,6 +104,19 @@ describe("Token", () => {
   it("should render time token", () => {
     render(<Token {...mockProps} value={{ type: "time", value: "14:30" }} />);
     expect(screen.getByTestId("time-token")).toBeInTheDocument();
+  });
+
+  it("should render quantity token", () => {
+    render(
+      <Token
+        {...mockProps}
+        value={{
+          type: "quantity",
+          value: JSON.stringify({ value: "10", unit: "kg" }),
+        }}
+      />
+    );
+    expect(screen.getByTestId("quantity-token")).toBeInTheDocument();
   });
 
   it("should render operator token", () => {

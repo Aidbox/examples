@@ -72,6 +72,9 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
       // Initialize with current time in hh:mm format
       const now = new Date();
       token.value = now.toTimeString().slice(0, 5);
+    } else if (token.type === "quantity" && token.value === undefined) {
+      // Initialize with an empty value and unit
+      token.value = JSON.stringify({ value: "", unit: "seconds" });
     } else if (token.type === "operator" && token.value === undefined) {
       const compatibleOperators = findCompatibleOperators(
         bindings,

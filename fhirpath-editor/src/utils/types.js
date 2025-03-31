@@ -9,6 +9,7 @@ export const typeDefinitions = {
     lastVisit: "DateTime", 
     appointmentTime: "Time",
     height: "Decimal",
+    weight: "Quantity",
   },
   Questionnaire: {
     id: "String",
@@ -33,20 +34,34 @@ export const operatorTypes = {
     ["Integer"]: {
       ["Integer"]: "Integer",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Quantity",
     },
     ["Decimal"]: {
       ["Integer"]: "Decimal",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Quantity",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Quantity",
+      ["Decimal"]: "Quantity",
+      ["Quantity"]: "Quantity",
     },
   },
   "-": {
     ["Integer"]: {
       ["Integer"]: "Integer",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Quantity",
     },
     ["Decimal"]: {
       ["Integer"]: "Decimal",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Quantity",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Quantity",
+      ["Decimal"]: "Quantity",
+      ["Quantity"]: "Quantity",
     },
     ["Date"]: {
       ["Date"]: "Integer", // Days between dates
@@ -62,20 +77,33 @@ export const operatorTypes = {
     ["Integer"]: {
       ["Integer"]: "Integer",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Quantity",
     },
     ["Decimal"]: {
       ["Integer"]: "Decimal",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Quantity",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Quantity",
+      ["Decimal"]: "Quantity",
     },
   },
   "/": {
     ["Integer"]: {
       ["Integer"]: "Decimal",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Decimal",
     },
     ["Decimal"]: {
       ["Integer"]: "Decimal",
       ["Decimal"]: "Decimal",
+      ["Quantity"]: "Decimal",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Quantity",
+      ["Decimal"]: "Quantity",
+      ["Quantity"]: "Decimal", // Quantity / Quantity = unitless Decimal
     },
   },
   // string operators
@@ -105,10 +133,12 @@ export const operatorTypes = {
     ["Integer"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Decimal"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["String"]: {
       ["String"]: "Boolean",
@@ -124,16 +154,23 @@ export const operatorTypes = {
     },
     ["Time"]: {
       ["Time"]: "Boolean",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
   },
   "!=": {
     ["Integer"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Decimal"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["String"]: {
       ["String"]: "Boolean",
@@ -150,15 +187,22 @@ export const operatorTypes = {
     ["Time"]: {
       ["Time"]: "Boolean",
     },
+    ["Quantity"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
+    },
   },
   "<": {
     ["Integer"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Decimal"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Date"]: {
       ["Date"]: "Boolean",
@@ -168,16 +212,23 @@ export const operatorTypes = {
     },
     ["Time"]: {
       ["Time"]: "Boolean",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
   },
   ">": {
     ["Integer"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Decimal"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Date"]: {
       ["Date"]: "Boolean",
@@ -187,16 +238,23 @@ export const operatorTypes = {
     },
     ["Time"]: {
       ["Time"]: "Boolean",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
   },
   "<=": {
     ["Integer"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Decimal"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Date"]: {
       ["Date"]: "Boolean",
@@ -206,16 +264,23 @@ export const operatorTypes = {
     },
     ["Time"]: {
       ["Time"]: "Boolean",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
   },
   ">=": {
     ["Integer"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Decimal"]: {
       ["Integer"]: "Boolean",
       ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
     ["Date"]: {
       ["Date"]: "Boolean",
@@ -225,6 +290,11 @@ export const operatorTypes = {
     },
     ["Time"]: {
       ["Time"]: "Boolean",
+    },
+    ["Quantity"]: {
+      ["Integer"]: "Boolean",
+      ["Decimal"]: "Boolean",
+      ["Quantity"]: "Boolean",
     },
   },
 };
@@ -262,6 +332,7 @@ export const getExpressionType = (expression, bindings) => {
     if (token.type === "date") return "Date";
     if (token.type === "datetime") return "DateTime";
     if (token.type === "time") return "Time";
+    if (token.type === "quantity") return "Quantity";
     if (token.type === "variable") {
       const binding = bindings.find((b) => b.name === token.value);
       if (!binding) return;
@@ -344,6 +415,7 @@ const typeToTokenType = {
   "Date": "date",
   "DateTime": "datetime",
   "Time": "time",
+  "Quantity": "quantity",
 };
 
 const distinct = (array) => Array.from(new Set(array));
@@ -359,6 +431,7 @@ export const suggestNextToken = (expression, bindings) => {
       { type: "date" },
       { type: "datetime" },
       { type: "time" },
+      { type: "quantity" },
       { type: "variable" }
     ];
   }

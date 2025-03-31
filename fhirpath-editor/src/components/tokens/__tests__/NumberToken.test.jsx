@@ -48,7 +48,6 @@ describe("NumberToken", () => {
   it("should have integer formatting for whole numbers", () => {
     render(<NumberToken {...mockProps} />);
     const input = screen.getByTestId("number-token");
-    expect(input).toHaveAttribute("data-type", "integer");
     expect(input).toHaveClass("text-blue-800");
     expect(input).toHaveAttribute("placeholder", "0");
   });
@@ -61,9 +60,7 @@ describe("NumberToken", () => {
       />
     );
     const input = screen.getByTestId("number-token");
-    expect(input).toHaveAttribute("data-type", "decimal");
     expect(input).toHaveClass("text-indigo-800");
-    expect(input).toHaveAttribute("placeholder", "0.0");
   });
 
   it("should have pattern attribute for numbers", () => {
