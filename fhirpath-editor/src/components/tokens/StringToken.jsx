@@ -4,6 +4,7 @@ const StringToken = React.forwardRef(({ token, onChange }, ref) => {
   const empty = !token.value;
   return (
     <label
+      data-testid="string-token"
       className="flex items-center focus-within:bg-gray-100 hover:outline hover:outline-gray-300 px-1 py-0.5 rounded data-empty:outline data-empty:not-hover:outline-dashed data-empty:outline-gray-300"
       data-empty={empty || undefined}
     >

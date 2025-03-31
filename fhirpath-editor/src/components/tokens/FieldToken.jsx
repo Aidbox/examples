@@ -11,9 +11,10 @@ const FieldToken = React.forwardRef(
     const invalid = !fields.find((field) => field === token.value);
 
     return (
-      <label className="relative token">
+      <label className="relative token" data-testid="field-token">
         <div
           className="absolute left-0 top-1/2 -ml-0.25 mt-0.25 -translate-y-1/2 -translate-x-1/2 w-[0.2rem] h-[0.2rem] rounded-full bg-gray-400 outline outline-white data-[deleting]:hidden pointer-events-none"
+          data-testid="field-token-dot"
           data-deleting={deleting || undefined}
         ></div>
         <select
