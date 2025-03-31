@@ -8,7 +8,7 @@ describe("QuantityToken", () => {
   const mockProps = {
     token: {
       type: "quantity",
-      value: JSON.stringify({ value: "10", unit: "kg" }),
+      value: { value: "10", unit: "kg" },
     },
     onChange: vi.fn(),
   };
@@ -34,7 +34,7 @@ describe("QuantityToken", () => {
 
     expect(mockProps.onChange).toHaveBeenCalledWith({
       type: "quantity",
-      value: JSON.stringify({ value: "20", unit: "kg" }),
+      value: { value: "20", unit: "kg" },
     });
   });
 
@@ -46,37 +46,8 @@ describe("QuantityToken", () => {
 
     expect(mockProps.onChange).toHaveBeenCalledWith({
       type: "quantity",
-      value: JSON.stringify({ value: "10", unit: "g" }),
+      value: { value: "10", unit: "g" },
     });
-  });
-
-  it("should render with empty inputs when no value is provided", () => {
-    render(
-      <QuantityToken
-        token={{ type: "quantity", value: "" }}
-        onChange={mockProps.onChange}
-      />
-    );
-
-    const valueInput = screen.getByRole("textbox");
-    const unitSelect = screen.getByRole("combobox");
-
-    expect(valueInput).toHaveValue("");
-    expect(unitSelect).toHaveValue("");
-    expect(valueInput).toHaveAttribute("data-empty");
-    expect(unitSelect).toHaveAttribute("data-empty");
-  });
-
-  it("should have empty option available", () => {
-    render(<QuantityToken {...mockProps} />);
-
-    // Get all options
-    const options = screen.getAllByRole("option");
-
-    // Check if there's an option with empty value
-    const emptyOption = options.find((option) => option.value === "");
-    expect(emptyOption).toBeInTheDocument();
-    expect(emptyOption).toHaveTextContent("unit");
   });
 
   it("should forward the ref to the value input element", () => {

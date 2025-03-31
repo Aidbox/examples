@@ -112,7 +112,7 @@ describe("Token", () => {
         {...mockProps}
         value={{
           type: "quantity",
-          value: JSON.stringify({ value: "10", unit: "kg" }),
+          value: { value: "70", unit: "kg" },
         }}
       />
     );
