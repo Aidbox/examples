@@ -1,5 +1,3 @@
-import { types } from "./typeSystem";
-
 // Find all variables referenced in a binding's expression
 export const findReferencedVariables = (binding) => {
   return binding.expression
@@ -51,13 +49,13 @@ export const globalBindings = [
     name: "questionnaire",
     expression: [],
     fields: ["id", "status", "item"],
-    type: types.Questionnaire,
+    type: "Questionnaire",
   },
   {
     name: "patient",
     expression: [],
     fields: ["id", "age", "name"],
-    type: types.Patient,
+    type: "Patient",
   },
 ];
 
@@ -105,7 +103,7 @@ export const sampleBindings = [
     name: "var3",
     expression: [
       { type: "variable", value: "patient" },
-      { type: "field", field: "name" },
+      { type: "field", value: "name" },
     ],
   },
 ];

@@ -8,7 +8,7 @@ const StringToken = React.forwardRef(({ token, onChange }, ref) => {
       data-empty={empty || undefined}
     >
       <span
-        className="text-orange-800 data-[empty]:text-gray-400"
+        className="text-orange-800 opacity-75 data-[empty]:text-gray-400 select-none"
         data-empty={empty || undefined}
       >
         "
@@ -21,7 +21,7 @@ const StringToken = React.forwardRef(({ token, onChange }, ref) => {
         onChange={(e) => onChange({ ...token, value: e.target.value })}
       />
       <span
-        className="text-orange-800 data-[empty]:text-gray-400"
+        className="text-orange-800 opacity-75 data-[empty]:text-gray-400 select-none"
         data-empty={empty || undefined}
       >
         "

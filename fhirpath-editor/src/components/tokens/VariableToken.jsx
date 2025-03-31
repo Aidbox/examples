@@ -1,13 +1,10 @@
 import React from "react";
-import { filterCompatibleVariables } from "../../utils/typeSystem";
+import { findCompatibleVariables } from "../../utils/types";
 
 const VariableToken = React.forwardRef(
-  ({ token, onChange, bindings, currentExpression }, ref) => {
+  ({ token, onChange, bindings, expression }, ref) => {
     // Filter bindings based on compatibility and position
-    const compatibleBindings = filterCompatibleVariables(
-      bindings,
-      currentExpression
-    );
+    const compatibleBindings = findCompatibleVariables(bindings, expression);
 
     const invalid = !compatibleBindings.find(
       ({ name }) => name === token.value

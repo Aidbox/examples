@@ -163,14 +163,21 @@ function Editor({ value, setValue }) {
           items={value.bindings.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
-          {value.bindings.map((binding, index) => (
-            <SortableBinding
-              key={binding.id || index}
-              value={binding}
-              onChange={(value) => handleBindingChange(index, value)}
-              bindings={[...globalBindings, ...value.bindings.slice(0, index)]}
-            />
-          ))}
+          <div className="flex flex-col gap-2">
+            {value.bindings.map((binding, index) => (
+              <SortableBinding
+                ref={index === value.bindings.length - 1 ? lastInputRef : null}
+                sorting={binding.id === activeId}
+                key={binding.id || index}
+                value={binding}
+                onChange={(value) => handleBindingChange(index, value)}
+                bindings={[
+                  ...globalBindings,
+                  ...value.bindings.slice(0, index),
+                ]}
+              />
+            ))}
+          </div>
         </SortableContext>
 
         <DragOverlay
@@ -186,16 +193,18 @@ function Editor({ value, setValue }) {
                 const draggedBinding = value.bindings.find(
                   (b) => b.id === activeId
                 );
+
                 const overIndex = overItemId
                   ? value.bindings.findIndex((b) => b.id === overItemId)
                   : -1;
+
                 const isValidMove =
-                  overIndex !== -1 &&
+                  overIndex === -1 ||
                   canMoveBinding(value.bindings, draggedIndex, overIndex);
 
                 return (
-                  <div className="opacity-80 bg-white">
-                    <DragHandle valid={isValidMove} />
+                  <div className="opacity-80 *:bg-white flex flex-row gap-2 items-center">
+                    <DragHandle valid={isValidMove} active={true} />
                     <Binding
                       value={draggedBinding}
                       onChange={() => {}}
@@ -219,11 +228,13 @@ function Editor({ value, setValue }) {
       </button>
 
       <h2 className="text-lg font-semibold mt-2">Primary Expression</h2>
-      <Binding
-        value={{ name: null, expression: value.expression }}
-        onChange={({ expression }) => setValue({ ...value, expression })}
-        bindings={[...globalBindings, ...value.bindings]}
-      />
+      <div className="flex flex-row gap-2 items-center">
+        <Binding
+          value={{ name: null, expression: value.expression }}
+          onChange={({ expression }) => setValue({ ...value, expression })}
+          bindings={[...globalBindings, ...value.bindings]}
+        />
+      </div>
 
       <h2 className="text-lg font-semibold mt-2">Compiled FHIRPath</h2>
       <pre className="text-xs bg-gray-50 p-4 rounded-md border border-gray-200 w-fit">

@@ -1,27 +1,15 @@
 import React from "react";
-import NumberToken from "./NumberToken";
-import StringToken from "./StringToken";
-import OperatorToken from "./OperatorToken";
-import VariableToken from "./VariableToken";
-import FieldToken from "./FieldToken";
+import NumberToken from "./tokens/NumberToken";
+import StringToken from "./tokens/StringToken";
+import OperatorToken from "./tokens/OperatorToken";
+import VariableToken from "./tokens/VariableToken";
+import FieldToken from "./tokens/FieldToken";
 
 const Token = React.forwardRef(
-  (
-    {
-      value,
-      onChange,
-      bindings,
-      expression,
-      index,
-      deleting,
-    },
-    ref
-  ) => {
-    const currentExpression = expression.slice(0, index + 1);
-    const prevTokens = expression.slice(0, index);
-
+  ({ value, onChange, bindings, expression, deleting, index }, ref) => {
     return (
       <div
+        data-index={index}
         className={`${
           deleting
             ? "bg-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
@@ -36,7 +24,7 @@ const Token = React.forwardRef(
           <OperatorToken
             token={value}
             onChange={onChange}
-            currentExpression={currentExpression}
+            expression={expression}
             bindings={bindings}
             ref={ref}
           />
@@ -45,7 +33,7 @@ const Token = React.forwardRef(
             token={value}
             onChange={onChange}
             bindings={bindings}
-            currentExpression={currentExpression}
+            expression={expression}
             ref={ref}
           />
         ) : value.type === "field" ? (
@@ -53,7 +41,8 @@ const Token = React.forwardRef(
             token={value}
             onChange={onChange}
             bindings={bindings}
-            prevTokens={prevTokens}
+            expression={expression}
+            deleting={deleting}
             ref={ref}
           />
         ) : (

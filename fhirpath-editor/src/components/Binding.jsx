@@ -1,20 +1,19 @@
-import React from "react";
-import Token from "./tokens/Token";
+import React, { forwardRef } from "react";
+import Token from "./Token";
 import Cursor from "./Cursor";
 import {
-  suggestNextTokens,
-  calculateResultType,
-  filterCompatibleVariables,
-} from "../utils/typeSystem";
-import { useCommitableState } from "../utils/hooks";
+  suggestNextToken,
+  getExpressionType,
+  findCompatibleVariables,
+} from "../utils/types";
+import mergeRefs, { useCommitableState } from "../utils/react";
 
-const Binding = ({ value, onChange, bindings }) => {
-  const suggestions = suggestNextTokens(value.expression, bindings);
-  const [hovering, setHovering] = React.useState(value);
-  const lastTokenRef = React.useRef(null);
+const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
+  const [hovering, setHovering] = React.useState(false);
+  const tokenRefs = React.useRef([]);
   const [deleting, setDeleting] = React.useState(false);
   const resetDeletingTimer = React.useRef(null);
-  const bindingRef = React.useRef(null);
+  const cursorRef = React.useRef(null);
 
   React.useEffect(() => {
     if (deleting) {
@@ -25,7 +24,7 @@ const Binding = ({ value, onChange, bindings }) => {
   }, [deleting]);
 
   // Calculate the result type to display
-  const resultType = calculateResultType(value.expression, bindings);
+  const resultType = getExpressionType(value.expression, bindings);
 
   const deleteToken = () => {
     if (deleting) {
@@ -47,64 +46,54 @@ const Binding = ({ value, onChange, bindings }) => {
     }
   };
 
-  const addToken = (type) => {
-    let newToken;
-    if (typeof type === "object" && type.type === "field") {
-      // Handle pre-filled field suggestions
-      newToken = {
-        type: "field",
-        field: type.field,
-      };
-    } else if (type === "variable") {
-      const compatibleBindings = filterCompatibleVariables(
+  const addToken = (token, focus = true) => {
+    if (token.type === "variable" && token.value === undefined) {
+      const compatibleBindings = findCompatibleVariables(
         bindings,
         value.expression
       );
-      console.log({ compatibleBindings, expression: value.expression });
-      newToken = {
-        type: "variable",
-        value: compatibleBindings[0]?.name || "",
-      };
-    } else if (type === "string") {
-      newToken = { type: "string", value: "" };
-    } else if (type === "number") {
-      newToken = { type: "number", value: "" };
-    } else {
-      newToken = { type: "operator", value: "+" };
+      token.value = compatibleBindings[0]?.name || "";
+    } else if (token.type === "string" && token.value === undefined) {
+      token.value = "";
+    } else if (token.type === "number" && token.value === undefined) {
+      token.value = "";
+    } else if (token.type === "operator" && token.value === undefined) {
+      token.value = "+";
     }
 
-    if (newToken) {
-      onChange({
-        ...value,
-        expression: [...value.expression, newToken],
-      });
+    onChange({
+      ...value,
+      expression: [...value.expression, token],
+    });
 
+    if (focus) {
       // Focus the new token after render
       setTimeout(() => {
-        lastTokenRef.current?.focus();
+        tokenRefs.current[value.expression.length]?.focus();
       }, 0);
     }
   };
 
-  const [animation, setAnimation] = React.useState("");
+  const [nameAnimation, setNameAnimation] = React.useState("");
+  const [expressionAnimation, setExpressionAnimation] = React.useState("");
 
   const [name, setName, commitName] = useCommitableState(
     value.name,
     (name) => onChange({ ...value, name }),
-    () => setAnimation("animate__animated animate__shakeX animate__fast")
+    () => setNameAnimation("animate__animated animate__shakeX animate__faster")
   );
 
   return (
-    <div className={`flex flex-row gap-2 items-center`} ref={bindingRef}>
+    <>
       {value.name !== null && (
         <label
-          className={`border border-gray-300 rounded-md p-2 focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 h-11 ${animation}
+          className={`flex border border-gray-300 rounded-md px-2 py-1 items-center focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 h-11 ${nameAnimation}
           ${
             deleting && value.expression.length === 0
               ? "bg-red-500 border-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
               : ""
           }`}
-          onAnimationEnd={() => setAnimation("")}
+          onAnimationEnd={() => setNameAnimation("")}
         >
           <input
             className="focus:outline-none field-sizing-content"
@@ -120,23 +109,76 @@ const Binding = ({ value, onChange, bindings }) => {
         </label>
       )}
       {value.name !== null && "="}
-      <label
-        htmlFor={`${value.name}-expression`}
-        className="flex flex-row gap-1 border border-gray-300 rounded-md p-2 items-center focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 h-11"
+      <div
+        className={`flex flex-row gap-1 border border-gray-300 rounded-md px-2 py-1 items-center focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 h-11 ${expressionAnimation} data-[empty]:border-dashed data-[empty]:focus-within:border-solid data-[empty]:hover:border-solid data-[empty]:min-w-10`}
+        data-empty={value.expression.length === 0 || undefined}
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={(e) => {
           if (!e.target.contains(document.activeElement)) {
             setHovering(false);
           }
         }}
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) {
+            e.preventDefault();
+            e.stopPropagation();
+            cursorRef.current?.focus();
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") {
+            if (!e.target.selectionStart) {
+              const index = parseInt(
+                e.target.closest("[data-index]")?.dataset?.index
+              );
+              if (index > 0) {
+                const element = tokenRefs.current[index - 1];
+                if (element) {
+                  element.focus();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              } else if (e.target === cursorRef.current) {
+                tokenRefs.current[value.expression.length - 1]?.focus();
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }
+          }
+          if (e.key === "ArrowRight") {
+            if (
+              e.target.selectionEnd === undefined ||
+              e.target.selectionEnd === e.target.value.length
+            ) {
+              const index = parseInt(
+                e.target.closest("[data-index]")?.dataset?.index
+              );
+
+              if (index < value.expression.length - 1) {
+                const element = tokenRefs.current[index + 1];
+                if (element) {
+                  element.focus();
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              } else if (index === value.expression.length - 1) {
+                cursorRef.current?.focus();
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }
+          }
+        }}
         onFocus={() => setHovering(true)}
         onBlur={() => setHovering(false)}
+        onAnimationEnd={() => setExpressionAnimation("")}
       >
         <div className="flex flex-row empty:hidden gap-[2px]">
           {value.expression.map((token, index) => (
             <Token
               key={index}
               value={token}
+              index={index}
               onChange={(newToken) =>
                 onChange({
                   ...value,
@@ -148,23 +190,30 @@ const Binding = ({ value, onChange, bindings }) => {
                 })
               }
               bindings={bindings}
-              expression={value.expression}
-              index={index}
+              expression={value.expression.slice(0, index + 1)}
               deleting={deleting && index === value.expression.length - 1}
-              ref={index === value.expression.length - 1 ? lastTokenRef : null}
+              ref={(ref) => (tokenRefs.current[index] = ref)}
             />
           ))}
         </div>
         <Cursor
           id={`${value.name}-expression`}
-          suggestions={suggestions}
+          ref={mergeRefs(forwardingRef, cursorRef)}
+          nextTokens={suggestNextToken(value.expression, bindings)}
           onAddToken={addToken}
           onDeleteToken={deleteToken}
-          hovering={hovering || value.expression.length === 0}
+          hovering={hovering}
+          empty={value.expression.length === 0}
+          bindings={bindings}
+          onMistake={() => {
+            setExpressionAnimation(
+              "animate__animated animate__shakeX animate__faster"
+            );
+          }}
         />
-      </label>
-    </div>
+      </div>
+    </>
   );
-};
+});
 
 export default Binding;

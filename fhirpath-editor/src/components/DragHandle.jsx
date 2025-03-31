@@ -1,14 +1,34 @@
+import {
+  ArrowsVertical,
+  DotsSixVertical,
+  Warning,
+} from "@phosphor-icons/react";
 import React from "react";
 
-const DragHandle = ({ attributes, listeners, valid = true }) => {
+const DragHandle = ({
+  attributes,
+  listeners,
+  valid = true,
+  active = false,
+}) => {
   return (
     <div
-      className="absolute right-full top-0 bottom-0 flex items-center justify-center w-6 cursor-grab rounded p-1 text-xs text-gray-300 focus:outline-none active:cursor-grabbing data-[invalid=true]:text-red-500 data-[invalid=true]:scale-125"
+      className="absolute right-full top-1/2 -translate-y-1/2 flex items-center justify-center cursor-grab rounded mr-1 py-1 text-gray-400 focus:outline-blue-500 focus:text-gray-500 active:cursor-grabbing data-[active]:text-blue-500 data-[invalid]:text-red-500 data-[invalid=true]:scale-125"
+      data-active={active || undefined}
       data-invalid={!valid || undefined}
       {...attributes}
       {...listeners}
     >
-      <i className={`fas ${valid ? "fa-grip-vertical" : "fa-warning"}`}></i>
+      {!valid ? (
+        <Warning
+          size={16}
+          className="animate__animated animate__fadeInLeft animate__faster"
+        />
+      ) : active ? (
+        <ArrowsVertical size={16} weight="fill" />
+      ) : (
+        <DotsSixVertical size={16} weight="bold" />
+      )}
     </div>
   );
 };

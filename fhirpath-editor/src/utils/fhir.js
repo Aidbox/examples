@@ -9,7 +9,7 @@ const expressionToFhirPath = (expression) => {
     } else if (token.type === 'variable') {
       return `%${token.value}`;
     } else if (token.type === 'field') {
-      return `.${token.field}`;
+      return `.${token.value}`;
     }
   }).join("");
 };

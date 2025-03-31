@@ -1,17 +1,19 @@
 import React from "react";
-import { calculateResultType } from "../../utils/typeSystem";
-import { operatorTypes } from "../../utils/typeSystem";
+import { getExpressionType } from "../../utils/types";
+import { operatorTypes } from "../../utils/types";
 
 const OperatorToken = React.forwardRef(
-  ({ token, onChange, currentExpression, bindings }, ref) => {
+  ({ token, onChange, expression, bindings }, ref) => {
     // Filter operators based on the left operand type
-    const leftOperand = currentExpression[0];
-    const leftType = calculateResultType([leftOperand], bindings);
+    const leftOperand = expression[0];
+    const leftType = getExpressionType([leftOperand], bindings);
 
     // Get compatible operators
     const compatibleOperators = Object.keys(operatorTypes).filter(
       (op) => operatorTypes[op]?.[leftType] !== undefined
     );
+
+    const invalid = !compatibleOperators.find((op) => op === token.value);
 
     return (
       <select
@@ -20,6 +22,11 @@ const OperatorToken = React.forwardRef(
         value={token.value}
         onChange={(e) => onChange({ ...token, value: e.target.value })}
       >
+        {invalid && (
+          <option value={token.value} disabled>
+            ⚠️ {token.value}
+          </option>
+        )}
         {compatibleOperators.map((op) => (
           <option key={op} value={op}>
             {op}
