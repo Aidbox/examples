@@ -22,14 +22,10 @@ export const typeDefinitions = {
 
 // Define operator type compatibility
 export const operatorTypes = {
+  // math operators
   "+": {
     ["number"]: {
       ["number"]: "number",
-      ["string"]: "string",
-    },
-    ["string"]: {
-      ["string"]: "string",
-      ["number"]: "string",
     },
   },
   "-": {
@@ -45,6 +41,71 @@ export const operatorTypes = {
   "/": {
     ["number"]: {
       ["number"]: "number",
+    },
+  },
+  // string operators
+  "&": {
+    ["string"]: {
+      ["string"]: "string",
+    },
+  },
+  // logical operators
+  "or": {
+    ["boolean"]: {
+      ["boolean"]: "boolean",
+    },
+  },
+  "and": {
+    ["boolean"]: {
+      ["boolean"]: "boolean",
+    },
+  },
+  "xor": {
+    ["boolean"]: {
+      ["boolean"]: "boolean",
+    },
+  },
+  // comparison operators
+  "==": {
+    ["number"]: {
+      ["number"]: "boolean",
+    },
+    ["string"]: {
+      ["string"]: "boolean",
+    },
+    ["boolean"]: {
+      ["boolean"]: "boolean",
+    },
+  },
+  "!=": {
+    ["number"]: {
+      ["number"]: "boolean",
+    },
+    ["string"]: {
+      ["string"]: "boolean",
+    },
+    ["boolean"]: {
+      ["boolean"]: "boolean",
+    },
+  },
+  "<": {
+    ["number"]: {
+      ["number"]: "boolean",
+    },
+  },
+  ">": {
+    ["number"]: {
+      ["number"]: "boolean",
+    },
+  },
+  "<=": {
+    ["number"]: {
+      ["number"]: "boolean",
+    },
+  },
+  ">=": {
+    ["number"]: {
+      ["number"]: "boolean",
     },
   },
 };
@@ -75,6 +136,7 @@ export const getExpressionType = (expression, bindings) => {
     const token = expression[0];
     if (token.type === "number") return "number";
     if (token.type === "string") return "string";
+    if (token.type === "boolean") return "boolean";
     if (token.type === "variable") {
       const binding = bindings.find((b) => b.name === token.value);
       if (!binding) return;
@@ -142,11 +204,18 @@ export const findCompatibleVariables = (
   return bindings;
 };
 
+export const findCompatibleOperators = (bindings, currentExpression) => {
+  if (currentExpression.length !== 1) return [];
+
+  const leftType = getExpressionType([currentExpression[0]], bindings);
+  return Object.keys(operatorTypes).filter((op) => operatorTypes[op]?.[leftType]);
+};
+
 // Suggest next tokens based on current expression
 export const suggestNextToken = (expression, bindings) => {
-  // if the expression is empty, suggest number and variable
+  // if the expression is empty, suggest number, string, boolean and variable
   if (expression.length === 0) {
-    return [{ type: "number" }, { type: "string" }, { type: "variable" }];
+    return [{ type: "number" }, { type: "string" }, { type: "boolean" }, { type: "variable" }];
   }
 
   const firstTokenType = getExpressionType([expression[0]], bindings);

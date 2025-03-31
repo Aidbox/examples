@@ -1,17 +1,11 @@
 import React from "react";
-import { getExpressionType } from "../../utils/types";
-import { operatorTypes } from "../../utils/types";
+import { findCompatibleOperators } from "../../utils/types";
 
 const OperatorToken = React.forwardRef(
   ({ token, onChange, expression, bindings }, ref) => {
-    // Filter operators based on the left operand type
-    const leftOperand = expression[0];
-    const leftType = getExpressionType([leftOperand], bindings);
-
-    // Get compatible operators
-    const compatibleOperators = Object.keys(operatorTypes).filter(
-      (op) => operatorTypes[op]?.[leftType] !== undefined
-    );
+    const compatibleOperators = findCompatibleOperators(bindings, [
+      expression[0],
+    ]);
 
     const invalid = !compatibleOperators.find((op) => op === token.value);
 

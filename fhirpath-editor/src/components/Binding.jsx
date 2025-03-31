@@ -5,6 +5,7 @@ import {
   suggestNextToken,
   getExpressionType,
   findCompatibleVariables,
+  findCompatibleOperators,
 } from "../utils/types";
 import mergeRefs, { useCommitableState } from "../utils/react";
 
@@ -57,8 +58,14 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
       token.value = "";
     } else if (token.type === "number" && token.value === undefined) {
       token.value = "";
+    } else if (token.type === "boolean" && token.value === undefined) {
+      token.value = "true";
     } else if (token.type === "operator" && token.value === undefined) {
-      token.value = "+";
+      const compatibleOperators = findCompatibleOperators(
+        bindings,
+        value.expression
+      );
+      token.value = compatibleOperators[0] || "+";
     }
 
     onChange({

@@ -15,6 +15,11 @@ vi.mock("../tokens/StringToken", () => ({
     <div data-testid="string-token">String Token</div>
   ),
 }));
+vi.mock("../tokens/BooleanToken", () => ({
+  default: ({ token, onChange, ref }) => (
+    <div data-testid="boolean-token">Boolean Token</div>
+  ),
+}));
 vi.mock("../tokens/OperatorToken", () => ({
   default: ({ token, onChange, expression, bindings, ref }) => (
     <div data-testid="operator-token">Operator Token</div>
@@ -52,6 +57,11 @@ describe("Token", () => {
   it("should render string token", () => {
     render(<Token {...mockProps} value={{ type: "string", value: "test" }} />);
     expect(screen.getByTestId("string-token")).toBeInTheDocument();
+  });
+
+  it("should render boolean token", () => {
+    render(<Token {...mockProps} value={{ type: "boolean", value: "true" }} />);
+    expect(screen.getByTestId("boolean-token")).toBeInTheDocument();
   });
 
   it("should render operator token", () => {

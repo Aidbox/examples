@@ -25,20 +25,13 @@ import React, { forwardRef } from "react";
 import { createPortal } from "react-dom";
 import mergeRefs from "../utils/react";
 
-const icons = {
-  number: "fa-hashtag",
-  string: "fa-quote-right",
-  variable: "fa-code",
-  field: "fa-dot-circle",
-  operator: "fa-calculator",
-};
-
 const labels = {
   number: "Number",
   string: "String",
   variable: "Variable",
   field: "Field",
   operator: "Operator",
+  boolean: "Boolean",
 };
 
 const Cursor = forwardRef(
@@ -257,6 +250,8 @@ const Cursor = forwardRef(
                         <Hash size={16} className="text-gray-500" />
                       ) : token.type === "variable" ? (
                         <Code size={16} className="text-gray-500" />
+                      ) : token.type === "boolean" ? (
+                        <Flag size={16} className="text-gray-500" />
                       ) : token.type === "field" ? (
                         <ArrowElbowDownRight
                           size={16}

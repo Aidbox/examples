@@ -4,6 +4,7 @@ import StringToken from "./tokens/StringToken";
 import OperatorToken from "./tokens/OperatorToken";
 import VariableToken from "./tokens/VariableToken";
 import FieldToken from "./tokens/FieldToken";
+import BooleanToken from "./tokens/BooleanToken";
 
 const Token = React.forwardRef(
   ({ value, onChange, bindings, expression, deleting, index }, ref) => {
@@ -20,6 +21,8 @@ const Token = React.forwardRef(
           <NumberToken token={value} onChange={onChange} ref={ref} />
         ) : value.type === "string" ? (
           <StringToken token={value} onChange={onChange} ref={ref} />
+        ) : value.type === "boolean" ? (
+          <BooleanToken token={value} onChange={onChange} ref={ref} />
         ) : value.type === "operator" ? (
           <OperatorToken
             token={value}
