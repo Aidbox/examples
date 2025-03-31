@@ -10,6 +10,7 @@ import DateTimeToken from "./tokens/DateTimeToken";
 import TimeToken from "./tokens/TimeToken";
 import QuantityToken from "./tokens/QuantityToken";
 import TypeToken from "./tokens/TypeToken";
+import IndexToken from "./tokens/IndexToken";
 
 const Token = React.forwardRef(
   ({ value, onChange, bindings, expression, deleting, index }, ref) => {
@@ -38,6 +39,8 @@ const Token = React.forwardRef(
           <QuantityToken token={value} onChange={onChange} ref={ref} />
         ) : value.type === "type" ? (
           <TypeToken token={value} onChange={onChange} ref={ref} />
+        ) : value.type === "index" ? (
+          <IndexToken token={value} onChange={onChange} ref={ref} />
         ) : value.type === "operator" ? (
           <OperatorToken
             token={value}

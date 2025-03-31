@@ -1,5 +1,5 @@
 const expressionToFhirPath = (expression) => {
-  return expression.map((token) => {
+  return expression.map((token, index) => {
     if (token.type === 'number') {
       return token.value || 0;
     } else if (token.type === 'string') {
@@ -22,6 +22,9 @@ const expressionToFhirPath = (expression) => {
     } else if (token.type === 'type') {
       // Handle type tokens
       return token.value;
+    } else if (token.type === 'index') {
+      // Handle index tokens - don't add a space before the brackets
+      return `[${token.value || 0}]`;
     } else if (token.type === 'operator') {
       if (token.value === '=') {
         return ' = ';

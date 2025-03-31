@@ -12,11 +12,11 @@ const FieldToken = React.forwardRef(
 
     return (
       <label className="relative token" data-testid="field-token">
-        <div
+        {/* <div
           className="absolute left-0 top-1/2 -ml-0.25 mt-0.25 -translate-y-1/2 -translate-x-1/2 w-[0.2rem] h-[0.2rem] rounded-full bg-gray-400 outline outline-white data-[deleting]:hidden pointer-events-none"
           data-testid="field-token-dot"
           data-deleting={deleting || undefined}
-        ></div>
+        ></div> */}
         <select
           ref={ref}
           className="token-field focus:bg-gray-100 focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded field-sizing-content text-purple-800 appearance-none"

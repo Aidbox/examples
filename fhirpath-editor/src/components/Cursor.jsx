@@ -4,10 +4,10 @@ import {
   useFloating,
   shift,
   flip,
+  size,
 } from "@floating-ui/react-dom";
 import {
   ArrowElbowDownRight,
-  ArrowFatRight,
   ArrowLineRight,
   ArrowRight,
   Backspace,
@@ -15,7 +15,6 @@ import {
   Code,
   Empty,
   Flag,
-  FlagCheckered,
   Hash,
   Info,
   Lightning,
@@ -23,9 +22,11 @@ import {
   Calendar,
   Clock,
   Timer,
-  Percent,
   Scales,
   Tag,
+  BracketsSquare,
+  DotOutline,
+  Shapes,
 } from "@phosphor-icons/react";
 import React, { forwardRef } from "react";
 import { createPortal } from "react-dom";
@@ -43,6 +44,7 @@ const labels = {
   time: "Time",
   quantity: "Quantity",
   type: "Type",
+  index: "Index",
 };
 
 const Cursor = forwardRef(
@@ -92,6 +94,13 @@ const Cursor = forwardRef(
         // Decimal pattern
         else if (search.match(/^\-?\d*\.\d+$/)) {
           tokens.push({ ...number, value: search });
+        }
+      }
+
+      const index = nextTokens.find(({ type }) => type === "index");
+      if (index) {
+        if (search.match(/^\[(\d+\]?)?$/)) {
+          tokens.push({ ...index, value: search.replace(/[^0-9]/g, "") });
         }
       }
 
@@ -180,6 +189,14 @@ const Cursor = forwardRef(
         }),
         shift({ padding: 6 }),
         flip({ padding: 6 }),
+        size({
+          padding: 6,
+          apply({ availableHeight, elements }) {
+            Object.assign(elements.floating.style, {
+              maxHeight: `${Math.max(0, availableHeight)}px`,
+            });
+          },
+        }),
       ],
     });
 
@@ -233,7 +250,7 @@ const Cursor = forwardRef(
               !containerRef.current.contains(focusedElement) &&
               !dropdownRef.current.contains(focusedElement)
             ) {
-              hideDropdown();
+              // hideDropdown();
             }
           }}
           onKeyDown={handleKeyDown}
@@ -241,7 +258,7 @@ const Cursor = forwardRef(
         {dropdownVisible &&
           createPortal(
             <div
-              className="mt-1 bg-white border border-gray-300 rounded-md shadow-lg min-w-[160px] empty:hidden py-2"
+              className="mt-1 bg-white border border-gray-300 rounded-md shadow-lg min-w-[160px] empty:hidden py-2 overflow-y-auto"
               style={floatingStyles}
               ref={(ref) => {
                 dropdownRef.current = ref;
@@ -283,11 +300,10 @@ const Cursor = forwardRef(
                         <Scales size={16} className="text-gray-500" />
                       ) : token.type === "type" ? (
                         <Tag size={16} className="text-gray-500" />
+                      ) : token.type === "index" ? (
+                        <BracketsSquare size={16} className="text-gray-500" />
                       ) : token.type === "field" ? (
-                        <ArrowElbowDownRight
-                          size={16}
-                          className="text-gray-500"
-                        />
+                        <Shapes size={16} className="text-gray-500" />
                       ) : token.type === "operator" ? (
                         <Calculator size={16} className="text-gray-500" />
                       ) : null}

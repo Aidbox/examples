@@ -11,6 +11,7 @@ const TimeToken = React.forwardRef(({ token, onChange }, ref) => {
       placeholder="hh:mm:ss"
       type="time"
       value={token.value}
+      onFocus={(e) => e.target.showPicker()}
       onChange={(e) => onChange({ ...token, value: e.target.value })}
     />
   );

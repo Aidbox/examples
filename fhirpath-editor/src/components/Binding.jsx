@@ -75,6 +75,9 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
       token.value = now.toTimeString().slice(0, 5);
     } else if (token.type === "type") {
       token.value = token.value || "String";
+    } else if (token.type === "index" && token.value === undefined) {
+      // Initialize with 0 as default index
+      token.value = "0";
     } else if (token.type === "quantity" && token.value === undefined) {
       // Initialize with an empty value and unit as an object
       token.value = { value: "", unit: "seconds" };

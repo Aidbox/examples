@@ -45,6 +45,11 @@ vi.mock("../tokens/TypeToken", () => ({
     <div data-testid="type-token">Type Token</div>
   ),
 }));
+vi.mock("../tokens/IndexToken", () => ({
+  default: ({ token, onChange, ref }) => (
+    <div data-testid="index-token">Index Token</div>
+  ),
+}));
 vi.mock("../tokens/OperatorToken", () => ({
   default: ({ token, onChange, expression, bindings, ref }) => (
     <div data-testid="operator-token">Operator Token</div>
@@ -127,6 +132,11 @@ describe("Token", () => {
   it("should render type token", () => {
     render(<Token {...mockProps} value={{ type: "type", value: "String" }} />);
     expect(screen.getByTestId("type-token")).toBeInTheDocument();
+  });
+
+  it("should render index token", () => {
+    render(<Token {...mockProps} value={{ type: "index", value: "0" }} />);
+    expect(screen.getByTestId("index-token")).toBeInTheDocument();
   });
 
   it("should render operator token", () => {

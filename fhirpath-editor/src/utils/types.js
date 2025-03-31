@@ -455,7 +455,7 @@ export const operatorTypes = {
 function isChainingExpression(expression) {
   if (expression.length >= 1) {
     if (expression[0].type === "variable") {
-      if (expression.slice(1).every((token) => token.type === "field")) {
+      if (expression.slice(1).every((token) => token.type === "field" || token.type === "index")) {
         return true;
       }
     }
@@ -510,6 +510,10 @@ export const getExpressionType = (expression, bindings) => {
 
     while (fields.length > 0 && currentType) {
       const field = fields.shift();
+      
+      // Skip index tokens - they don't change the type
+      if (field.type === "index") continue;
+      
       currentType = typeDefinitions[currentType]?.[field.value];
     }
 
@@ -604,12 +608,6 @@ export const suggestNextToken = (expression, bindings) => {
 
   const firstTokenType = getExpressionType([expression[0]], bindings);
 
-  if (expression.length === 1) {
-    if (Object.entries(operatorTypes).some(([op, types]) => types[firstTokenType])) {
-      return [{ type: "operator" }];
-    }
-  }
-
   if (expression.length === 2 && expression[1].type === "operator") {
     const operator = expression[1].value;
 
@@ -620,11 +618,20 @@ export const suggestNextToken = (expression, bindings) => {
     const leftType = getExpressionType([expression[0]], bindings);
     return distinct(Object.keys(operatorTypes[operator]?.[leftType] || {}).concat(["variable"]).map(type => typeToTokenType[type] || type)).map(type => ({ type }));
   }
+
+  const result = [];
+  
+  if (expression.length === 1) {
+    if (Object.entries(operatorTypes).some(([op, types]) => op === "is" || op === "as" || types[firstTokenType])) {
+      result.push({ type: "operator" });
+    }
+  }
   
   if (isChainingExpression(expression)) {
     const resultType = getExpressionType(expression, bindings);
-    return Object.keys(typeDefinitions[resultType] || {}).map(field => ({ type: "field", value: field }));
+    result.push({ type: "index" });
+    result.push(...Object.keys(typeDefinitions[resultType] || {}).map(field => ({ type: "field", value: field })));
   }
 
-  return [];
+  return result;
 }; 

@@ -15,6 +15,7 @@ vi.mock("@floating-ui/react-dom", () => ({
   }),
   shift: vi.fn(() => ({ shift: true })),
   flip: vi.fn(() => ({ flip: true })),
+  size: vi.fn(() => ({ size: true })),
 }));
 
 // Mock createPortal to render children directly

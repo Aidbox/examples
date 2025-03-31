@@ -174,4 +174,24 @@ describe('FHIRPath conversion', () => {
     ];
     expect(expressionToFhirPath(expression)).toBe("%patient.age as Decimal");
   });
+
+  it('should convert index tokens correctly', () => {
+    const expression = [
+      { type: 'variable', value: 'patient' },
+      { type: 'field', value: 'name' },
+      { type: 'index', value: '0' }
+    ];
+    expect(expressionToFhirPath(expression)).toBe("%patient.name[0]");
+  });
+
+  it('should handle nested field access with indices', () => {
+    const expression = [
+      { type: 'variable', value: 'patient' },
+      { type: 'field', value: 'name' },
+      { type: 'index', value: '0' },
+      { type: 'field', value: 'given' },
+      { type: 'index', value: '0' }
+    ];
+    expect(expressionToFhirPath(expression)).toBe("%patient.name[0].given[0]");
+  });
 }); 
