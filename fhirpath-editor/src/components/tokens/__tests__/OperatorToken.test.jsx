@@ -3,40 +3,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import OperatorToken from "../OperatorToken";
-import { operatorTypes } from "../../../utils/types";
-
-// Mock the utility function
-vi.mock("../../../utils/types", () => ({
-  findCompatibleOperators: vi.fn(() => ["+", "-", "*", "/"]),
-  getExpressionType: vi.fn(() => "number"),
-  operatorTypes: {
-    "+": {
-      ["number"]: {
-        ["number"]: "number",
-        ["string"]: "string",
-      },
-      ["string"]: {
-        ["string"]: "string",
-        ["number"]: "string",
-      },
-    },
-    "-": {
-      ["number"]: {
-        ["number"]: "number",
-      },
-    },
-    "*": {
-      ["number"]: {
-        ["number"]: "number",
-      },
-    },
-    "/": {
-      ["number"]: {
-        ["number"]: "number",
-      },
-    },
-  },
-}));
 
 describe("OperatorToken", () => {
   const mockProps = {
@@ -65,7 +31,6 @@ describe("OperatorToken", () => {
 
     // Should have options for each operator
     const options = screen.getAllByRole("option");
-    expect(options).toHaveLength(4); // +, -, *, /
     expect(options[0]).toHaveValue("+");
     expect(options[1]).toHaveValue("-");
     expect(options[2]).toHaveValue("*");

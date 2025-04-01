@@ -1,11 +1,13 @@
 import React from "react";
-import { getExpressionType, typeDefinitions } from "../../utils/types";
+import { compositeTypes } from "../../utils/type.js";
+import { getExpressionType } from "../../utils/expression.js";
 
 const FieldToken = React.forwardRef(
   ({ token, onChange, bindings, expression, deleting }, ref) => {
     const fields = Object.keys(
-      typeDefinitions[getExpressionType(expression.slice(0, -1), bindings)] ||
-        {}
+      compositeTypes[
+        getExpressionType(expression.slice(0, -1), bindings).type
+      ] || {}
     );
 
     const invalid = !fields.find((field) => field === token.value);

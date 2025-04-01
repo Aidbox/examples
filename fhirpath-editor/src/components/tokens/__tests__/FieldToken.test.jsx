@@ -4,14 +4,15 @@ import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import FieldToken from "../FieldToken";
+import { compositeTypes } from "../../../utils/type.js";
 
 // Mock the utility function
-vi.mock(import("../../../utils/types"), async (importOriginal) => {
+vi.mock(import("../../../utils/type"), async (importOriginal) => {
   const mod = await importOriginal();
 
   return {
     ...mod,
-    typeDefinitions: {
+    compositeTypes: {
       Patient: {
         name: "string",
         id: "number",
@@ -25,7 +26,7 @@ describe("FieldToken", () => {
   const mockProps = {
     token: { type: "field", value: "name" },
     onChange: vi.fn(),
-    bindings: [{ name: "patient", type: "Patient" }],
+    bindings: [{ name: "patient", type: { type: "Patient" } }],
     expression: [
       { type: "variable", value: "patient" },
       { type: "field", value: "name" },

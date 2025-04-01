@@ -1,5 +1,6 @@
 import React from "react";
-import { types } from "../../utils/types";
+
+import { typeNames } from "../../utils/type.js";
 
 const TypeToken = React.forwardRef(({ token, onChange }, ref) => {
   const empty = !token.value;
@@ -13,7 +14,7 @@ const TypeToken = React.forwardRef(({ token, onChange }, ref) => {
       value={token.value || ""}
       onChange={(e) => onChange({ ...token, value: e.target.value })}
     >
-      {types.map((type) => (
+      {typeNames.map((type) => (
         <option key={type} value={type}>
           {type}
         </option>

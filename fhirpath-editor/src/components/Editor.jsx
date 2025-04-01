@@ -18,10 +18,13 @@ import {
   restrictToWindowEdges,
 } from "@dnd-kit/modifiers";
 import Binding from "./Binding";
-import { globalBindings } from "../utils/bindingUtils";
+import {
+  globalBindings,
+  canMoveBinding,
+  generateBindingId,
+} from "../utils/expression";
 import SortableBinding from "./SortableBinding";
 import DragHandle from "./DragHandle";
-import { canMoveBinding, generateBindingId } from "../utils/bindingUtils";
 import appToFhirPath from "../utils/fhir";
 
 function Editor({ value, setValue }) {

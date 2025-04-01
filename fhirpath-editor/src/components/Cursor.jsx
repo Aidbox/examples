@@ -70,9 +70,6 @@ const Cursor = forwardRef(
 
     const tokens = nextTokens.filter((token) => {
       const label = token.value || labels[token.type] || token.type;
-      if (!label) {
-        debugger;
-      }
       return label.toLowerCase().includes(search.toLowerCase());
     });
 

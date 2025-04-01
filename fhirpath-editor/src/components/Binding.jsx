@@ -1,14 +1,15 @@
 import React, { forwardRef } from "react";
 import Token from "./Token";
 import Cursor from "./Cursor";
-import {
-  suggestNextToken,
-  getExpressionType,
-  findCompatibleVariables,
-  findCompatibleOperators,
-  typeDefinitions,
-} from "../utils/types";
 import mergeRefs, { useCommitableState } from "../utils/react";
+import { stringifyType, compositeTypes } from "../utils/type.js";
+import { Warning } from "@phosphor-icons/react";
+import {
+  findCompatibleOperators,
+  findCompatibleVariables,
+  getExpressionType,
+  suggestNextToken,
+} from "../utils/expression.js";
 
 const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
   const [hovering, setHovering] = React.useState(false);
@@ -131,8 +132,16 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
             onChange={(e) => setName(e.target.value)}
             onBlur={commitName}
           />
-          <span className="text-sm text-gray-500">
-            : {resultType || "unknown"}
+          <span
+            className="text-gray-500 inline-flex items-center gap-1"
+            title={resultType.error}
+          >
+            <span>:</span>
+            {resultType.type === "Invalid" ? (
+              <Warning size={16} className="text-red-500" />
+            ) : (
+              stringifyType(resultType)
+            )}
           </span>
         </label>
       )}

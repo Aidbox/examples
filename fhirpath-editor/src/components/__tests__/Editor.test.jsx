@@ -54,7 +54,7 @@ vi.mock("../SortableBinding", () => ({
 }));
 
 // Mock utils
-vi.mock("../utils/bindingUtils", () => ({
+vi.mock("../utils/expression", () => ({
   globalBindings: [{ name: "global1", expression: [] }],
   canMoveBinding: vi.fn(() => true),
   generateBindingId: vi.fn(() => `binding-${Math.random()}`),

@@ -1,5 +1,6 @@
 import React from "react";
-import { findCompatibleVariables } from "../../utils/types";
+
+import {findCompatibleVariables} from "../../utils/expression.js";
 
 const VariableToken = React.forwardRef(
   ({ token, onChange, bindings, expression }, ref) => {

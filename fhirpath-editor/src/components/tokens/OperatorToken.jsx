@@ -1,5 +1,6 @@
 import React from "react";
-import { findCompatibleOperators } from "../../utils/types";
+
+import {findCompatibleOperators} from "../../utils/expression.js";
 
 // Group operators by category for better organization in the dropdown
 const operatorGroups = {
