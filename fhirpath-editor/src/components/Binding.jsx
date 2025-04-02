@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 import Token from "./Token";
 import Cursor from "./Cursor";
 import mergeRefs, { useCommitableState } from "../utils/react";
-import { stringifyType, compositeTypes } from "../utils/type.js";
+import { stringifyType } from "../utils/type.js";
 import { Warning } from "@phosphor-icons/react";
 import {
   findCompatibleOperators,

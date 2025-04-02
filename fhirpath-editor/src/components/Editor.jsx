@@ -18,16 +18,12 @@ import {
   restrictToWindowEdges,
 } from "@dnd-kit/modifiers";
 import Binding from "./Binding";
-import {
-  globalBindings,
-  canMoveBinding,
-  generateBindingId,
-} from "../utils/expression";
+import { canMoveBinding, generateBindingId } from "../utils/expression";
 import SortableBinding from "./SortableBinding";
 import DragHandle from "./DragHandle";
 import appToFhirPath from "../utils/fhir";
 
-function Editor({ value, setValue }) {
+function Editor({ value, setValue, globalBindings }) {
   const lastInputRef = React.useRef(null);
   const [activeId, setActiveId] = React.useState(null);
   const [overItemId, setOverItemId] = React.useState(null);

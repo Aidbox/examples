@@ -1,8 +1,8 @@
 // Find all variables referenced in a binding's expression
 import * as operators from "./operator.js";
 import * as types from "./type.js";
-import { compositeTypes } from "./type.js";
 import { distinct } from "./misc.js";
+import { FhirType, getFields } from "./fhir-type.js";
 
 export const findReferencedVariables = (binding) => {
   return binding.expression
@@ -47,73 +47,6 @@ export const canMoveBinding = (bindings, sourceIndex, targetIndex) => {
 export const generateBindingId = () =>
   `binding-${Math.random().toString(36).substring(2, 9)}`;
 
-// Global bindings available to all expressions
-export const globalBindings = [
-  {
-    name: "questionnaire",
-    expression: [],
-    type: { type: "Questionnaire" },
-  },
-  {
-    name: "patient",
-    expression: [],
-    type: { type: "Patient" },
-  },
-];
-
-export const sampleBindings = [
-  {
-    name: "myString",
-    expression: [{ type: "string", value: "Hello, world!" }],
-  },
-  {
-    name: "var1",
-    expression: [
-      {
-        type: "number",
-        value: "1",
-      },
-      {
-        type: "operator",
-        value: "+",
-      },
-      {
-        type: "number",
-        value: "2",
-      },
-    ],
-  },
-  {
-    name: "var2",
-    expression: [
-      {
-        type: "number",
-        value: "1",
-      },
-      {
-        type: "operator",
-        value: "+",
-      },
-      {
-        type: "variable",
-        value: "var1",
-      },
-    ],
-  },
-  {
-    name: "var3",
-    expression: [
-      { type: "variable", value: "patient" },
-      { type: "field", value: "name" },
-    ],
-  },
-];
-
-export const sampleExpression = [
-  { type: "number", value: "1" },
-  { type: "operator", value: "+" },
-  { type: "variable", value: "var3" },
-];
 
 function isChainingExpression(expression) {
   if (expression.length >= 1) {
@@ -162,7 +95,7 @@ export const getExpressionType = (expression, bindings) => {
       // Otherwise calculate the result type of its expression
       return getExpressionType(binding.expression, bindings);
     }
-    return;
+    return types.InvalidType("Unknown token");
   }
 
   // For field chains (variable + field tokens)
@@ -181,7 +114,9 @@ export const getExpressionType = (expression, bindings) => {
       // Skip index tokens - they don't change the type
       if (field.type === "index") continue;
 
-      currentType = compositeTypes[currentType.type]?.[field.value];
+      const availableFields = getFields(currentType);
+      currentType =
+        availableFields[field.value] || types.InvalidType("Unknown field");
     }
 
     return currentType;
@@ -301,13 +236,14 @@ export const suggestNextToken = (expression, bindings) => {
   }
 
   if (isChainingExpression(expression)) {
-    const resultType = getExpressionType(expression, bindings);
-    result.push({ type: "index" });
     result.push(
-      ...Object.keys(compositeTypes[resultType.type] || {}).map((field) => ({
-        type: "field",
-        value: field,
-      }))
+      { type: "index" },
+      ...Object.keys(getFields(getExpressionType(expression, bindings))).map(
+        (field) => ({
+          type: "field",
+          value: field,
+        })
+      )
     );
   }
 

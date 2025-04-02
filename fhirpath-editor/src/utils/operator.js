@@ -131,11 +131,8 @@ export const operatorMetadata = [
 
   op("is", Generic("T"), TypeType(Generic("X")), BooleanType),
 
-  op(
-    "as",
-    Generic("T"),
-    TypeType(Generic("X")),
-    ({ X }) => normalizeChoice(ChoiceType([X])) // todo: add null type
+  op("as", Generic("T"), TypeType(Generic("X")), ({ X }) =>
+    normalizeChoice(ChoiceType([X]))
   ),
 ];
 
@@ -200,27 +197,27 @@ export function suggestRightTypesForOperator(op, leftType) {
   return suggestions;
 }
 
-console.log(
-  stringifyType(
-    resolveOperator({
-      op: "|",
-      left: CollectionType({ type: "Patient" }),
-      right: CollectionType({ type: "Practitioner" }),
-    })
-  )
-);
-
-console.log(
-  stringifyType(
-    resolveOperator({
-      op: "as",
-      left: CollectionType(StringType),
-      right: TypeType(QuantityType),
-    })
-  )
-);
-
-console.log(
-  "suggestRightTypesForOperator",
-  suggestRightTypesForOperator("|", CollectionType(StringType))
-);
+// console.log(
+//   stringifyType(
+//     resolveOperator({
+//       op: "|",
+//       left: CollectionType({ type: "Patient" }),
+//       right: CollectionType({ type: "Practitioner" }),
+//     })
+//   )
+// );
+//
+// console.log(
+//   stringifyType(
+//     resolveOperator({
+//       op: "as",
+//       left: CollectionType(StringType),
+//       right: TypeType(QuantityType),
+//     })
+//   )
+// );
+//
+// console.log(
+//   "suggestRightTypesForOperator",
+//   suggestRightTypesForOperator("|", CollectionType(StringType))
+// );

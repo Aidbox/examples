@@ -23,6 +23,20 @@ export function stringifyType(t) {
       return t.options.map(stringifyType).join(" | ");
     case "Invalid":
       return `Invalid${t.error ? ` (${t.error})` : ""}`;
+    case "FhirType":
+      if (t.schemaReference.length === 1) {
+        const [name] = t.schemaReference;
+        if (name[0] === name[0].toLowerCase()) {
+          return `Primitive${name[0].toUpperCase()}${name.slice(1)}`;
+        } else {
+          return name;
+        }
+      } else {
+        return `${t.schemaReference[0]}${t.schemaReference
+          .slice(1)
+          .map((field) => `["${field}"]`)
+          .join("")}`;
+      }
     default:
       return t.type;
   }
@@ -187,34 +201,6 @@ export function substituteBindings(type, bindings) {
   return result;
 }
 
-export const compositeTypes = {
-  Patient: {
-    id: StringType,
-    age: IntegerType,
-    name: StringType,
-    address: { type: "Address" },
-    birthDate: DateType,
-    lastVisit: DateTimeType,
-    appointmentTime: TimeType,
-    height: DecimalType,
-    weight: QuantityType,
-  },
-  Questionnaire: {
-    id: StringType,
-    status: StringType,
-    item: StringType,
-    createdDate: DateType,
-    lastUpdated: DateTimeType,
-  },
-  Address: {
-    state: StringType,
-    city: StringType,
-    zip: StringType,
-    line1: StringType,
-    line2: StringType,
-  },
-};
-
 export const typeNames = [
   "Integer",
   "Decimal",
@@ -224,6 +210,7 @@ export const typeNames = [
   "DateTime",
   "Time",
   "Quantity",
-  ,
-  ...Object.keys(compositeTypes),
+  "Patient",
+  "Questionnaire",
+  "Address",
 ];

@@ -1,16 +1,12 @@
 import React from "react";
-import { compositeTypes } from "../../utils/type.js";
 import { getExpressionType } from "../../utils/expression.js";
+import {getFields} from "../../utils/fhir-type";
+import {expressionToFhirPath} from "../../utils/fhir.js";
 
 const FieldToken = React.forwardRef(
   ({ token, onChange, bindings, expression, deleting }, ref) => {
-    const fields = Object.keys(
-      compositeTypes[
-        getExpressionType(expression.slice(0, -1), bindings).type
-      ] || {}
-    );
-
-    const invalid = !fields.find((field) => field === token.value);
+    const fields = getFields(getExpressionType(expression.slice(0, -1), bindings));
+    const invalid = fields[token.value] === undefined;
 
     return (
       <label className="relative token" data-testid="field-token">
@@ -30,7 +26,7 @@ const FieldToken = React.forwardRef(
               ⚠️ {token.value}
             </option>
           )}
-          {fields.map((field) => (
+          {Object.keys(fields).map((field) => (
             <option key={field} value={field}>
               {field}
             </option>
