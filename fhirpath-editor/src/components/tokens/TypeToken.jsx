@@ -1,9 +1,39 @@
 import React from "react";
+import {
+  IntegerType,
+  DecimalType,
+  StringType,
+  BooleanType,
+  DateType,
+  DateTimeType,
+  TimeType,
+  QuantityType,
+} from "../../utils/type";
+import { primitiveTypeMap } from "../../utils/fhir-type";
 
-import { typeNames } from "../../utils/type.js";
+export const typeNames = {
+  "Literal types": [
+    IntegerType.type,
+    DecimalType.type,
+    StringType.type,
+    BooleanType.type,
+    DateType.type,
+    DateTimeType.type,
+    TimeType.type,
+    QuantityType.type,
+  ],
+  "Primitive types": [],
+  "Resource types": ["Patient", "Questionnaire", "Address"],
+};
+
+Object.values(primitiveTypeMap).forEach((type) => {
+  typeNames["Primitive types"].push(type.type);
+});
 
 const TypeToken = React.forwardRef(({ token, onChange }, ref) => {
   const empty = !token.value;
+  const invalid =
+    !empty && !Object.values(typeNames).flat().includes(token.value);
 
   return (
     <select
@@ -14,10 +44,32 @@ const TypeToken = React.forwardRef(({ token, onChange }, ref) => {
       value={token.value || ""}
       onChange={(e) => onChange({ ...token, value: e.target.value })}
     >
-      {typeNames.map((type) => (
-        <option key={type} value={type}>
-          {type}
+      {invalid && (
+        <option value={token.value} disabled>
+          ⚠️ {token.value}
         </option>
+      )}
+      {Object.entries(typeNames).map(([group, types]) => (
+        <optgroup key={group} label={group}>
+          {types.map((type) => {
+            const [, primitiveTypeName] = type.match(/^Primitive(.*)$/) || [];
+            if (primitiveTypeName) {
+              if (!typeNames["Literal types"].includes(primitiveTypeName)) {
+                return (
+                  <option key={type} value={type}>
+                    {primitiveTypeName}
+                  </option>
+                );
+              }
+            } else {
+              return (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              );
+            }
+          })}
+        </optgroup>
       ))}
     </select>
   );

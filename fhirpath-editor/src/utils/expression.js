@@ -1,8 +1,23 @@
-// Find all variables referenced in a binding's expression
-import * as operators from "./operator.js";
-import * as types from "./type.js";
+import {
+  suggestOperatorsForLeftType,
+  suggestRightTypesForOperator,
+  resolveOperator,
+} from "./operator.js";
+import {
+  IntegerType,
+  DecimalType,
+  StringType,
+  BooleanType,
+  DateType,
+  DateTimeType,
+  TimeType,
+  QuantityType,
+  TypeType,
+  matchTypePattern,
+  unwrapCollection,
+} from "./type.js";
 import { distinct } from "./misc.js";
-import { FhirType, getFields } from "./fhir-type.js";
+import { getFields, PrimitiveBooleanType } from "./fhir-type.js";
 
 export const findReferencedVariables = (binding) => {
   return binding.expression
@@ -47,7 +62,6 @@ export const canMoveBinding = (bindings, sourceIndex, targetIndex) => {
 export const generateBindingId = () =>
   `binding-${Math.random().toString(36).substring(2, 9)}`;
 
-
 function isChainingExpression(expression) {
   if (expression.length >= 1) {
     if (expression[0].type === "variable") {
@@ -72,30 +86,30 @@ function isOperatorExpression(expression) {
 
 // Calculate the result type of expression
 export const getExpressionType = (expression, bindings) => {
-  if (expression.length === 0) return types.InvalidType("Empty expression");
+  if (expression.length === 0) return InvalidType("Empty expression");
 
   if (expression.length === 1) {
     const token = expression[0];
     if (token.type === "number") {
       // Determine if the number is an integer or decimal based on its value
-      return token.value.includes(".") ? types.DecimalType : types.IntegerType;
+      return token.value.includes(".") ? DecimalType : IntegerType;
     }
-    if (token.type === "string") return types.StringType;
-    if (token.type === "boolean") return types.BooleanType;
-    if (token.type === "date") return types.DateType;
-    if (token.type === "datetime") return types.DateTimeType;
-    if (token.type === "time") return types.TimeType;
-    if (token.type === "quantity") return types.QuantityType;
-    if (token.type === "type") return types.TypeType(token.value); // Return the actual type value
+    if (token.type === "string") return StringType;
+    if (token.type === "boolean") return BooleanType;
+    if (token.type === "date") return DateType;
+    if (token.type === "datetime") return DateTimeType;
+    if (token.type === "time") return TimeType;
+    if (token.type === "quantity") return QuantityType;
+    if (token.type === "type") return TypeType(token.value); // Return the actual type value
     if (token.type === "variable") {
       const binding = bindings.find((b) => b.name === token.value);
-      if (!binding) return types.InvalidType("Unknown variable");
+      if (!binding) return InvalidType("Unknown variable");
       // If this is a global binding, return its type
       if (binding.type) return binding.type;
       // Otherwise calculate the result type of its expression
       return getExpressionType(binding.expression, bindings);
     }
-    return types.InvalidType("Unknown token");
+    return InvalidType("Unknown token");
   }
 
   // For field chains (variable + field tokens)
@@ -103,7 +117,7 @@ export const getExpressionType = (expression, bindings) => {
     let [variable, ...fields] = expression;
 
     const binding = bindings.find((b) => b.name === variable.value);
-    if (!binding) return types.InvalidType("Unknown variable");
+    if (!binding) return InvalidType("Unknown variable");
 
     let currentType =
       binding.type || getExpressionType(binding.expression, bindings);
@@ -116,7 +130,7 @@ export const getExpressionType = (expression, bindings) => {
 
       const availableFields = getFields(currentType);
       currentType =
-        availableFields[field.value] || types.InvalidType("Unknown field");
+        availableFields[field.value] || InvalidType("Unknown field");
     }
 
     return currentType;
@@ -130,16 +144,16 @@ export const getExpressionType = (expression, bindings) => {
     const rightType = getExpressionType([right], bindings);
 
     if (leftType.type === "Invalid" || rightType.type === "Invalid")
-      return types.InvalidType("Invalid argument types");
+      return InvalidType("Invalid argument types");
 
-    return operators.resolveOperator({
+    return resolveOperator({
       op: op.value,
       left: leftType,
       right: rightType,
     });
   }
 
-  return types.InvalidType("Unknown expression");
+  return InvalidType("Unknown expression");
 };
 
 // Filter variables for compatibility when suggesting
@@ -155,16 +169,13 @@ export const findCompatibleVariables = (bindings, expression) => {
     const leftType = getExpressionType([left], bindings);
 
     if (leftType.type === "Invalid") return [];
-    const rightTypes = operators.suggestRightTypesForOperator(
-      op.value,
-      leftType
-    );
+    const rightTypes = suggestRightTypesForOperator(op.value, leftType);
 
     return bindings.filter((binding) => {
       const bindingType =
         binding.type || getExpressionType(binding.expression, bindings);
       return rightTypes.some((rightType) =>
-        types.matchTypePattern(rightType, types.unwrapCollection(bindingType))
+        matchTypePattern(rightType, unwrapCollection(bindingType))
       );
     });
   }
@@ -176,19 +187,19 @@ export const findCompatibleOperators = (bindings, expression) => {
   if (expression.length !== 1) return [];
 
   const leftType = getExpressionType([expression[0]], bindings);
-  return operators.suggestOperatorsForLeftType(leftType);
+  return suggestOperatorsForLeftType(leftType);
 };
 
 const typeName2tokenType = {
-  Integer: "number",
-  Decimal: "number",
-  String: "string",
-  Boolean: "boolean",
-  Date: "date",
-  DateTime: "datetime",
-  Time: "time",
-  Quantity: "quantity",
-  Type: "type",
+  [IntegerType.type]: "number",
+  [DecimalType.type]: "number",
+  [StringType.type]: "string",
+  [BooleanType.type]: "boolean",
+  [DateType.type]: "date",
+  [DateTimeType.type]: "datetime",
+  [TimeType.type]: "time",
+  [QuantityType.type]: "quantity",
+  [TypeType.type]: "type",
 };
 
 // Suggest next tokens based on current expression
@@ -212,10 +223,7 @@ export const suggestNextToken = (expression, bindings) => {
     const operator = expression[1].value;
 
     const leftType = getExpressionType([expression[0]], bindings);
-    const rightTypes = operators.suggestRightTypesForOperator(
-      operator,
-      leftType
-    );
+    const rightTypes = suggestRightTypesForOperator(operator, leftType);
 
     return distinct(
       rightTypes
@@ -230,7 +238,7 @@ export const suggestNextToken = (expression, bindings) => {
   if (expression.length === 1) {
     const firstTokenType = getExpressionType([expression[0]], bindings);
 
-    if (operators.suggestOperatorsForLeftType(firstTokenType).length > 0) {
+    if (suggestOperatorsForLeftType(firstTokenType).length > 0) {
       result.push({ type: "operator" });
     }
   }

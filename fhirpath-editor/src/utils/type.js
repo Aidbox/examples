@@ -13,6 +13,55 @@ export const CollectionType = (ofType) => ({ type: "Collection", ofType });
 export const ChoiceType = (options) => ({ type: "Choice", options });
 export const Generic = (name) => ({ type: "Generic", name });
 
+const typeHierarchy = {};
+
+export function extendType(subtype, ...supertypes) {
+  if (!subtype || !supertypes) return;
+
+  if (typeHierarchy[subtype.type]) {
+    typeHierarchy[subtype.type] = Array.from(
+      new Set([
+        ...typeHierarchy[subtype.type],
+        ...supertypes.map((s) => s.type),
+      ])
+    );
+  } else {
+    typeHierarchy[subtype.type] = supertypes.map((s) => s.type);
+  }
+}
+
+export function isSubtypeOf(actual, expected) {
+  if (!actual || !expected) return false;
+
+  const a = actual.type;
+  const e = expected.type;
+
+  if (a === e) return true;
+
+  const seen = new Set();
+  const queue = [a];
+
+  while (queue.length > 0) {
+    const t = queue.shift();
+    if (t === e) return true;
+
+    const supers = typeHierarchy[t];
+    if (Array.isArray(supers)) {
+      supers.forEach((s) => {
+        if (!seen.has(s)) {
+          queue.push(s);
+          seen.add(s);
+        }
+      });
+    } else if (typeof supers === "string" && !seen.has(supers)) {
+      queue.push(supers);
+      seen.add(supers);
+    }
+  }
+
+  return false;
+}
+
 export function stringifyType(t) {
   if (!t || typeof t !== "object") return String(t);
 
@@ -157,11 +206,18 @@ export function matchTypePattern(pattern, actual, bindings = {}) {
   if (pattern == null || actual == null) return null;
   // if (deepEqual(pattern, actual)) return bindings;
 
-  // Ensure type matches
-  if (pattern.type && actual.type && pattern.type !== actual.type) return null;
+  if (
+    pattern.type &&
+    actual.type &&
+    pattern.type !== actual.type &&
+    !isSubtypeOf(actual, pattern)
+  ) {
+    return null;
+  }
 
   // Go through pattern keys
   for (const key of Object.keys(pattern)) {
+    if (key === "type") continue;
     if (!(key in actual)) return null;
 
     if (key === "ofType") {
@@ -200,17 +256,3 @@ export function substituteBindings(type, bindings) {
 
   return result;
 }
-
-export const typeNames = [
-  "Integer",
-  "Decimal",
-  "String",
-  "Boolean",
-  "Date",
-  "DateTime",
-  "Time",
-  "Quantity",
-  "Patient",
-  "Questionnaire",
-  "Address",
-];
