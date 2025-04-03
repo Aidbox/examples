@@ -1,24 +1,22 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import FieldToken from "../FieldToken";
-import { compositeTypes } from "../../../utils/type.js";
 
-// Mock the utility function
-vi.mock(import("../../../utils/type"), async (importOriginal) => {
+vi.mock(import("../../../utils/fhir-type.js"), async (importOriginal) => {
   const mod = await importOriginal();
-
   return {
     ...mod,
-    compositeTypes: {
-      Patient: {
-        name: "string",
-        id: "number",
-        status: "string",
-      },
-    },
+    getFields: () => ({ name: "string", id: "string", status: "string" }),
+  };
+});
+
+vi.mock(import("../../../utils/expression.js"), async (importOriginal) => {
+  const mod = await importOriginal();
+  return {
+    ...mod,
+    getExpressionType: () => "Patient",
   };
 });
 
@@ -26,7 +24,7 @@ describe("FieldToken", () => {
   const mockProps = {
     token: { type: "field", value: "name" },
     onChange: vi.fn(),
-    bindings: [{ name: "patient", type: { type: "Patient" } }],
+    bindings: [],
     expression: [
       { type: "variable", value: "patient" },
       { type: "field", value: "name" },
@@ -40,12 +38,8 @@ describe("FieldToken", () => {
 
   it("should render with the correct value", () => {
     render(<FieldToken {...mockProps} />);
-
-    // Field token should render with a dot followed by the field name
-    // expect(screen.getByTestId("field-token-dot")).toBeInTheDocument();
-
-    const input = screen.getByRole("combobox");
-    expect(input).toHaveValue("name");
+    const select = screen.getByRole("combobox");
+    expect(select).toHaveValue("name");
   });
 
   it("should render all field options in the dropdown", () => {
@@ -78,11 +72,8 @@ describe("FieldToken", () => {
 
   it("should show deleting style when deleting prop is true", () => {
     render(<FieldToken {...mockProps} deleting={true} />);
-
-    // Container should have deleting styles
     const fieldContainer = screen.getByTestId("field-token");
-    // const dot = screen.getByTestId("field-token-dot");
-    // expect(dot).not.toBeVisible();
+    expect(fieldContainer).toBeInTheDocument();
   });
 
   it("should forward the ref to the select element", () => {
@@ -91,5 +82,18 @@ describe("FieldToken", () => {
 
     expect(ref.current).toBeInstanceOf(HTMLSelectElement);
     expect(ref.current).toHaveValue("name");
+  });
+
+  it("should show invalid field warning when field is not in available fields", () => {
+    const invalidProps = {
+      ...mockProps,
+      token: { type: "field", value: "invalidField" },
+    };
+    render(<FieldToken {...invalidProps} />);
+
+    const select = screen.getByRole("combobox");
+    const options = screen.getAllByRole("option");
+    expect(options[0]).toHaveValue("invalidField");
+    expect(options[0]).toBeDisabled();
   });
 });

@@ -55,7 +55,6 @@ vi.mock("../SortableBinding", () => ({
 
 // Mock utils
 vi.mock("../utils/expression", () => ({
-  globalBindings: [{ name: "global1", expression: [] }],
   canMoveBinding: vi.fn(() => true),
   generateBindingId: vi.fn(() => `binding-${Math.random()}`),
 }));
@@ -74,6 +73,7 @@ describe("Editor", () => {
       expression: [{ type: "variable", value: "var1" }],
     },
     setValue: vi.fn(),
+    globalBindings: [{ name: "global1", expression: [] }],
   };
 
   beforeEach(() => {

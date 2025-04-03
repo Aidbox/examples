@@ -13,6 +13,7 @@ import {
   TimeType,
   QuantityType,
   TypeType,
+  InvalidType,
   matchTypePattern,
   unwrapCollection,
 } from "./type.js";
