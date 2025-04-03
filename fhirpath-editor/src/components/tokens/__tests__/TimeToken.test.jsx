@@ -43,7 +43,7 @@ describe("TimeToken", () => {
       <TimeToken
         token={{ type: "time", value: "" }}
         onChange={mockProps.onChange}
-      />
+      />,
     );
 
     const input = screen.getByTestId("time-token");

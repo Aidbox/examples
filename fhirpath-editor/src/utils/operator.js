@@ -19,7 +19,6 @@ import {
   unwrapCollection,
   deepEqual,
   promote,
-  stringifyType,
   mergeBindings,
 } from "./type";
 
@@ -132,7 +131,7 @@ export const operatorMetadata = [
   op("is", Generic("T"), TypeType(Generic("X")), BooleanType),
 
   op("as", Generic("T"), TypeType(Generic("X")), ({ X }) =>
-    normalizeChoice(ChoiceType([X]))
+    normalizeChoice(ChoiceType([X])),
   ),
 ];
 
@@ -161,7 +160,7 @@ export function resolveOperator({ op, left, right }) {
   }
 
   return wrapCollection(
-    InvalidType(`No matching overload for operator "${op}"`)
+    InvalidType(`No matching overload for operator "${op}"`),
   );
 }
 

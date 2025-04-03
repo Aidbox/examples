@@ -22,6 +22,7 @@ import { canMoveBinding, generateBindingId } from "../utils/expression";
 import SortableBinding from "./SortableBinding";
 import DragHandle from "./DragHandle";
 import appToFhirPath from "../utils/fhir";
+import { useOnMount } from "../utils/react";
 
 function Editor({ value, setValue, globalBindings }) {
   const lastInputRef = React.useRef(null);
@@ -34,7 +35,7 @@ function Editor({ value, setValue, globalBindings }) {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const addBinding = () => {
@@ -65,7 +66,7 @@ function Editor({ value, setValue, globalBindings }) {
 
     if (over && active.id !== over.id) {
       const oldIndex = value.bindings.findIndex(
-        (item) => item.id === active.id
+        (item) => item.id === active.id,
       );
       const newIndex = value.bindings.findIndex((item) => item.id === over.id);
 
@@ -87,7 +88,7 @@ function Editor({ value, setValue, globalBindings }) {
   };
 
   // Handle case where bindings don't have IDs (first load)
-  React.useEffect(() => {
+  useOnMount(() => {
     if (value.bindings.some((binding) => !binding.id)) {
       setValue({
         ...value,
@@ -97,7 +98,7 @@ function Editor({ value, setValue, globalBindings }) {
         })),
       });
     }
-  }, []);
+  });
 
   const handleBindingChange = (index, binding) => {
     if (binding === null) {
@@ -133,7 +134,7 @@ function Editor({ value, setValue, globalBindings }) {
               token.type === "variable" &&
               token.value === value.bindings[index].name
                 ? { ...token, value: binding.name }
-                : token
+                : token,
             ),
           };
         }
@@ -187,10 +188,10 @@ function Editor({ value, setValue, globalBindings }) {
           {activeId
             ? (() => {
                 const draggedIndex = value.bindings.findIndex(
-                  (b) => b.id === activeId
+                  (b) => b.id === activeId,
                 );
                 const draggedBinding = value.bindings.find(
-                  (b) => b.id === activeId
+                  (b) => b.id === activeId,
                 );
 
                 const overIndex = overItemId

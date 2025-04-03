@@ -1,12 +1,14 @@
 import rawFhirSchema from "./fhir-schema.json";
 
+const has = (obj, field) => Object.prototype.hasOwnProperty.call(obj, field);
+
 function indexFhirSchemas(fhirSchema) {
-  let result = {}
-  fhirSchema.forEach(schema => {
-    if (schema["id"]) result[schema["id"]] = schema
-    if (schema["url"]) result[schema["url"]] = schema
-  })
-  return result
+  let result = {};
+  fhirSchema.forEach((schema) => {
+    if (has(schema, "id")) result[schema["id"]] = schema;
+    if (has(schema, "url")) result[schema["url"]] = schema;
+  });
+  return result;
 }
 
 const fhirSchema = indexFhirSchemas(rawFhirSchema);
@@ -14,25 +16,25 @@ const fhirSchema = indexFhirSchemas(rawFhirSchema);
 export function resolveElements(node) {
   let elements = [];
   if (node) {
-    if (node.hasOwnProperty("elements")) {
+    if (has(node, "elements")) {
       elements = elements.concat(Object.entries(node["elements"]));
     }
     let typeDefinition = null;
-    if (node.hasOwnProperty("type") && !node.hasOwnProperty("id")) {
+    if (has(node, "type") && !has(node, "id")) {
       typeDefinition = fhirSchema[node["type"]];
-      if (typeDefinition && typeDefinition.hasOwnProperty("elements")) {
+      if (typeDefinition && has(typeDefinition, "elements")) {
         elements = elements.concat(Object.entries(typeDefinition["elements"]));
       }
-    } else if (node.hasOwnProperty("elementReference")) {
+    } else if (has(node, "elementReference")) {
       typeDefinition = resolvePath(node["elementReference"]);
-      if (typeDefinition && typeDefinition.hasOwnProperty("elements")) {
+      if (typeDefinition && has(typeDefinition, "elements")) {
         elements = elements.concat(Object.entries(typeDefinition["elements"]));
       }
     }
     let baseNode = typeDefinition || node;
-    while (baseNode && baseNode.hasOwnProperty("base")) {
+    while (baseNode && has(baseNode, "base")) {
       baseNode = fhirSchema[baseNode["base"]];
-      if (baseNode && baseNode.hasOwnProperty("elements")) {
+      if (baseNode && has(baseNode, "elements")) {
         elements = elements.concat(Object.entries(baseNode["elements"]));
       }
     }
@@ -44,21 +46,21 @@ export function resolveField(node, field) {
   let currentNode = node;
   let visitedTypes = new Set();
   while (currentNode) {
-    if (currentNode.hasOwnProperty(field)) {
+    if (has(currentNode, field)) {
       return currentNode[field];
     }
-    if (currentNode.hasOwnProperty("elements")) {
+    if (has(currentNode, "elements")) {
       let elements = currentNode["elements"];
-      if (elements.hasOwnProperty(field)) {
+      if (has(elements, field)) {
         return elements[field];
       }
     }
-    if (currentNode.hasOwnProperty("elementReference")) {
+    if (has(currentNode, "elementReference")) {
       return resolvePath(currentNode["elementReference"]);
     }
-    if (currentNode.hasOwnProperty("base")) {
+    if (has(currentNode, "base")) {
       currentNode = fhirSchema[currentNode["base"]];
-    } else if (currentNode.hasOwnProperty("type")) {
+    } else if (has(currentNode, "type")) {
       currentNode = fhirSchema[currentNode["type"]];
     } else {
       return null;

@@ -35,7 +35,10 @@ describe("BooleanToken", () => {
 
   it("should render with true as default when no value provided", () => {
     render(
-      <BooleanToken token={{ type: "boolean" }} onChange={mockProps.onChange} />
+      <BooleanToken
+        token={{ type: "boolean" }}
+        onChange={mockProps.onChange}
+      />,
     );
 
     const select = screen.getByRole("combobox");

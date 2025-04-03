@@ -26,7 +26,7 @@ vi.mock("react-dom", () => ({
 // Mock utils
 vi.mock("../utils/react", () => ({
   __esModule: true,
-  default: (...refs) => vi.fn(),
+  mergeRefs: () => vi.fn(),
 }));
 
 describe("Cursor", () => {
@@ -80,7 +80,7 @@ describe("Cursor", () => {
 
     // Initially should show all tokens
     expect(screen.getAllByRole("button").length).toBe(
-      mockProps.nextTokens.length
+      mockProps.nextTokens.length,
     );
 
     // Type in search to filter

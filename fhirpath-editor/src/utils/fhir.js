@@ -1,6 +1,6 @@
 export const expressionToFhirPath = (expression) => {
   return expression
-    .map((token, index) => {
+    .map((token) => {
       if (token.type === "number") {
         return token.value || 0;
       } else if (token.type === "string") {

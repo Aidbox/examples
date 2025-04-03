@@ -23,7 +23,7 @@ export function extendType(subtype, ...supertypes) {
       new Set([
         ...typeHierarchy[subtype.type],
         ...supertypes.map((s) => s.type),
-      ])
+      ]),
     );
   } else {
     typeHierarchy[subtype.type] = supertypes.map((s) => s.type);
@@ -244,7 +244,7 @@ export function substituteBindings(type, bindings) {
 
   if (type.type === "Choice") {
     return normalizeChoice(
-      ChoiceType(type.options.map((opt) => substituteBindings(opt, bindings)))
+      ChoiceType(type.options.map((opt) => substituteBindings(opt, bindings))),
     );
   }
 

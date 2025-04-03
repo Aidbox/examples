@@ -22,7 +22,7 @@ describe("IndexToken", () => {
 
   it("should render with brackets around the input", () => {
     render(<IndexToken {...mockProps} />);
-    const brackets = screen.getAllByText(/[\[\]]/);
+    const brackets = screen.getAllByText(/[[\]]/);
     expect(brackets.length).toBe(2); // One opening, one closing bracket
   });
 
@@ -43,7 +43,7 @@ describe("IndexToken", () => {
       <IndexToken
         token={{ type: "index", value: "" }}
         onChange={mockProps.onChange}
-      />
+      />,
     );
 
     const input = screen.getByPlaceholderText("0");

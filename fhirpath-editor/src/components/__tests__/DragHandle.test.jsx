@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi } from "vitest";
 import DragHandle from "../DragHandle";
@@ -10,7 +10,7 @@ describe("DragHandle", () => {
 
   it("should render with default props", () => {
     const { container } = render(
-      <DragHandle attributes={mockAttributes} listeners={mockListeners} />
+      <DragHandle attributes={mockAttributes} listeners={mockListeners} />,
     );
     const handle = container.querySelector("div");
     expect(handle).toBeInTheDocument();
@@ -24,7 +24,7 @@ describe("DragHandle", () => {
         attributes={mockAttributes}
         listeners={mockListeners}
         active={true}
-      />
+      />,
     );
     const handle = container.querySelector("div");
     expect(handle).toHaveAttribute("data-active");
@@ -36,7 +36,7 @@ describe("DragHandle", () => {
         attributes={mockAttributes}
         listeners={mockListeners}
         valid={false}
-      />
+      />,
     );
     const handle = container.querySelector("div");
     expect(handle).toHaveAttribute("data-invalid");

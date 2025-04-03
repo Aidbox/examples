@@ -43,7 +43,7 @@ describe("DateTimeToken", () => {
       <DateTimeToken
         token={{ type: "datetime", value: "" }}
         onChange={mockProps.onChange}
-      />
+      />,
     );
 
     const input = screen.getByTestId("datetime-token");

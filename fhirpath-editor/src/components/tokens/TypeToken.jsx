@@ -11,7 +11,7 @@ import {
 } from "../../utils/type";
 import { primitiveTypeMap } from "../../utils/fhir-type";
 
-export const typeNames = {
+const typeNames = {
   "Literal types": [
     IntegerType.type,
     DecimalType.type,

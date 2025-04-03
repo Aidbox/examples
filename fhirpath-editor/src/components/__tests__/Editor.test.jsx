@@ -32,7 +32,7 @@ vi.mock("@dnd-kit/modifiers", () => ({
 
 // Mock the Binding and SortableBinding components
 vi.mock("../Binding", () => ({
-  default: ({ value, onChange, bindings }) => (
+  default: ({ value }) => (
     <div data-testid="binding" data-name={value.name || "primary"}>
       Mock Binding
     </div>
@@ -40,12 +40,12 @@ vi.mock("../Binding", () => ({
 }));
 
 vi.mock("../SortableBinding", () => ({
-  default: React.forwardRef(({ value, onChange, bindings, sorting }, ref) => (
+  default: React.forwardRef((props, ref) => (
     <div
       data-testid="sortable-binding"
-      data-id={value.id}
-      data-name={value.name}
-      data-sorting={sorting || undefined}
+      data-id={props.value.id}
+      data-name={props.value.name}
+      data-sorting={props.sorting || undefined}
       ref={ref}
     >
       Mock SortableBinding
@@ -123,12 +123,6 @@ describe("Editor", () => {
   it("should update primary expression when it changes", () => {
     render(<Editor {...mockProps} />);
 
-    // Find the primary expression binding
-    const primaryBinding = screen.getByTestId("binding");
-
-    // Simulate onChange by finding the component's props
-    const primaryBindingProps = primaryBinding.props;
-
     // Extract the onChange function from the mock component
     // This is tricky in this test setup since we're mocking the component
     // In a real test we'd simulate user actions instead
@@ -152,13 +146,7 @@ describe("Editor", () => {
   });
 
   it("should handle binding reordering", () => {
-    const { rerender } = render(<Editor {...mockProps} />);
-
-    // Generate a mock drag event
-    const mockDragEvent = {
-      active: { id: "binding-1" },
-      over: { id: "binding-2" },
-    };
+    render(<Editor {...mockProps} />);
 
     // Call setValue to simulate reordering
     mockProps.setValue({

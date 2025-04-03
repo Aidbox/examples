@@ -37,7 +37,7 @@ describe("NumberToken", () => {
       <NumberToken
         token={{ type: "number", value: "" }}
         onChange={mockProps.onChange}
-      />
+      />,
     );
 
     const input = screen.getByPlaceholderText("0");
@@ -57,7 +57,7 @@ describe("NumberToken", () => {
       <NumberToken
         token={{ type: "number", value: "3.14" }}
         onChange={mockProps.onChange}
-      />
+      />,
     );
     const input = screen.getByTestId("number-token");
     expect(input).toHaveClass("text-indigo-800");

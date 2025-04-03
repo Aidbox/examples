@@ -54,7 +54,9 @@ export const PrimitivePositiveIntegerType = {
 };
 extendType(PrimitivePositiveIntegerType, IntegerType);
 
-export const PrimitiveUnsignedIntegerType = { type: "PrimitiveUnsignedInteger" };
+export const PrimitiveUnsignedIntegerType = {
+  type: "PrimitiveUnsignedInteger",
+};
 extendType(PrimitiveUnsignedIntegerType, IntegerType);
 
 export const PrimitiveInstantType = { type: "PrimitiveInstant" };
@@ -110,8 +112,8 @@ export function fieldSchemaToType(schemaReference, siblingSchemas, fieldName) {
   } else if (fieldSchema.choices) {
     result = ChoiceType(
       fieldSchema.choices.map((choice) =>
-        fieldSchemaToType(schemaReference, siblingSchemas, choice)
-      )
+        fieldSchemaToType(schemaReference, siblingSchemas, choice),
+      ),
     );
   } else if (!fieldSchema.elements && !fieldSchema.elementReference) {
     result = FhirType([fieldSchema.type || fieldSchema.base]);
@@ -134,7 +136,7 @@ export function getFields(type) {
         Object.keys(elements).map((fieldName) => [
           fieldName,
           fieldSchemaToType(type.schemaReference, elements, fieldName),
-        ])
+        ]),
       );
     }
   }

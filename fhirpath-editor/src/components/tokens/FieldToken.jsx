@@ -1,11 +1,12 @@
 import React from "react";
 import { getExpressionType } from "../../utils/expression.js";
-import {getFields} from "../../utils/fhir-type";
-import {expressionToFhirPath} from "../../utils/fhir.js";
+import { getFields } from "../../utils/fhir-type";
 
 const FieldToken = React.forwardRef(
-  ({ token, onChange, bindings, expression, deleting }, ref) => {
-    const fields = getFields(getExpressionType(expression.slice(0, -1), bindings));
+  ({ token, onChange, bindings, expression }, ref) => {
+    const fields = getFields(
+      getExpressionType(expression.slice(0, -1), bindings),
+    );
     const invalid = fields[token.value] === undefined;
 
     return (
@@ -34,7 +35,7 @@ const FieldToken = React.forwardRef(
         </select>
       </label>
     );
-  }
+  },
 );
 
 export default FieldToken;

@@ -176,7 +176,7 @@ export const findCompatibleVariables = (bindings, expression) => {
       const bindingType =
         binding.type || getExpressionType(binding.expression, bindings);
       return rightTypes.some((rightType) =>
-        matchTypePattern(rightType, unwrapCollection(bindingType))
+        matchTypePattern(rightType, unwrapCollection(bindingType)),
       );
     });
   }
@@ -230,7 +230,7 @@ export const suggestNextToken = (expression, bindings) => {
       rightTypes
         .map(({ type }) => typeName2tokenType[type])
         .concat(["variable"])
-        .filter((type) => type)
+        .filter((type) => type),
     ).map((type) => ({ type }));
   }
 
@@ -251,8 +251,8 @@ export const suggestNextToken = (expression, bindings) => {
         (field) => ({
           type: "field",
           value: field,
-        })
-      )
+        }),
+      ),
     );
   }
 

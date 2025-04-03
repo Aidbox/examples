@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export const useCommitableState = (original, onCommit, onFail) => {
   const [value, setValue] = React.useState(original);
@@ -27,7 +27,7 @@ export const useCommitableState = (original, onCommit, onFail) => {
   return [value, setValue, commitValue];
 };
 
-export default function mergeRefs(...inputRefs) {
+export function mergeRefs(...inputRefs) {
   const filteredInputRefs = inputRefs.filter(Boolean);
 
   if (filteredInputRefs.length <= 1) {
@@ -37,11 +37,17 @@ export default function mergeRefs(...inputRefs) {
 
   return function mergedRefs(ref) {
     for (const inputRef of filteredInputRefs) {
-      if (typeof inputRef === 'function') {
+      if (typeof inputRef === "function") {
         inputRef(ref);
       } else if (inputRef) {
         inputRef.current = ref;
       }
     }
   };
+}
+
+export function useOnMount(fn) {
+  React.useEffect(() => {
+    fn();
+  }, [fn]);
 }

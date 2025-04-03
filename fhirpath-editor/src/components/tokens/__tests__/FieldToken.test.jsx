@@ -91,7 +91,6 @@ describe("FieldToken", () => {
     };
     render(<FieldToken {...invalidProps} />);
 
-    const select = screen.getByRole("combobox");
     const options = screen.getAllByRole("option");
     expect(options[0]).toHaveValue("invalidField");
     expect(options[0]).toBeDisabled();

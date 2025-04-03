@@ -18,7 +18,7 @@ vi.mock("@dnd-kit/sortable", () => ({
 
 // Mock the Binding and DragHandle components
 vi.mock("../Binding", () => ({
-  default: React.forwardRef(({ value, onChange, bindings }, ref) => (
+  default: React.forwardRef((props, ref) => (
     <div data-testid="binding" ref={ref}>
       Mock Binding
     </div>
@@ -26,9 +26,7 @@ vi.mock("../Binding", () => ({
 }));
 
 vi.mock("../DragHandle", () => ({
-  default: ({ attributes, listeners }) => (
-    <div data-testid="drag-handle">Mock DragHandle</div>
-  ),
+  default: () => <div data-testid="drag-handle">Mock DragHandle</div>,
 }));
 
 describe("SortableBinding", () => {

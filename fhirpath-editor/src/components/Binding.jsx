@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import Token from "./Token";
 import Cursor from "./Cursor";
-import mergeRefs, { useCommitableState } from "../utils/react";
+import { mergeRefs, useCommitableState } from "../utils/react";
 import { stringifyType } from "../utils/type.js";
 import { Warning } from "@phosphor-icons/react";
 import {
@@ -53,7 +53,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
     if (token.type === "variable" && token.value === undefined) {
       const compatibleBindings = findCompatibleVariables(
         bindings,
-        value.expression
+        value.expression,
       );
       token.value = compatibleBindings[0]?.name || "";
     } else if (token.type === "string" && token.value === undefined) {
@@ -85,7 +85,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
     } else if (token.type === "operator" && token.value === undefined) {
       const compatibleOperators = findCompatibleOperators(
         bindings,
-        value.expression
+        value.expression,
       );
       token.value = compatibleOperators[0] || "+";
     }
@@ -109,7 +109,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
   const [name, setName, commitName] = useCommitableState(
     value.name,
     (name) => onChange({ ...value, name }),
-    () => setNameAnimation("animate__animated animate__shakeX animate__faster")
+    () => setNameAnimation("animate__animated animate__shakeX animate__faster"),
   );
 
   return (
@@ -166,7 +166,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
           if (e.key === "ArrowLeft") {
             if (!e.target.selectionStart) {
               const index = parseInt(
-                e.target.closest("[data-index]")?.dataset?.index
+                e.target.closest("[data-index]")?.dataset?.index,
               );
               if (index > 0) {
                 const element = tokenRefs.current[index - 1];
@@ -188,7 +188,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
               e.target.selectionEnd === e.target.value.length
             ) {
               const index = parseInt(
-                e.target.closest("[data-index]")?.dataset?.index
+                e.target.closest("[data-index]")?.dataset?.index,
               );
 
               if (index < value.expression.length - 1) {
@@ -244,7 +244,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
           bindings={bindings}
           onMistake={() => {
             setExpressionAnimation(
-              "animate__animated animate__shakeX animate__faster"
+              "animate__animated animate__shakeX animate__faster",
             );
           }}
         />

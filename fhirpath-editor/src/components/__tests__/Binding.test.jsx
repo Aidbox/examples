@@ -1,53 +1,36 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Binding from "../Binding";
 
 // Mock the imported components
 vi.mock("../Token", () => {
-  const MockToken = React.forwardRef(
-    ({ value, index, onChange, bindings, expression, deleting }, ref) => (
-      <div
-        data-testid={`token-${index}`}
-        data-type={value.type}
-        data-value={value.value}
-        data-deleting={deleting || undefined}
-        ref={ref}
-      >
-        Mock Token {value.type}:{value.value}
-      </div>
-    )
-  );
+  const MockToken = React.forwardRef(({ value, index, deleting }, ref) => (
+    <div
+      data-testid={`token-${index}`}
+      data-type={value.type}
+      data-value={value.value}
+      data-deleting={deleting || undefined}
+      ref={ref}
+    >
+      Mock Token {value.type}:{value.value}
+    </div>
+  ));
   return { default: MockToken };
 });
 
 vi.mock("../Cursor", () => {
-  const MockCursor = React.forwardRef(
-    (
-      {
-        id,
-        nextTokens,
-        onAddToken,
-        onDeleteToken,
-        hovering,
-        empty,
-        bindings,
-        onMistake,
-      },
-      ref
-    ) => (
-      <div
-        data-testid="cursor"
-        data-hovering={hovering || undefined}
-        data-empty={empty || undefined}
-        ref={ref}
-      >
-        Mock Cursor
-      </div>
-    )
-  );
+  const MockCursor = React.forwardRef(({ hovering, empty }, ref) => (
+    <div
+      data-testid="cursor"
+      data-hovering={hovering || undefined}
+      data-empty={empty || undefined}
+      ref={ref}
+    >
+      Mock Cursor
+    </div>
+  ));
   return { default: MockCursor };
 });
 
@@ -60,8 +43,8 @@ vi.mock("../utils/types", () => ({
 
 vi.mock("../utils/react", () => ({
   __esModule: true,
-  default: (...refs) => vi.fn(),
-  useCommitableState: (initialValue, onCommit, onInvalid) => {
+  mergeRefs: () => vi.fn(),
+  useCommitableState: (initialValue, onCommit) => {
     const [value, setValue] = React.useState(initialValue);
     return [value, setValue, () => onCommit(value)];
   },
@@ -105,7 +88,7 @@ describe("Binding", () => {
 
   it("should not render name input if name is null", () => {
     render(
-      <Binding {...mockProps} value={{ ...mockProps.value, name: null }} />
+      <Binding {...mockProps} value={{ ...mockProps.value, name: null }} />,
     );
 
     // There should be no input for name
@@ -116,7 +99,7 @@ describe("Binding", () => {
   });
 
   it("should call onChange when name is changed and committed", async () => {
-    const user = userEvent.setup();
+    // const user = userEvent.setup();
     render(<Binding {...mockProps} />);
 
     // const nameInput = screen.getByRole("textbox", { name: "" });
@@ -133,9 +116,6 @@ describe("Binding", () => {
   it("should handle token deletion", () => {
     const { rerender } = render(<Binding {...mockProps} />);
 
-    // Find the cursor component
-    const cursor = screen.getByTestId("cursor");
-
     // Simulate deleting token - calling the onDeleteToken callback
     // First, mock the deleting state
     rerender(
@@ -148,7 +128,7 @@ describe("Binding", () => {
             { type: "operator", value: "+" },
           ],
         }}
-      />
+      />,
     );
 
     // There should be one less token
@@ -178,7 +158,7 @@ describe("Binding", () => {
 
   it("should handle deleting the binding when name is not null and expression is empty", () => {
     render(
-      <Binding {...mockProps} value={{ ...mockProps.value, expression: [] }} />
+      <Binding {...mockProps} value={{ ...mockProps.value, expression: [] }} />,
     );
 
     // Simulate deleting with empty expression

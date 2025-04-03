@@ -30,7 +30,7 @@ import {
 } from "@phosphor-icons/react";
 import React, { forwardRef } from "react";
 import { createPortal } from "react-dom";
-import mergeRefs from "../utils/react";
+import { mergeRefs } from "../utils/react";
 
 const labels = {
   number: "Number",
@@ -59,7 +59,7 @@ const Cursor = forwardRef(
       empty,
       bindings,
     },
-    forwardingRef
+    forwardingRef,
   ) => {
     const containerRef = React.useRef(null);
     const dropdownRef = React.useRef(null);
@@ -85,11 +85,11 @@ const Cursor = forwardRef(
       const number = nextTokens.find(({ type }) => type === "number");
       if (number) {
         // Integer pattern
-        if (search.match(/^\-?\d+$/)) {
+        if (search.match(/^-?\d+$/)) {
           tokens.push({ ...number, value: search });
         }
         // Decimal pattern
-        else if (search.match(/^\-?\d*\.\d+$/)) {
+        else if (search.match(/^-?\d*\.\d+$/)) {
           tokens.push({ ...number, value: search });
         }
       }
@@ -274,7 +274,7 @@ const Cursor = forwardRef(
                       }`}
                       tabIndex="-1"
                       onMouseEnter={() => setSelected(index)}
-                      onClick={(e) => {
+                      onClick={() => {
                         inputRef.current?.focus();
                         addToken(token);
                       }}
@@ -336,11 +336,11 @@ const Cursor = forwardRef(
                 </div>
               )}
             </div>,
-            document.getElementById("portal")
+            document.getElementById("portal"),
           )}
       </div>
     );
-  }
+  },
 );
 
 export default Cursor;
