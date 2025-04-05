@@ -1,13 +1,20 @@
 import React from "react";
 import Editor from "./components/Editor";
 import { FhirType } from "./utils/fhir-type";
+import { appToFhirPath, highlightFhirPath } from "./utils/fhir";
+import { useDebug } from "./utils/react";
 
 export function App() {
+  const debug = useDebug();
   const [app, setApp] = React.useState({
     bindings: [
       {
         name: "myString",
         expression: [{ type: "string", value: "Hello, world!" }],
+      },
+      {
+        name: "myQuantity",
+        expression: [{ type: "quantity", value: { value: "100", unit: "kg" } }],
       },
       {
         name: "var1",
@@ -48,6 +55,7 @@ export function App() {
         expression: [
           { type: "variable", value: "questionnaire" },
           { type: "field", value: "item" },
+          { type: "function", value: "aggregate" },
         ],
       },
     ],
@@ -59,23 +67,45 @@ export function App() {
   });
 
   return (
-    <Editor
-      value={app}
-      setValue={setApp}
-      globalBindings={[
-        {
-          name: "observation",
-          type: FhirType(["Observation"]),
-        },
-        {
-          name: "questionnaire",
-          type: FhirType(["Questionnaire"]),
-        },
-        {
-          name: "patient",
-          type: FhirType(["Patient"]),
-        },
-      ]}
-    />
+    <div className="gap-2 h-screen grid grid-cols-2">
+      <div className="p-8 border-r border-gray-200 overflow-auto">
+        <Editor
+          value={app}
+          setValue={setApp}
+          externalBindings={[
+            {
+              name: "observation",
+              type: FhirType(["Observation"]),
+            },
+            {
+              name: "questionnaire",
+              type: FhirType(["Questionnaire"]),
+            },
+            {
+              name: "patient",
+              type: FhirType(["Patient"]),
+            },
+          ]}
+        />
+      </div>
+
+      <div className="p-8 flex flex-col gap-2 overflow-auto">
+        <h2 className="font-semibold">Compiled</h2>
+        <div
+          className="text-xs p-4 rounded-md border border-gray-200 w-fit"
+          dangerouslySetInnerHTML={{
+            __html: highlightFhirPath(appToFhirPath(app)),
+          }}
+        />
+        {debug && (
+          <>
+            <h2 className="font-semibold">State</h2>
+            <pre className="mt-2 text-xs bg-gray-50 p-2 rounded-md border border-gray-200">
+              {JSON.stringify(app, null, 2)}
+            </pre>
+          </>
+        )}
+      </div>
+    </div>
   );
 }

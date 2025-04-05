@@ -2,7 +2,7 @@ import React from "react";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, it, expect, vi } from "vitest";
-import DragHandle from "../DragHandle";
+import BindingMenu from "../BindingMenu.jsx";
 
 describe("DragHandle", () => {
   const mockListeners = { onMouseDown: vi.fn() };
@@ -10,7 +10,7 @@ describe("DragHandle", () => {
 
   it("should render with default props", () => {
     const { container } = render(
-      <DragHandle attributes={mockAttributes} listeners={mockListeners} />,
+      <BindingMenu attributes={mockAttributes} listeners={mockListeners} />,
     );
     const handle = container.querySelector("div");
     expect(handle).toBeInTheDocument();
@@ -20,7 +20,7 @@ describe("DragHandle", () => {
 
   it("should render with active state", () => {
     const { container } = render(
-      <DragHandle
+      <BindingMenu
         attributes={mockAttributes}
         listeners={mockListeners}
         active={true}
@@ -32,7 +32,7 @@ describe("DragHandle", () => {
 
   it("should render with invalid state", () => {
     const { container } = render(
-      <DragHandle
+      <BindingMenu
         attributes={mockAttributes}
         listeners={mockListeners}
         valid={false}

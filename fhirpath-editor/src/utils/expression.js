@@ -16,9 +16,15 @@ import {
   InvalidType,
   matchTypePattern,
   unwrapCollection,
+  CollectionType,
 } from "./type.js";
 import { distinct } from "./misc.js";
 import { getFields, PrimitiveBooleanType } from "./fhir-type.js";
+import "./function.js";
+import {
+  resolveFunctionCall,
+  suggestFunctionsForInputType,
+} from "./function.js";
 
 export const findReferencedVariables = (binding) => {
   return binding.expression
@@ -69,7 +75,12 @@ function isChainingExpression(expression) {
       if (
         expression
           .slice(1)
-          .every((token) => token.type === "field" || token.type === "index")
+          .every(
+            (token) =>
+              token.type === "field" ||
+              token.type === "index" ||
+              token.type === "function"
+          )
       ) {
         return true;
       }
@@ -115,7 +126,7 @@ export const getExpressionType = (expression, bindings) => {
 
   // For field chains (variable + field tokens)
   if (isChainingExpression(expression)) {
-    let [variable, ...fields] = expression;
+    let [variable, ...tokens] = expression;
 
     const binding = bindings.find((b) => b.name === variable.value);
     if (!binding) return InvalidType("Unknown variable");
@@ -123,15 +134,24 @@ export const getExpressionType = (expression, bindings) => {
     let currentType =
       binding.type || getExpressionType(binding.expression, bindings);
 
-    while (fields.length > 0 && currentType.type !== "Invalid") {
-      const field = fields.shift();
+    while (tokens.length > 0 && currentType.type !== "Invalid") {
+      const token = tokens.shift();
 
       // Skip index tokens - they don't change the type
-      if (field.type === "index") continue;
-
-      const availableFields = getFields(currentType);
-      currentType =
-        availableFields[field.value] || InvalidType("Unknown field");
+      if (token.type === "index") continue;
+      else if (token.type === "function") {
+        currentType = resolveFunctionCall({
+          name: token.value,
+          input: currentType,
+          args: token.args?.map((arg) =>
+            getExpressionType(arg.expression, [...bindings, arg.bindings])
+          ),
+        });
+      } else {
+        const availableFields = getFields(currentType);
+        currentType =
+          availableFields[token.value] || InvalidType("Unknown field");
+      }
     }
 
     return currentType;
@@ -176,7 +196,7 @@ export const findCompatibleVariables = (bindings, expression) => {
       const bindingType =
         binding.type || getExpressionType(binding.expression, bindings);
       return rightTypes.some((rightType) =>
-        matchTypePattern(rightType, unwrapCollection(bindingType)),
+        matchTypePattern(rightType, unwrapCollection(bindingType))
       );
     });
   }
@@ -230,7 +250,7 @@ export const suggestNextToken = (expression, bindings) => {
       rightTypes
         .map(({ type }) => typeName2tokenType[type])
         .concat(["variable"])
-        .filter((type) => type),
+        .filter((type) => type)
     ).map((type) => ({ type }));
   }
 
@@ -245,16 +265,21 @@ export const suggestNextToken = (expression, bindings) => {
   }
 
   if (isChainingExpression(expression)) {
+    const type = getExpressionType(expression, bindings);
     result.push(
       { type: "index" },
-      ...Object.keys(getFields(getExpressionType(expression, bindings))).map(
-        (field) => ({
-          type: "field",
-          value: field,
-        }),
-      ),
+      ...Object.keys(getFields(type)).map((field) => ({
+        type: "field",
+        value: field,
+      })),
+      ...suggestFunctionsForInputType(type).map((name) => ({
+        type: "function",
+        value: name,
+      }))
     );
   }
 
   return result;
 };
+
+// console.log(suggestFunctionsForInputType(CollectionType(StringType)));

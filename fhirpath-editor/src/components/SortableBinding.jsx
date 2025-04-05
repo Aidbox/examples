@@ -1,10 +1,10 @@
 import React, { forwardRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import DragHandle from "./DragHandle";
+import BindingMenu from "./BindingMenu.jsx";
 import Binding from "./Binding";
 
 const SortableBinding = forwardRef(
-  ({ value, bindings, onChange, sorting }, forwardingRef) => {
+  ({ value, bindings, onChange, sorting, onDuplicate }, forwardingRef) => {
     const {
       attributes,
       listeners,
@@ -29,10 +29,15 @@ const SortableBinding = forwardRef(
       <div
         ref={setNodeRef}
         style={style}
-        className="relative flex flex-row gap-2 items-center"
+        className="grid grid-cols-subgrid col-span-4 relative items-center"
       >
         {!sorting && (
-          <DragHandle attributes={attributes} listeners={listeners} />
+          <BindingMenu
+            attributes={attributes}
+            listeners={listeners}
+            onDelete={() => onChange(null)}
+            onDuplicate={onDuplicate}
+          />
         )}
         <Binding
           ref={forwardingRef}
@@ -42,7 +47,7 @@ const SortableBinding = forwardRef(
         />
       </div>
     );
-  },
+  }
 );
 
 export default SortableBinding;

@@ -73,7 +73,7 @@ describe("Editor", () => {
       expression: [{ type: "variable", value: "var1" }],
     },
     setValue: vi.fn(),
-    globalBindings: [{ name: "global1", expression: [] }],
+    externalBindings: [{ name: "global1", expression: [] }],
   };
 
   beforeEach(() => {

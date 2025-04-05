@@ -5,9 +5,9 @@ import {
   shift,
   flip,
   size,
-} from "@floating-ui/react-dom";
+  FloatingPortal,
+} from "@floating-ui/react";
 import {
-  ArrowElbowDownRight,
   ArrowLineRight,
   ArrowRight,
   Backspace,
@@ -27,8 +27,9 @@ import {
   BracketsSquare,
   DotOutline,
   Shapes,
+  Function,
 } from "@phosphor-icons/react";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import { createPortal } from "react-dom";
 import { mergeRefs } from "../utils/react";
 
@@ -58,8 +59,9 @@ const Cursor = forwardRef(
       onMistake,
       empty,
       bindings,
+      placeholder,
     },
-    forwardingRef,
+    forwardingRef
   ) => {
     const containerRef = React.useRef(null);
     const dropdownRef = React.useRef(null);
@@ -67,6 +69,15 @@ const Cursor = forwardRef(
     const [dropdownVisible, setDropdownVisible] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [selected, setSelected] = React.useState(0);
+
+    useImperativeHandle(forwardingRef, () => ({
+      focus: () => {
+        inputRef.current?.focus();
+      },
+      contains: (element) => {
+        return containerRef.current?.contains(element);
+      },
+    }));
 
     const tokens = nextTokens.filter((token) => {
       const label = token.value || labels[token.type] || token.type;
@@ -199,21 +210,25 @@ const Cursor = forwardRef(
 
     return (
       <div
-        className="relative"
+        className="relative flex items-center"
         ref={(ref) => {
           containerRef.current = ref;
           refs.setReference(ref && ref.parentElement);
         }}
       >
-        {visible && !search && !dropdownVisible && (
+        {(visible || (placeholder && empty)) && !search && !dropdownVisible && (
           <div
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
               inputRef.current?.focus();
             }}
-            className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 mx-0.5 hover:text-blue-500 cursor-pointer"
+            className="flex items-center gap-2 text-gray-400 hover:text-blue-500 cursor-pointer min-w-6 justify-center"
+            data-icon={!placeholder || undefined}
           >
+            {placeholder && empty && (
+              <div className="text-sm">{placeholder}</div>
+            )}
             {nextTokens.length > 0 ? (
               <ArrowRight weight="bold" size={16} />
             ) : (
@@ -223,9 +238,9 @@ const Cursor = forwardRef(
         )}
         <input
           autoComplete="off"
-          ref={mergeRefs(forwardingRef, inputRef)}
-          className="focus:outline-none field-sizing-content data-[visible]:min-w-5 indent-0.5"
-          data-visible={visible || undefined}
+          ref={inputRef}
+          className="focus:outline-none field-sizing-content data-[visible]:min-w-5 indent-0.5 data-[visible]:ml-1"
+          data-visible={dropdownVisible || undefined}
           id={id}
           type="text"
           value={search}
@@ -252,10 +267,10 @@ const Cursor = forwardRef(
           }}
           onKeyDown={handleKeyDown}
         />
-        {dropdownVisible &&
-          createPortal(
+        {dropdownVisible && (
+          <FloatingPortal>
             <div
-              className="mt-1 bg-white border border-gray-300 rounded-md shadow-lg min-w-[160px] empty:hidden py-2 overflow-y-auto"
+              className="bg-white border border-gray-300 rounded-md shadow-lg min-w-[160px] empty:hidden py-2 overflow-y-auto"
               style={floatingStyles}
               ref={(ref) => {
                 dropdownRef.current = ref;
@@ -269,7 +284,7 @@ const Cursor = forwardRef(
                         token.type +
                         (typeof token === "string" ? "" : token.value)
                       }
-                      className={`w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer ${
+                      className={`w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer active:bg-gray-200 ${
                         index === selected ? "bg-gray-100" : ""
                       }`}
                       tabIndex="-1"
@@ -301,19 +316,23 @@ const Cursor = forwardRef(
                         <BracketsSquare size={16} className="text-gray-500" />
                       ) : token.type === "field" ? (
                         <Shapes size={16} className="text-gray-500" />
+                      ) : token.type === "function" ? (
+                        <Function size={16} className="text-gray-500" />
                       ) : token.type === "operator" ? (
                         <Calculator size={16} className="text-gray-500" />
                       ) : null}
-                      {token.type === "field"
+                      {token.type === "field" || token.type === "function"
                         ? token.value
                         : labels[token.type]}
-                      {token.value && token.type !== "field" && (
-                        <Lightning
-                          size={14}
-                          weight="fill"
-                          className="text-yellow-500"
-                        />
-                      )}
+                      {token.value &&
+                        token.type !== "field" &&
+                        token.type !== "function" && (
+                          <Lightning
+                            size={14}
+                            weight="fill"
+                            className="text-yellow-500"
+                          />
+                        )}
                     </button>
                   ))
                 : null}
@@ -335,12 +354,13 @@ const Cursor = forwardRef(
                   backspace to remove {empty ? "the binding" : "the last token"}
                 </div>
               )}
-            </div>,
-            document.getElementById("portal"),
-          )}
+            </div>
+            ,
+          </FloatingPortal>
+        )}
       </div>
     );
-  },
+  }
 );
 
 export default Cursor;

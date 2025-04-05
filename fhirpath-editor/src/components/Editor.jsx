@@ -20,14 +20,21 @@ import {
 import Binding from "./Binding";
 import { canMoveBinding, generateBindingId } from "../utils/expression";
 import SortableBinding from "./SortableBinding";
-import DragHandle from "./DragHandle";
-import appToFhirPath from "../utils/fhir";
+import BindingMenu from "./BindingMenu.jsx";
 import { useOnMount } from "../utils/react";
+import { Plus, PlusCircle } from "@phosphor-icons/react";
 
-function Editor({ value, setValue, globalBindings }) {
-  const lastInputRef = React.useRef(null);
+function Editor({
+  value,
+  setValue,
+  externalBindings,
+  className = "",
+  title = "Expression",
+}) {
+  const bindingRefs = React.useRef([]);
   const [activeId, setActiveId] = React.useState(null);
   const [overItemId, setOverItemId] = React.useState(null);
+  const [lastInputWidth, setLastInputWidth] = React.useState("auto");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -35,25 +42,30 @@ function Editor({ value, setValue, globalBindings }) {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
-  const addBinding = () => {
+  const addBinding = (binding, afterIndex = value.bindings.length) => {
     setValue({
       ...value,
       bindings: [
-        ...value.bindings,
+        ...value.bindings.slice(0, afterIndex),
         {
+          ...binding,
+          expression: binding?.expression || [],
           name: `var${value.bindings.length + 1}`,
-          expression: [],
           id: `binding-${Date.now()}`,
         },
+        ...value.bindings.slice(afterIndex),
       ],
     });
-    setTimeout(() => lastInputRef.current?.focus(), 0);
+    setTimeout(() => bindingRefs.current[afterIndex]?.focus(), 0);
   };
 
   const handleDragStart = (event) => {
+    setLastInputWidth(
+      bindingRefs.current[value.bindings.length - 1]?.width || "auto"
+    );
     setActiveId(event.active.id);
   };
 
@@ -66,7 +78,7 @@ function Editor({ value, setValue, globalBindings }) {
 
     if (over && active.id !== over.id) {
       const oldIndex = value.bindings.findIndex(
-        (item) => item.id === active.id,
+        (item) => item.id === active.id
       );
       const newIndex = value.bindings.findIndex((item) => item.id === over.id);
 
@@ -109,12 +121,19 @@ function Editor({ value, setValue, globalBindings }) {
           ...value.bindings.slice(index + 1),
         ],
       });
+      setTimeout(
+        () =>
+          (
+            bindingRefs.current[index - 1] || bindingRefs.current[index]
+          )?.focus(),
+        0
+      );
       return;
     }
 
     const renamed = binding.name !== value.bindings[index].name;
 
-    if (renamed && globalBindings.some((gb) => gb.name === binding.name)) {
+    if (renamed && externalBindings.some((gb) => gb.name === binding.name)) {
       return;
     }
 
@@ -134,7 +153,7 @@ function Editor({ value, setValue, globalBindings }) {
               token.type === "variable" &&
               token.value === value.bindings[index].name
                 ? { ...token, value: binding.name }
-                : token,
+                : token
             ),
           };
         }
@@ -148,8 +167,16 @@ function Editor({ value, setValue, globalBindings }) {
   };
 
   return (
-    <div className="p-8 flex flex-col gap-2 min-h-screen">
-      <h2 className="text-lg font-semibold mt-2">Bindings</h2>
+    <div className={`flex flex-col gap-2 w-fit ${className}`}>
+      <div className="font-medium text-gray-600 text-sm flex items-center gap-2">
+        Bindings
+        <button
+          className="cursor-pointer rounded-full p-0.5 border hover:text-blue-500 active:text-white active:bg-blue-500 active:border-blue-500"
+          onClick={() => addBinding()}
+        >
+          <Plus size={10} />
+        </button>
+      </div>
 
       <DndContext
         sensors={sensors}
@@ -163,20 +190,26 @@ function Editor({ value, setValue, globalBindings }) {
           items={value.bindings.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-[auto_auto_1fr] gap-2 w-fit pl-6">
             {value.bindings.map((binding, index) => (
               <SortableBinding
-                ref={index === value.bindings.length - 1 ? lastInputRef : null}
+                ref={(ref) => (bindingRefs.current[index] = ref)}
                 sorting={binding.id === activeId}
                 key={binding.id || index}
                 value={binding}
                 onChange={(value) => handleBindingChange(index, value)}
+                onDuplicate={() => addBinding(binding, index + 1)}
                 bindings={[
-                  ...globalBindings,
+                  ...externalBindings,
                   ...value.bindings.slice(0, index),
                 ]}
               />
             ))}
+            {!value.bindings?.length && (
+              <div className="text-gray-500 text-sm border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2">
+                Add a binding to get started
+              </div>
+            )}
           </div>
         </SortableContext>
 
@@ -188,10 +221,10 @@ function Editor({ value, setValue, globalBindings }) {
           {activeId
             ? (() => {
                 const draggedIndex = value.bindings.findIndex(
-                  (b) => b.id === activeId,
+                  (b) => b.id === activeId
                 );
                 const draggedBinding = value.bindings.find(
-                  (b) => b.id === activeId,
+                  (b) => b.id === activeId
                 );
 
                 const overIndex = overItemId
@@ -203,13 +236,17 @@ function Editor({ value, setValue, globalBindings }) {
                   canMoveBinding(value.bindings, draggedIndex, overIndex);
 
                 return (
-                  <div className="opacity-80 *:bg-white flex flex-row gap-2 items-center">
-                    <DragHandle valid={isValidMove} active={true} />
+                  <div
+                    className="grid opacity-80 *:bg-white flex flex-row gap-2 relative items-center"
+                    style={{
+                      gridTemplateColumns: `${lastInputWidth} auto 1fr`,
+                    }}
+                  >
+                    <BindingMenu valid={isValidMove} active={true} />
                     <Binding
                       value={draggedBinding}
-                      onChange={() => {}}
                       bindings={[
-                        ...globalBindings,
+                        ...externalBindings,
                         ...value.bindings.slice(0, draggedIndex),
                       ]}
                     />
@@ -220,36 +257,14 @@ function Editor({ value, setValue, globalBindings }) {
         </DragOverlay>
       </DndContext>
 
-      <button
-        className="bg-blue-500 text-white p-2 rounded-md w-32 mt-2"
-        onClick={addBinding}
-      >
-        Add Binding
-      </button>
-
-      <h2 className="text-lg font-semibold mt-2">Primary Expression</h2>
-      <div className="flex flex-row gap-2 items-center">
+      <div className="font-medium text-gray-600 text-sm">{title}</div>
+      <div className="flex flex-row gap-2 items-center pl-6">
         <Binding
           value={{ name: null, expression: value.expression }}
           onChange={({ expression }) => setValue({ ...value, expression })}
-          bindings={[...globalBindings, ...value.bindings]}
+          bindings={[...externalBindings, ...value.bindings]}
         />
       </div>
-
-      <h2 className="text-lg font-semibold mt-2">Compiled FHIRPath</h2>
-      <pre className="text-xs bg-gray-50 p-4 rounded-md border border-gray-200 w-fit">
-        {appToFhirPath(value)}
-      </pre>
-
-      <details className="mt-auto">
-        <summary className="text-sm font-semibold text-gray-500">Debug</summary>
-        <pre className="mt-2 text-xs bg-gray-50 p-2 rounded-md border border-gray-200">
-          {JSON.stringify(value.bindings, null, 2)}
-        </pre>
-        <pre className="mt-2 text-xs bg-gray-50 p-2 rounded-md border border-gray-200">
-          {JSON.stringify(value.expression, null, 2)}
-        </pre>
-      </details>
     </div>
   );
 }

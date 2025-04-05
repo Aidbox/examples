@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import Cursor from "../Cursor";
 
 // Mock floating-ui
-vi.mock("@floating-ui/react-dom", () => ({
+vi.mock("@floating-ui/react", () => ({
   autoUpdate: vi.fn(),
   offset: vi.fn(() => ({ offset: true })),
   useFloating: () => ({

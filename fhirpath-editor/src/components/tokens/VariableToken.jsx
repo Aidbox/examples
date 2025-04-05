@@ -6,14 +6,14 @@ const VariableToken = React.forwardRef(
   ({ token, onChange, bindings, expression }, ref) => {
     // Filter bindings based on compatibility and position
     const compatibleBindings = findCompatibleVariables(bindings, expression);
-    const globalBindings = compatibleBindings.filter(
-      ({ expression }) => !expression,
+    const externalBindings = compatibleBindings.filter(
+      ({ expression }) => !expression
     );
     const localBindings = compatibleBindings.filter(
-      ({ expression }) => expression,
+      ({ expression }) => expression
     );
     const invalid = !compatibleBindings.find(
-      ({ name }) => name === token.value,
+      ({ name }) => name === token.value
     );
 
     return (
@@ -29,9 +29,9 @@ const VariableToken = React.forwardRef(
             ⚠️ {token.value}
           </option>
         )}
-        {globalBindings.length > 0 && (
+        {externalBindings.length > 0 && (
           <optgroup label="Global">
-            {globalBindings.map((binding) => (
+            {externalBindings.map((binding) => (
               <option key={binding.id || binding.name} value={binding.name}>
                 {binding.name}
               </option>
@@ -49,7 +49,7 @@ const VariableToken = React.forwardRef(
         )}
       </select>
     );
-  },
+  }
 );
 
 export default VariableToken;

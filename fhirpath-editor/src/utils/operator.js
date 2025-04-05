@@ -131,7 +131,7 @@ export const operatorMetadata = [
   op("is", Generic("T"), TypeType(Generic("X")), BooleanType),
 
   op("as", Generic("T"), TypeType(Generic("X")), ({ X }) =>
-    normalizeChoice(ChoiceType([X])),
+    normalizeChoice(ChoiceType([X]))
   ),
 ];
 
@@ -160,7 +160,7 @@ export function resolveOperator({ op, left, right }) {
   }
 
   return wrapCollection(
-    InvalidType(`No matching overload for operator "${op}"`),
+    InvalidType(`No matching overload for operator "${op}"`)
   );
 }
 
@@ -197,26 +197,9 @@ export function suggestRightTypesForOperator(op, leftType) {
 }
 
 // console.log(
-//   stringifyType(
-//     resolveOperator({
-//       op: "|",
-//       left: CollectionType({ type: "Patient" }),
-//       right: CollectionType({ type: "Practitioner" }),
-//     })
-//   )
-// );
-//
-// console.log(
-//   stringifyType(
-//     resolveOperator({
-//       op: "as",
-//       left: CollectionType(StringType),
-//       right: TypeType(QuantityType),
-//     })
-//   )
-// );
-//
-// console.log(
 //   "suggestRightTypesForOperator",
-//   suggestRightTypesForOperator("|", CollectionType(StringType))
+//   suggestRightTypesForOperator(
+//     "",
+//     CollectionType({ type: "PrimitiveCanonical" })
+//   )
 // );

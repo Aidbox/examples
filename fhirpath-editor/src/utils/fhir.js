@@ -1,3 +1,6 @@
+import { highlightCode, classHighlighter } from "@lezer/highlight";
+import { parser } from "lezer-fhirpath";
+
 export const expressionToFhirPath = (expression) => {
   return expression
     .map((token) => {
@@ -56,16 +59,53 @@ export const bindingToFhirPath = (binding) => {
   })`;
 };
 
-const appToFhirPath = (app) => {
+export const appToFhirPath = (app) => {
   let result = expressionToFhirPath(app.expression);
 
   if (app.bindings.length > 0) {
     result = `${app.bindings
       .map(bindingToFhirPath)
-      .join("\n.")}\n.select(${result})`;
+      .join(".\n")}.\nselect(${result})`;
   }
 
   return result;
 };
 
-export default appToFhirPath;
+export function highlightFhirPath(code) {
+  let result = document.createElement("pre");
+  let style = document.createElement("style");
+
+  style.innerHTML = `
+    .tok-string { color: #a11; }
+    .tok-number { color: #192b8c; }
+    .tok-operator, .tok-keyword { color: #4c0793; } /* Keywords like 'is', 'as', 'and' */
+    .tok-variableName { color: #675900; } /* Variables like %patient */
+    .tok-literal { color: #fa1c9c; } /* Date/Time/Quantity literals */
+    .tok-functionName { color: green; } /* Function names like exists() */
+    .tok-propertyName { color: #192b8c; font-style: italic; } /* Field access like .name */
+    .tok-constantName, .tok-bool { color: #975305; } /* Booleans true/false */
+    .tok-punctuation { color: #555; } /* Brackets, parens, commas */
+    .tok-typeName { color: #192b8c; } /* Type specifiers like Patient */
+    .tok-invalid { color: red; text-decoration: underline; } /* For errors */
+  `;
+
+  result.appendChild(style);
+
+  function emit(text, classes) {
+    let node = document.createTextNode(text);
+    if (classes) {
+      let span = document.createElement("span");
+      span.appendChild(node);
+      span.className = classes;
+      node = span;
+    }
+    result.appendChild(node);
+  }
+
+  function emitBreak() {
+    result.appendChild(document.createTextNode("\n"));
+  }
+
+  highlightCode(code, parser.parse(code), classHighlighter, emit, emitBreak);
+  return result.outerHTML;
+}

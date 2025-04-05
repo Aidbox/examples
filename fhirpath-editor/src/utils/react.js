@@ -51,3 +51,29 @@ export function useOnMount(fn) {
     fn();
   }, [fn]);
 }
+
+export function useSearchParams() {
+  const parseSearchParams = (search) => {
+    return Object.fromEntries(new URLSearchParams(search.slice(1)).entries());
+  };
+
+  const [searchParams, setSearchParams] = React.useState(
+    parseSearchParams(window.location.search)
+  );
+
+  // subscribe to search params
+  React.useEffect(() => {
+    const listener = () => {
+      setSearchParams(parseSearchParams(window.location.search));
+    };
+    window.addEventListener("popstate", listener);
+    return () => window.removeEventListener("popstate", listener);
+  }, []);
+
+  return searchParams;
+}
+
+export function useDebug() {
+  const { debug } = useSearchParams();
+  return !!debug;
+}

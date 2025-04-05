@@ -11,6 +11,7 @@ import TimeToken from "./tokens/TimeToken";
 import QuantityToken from "./tokens/QuantityToken";
 import TypeToken from "./tokens/TypeToken";
 import IndexToken from "./tokens/IndexToken";
+import FunctionToken from "./tokens/FunctionToken";
 
 const Token = React.forwardRef(
   ({ value, onChange, bindings, expression, deleting, index }, ref) => {
@@ -63,7 +64,14 @@ const Token = React.forwardRef(
             onChange={onChange}
             bindings={bindings}
             expression={expression}
-            deleting={deleting}
+            ref={ref}
+          />
+        ) : value.type === "function" ? (
+          <FunctionToken
+            token={value}
+            onChange={onChange}
+            bindings={bindings}
+            expression={expression}
             ref={ref}
           />
         ) : (
@@ -71,7 +79,7 @@ const Token = React.forwardRef(
         )}
       </div>
     );
-  },
+  }
 );
 
 export default Token;
