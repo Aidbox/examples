@@ -1,11 +1,16 @@
 import React from "react";
 import { getExpressionType } from "../../utils/expression.js";
 import { getFields } from "../../utils/fhir-type";
+import { useContextType } from "../../utils/react.js";
 
 const FieldToken = React.forwardRef(
   ({ token, onChange, bindings, expression }, ref) => {
+    const contextType = useContextType();
+
     const fields = getFields(
-      getExpressionType(expression.slice(0, -1), bindings),
+      expression.length > 1
+        ? getExpressionType(expression.slice(0, -1), bindings, contextType)
+        : contextType,
     );
     const invalid = fields[token.value] === undefined;
 

@@ -31,7 +31,8 @@ import {
 } from "@phosphor-icons/react";
 import React, { forwardRef, useImperativeHandle } from "react";
 import { createPortal } from "react-dom";
-import { mergeRefs } from "../utils/react";
+import {mergeRefs, useContextType} from "../utils/react";
+import { suggestNextToken } from "../utils/expression.js";
 
 const labels = {
   number: "Number",
@@ -52,12 +53,11 @@ const Cursor = forwardRef(
   (
     {
       id,
-      nextTokens,
+      expression,
       onAddToken,
       onDeleteToken,
       hovering,
       onMistake,
-      empty,
       bindings,
       placeholder,
     },
@@ -69,6 +69,9 @@ const Cursor = forwardRef(
     const [dropdownVisible, setDropdownVisible] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [selected, setSelected] = React.useState(0);
+    const empty = expression.length === 0;
+    const contextType = useContextType();
+    const nextTokens = suggestNextToken(expression, bindings, contextType);
 
     useImperativeHandle(forwardingRef, () => ({
       focus: () => {

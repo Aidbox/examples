@@ -21,16 +21,19 @@ import Binding from "./Binding";
 import { canMoveBinding, generateBindingId } from "../utils/expression";
 import SortableBinding from "./SortableBinding";
 import BindingMenu from "./BindingMenu.jsx";
-import { useOnMount } from "../utils/react";
-import { Plus, PlusCircle } from "@phosphor-icons/react";
+import { ContextTypeProvider, useDebug, useOnMount } from "../utils/react";
+import { Plus } from "@phosphor-icons/react";
+import { stringifyType } from "../utils/type.js";
 
 function Editor({
   value,
   setValue,
   externalBindings,
   className = "",
-  title = "Expression",
+  title,
+  contextType,
 }) {
+  const debug = useDebug();
   const bindingRefs = React.useRef([]);
   const [activeId, setActiveId] = React.useState(null);
   const [overItemId, setOverItemId] = React.useState(null);
@@ -167,105 +170,115 @@ function Editor({
   };
 
   return (
-    <div className={`flex flex-col gap-2 w-fit ${className}`}>
-      <div className="font-medium text-gray-600 text-sm flex items-center gap-2">
-        Bindings
-        <button
-          className="cursor-pointer rounded-full p-0.5 border hover:text-blue-500 active:text-white active:bg-blue-500 active:border-blue-500"
-          onClick={() => addBinding()}
-        >
-          <Plus size={10} />
-        </button>
-      </div>
+    <ContextTypeProvider value={contextType}>
+      <div className={`flex flex-col gap-2 w-fit ${className}`}>
+        <div className="font-medium text-gray-600 text-sm flex items-center gap-2">
+          Named Expressions
+          <button
+            className="cursor-pointer rounded-full p-0.5 border hover:text-blue-500 active:text-white active:bg-blue-500 active:border-blue-500"
+            onClick={() => addBinding()}
+          >
+            <Plus size={10} weight="bold"/>
+          </button>
+        </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-      >
-        <SortableContext
-          items={value.bindings.map((b) => b.id)}
-          strategy={verticalListSortingStrategy}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
         >
-          <div className="grid grid-cols-[auto_auto_1fr] gap-2 w-fit pl-6">
-            {value.bindings.map((binding, index) => (
-              <SortableBinding
-                ref={(ref) => (bindingRefs.current[index] = ref)}
-                sorting={binding.id === activeId}
-                key={binding.id || index}
-                value={binding}
-                onChange={(value) => handleBindingChange(index, value)}
-                onDuplicate={() => addBinding(binding, index + 1)}
-                bindings={[
-                  ...externalBindings,
-                  ...value.bindings.slice(0, index),
-                ]}
-              />
-            ))}
-            {!value.bindings?.length && (
-              <div className="text-gray-500 text-sm border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2">
-                Add a binding to get started
-              </div>
-            )}
+          <SortableContext
+            items={value.bindings.map((b) => b.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid grid-cols-[auto_auto_1fr] gap-2 w-fit pl-6">
+              {value.bindings.map((binding, index) => (
+                <SortableBinding
+                  ref={(ref) => (bindingRefs.current[index] = ref)}
+                  sorting={binding.id === activeId}
+                  key={binding.id || index}
+                  value={binding}
+                  onChange={(value) => handleBindingChange(index, value)}
+                  onDuplicate={() => addBinding(binding, index + 1)}
+                  bindings={[
+                    ...externalBindings,
+                    ...value.bindings.slice(0, index),
+                  ]}
+                />
+              ))}
+              {!value.bindings?.length && (
+                <div className="text-gray-500 text-sm border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2">
+                  Press the + button to add a named expression.
+                </div>
+              )}
+            </div>
+          </SortableContext>
+
+          <DragOverlay
+            adjustScale={true}
+            zIndex={1000}
+            modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+          >
+            {activeId
+              ? (() => {
+                  const draggedIndex = value.bindings.findIndex(
+                    (b) => b.id === activeId,
+                  );
+                  const draggedBinding = value.bindings.find(
+                    (b) => b.id === activeId,
+                  );
+
+                  const overIndex = overItemId
+                    ? value.bindings.findIndex((b) => b.id === overItemId)
+                    : -1;
+
+                  const isValidMove =
+                    overIndex === -1 ||
+                    canMoveBinding(value.bindings, draggedIndex, overIndex);
+
+                  return (
+                    <div
+                      className="grid opacity-80 *:bg-white flex flex-row gap-2 relative items-center"
+                      style={{
+                        gridTemplateColumns: `${lastInputWidth} auto 1fr`,
+                      }}
+                    >
+                      <BindingMenu valid={isValidMove} active={true} />
+                      <Binding
+                        value={draggedBinding}
+                        bindings={[
+                          ...externalBindings,
+                          ...value.bindings.slice(0, draggedIndex),
+                        ]}
+                      />
+                    </div>
+                  );
+                })()
+              : null}
+          </DragOverlay>
+        </DndContext>
+
+        <div className="font-medium text-gray-600 text-sm">
+          {title || "Main Expression"}
+        </div>
+        <div className="flex flex-row gap-2 items-center pl-6">
+          <Binding
+            value={{ name: null, expression: value.expression }}
+            onChange={({ expression }) => setValue({ ...value, expression })}
+            bindings={[...externalBindings, ...value.bindings]}
+          />
+        </div>
+
+        {debug && (
+          <div className="text-gray-500 flex flex-col gap-1 text-xs whitespace-nowrap">
+            <span>Context type: {stringifyType(contextType)}</span>
           </div>
-        </SortableContext>
-
-        <DragOverlay
-          adjustScale={true}
-          zIndex={1000}
-          modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
-        >
-          {activeId
-            ? (() => {
-                const draggedIndex = value.bindings.findIndex(
-                  (b) => b.id === activeId,
-                );
-                const draggedBinding = value.bindings.find(
-                  (b) => b.id === activeId,
-                );
-
-                const overIndex = overItemId
-                  ? value.bindings.findIndex((b) => b.id === overItemId)
-                  : -1;
-
-                const isValidMove =
-                  overIndex === -1 ||
-                  canMoveBinding(value.bindings, draggedIndex, overIndex);
-
-                return (
-                  <div
-                    className="grid opacity-80 *:bg-white flex flex-row gap-2 relative items-center"
-                    style={{
-                      gridTemplateColumns: `${lastInputWidth} auto 1fr`,
-                    }}
-                  >
-                    <BindingMenu valid={isValidMove} active={true} />
-                    <Binding
-                      value={draggedBinding}
-                      bindings={[
-                        ...externalBindings,
-                        ...value.bindings.slice(0, draggedIndex),
-                      ]}
-                    />
-                  </div>
-                );
-              })()
-            : null}
-        </DragOverlay>
-      </DndContext>
-
-      <div className="font-medium text-gray-600 text-sm">{title}</div>
-      <div className="flex flex-row gap-2 items-center pl-6">
-        <Binding
-          value={{ name: null, expression: value.expression }}
-          onChange={({ expression }) => setValue({ ...value, expression })}
-          bindings={[...externalBindings, ...value.bindings]}
-        />
+        )}
       </div>
-    </div>
+    </ContextTypeProvider>
   );
 }
 

@@ -3,6 +3,7 @@ import Editor from "./components/Editor";
 import { FhirType } from "./utils/fhir-type";
 import { appToFhirPath, highlightFhirPath } from "./utils/fhir";
 import { useDebug } from "./utils/react";
+import { Generic } from "./utils/type.js";
 
 export function App() {
   const debug = useDebug();
@@ -55,14 +56,30 @@ export function App() {
         expression: [
           { type: "variable", value: "questionnaire" },
           { type: "field", value: "item" },
-          { type: "function", value: "aggregate" },
+          { type: "field", value: "item" },
+          {
+            type: "function",
+            value: "repeat",
+            args: [
+              {
+                bindings: [],
+                expression: [
+                  {
+                    type: "field",
+                    value: "item",
+                  },
+                  {type: "index", value: "3"}
+                ],
+              },
+            ],
+          },
         ],
       },
     ],
     expression: [
       { type: "number", value: "1" },
       { type: "operator", value: "+" },
-      { type: "variable", value: "var3" },
+      { type: "variable", value: "var1" },
     ],
   });
 
@@ -72,6 +89,7 @@ export function App() {
         <Editor
           value={app}
           setValue={setApp}
+          contextType={FhirType(["Patient"])}
           externalBindings={[
             {
               name: "observation",

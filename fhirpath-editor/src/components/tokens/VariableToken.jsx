@@ -1,11 +1,14 @@
 import React from "react";
 
 import { findCompatibleVariables } from "../../utils/expression.js";
+import {useContextType} from "../../utils/react.js";
 
 const VariableToken = React.forwardRef(
   ({ token, onChange, bindings, expression }, ref) => {
+    const contextType = useContextType();
+
     // Filter bindings based on compatibility and position
-    const compatibleBindings = findCompatibleVariables(bindings, expression);
+    const compatibleBindings = findCompatibleVariables(expression, bindings, contextType);
     const externalBindings = compatibleBindings.filter(
       ({ expression }) => !expression,
     );

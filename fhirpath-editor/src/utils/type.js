@@ -6,12 +6,14 @@ export const DateType = { type: "Date" };
 export const DateTimeType = { type: "DateTime" };
 export const TimeType = { type: "Time" };
 export const QuantityType = { type: "Quantity" };
+export const NullType = { type: "Null" };
 
 export const InvalidType = (error) => ({ type: "Invalid", error });
 export const TypeType = (ofType) => ({ type: "Type", ofType });
 export const SingleType = (ofType) => ({ type: "Single", ofType });
 export const ChoiceType = (options) => ({ type: "Choice", options });
 export const Generic = (name) => ({ type: "Generic", name });
+export const LambdaType = (returnType, contextType) => ({ type: "Lambda", returnType, contextType });
 
 const typeHierarchy = {};
 
@@ -68,6 +70,8 @@ export function stringifyType(t) {
   switch (t.type) {
     case "Single":
       return `Single<${stringifyType(t.ofType)}>`;
+    case "Generic":
+      return `Generic<${t.name}>`;
     case "Choice":
       return t.options.map(stringifyType).join(" | ");
     case "Invalid":
@@ -221,7 +225,7 @@ export function matchTypePattern(pattern, actual, bindings = {}) {
     if (key === "type") continue;
     if (!(key in actual)) return null;
 
-    if (key === "ofType") {
+    if (key === "ofType" || key === "returnType" || key === "contextType") {
       const sub = matchTypePattern(pattern[key], actual[key], newBindings);
       if (!sub) return null;
       newBindings = mergeBindings(newBindings, sub);
@@ -253,6 +257,14 @@ export function substituteBindings(type, bindings) {
   const result = { ...type };
   if ("keyOf" in type) {
     result.keyOf = substituteBindings(type.keyOf, bindings);
+  }
+
+  if ("returnType" in type) {
+    result.returnType = substituteBindings(type.returnType, bindings);
+  }
+
+  if ("contextType" in type) {
+    result.contextType = substituteBindings(type.contextType, bindings);
   }
 
   return result;

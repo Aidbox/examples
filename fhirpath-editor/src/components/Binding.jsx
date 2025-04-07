@@ -1,14 +1,13 @@
 import React, { forwardRef, useImperativeHandle } from "react";
 import Token from "./Token";
 import Cursor from "./Cursor";
-import { mergeRefs, useCommitableState, useDebug } from "../utils/react";
+import { useCommitableState, useContextType, useDebug } from "../utils/react";
 import { stringifyType } from "../utils/type.js";
-import { Equals, Warning } from "@phosphor-icons/react";
+import { Equals } from "@phosphor-icons/react";
 import {
   findCompatibleOperators,
   findCompatibleVariables,
   getExpressionType,
-  suggestNextToken,
 } from "../utils/expression.js";
 
 const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
@@ -43,7 +42,8 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
   }, [deleting]);
 
   // Calculate the result type to display
-  const resultType = getExpressionType(value.expression, bindings);
+  const contextType = useContextType();
+  const resultType = getExpressionType(value.expression, bindings, contextType);
 
   const deleteToken = () => {
     if (deleting) {
@@ -67,10 +67,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
 
   const addToken = (token, focus = true) => {
     if (token.type === "variable" && token.value === undefined) {
-      const compatibleBindings = findCompatibleVariables(
-        bindings,
-        value.expression,
-      );
+      const compatibleBindings = findCompatibleVariables(value.expression, bindings, contextType);
       token.value = compatibleBindings[0]?.name || "";
     } else if (token.type === "string" && token.value === undefined) {
       token.value = "";
@@ -99,10 +96,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
       // Initialize with an empty value and unit as an object
       token.value = { value: "", unit: "seconds" };
     } else if (token.type === "operator" && token.value === undefined) {
-      const compatibleOperators = findCompatibleOperators(
-        bindings,
-        value.expression,
-      );
+      const compatibleOperators = findCompatibleOperators(value.expression, bindings, contextType);
       token.value = compatibleOperators[0] || "+";
     }
 
@@ -255,18 +249,17 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
           <Cursor
             id={`${value.name}-expression`}
             ref={cursorRef}
-            nextTokens={suggestNextToken(value.expression, bindings)}
+            expression={value.expression}
             onAddToken={addToken}
             onDeleteToken={deleteToken}
             hovering={hovering}
-            empty={value.expression.length === 0}
             bindings={bindings}
             onMistake={() => {
               setExpressionAnimation(
                 "animate__animated animate__shakeX animate__faster",
               );
             }}
-            placeholder={!value.name && "Add a binding to get started"}
+            placeholder={"Write expression..."}
           />
         </div>
         {debug && onChange && value.expression.length > 0 && (

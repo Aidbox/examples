@@ -102,8 +102,15 @@ export const FhirType = (schemaReference) => ({
   schemaReference,
 });
 
+const cache = new Map();
+
 export function fieldSchemaToType(schemaReference, siblingSchemas, fieldName) {
   const fieldSchema = siblingSchemas[fieldName];
+
+  if (cache.has(fieldSchema)) {
+    return cache.get(fieldSchema);
+  }
+
   let result;
   if (primitiveTypeMap[fieldSchema.type]) {
     result = primitiveTypeMap[fieldSchema.type];
@@ -116,12 +123,19 @@ export function fieldSchemaToType(schemaReference, siblingSchemas, fieldName) {
   } else if (!fieldSchema.elements && !fieldSchema.elementReference) {
     result = FhirType([fieldSchema.type || fieldSchema.base]);
   } else {
+    if (fieldSchema.elementReference) {
+      const referencedSchema = resolvePath(fieldSchema.elementReference);
+      if (referencedSchema && cache.has(referencedSchema)) {
+        return cache.get(referencedSchema);
+      }
+    }
     result = FhirType([...schemaReference, fieldName]);
   }
   if (fieldSchema.scalar) {
     // should we use SingleType here?
     // result = SingleType(result);
   }
+  cache.set(fieldSchema, result);
   return result;
 }
 

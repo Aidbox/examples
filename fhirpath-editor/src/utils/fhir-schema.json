@@ -24780,63 +24780,6 @@
         "array": true
       },
       "item": {
-        "constraints": {
-          "que-6": {
-            "human": "Required and repeat aren't permitted for display items",
-            "severity": "error",
-            "expression": "type!='display' or (required.empty() and repeats.empty())"
-          },
-          "que-3": {
-            "human": "Display items cannot have a \"code\" asserted",
-            "severity": "error",
-            "expression": "type!='display' or code.empty()"
-          },
-          "que-4": {
-            "human": "A question cannot have both answerOption and answerValueSet",
-            "severity": "error",
-            "expression": "answerOption.empty() or answerValueSet.empty()"
-          },
-          "que-8": {
-            "human": "Initial values can't be specified for groups or display items",
-            "severity": "error",
-            "expression": "(type!='group' and type!='display') or initial.empty()"
-          },
-          "que-13": {
-            "human": "Can only have multiple initial values for repeating items",
-            "severity": "error",
-            "expression": "repeats=true or initial.count() <= 1"
-          },
-          "que-12": {
-            "human": "If there are more than one enableWhen, enableBehavior must be specified",
-            "severity": "error",
-            "expression": "enableWhen.count() > 2 implies enableBehavior.exists()"
-          },
-          "que-11": {
-            "human": "If one or more answerOption is present, initial[x] must be missing",
-            "severity": "error",
-            "expression": "answerOption.empty() or initial.empty()"
-          },
-          "que-9": {
-            "human": "Read-only can't be specified for \"display\" items",
-            "severity": "error",
-            "expression": "type!='display' or readOnly.empty()"
-          },
-          "que-1": {
-            "human": "Group items must have nested items, display items cannot have nested items",
-            "severity": "error",
-            "expression": "(type='group' implies item.empty().not()) and (type.trace('type')='display' implies item.trace('item').empty())"
-          },
-          "que-10": {
-            "human": "Maximum length can only be declared for simple question types",
-            "severity": "error",
-            "expression": "(type in ('boolean' | 'decimal' | 'integer' | 'string' | 'text' | 'url' | 'open-choice')) or maxLength.empty()"
-          },
-          "que-5": {
-            "human": "Only 'choice' and 'open-choice' items can have answerValueSet",
-            "severity": "error",
-            "expression": "(type ='choice' or type = 'open-choice' or type = 'decimal' or type = 'integer' or type = 'date' or type = 'dateTime' or type = 'time' or type = 'string' or type = 'quantity') or (answerValueSet.empty() and answerOption.empty())"
-          }
-        },
         "required": ["linkId", "type"],
         "type": "BackboneElement",
         "array": true,

@@ -17,12 +17,16 @@ import {
   matchTypePattern,
   SingleType,
   unwrapSingle,
+  mergeBindings,
+  NullType,
+  LambdaType,
 } from "./type.js";
 import { distinct } from "./misc.js";
 import { getFields } from "./fhir-type.js";
 import "./function.js";
 import {
-  resolveFunctionCall,
+  functionMetadata,
+  suggestArgumentTypesForFunction,
   suggestFunctionsForInputType,
 } from "./function.js";
 
@@ -71,7 +75,11 @@ export const generateBindingId = () =>
 
 function isChainingExpression(expression) {
   if (expression.length >= 1) {
-    if (expression[0].type === "variable") {
+    if (
+      expression[0].type === "variable" ||
+      expression[0].type === "field" ||
+      expression[0].type === "function"
+    ) {
       if (
         expression
           .slice(1)
@@ -97,7 +105,7 @@ function isOperatorExpression(expression) {
 }
 
 // Calculate the result type of expression
-export const getExpressionType = (expression, bindings) => {
+export const getExpressionType = (expression, bindings, contextType) => {
   if (expression.length === 0) return InvalidType("Empty expression");
 
   if (expression.length === 1) {
@@ -120,35 +128,93 @@ export const getExpressionType = (expression, bindings) => {
       if (!binding) return InvalidType("Unknown variable");
       // If this is a global binding, return its type
       if (binding.type) return binding.type;
-      // Otherwise calculate the result type of its expression
-      return getExpressionType(binding.expression, bindings);
+      // Otherwise, calculate the result type of its expression
+      return getExpressionType(binding.expression, bindings, contextType);
     }
-    return InvalidType("Unknown token");
   }
 
-  // For field chains (variable + field tokens)
   if (isChainingExpression(expression)) {
-    let [variable, ...tokens] = expression;
+    let tokens = [...expression];
 
-    const binding = bindings.find((b) => b.name === variable.value);
-    if (!binding) return InvalidType("Unknown variable");
+    let currentType = contextType;
+    let first = true;
+    if (!tokens.length) return InvalidType("Empty expression");
 
-    let currentType =
-      binding.type || getExpressionType(binding.expression, bindings);
-
-    while (tokens.length > 0 && currentType.type !== "Invalid") {
+    while (tokens.length > 0 && currentType?.type !== "Invalid") {
       const token = tokens.shift();
 
+      if (first) {
+        // we are at the first token
+        switch (token.type) {
+          case "variable":
+            const binding = bindings.find((b) => b.name === token.value);
+            currentType = !binding
+              ? InvalidType("Unknown variable")
+              : binding.type ||
+                getExpressionType(binding.expression, bindings, contextType);
+            first = false;
+            continue; // skip the rest of the loop
+          case "field":
+          case "function":
+            first = false;
+            break; // handle the token as a regular token
+          default:
+            debugger;
+            return InvalidType("Unexpected first token");
+        }
+      }
+
       // Skip index tokens - they don't change the type
-      if (token.type === "index") continue;
-      else if (token.type === "function") {
-        currentType = resolveFunctionCall({
-          name: token.value,
-          input: currentType,
-          args: token.args?.map((arg) =>
-            getExpressionType(arg.expression, [...bindings, arg.bindings]),
-          ),
-        });
+      if (token.type === "index") {
+        currentType = SingleType(currentType);
+      } else if (token.type === "function") {
+        const meta = functionMetadata.find((f) => f.name === token.value);
+        if (!meta) return InvalidType("Unknown function");
+
+        let bindings = matchTypePattern(meta.input, currentType);
+        if (!bindings) return InvalidType("Input type mismatch");
+
+        const result = [];
+        for (let i = 0; i < meta.args.length; i++) {
+          const arg = meta.args[i];
+          const program = token.args?.[i];
+
+          if (!program) {
+            if (arg.optional) {
+              result.push(NullType);
+              continue;
+            } else {
+              return InvalidType(`Missing required argument at index ${i}`);
+            }
+          }
+
+          const suggestedType = suggestArgumentTypesForFunction(
+            meta.name,
+            currentType,
+            result,
+          )[i];
+
+          const programType = getExpressionType(
+            program.expression,
+            program.bindings,
+            suggestedType?.type === "Lambda"
+              ? suggestedType.contextType
+              : contextType,
+          );
+
+          const expected = meta.args[i].type;
+          const actual = suggestedType?.type === "Lambda" ? LambdaType(programType, suggestedType.contextType) : programType;
+
+          const newBindings = matchTypePattern(expected, actual, bindings);
+          if (!newBindings) return InvalidType(`Argument mismatch at index ${i}`);
+
+          bindings = mergeBindings(bindings, newBindings);
+          if (!bindings) return InvalidType(`Binding mismatch at index ${i}`);
+
+          result.push(actual);
+        }
+
+        currentType = meta.returnType({ input: currentType, args: result, ...bindings });
       } else {
         const availableFields = getFields(currentType);
         currentType =
@@ -163,8 +229,8 @@ export const getExpressionType = (expression, bindings) => {
   if (isOperatorExpression(expression)) {
     const [left, op, right] = expression;
 
-    const leftType = getExpressionType([left], bindings);
-    const rightType = getExpressionType([right], bindings);
+    const leftType = getExpressionType([left], bindings, contextType);
+    const rightType = getExpressionType([right], bindings, contextType);
 
     if (leftType.type === "Invalid" || rightType.type === "Invalid")
       return InvalidType("Invalid argument types");
@@ -180,7 +246,7 @@ export const getExpressionType = (expression, bindings) => {
 };
 
 // Filter variables for compatibility when suggesting
-export const findCompatibleVariables = (bindings, expression) => {
+export const findCompatibleVariables = (expression, bindings, contextType) => {
   if (expression.length === 0) return bindings;
 
   // If we have an operator and left operand
@@ -189,14 +255,15 @@ export const findCompatibleVariables = (bindings, expression) => {
     expression[1].type === "operator"
   ) {
     const [left, op] = expression;
-    const leftType = getExpressionType([left], bindings);
+    const leftType = getExpressionType([left], bindings, contextType);
 
     if (leftType.type === "Invalid") return [];
     const rightTypes = suggestRightTypesForOperator(op.value, leftType);
 
     return bindings.filter((binding) => {
       const bindingType =
-        binding.type || getExpressionType(binding.expression, bindings);
+        binding.type ||
+        getExpressionType(binding.expression, bindings, contextType);
       return rightTypes.some((rightType) =>
         matchTypePattern(rightType, bindingType),
       );
@@ -206,10 +273,10 @@ export const findCompatibleVariables = (bindings, expression) => {
   return bindings;
 };
 
-export const findCompatibleOperators = (bindings, expression) => {
+export const findCompatibleOperators = (expression, bindings, contextType) => {
   if (expression.length !== 1) return [];
 
-  const leftType = getExpressionType([expression[0]], bindings);
+  const leftType = getExpressionType([expression[0]], bindings, contextType);
   return suggestOperatorsForLeftType(leftType);
 };
 
@@ -226,10 +293,12 @@ const typeName2tokenType = {
 };
 
 // Suggest next tokens based on current expression
-export const suggestNextToken = (expression, bindings) => {
+export const suggestNextToken = (expression, bindings, contextType) => {
+  const result = [];
+
   // if the expression is empty, suggest all primitive types and variable
   if (expression.length === 0) {
-    return [
+    result.push(
       { type: "number" },
       { type: "string" },
       { type: "boolean" },
@@ -239,37 +308,47 @@ export const suggestNextToken = (expression, bindings) => {
       { type: "quantity" },
       { type: "type" },
       { type: "variable" },
-    ];
+    );
   }
 
   if (expression.length === 2 && expression[1].type === "operator") {
     const operator = expression[1].value;
 
-    const leftType = getExpressionType([expression[0]], bindings);
+    const leftType = getExpressionType([expression[0]], bindings, contextType);
     const rightTypes = suggestRightTypesForOperator(operator, leftType);
 
-    return distinct(
-      rightTypes
-        .map((rightType) => typeName2tokenType[unwrapSingle(rightType).type])
-        .concat(["variable"])
-        .filter((type) => type),
-    ).map((type) => ({ type }));
+    result.push(
+      ...distinct(
+        rightTypes
+          .map((rightType) => typeName2tokenType[unwrapSingle(rightType).type])
+          .concat(["variable"])
+          .filter((type) => type),
+      ).map((type) => ({ type })),
+    );
   }
 
-  const result = [];
-
-  if (expression.length === 1) {
-    const firstTokenType = getExpressionType([expression[0]], bindings);
+  if (expression.length === 1 && expression[0].type !== "field" && expression[0].type !== "function") {
+    const firstTokenType = getExpressionType(
+      [expression[0]],
+      bindings,
+      contextType,
+    );
 
     if (suggestOperatorsForLeftType(firstTokenType).length > 0) {
       result.push({ type: "operator" });
     }
   }
 
-  if (isChainingExpression(expression)) {
-    const type = getExpressionType(expression, bindings);
+  if (isChainingExpression(expression) || expression.length === 0) {
+    const type = expression.length
+      ? getExpressionType(expression, bindings, contextType)
+      : contextType;
+
+    if (type.type !== "Single") {
+      result.push({ type: "index" });
+    }
+
     result.push(
-      { type: "index" },
       ...Object.keys(getFields(type)).map((field) => ({
         type: "field",
         value: field,

@@ -11,14 +11,11 @@ import {
   DateTimeType,
   TimeType,
   InvalidType,
+  LambdaType,
   stringifyType,
   mergeBindings,
+  substituteBindings, TypeType, normalizeChoice, unwrapSingle,
 } from "./type";
-
-const LambdaType = (ofType) => ({
-  type: "Lambda",
-  ofType,
-});
 
 const fn = (name, input, args, returnType) => ({
   name,
@@ -126,13 +123,13 @@ export const functionMetadata = [
   fn(
     "exists",
     Generic("T"),
-    [{ name: "criteria", type: LambdaType(BooleanType), optional: true }],
+    [{ name: "criteria", type: LambdaType(BooleanType, Generic("T")), optional: true }],
     BooleanType,
   ),
   fn(
     "all",
     Generic("T"),
-    [{ name: "criteria", type: LambdaType(BooleanType) }],
+    [{ name: "criteria", type: LambdaType(BooleanType, Generic("T")) }],
     BooleanType,
   ),
   fn("allTrue", BooleanType, [], BooleanType),
@@ -159,26 +156,27 @@ export const functionMetadata = [
   fn(
     "where",
     Generic("T"),
-    [{ name: "criteria", type: LambdaType(BooleanType) }],
+    [{ name: "criteria", type: LambdaType(BooleanType, Generic("T")) }],
     Generic("T"),
   ),
   fn(
     "select",
     Generic("T"),
-    [{ name: "projection", type: LambdaType(Generic("R")) }],
+    [{ name: "projection", type: LambdaType(Generic("R"), Generic("T")) }],
     ({ R }) => R,
   ),
   fn(
     "repeat",
     Generic("T"),
-    [{ name: "projection", type: LambdaType(Generic("R")) }],
-    ({ R }) => R,
+    [{ name: "projection", type: LambdaType(Generic("R"), Generic("T")) }],
+    ({ R }) => unwrapSingle(R),
   ),
   fn(
     "ofType",
     Generic("T"),
-    [{ name: "type", type: "TypeSpecifier" }],
-    Generic("T"),
+    TypeType(Generic("X")),
+    ({ X }) =>
+      normalizeChoice(ChoiceType([X])),
   ),
 
   // Section 5.3: Subsetting
@@ -355,7 +353,7 @@ export const functionMetadata = [
     Generic("T"),
     [
       { name: "name", type: StringType },
-      { name: "projection", type: LambdaType(Generic("T")), optional: true },
+      { name: "projection", type: LambdaType(Generic("R"), Generic("T")), optional: true },
     ],
     Generic("T"),
   ),
@@ -363,23 +361,12 @@ export const functionMetadata = [
   fn("timeOfDay", Generic("T"), [], TimeType),
   fn("today", Generic("T"), [], DateType),
 
-  // Section 5.10: Define Variable
-  fn(
-    "defineVariable",
-    Generic("T"),
-    [
-      { name: "name", type: StringType },
-      { name: "expr", type: LambdaType(Generic("T")), optional: true },
-    ],
-    Generic("T"),
-  ),
-
   // Section 7: Aggregates
   fn(
     "aggregate",
     Generic("T"),
     [
-      { name: "aggregator", type: LambdaType(Generic("R")) },
+      { name: "aggregator", type: LambdaType(Generic("R"), Generic("T")) },
       { name: "init", type: Generic("R"), optional: true },
     ],
     ({ R }) => R,
@@ -424,16 +411,16 @@ export const functionMetadata = [
 ];
 
 export function resolveFunctionCall({ name, input, args = [] }) {
-  const fn = functionMetadata.find((f) => f.name === name);
-  if (!fn) return InvalidType(`Function "${name}" not found`);
+  const meta = functionMetadata.find((f) => f.name === name);
+  if (!meta) return InvalidType(`Function "${name}" not found`);
 
-  let bindings = matchTypePattern(fn.input, input);
+  let bindings = matchTypePattern(meta.input, input);
   if (!bindings) return InvalidType(`Input type does not match for "${name}"`);
 
   const resolvedArgs = [];
 
-  for (let i = 0; i < (fn.args?.length || 0); i++) {
-    const expected = fn.args[i];
+  for (let i = 0; i < (meta.args.length || 0); i++) {
+    const expected = meta.args[i];
     const actual = args[i];
 
     if (actual) {
@@ -452,11 +439,39 @@ export function resolveFunctionCall({ name, input, args = [] }) {
     }
   }
 
-  return fn.returnType({ input, args, resolvedArgs, ...bindings });
+  return meta.returnType({ input, args, resolvedArgs, ...bindings });
 }
 
 export function suggestFunctionsForInputType(inputType) {
   return functionMetadata
-    .filter((fn) => !!matchTypePattern(fn.input, inputType))
-    .map((fn) => fn.name);
+    .filter((meta) => !!matchTypePattern(meta.input, inputType))
+    .map((meta) => meta.name);
+}
+
+export function suggestArgumentTypesForFunction(name, inputType, knownArgumentTypes) {
+  const meta = functionMetadata.find((f) => f.name === name);
+  if (!meta) return [];
+
+  let bindings = matchTypePattern(meta.input, inputType);
+  if (!bindings) return [];
+
+  const result = [];
+  for (let i = 0; i < (meta.args.length); i++) {
+    const expected = meta.args[i].type;
+    const actual = knownArgumentTypes?.[i];
+
+    if (actual) {
+      const newBindings = matchTypePattern(expected, actual, bindings);
+      if (!newBindings) break;
+
+      bindings = mergeBindings(bindings, newBindings);
+      if (!bindings) break;
+
+      result.push(actual);
+    } else {
+      result.push(substituteBindings(expected, bindings));
+    }
+  }
+
+  return result;
 }

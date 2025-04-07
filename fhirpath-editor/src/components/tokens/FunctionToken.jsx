@@ -11,11 +11,23 @@ import {
   flip,
   size,
 } from "@floating-ui/react";
-import { functionMetadata, category } from "../../utils/function";
+import {
+  functionMetadata,
+  category,
+  suggestArgumentTypesForFunction,
+} from "../../utils/function";
 import Editor from "../Editor";
-import { ArrowSquareUpRight, Trash } from "@phosphor-icons/react";
+import {
+  ArrowSquareUpRight,
+  Circle,
+  CircleDashed, DotsThreeCircle,
+  Trash,
+} from "@phosphor-icons/react";
+import { useContextType } from "../../utils/react.js";
+import { getExpressionType } from "../../utils/expression.js";
 
-const Argument = ({ arg, value, onChange, bindings }) => {
+const Argument = ({ arg, value, onChange, bindings, suggestedType }) => {
+  const contextType = useContextType();
   const [isOpen, setIsOpen] = useState(false);
   const arrowRef = useRef(null);
   const { refs, floatingStyles, context } = useFloating({
@@ -52,10 +64,14 @@ const Argument = ({ arg, value, onChange, bindings }) => {
     <>
       <button
         ref={refs.setReference}
-        className="leading-nonerelative cursor-pointer px-0.5 py-0.5 rounded hover:bg-gray-100 focus:outline-none field-sizing-content text-sky-800 active:bg-gray-200"
+        className="self-stretch cursor-pointer px-0.5 py-0.5 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 field-sizing-content text-sky-800 active:bg-gray-200"
         {...getReferenceProps()}
       >
-        <ArrowSquareUpRight size={16} />
+        {value && value.expression.length > 0 ? (
+          <DotsThreeCircle size={16} />
+        ) : (
+          <CircleDashed size={16} />
+        )}
       </button>
       {isOpen && (
         <FloatingPortal>
@@ -91,12 +107,12 @@ const Argument = ({ arg, value, onChange, bindings }) => {
               value={value}
               setValue={onChange}
               externalBindings={bindings}
-              title={
-                <span>
-                  Value for{" "}
-                  <span className="font-medium text-sky-800">{arg.name}</span>
-                </span>
+              contextType={
+                suggestedType?.type === "Lambda"
+                  ? suggestedType.contextType
+                  : contextType
               }
+              title="Argument expression"
             />
           </div>
         </FloatingPortal>
@@ -105,23 +121,28 @@ const Argument = ({ arg, value, onChange, bindings }) => {
   );
 };
 
-const insert = (array, index, value) => {
-  if (array.length < index) {
-    array = [...array, ...Array(index - array.length).fill(undefined)];
-  }
-  return [...array.slice(0, index), value, ...array.slice(index)];
-};
-
 const FunctionToken = React.forwardRef(
   ({ token, onChange, bindings, expression }, ref) => {
-    const fn = token.value
+    const contextType = useContextType();
+
+    const inputType =
+      expression.length > 1
+        ? getExpressionType(expression.slice(0, -1), bindings, contextType)
+        : contextType;
+
+    const meta = token.value
       ? functionMetadata.find((f) => f.name === token.value)
       : null;
 
-    // Check if any required argument is missing
+    const suggestArgumentTypes = suggestArgumentTypesForFunction(
+      meta.name,
+      inputType,
+      [],
+    );
+
     const empty =
       !token.value ||
-      fn?.args?.some((arg, index) => {
+      meta?.args?.some((arg, index) => {
         const argValue = token.args?.[index];
         return (
           !arg.optional &&
@@ -138,7 +159,7 @@ const FunctionToken = React.forwardRef(
       >
         <select
           ref={ref}
-          className="focus:bg-gray-100 focus:outline-none px-1 py-0.5 rounded-l last:!rounded-r field-sizing-content text-blue-800 appearance-none"
+          className="hover:bg-gray-100 focus:bg-gray-100 focus:outline-none px-1 py-0.5 rounded-l last:!rounded-r field-sizing-content text-blue-800 appearance-none"
           value={token.value}
           onChange={(e) => onChange({ ...token, value: e.target.value })}
         >
@@ -158,34 +179,23 @@ const FunctionToken = React.forwardRef(
             </optgroup>
           ))}
         </select>
-        {fn?.args?.length > 0 ? (
-          <>
-            <span className="text-gray-500">(</span>
-            {fn?.args?.map((arg, index) => (
-              <Fragment key={arg.name}>
-                <Argument
-                  arg={arg}
-                  value={
-                    token.args?.[index] || { bindings: [], expression: [] }
-                  }
-                  onChange={(value) => {
-                    return onChange({
-                      ...token,
-                      args: insert(token.args || [], index, value),
-                    });
-                  }}
-                  bindings={bindings}
-                />
-                {index < fn?.args?.length - 1 && (
-                  <span className="pr-0.5 text-gray-500">,</span>
-                )}
-              </Fragment>
-            ))}
-            <span className="pr-1 text-gray-500">)</span>
-          </>
-        ) : (
-          <span className="py-0.5 pr-1 text-gray-500">()</span>
-        )}
+        {meta?.args?.map((arg, index) => (
+          <Argument
+            key={arg.name}
+            arg={arg}
+            value={
+              token.args?.[index] || { bindings: [], expression: [] }
+            }
+            onChange={(value) => {
+              const args = token.args?.slice() || [];
+              args[index] = value;
+              return onChange({ ...token, args });
+            }}
+            bindings={bindings}
+            suggestedType={suggestArgumentTypes[index]}
+          />
+        ))}
+
       </div>
     );
   },

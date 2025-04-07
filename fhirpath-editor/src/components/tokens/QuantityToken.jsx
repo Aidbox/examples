@@ -77,7 +77,7 @@ const QuantityToken = React.forwardRef(({ token, onChange }, ref) => {
     >
       <input
         ref={ref}
-        className={`focus:bg-gray-100 focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded-l-md field-sizing-content text-purple-800 tabular-nums placeholder:text-gray-400`}
+        className={`focus:bg-gray-100 focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded-l-md field-sizing-content text-pink-500 tabular-nums placeholder:text-gray-400`}
         data-empty={valueEmpty || undefined}
         placeholder="0"
         type="text"
@@ -87,7 +87,7 @@ const QuantityToken = React.forwardRef(({ token, onChange }, ref) => {
         onChange={handleValueChange}
       />
       <select
-        className={`focus:bg-gray-100 focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded-r-md field-sizing-content text-purple-800 appearance-none`}
+        className={`focus:bg-gray-100 focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded-r-md field-sizing-content text-pink-500 appearance-none`}
         data-empty={unitEmpty || undefined}
         value={value.unit || ""}
         onChange={handleUnitChange}

@@ -1,9 +1,13 @@
-import { highlightCode, classHighlighter } from "@lezer/highlight";
+import {
+  highlightCode,
+  tags,
+  tagHighlighter,
+} from "@lezer/highlight";
 import { parser } from "lezer-fhirpath";
 
 export const expressionToFhirPath = (expression) => {
   return expression
-    .map((token) => {
+    .map((token, index) => {
       if (token.type === "number") {
         return token.value || 0;
       } else if (token.type === "string") {
@@ -43,7 +47,12 @@ export const expressionToFhirPath = (expression) => {
       } else if (token.type === "variable") {
         return `%${token.value}`;
       } else if (token.type === "field") {
-        return `.${token.value}`;
+        return `${index === 0 ? "" : "."}${token.value}`;
+      } else if (token.type === "function") {
+        const args = token.args
+          ? token.args.map((arg) => appToFhirPath(arg)).join(", ")
+          : "";
+        return `${index === 0 ? "" : "."}${token.value}(${args})`;
       } else {
         return "";
       }
@@ -92,6 +101,7 @@ export function highlightFhirPath(code) {
   result.appendChild(style);
 
   function emit(text, classes) {
+    console.log(arguments)
     let node = document.createTextNode(text);
     if (classes) {
       let span = document.createElement("span");
@@ -106,6 +116,25 @@ export function highlightFhirPath(code) {
     result.appendChild(document.createTextNode("\n"));
   }
 
-  highlightCode(code, parser.parse(code), classHighlighter, emit, emitBreak);
+  highlightCode(
+    code,
+    parser.parse(code),
+    tagHighlighter([
+      { tag: tags.string, class: "tok-string" },
+      { tag: tags.number, class: "tok-number" },
+      { tag: tags.operator, class: "tok-operator" },
+      { tag: tags.special(tags.variableName), class: "tok-variableName" },
+      { tag: tags.special(tags.literal), class: "tok-literal" },
+      { tag: tags.function(tags.variableName), class: "tok-functionName" },
+      {
+        tag: tags.function(tags.attributeName),
+        class: "tok-propertyName",
+        fontStyle: "italic",
+      },
+      { tag: tags.constant(tags.variableName), class: "tok-constantName" },
+    ]),
+    emit,
+    emitBreak,
+  );
   return result.outerHTML;
 }

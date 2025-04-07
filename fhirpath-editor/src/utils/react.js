@@ -77,3 +77,15 @@ export function useDebug() {
   const { debug } = useSearchParams();
   return !!debug;
 }
+
+const contextTypeContext = React.createContext(null);
+
+export const ContextTypeProvider = contextTypeContext.Provider;
+
+export const useContextType = () => {
+  const contextType = React.useContext(contextTypeContext);
+  if (!contextType) {
+    throw new Error("useContextType must be used within a ContextTypeProvider");
+  }
+  return contextType;
+};
