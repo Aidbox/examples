@@ -1,25 +1,25 @@
 import {
+  resolveOperator,
   suggestOperatorsForLeftType,
   suggestRightTypesForOperator,
-  resolveOperator,
 } from "./operator.js";
 import {
-  IntegerType,
-  DecimalType,
-  StringType,
   BooleanType,
-  DateType,
   DateTimeType,
-  TimeType,
-  QuantityType,
-  TypeType,
+  DateType,
+  DecimalType,
+  IntegerType,
   InvalidType,
+  LambdaType,
   matchTypePattern,
-  SingleType,
-  unwrapSingle,
   mergeBindings,
   NullType,
-  LambdaType,
+  QuantityType,
+  SingleType,
+  StringType,
+  TimeType,
+  TypeType,
+  unwrapSingle,
 } from "./type.js";
 import { distinct } from "./misc.js";
 import { getFields } from "./fhir-type.js";
@@ -203,10 +203,14 @@ export const getExpressionType = (expression, bindings, contextType) => {
           );
 
           const expected = meta.args[i].type;
-          const actual = suggestedType?.type === "Lambda" ? LambdaType(programType, suggestedType.contextType) : programType;
+          const actual =
+            suggestedType?.type === "Lambda"
+              ? LambdaType(programType, suggestedType.contextType)
+              : programType;
 
           const newBindings = matchTypePattern(expected, actual, bindings);
-          if (!newBindings) return InvalidType(`Argument mismatch at index ${i}`);
+          if (!newBindings)
+            return InvalidType(`Argument mismatch at index ${i}`);
 
           bindings = mergeBindings(bindings, newBindings);
           if (!bindings) return InvalidType(`Binding mismatch at index ${i}`);
@@ -214,7 +218,11 @@ export const getExpressionType = (expression, bindings, contextType) => {
           result.push(actual);
         }
 
-        currentType = meta.returnType({ input: currentType, args: result, ...bindings });
+        currentType = meta.returnType({
+          input: currentType,
+          args: result,
+          ...bindings,
+        });
       } else {
         const availableFields = getFields(currentType);
         currentType =
@@ -327,7 +335,11 @@ export const suggestNextToken = (expression, bindings, contextType) => {
     );
   }
 
-  if (expression.length === 1 && expression[0].type !== "field" && expression[0].type !== "function") {
+  if (
+    expression.length === 1 &&
+    expression[0].type !== "field" &&
+    expression[0].type !== "function"
+  ) {
     const firstTokenType = getExpressionType(
       [expression[0]],
       bindings,

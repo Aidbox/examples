@@ -1,14 +1,12 @@
-import { DotsSixVertical, Warning, Trash, Copy } from "@phosphor-icons/react";
+import { Copy, DotsSixVertical, Trash, Warning } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import {
-  FloatingList,
   FloatingPortal,
-  useFloating,
-  useInteractions,
+  offset,
   useClick,
   useDismiss,
-  offset,
-  shift,
+  useFloating,
+  useInteractions,
 } from "@floating-ui/react";
 
 const BindingMenu = ({

@@ -1,37 +1,35 @@
 import {
   autoUpdate,
-  offset,
-  useFloating,
-  shift,
   flip,
-  size,
   FloatingPortal,
+  offset,
+  shift,
+  size,
+  useFloating,
 } from "@floating-ui/react";
 import {
   ArrowLineRight,
   ArrowRight,
   Backspace,
+  BracketsSquare,
   Calculator,
+  Calendar,
+  Clock,
   Code,
   Empty,
   Flag,
+  Function,
   Hash,
   Info,
   Lightning,
   Quotes,
-  Calendar,
-  Clock,
-  Timer,
   Scales,
-  Tag,
-  BracketsSquare,
-  DotOutline,
   Shapes,
-  Function,
+  Tag,
+  Timer,
 } from "@phosphor-icons/react";
 import React, { forwardRef, useImperativeHandle } from "react";
-import { createPortal } from "react-dom";
-import {mergeRefs, useContextType} from "../utils/react";
+import { useContextType } from "../utils/react";
 import { suggestNextToken } from "../utils/expression.js";
 
 const labels = {

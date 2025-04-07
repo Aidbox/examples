@@ -13,7 +13,11 @@ export const TypeType = (ofType) => ({ type: "Type", ofType });
 export const SingleType = (ofType) => ({ type: "Single", ofType });
 export const ChoiceType = (options) => ({ type: "Choice", options });
 export const Generic = (name) => ({ type: "Generic", name });
-export const LambdaType = (returnType, contextType) => ({ type: "Lambda", returnType, contextType });
+export const LambdaType = (returnType, contextType) => ({
+  type: "Lambda",
+  returnType,
+  contextType,
+});
 
 const typeHierarchy = {};
 

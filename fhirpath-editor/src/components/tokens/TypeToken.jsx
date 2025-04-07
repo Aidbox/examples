@@ -1,13 +1,13 @@
 import React from "react";
 import {
-  IntegerType,
-  DecimalType,
-  StringType,
   BooleanType,
-  DateType,
   DateTimeType,
-  TimeType,
+  DateType,
+  DecimalType,
+  IntegerType,
   QuantityType,
+  StringType,
+  TimeType,
 } from "../../utils/type";
 import { primitiveTypeMap } from "../../utils/fhir-type";
 

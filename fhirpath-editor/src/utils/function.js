@@ -1,20 +1,23 @@
 import {
   BooleanType,
+  ChoiceType,
+  DateTimeType,
+  DateType,
+  DecimalType,
   Generic,
   IntegerType,
-  matchTypePattern,
-  QuantityType,
-  StringType,
-  ChoiceType,
-  DecimalType,
-  DateType,
-  DateTimeType,
-  TimeType,
   InvalidType,
   LambdaType,
-  stringifyType,
+  matchTypePattern,
   mergeBindings,
-  substituteBindings, TypeType, normalizeChoice, unwrapSingle,
+  normalizeChoice,
+  QuantityType,
+  stringifyType,
+  StringType,
+  substituteBindings,
+  TimeType,
+  TypeType,
+  unwrapSingle,
 } from "./type";
 
 const fn = (name, input, args, returnType) => ({
@@ -123,7 +126,13 @@ export const functionMetadata = [
   fn(
     "exists",
     Generic("T"),
-    [{ name: "criteria", type: LambdaType(BooleanType, Generic("T")), optional: true }],
+    [
+      {
+        name: "criteria",
+        type: LambdaType(BooleanType, Generic("T")),
+        optional: true,
+      },
+    ],
     BooleanType,
   ),
   fn(
@@ -171,12 +180,8 @@ export const functionMetadata = [
     [{ name: "projection", type: LambdaType(Generic("R"), Generic("T")) }],
     ({ R }) => unwrapSingle(R),
   ),
-  fn(
-    "ofType",
-    Generic("T"),
-    TypeType(Generic("X")),
-    ({ X }) =>
-      normalizeChoice(ChoiceType([X])),
+  fn("ofType", Generic("T"), TypeType(Generic("X")), ({ X }) =>
+    normalizeChoice(ChoiceType([X])),
   ),
 
   // Section 5.3: Subsetting
@@ -353,7 +358,11 @@ export const functionMetadata = [
     Generic("T"),
     [
       { name: "name", type: StringType },
-      { name: "projection", type: LambdaType(Generic("R"), Generic("T")), optional: true },
+      {
+        name: "projection",
+        type: LambdaType(Generic("R"), Generic("T")),
+        optional: true,
+      },
     ],
     Generic("T"),
   ),
@@ -448,7 +457,11 @@ export function suggestFunctionsForInputType(inputType) {
     .map((meta) => meta.name);
 }
 
-export function suggestArgumentTypesForFunction(name, inputType, knownArgumentTypes) {
+export function suggestArgumentTypesForFunction(
+  name,
+  inputType,
+  knownArgumentTypes,
+) {
   const meta = functionMetadata.find((f) => f.name === name);
   if (!meta) return [];
 
@@ -456,7 +469,7 @@ export function suggestArgumentTypesForFunction(name, inputType, knownArgumentTy
   if (!bindings) return [];
 
   const result = [];
-  for (let i = 0; i < (meta.args.length); i++) {
+  for (let i = 0; i < meta.args.length; i++) {
     const expected = meta.args[i].type;
     const actual = knownArgumentTypes?.[i];
 

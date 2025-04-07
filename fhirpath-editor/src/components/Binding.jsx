@@ -67,7 +67,11 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
 
   const addToken = (token, focus = true) => {
     if (token.type === "variable" && token.value === undefined) {
-      const compatibleBindings = findCompatibleVariables(value.expression, bindings, contextType);
+      const compatibleBindings = findCompatibleVariables(
+        value.expression,
+        bindings,
+        contextType,
+      );
       token.value = compatibleBindings[0]?.name || "";
     } else if (token.type === "string" && token.value === undefined) {
       token.value = "";
@@ -96,7 +100,11 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
       // Initialize with an empty value and unit as an object
       token.value = { value: "", unit: "seconds" };
     } else if (token.type === "operator" && token.value === undefined) {
-      const compatibleOperators = findCompatibleOperators(value.expression, bindings, contextType);
+      const compatibleOperators = findCompatibleOperators(
+        value.expression,
+        bindings,
+        contextType,
+      );
       token.value = compatibleOperators[0] || "+";
     }
 

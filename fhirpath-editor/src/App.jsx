@@ -3,7 +3,6 @@ import Editor from "./components/Editor";
 import { FhirType } from "./utils/fhir-type";
 import { appToFhirPath, highlightFhirPath } from "./utils/fhir";
 import { useDebug } from "./utils/react";
-import { Generic } from "./utils/type.js";
 
 export function App() {
   const debug = useDebug();
@@ -68,7 +67,7 @@ export function App() {
                     type: "field",
                     value: "item",
                   },
-                  {type: "index", value: "3"}
+                  { type: "index", value: "3" },
                 ],
               },
             ],

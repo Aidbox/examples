@@ -1,8 +1,4 @@
-import {
-  highlightCode,
-  tags,
-  tagHighlighter,
-} from "@lezer/highlight";
+import { highlightCode, tagHighlighter, tags } from "@lezer/highlight";
 import { parser } from "lezer-fhirpath";
 
 export const expressionToFhirPath = (expression) => {
@@ -101,7 +97,7 @@ export function highlightFhirPath(code) {
   result.appendChild(style);
 
   function emit(text, classes) {
-    console.log(arguments)
+    console.log(arguments);
     let node = document.createTextNode(text);
     if (classes) {
       let span = document.createElement("span");

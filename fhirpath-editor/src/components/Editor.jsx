@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragOverlay,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragOverlay,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -178,7 +178,7 @@ function Editor({
             className="cursor-pointer rounded-full p-0.5 border hover:text-blue-500 active:text-white active:bg-blue-500 active:border-blue-500"
             onClick={() => addBinding()}
           >
-            <Plus size={10} weight="bold"/>
+            <Plus size={10} weight="bold" />
           </button>
         </div>
 

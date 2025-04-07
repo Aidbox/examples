@@ -1,7 +1,7 @@
 import React from "react";
 
 import { findCompatibleOperators } from "../../utils/expression.js";
-import {useContextType} from "../../utils/react.js";
+import { useContextType } from "../../utils/react.js";
 
 // Group operators by category for better organization in the dropdown
 const operatorGroups = {
@@ -15,9 +15,11 @@ const operatorGroups = {
 const OperatorToken = React.forwardRef(
   ({ token, onChange, expression, bindings }, ref) => {
     const contextType = useContextType();
-    const compatibleOperators = findCompatibleOperators([
-      expression[0],
-    ], bindings, contextType);
+    const compatibleOperators = findCompatibleOperators(
+      [expression[0]],
+      bindings,
+      contextType,
+    );
 
     const invalid = !compatibleOperators.find((op) => op === token.value);
 

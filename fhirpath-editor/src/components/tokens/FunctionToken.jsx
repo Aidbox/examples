@@ -1,28 +1,23 @@
-import React, { useState, useRef, useCallback, Fragment } from "react";
+import React, { Fragment, useRef, useState } from "react";
 import {
-  useFloating,
+  arrow,
+  flip,
+  FloatingArrow,
+  FloatingPortal,
+  offset,
+  size,
   useClick,
   useDismiss,
+  useFloating,
   useInteractions,
-  FloatingPortal,
-  FloatingArrow,
-  arrow,
-  offset,
-  flip,
-  size,
 } from "@floating-ui/react";
 import {
-  functionMetadata,
   category,
+  functionMetadata,
   suggestArgumentTypesForFunction,
 } from "../../utils/function";
 import Editor from "../Editor";
-import {
-  ArrowSquareUpRight,
-  Circle,
-  CircleDashed, DotsThreeCircle,
-  Trash,
-} from "@phosphor-icons/react";
+import { CircleDashed, DotsThreeCircle, Trash } from "@phosphor-icons/react";
 import { useContextType } from "../../utils/react.js";
 import { getExpressionType } from "../../utils/expression.js";
 
@@ -183,9 +178,7 @@ const FunctionToken = React.forwardRef(
           <Argument
             key={arg.name}
             arg={arg}
-            value={
-              token.args?.[index] || { bindings: [], expression: [] }
-            }
+            value={token.args?.[index] || { bindings: [], expression: [] }}
             onChange={(value) => {
               const args = token.args?.slice() || [];
               args[index] = value;
@@ -195,7 +188,6 @@ const FunctionToken = React.forwardRef(
             suggestedType={suggestArgumentTypes[index]}
           />
         ))}
-
       </div>
     );
   },
