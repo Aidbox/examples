@@ -35,7 +35,7 @@ const Argument = ({ arg, value, onChange, bindings }) => {
             });
           },
         },
-        [value]
+        [value],
       ),
     ],
   });
@@ -119,13 +119,17 @@ const FunctionToken = React.forwardRef(
       : null;
 
     // Check if any required argument is missing
-    const empty = !token.value || fn?.args?.some((arg, index) => {
-      const argValue = token.args?.[index];
-      return (
-        !arg.optional &&
-        (!argValue || !argValue.expression || argValue.expression.length === 0)
-      );
-    });
+    const empty =
+      !token.value ||
+      fn?.args?.some((arg, index) => {
+        const argValue = token.args?.[index];
+        return (
+          !arg.optional &&
+          (!argValue ||
+            !argValue.expression ||
+            argValue.expression.length === 0)
+        );
+      });
 
     return (
       <div
@@ -184,7 +188,7 @@ const FunctionToken = React.forwardRef(
         )}
       </div>
     );
-  }
+  },
 );
 
 export default FunctionToken;

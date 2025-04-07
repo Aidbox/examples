@@ -79,7 +79,7 @@ const Token = React.forwardRef(
         )}
       </div>
     );
-  }
+  },
 );
 
 export default Token;

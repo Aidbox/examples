@@ -42,7 +42,7 @@ function Editor({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const addBinding = (binding, afterIndex = value.bindings.length) => {
@@ -64,7 +64,7 @@ function Editor({
 
   const handleDragStart = (event) => {
     setLastInputWidth(
-      bindingRefs.current[value.bindings.length - 1]?.width || "auto"
+      bindingRefs.current[value.bindings.length - 1]?.width || "auto",
     );
     setActiveId(event.active.id);
   };
@@ -78,7 +78,7 @@ function Editor({
 
     if (over && active.id !== over.id) {
       const oldIndex = value.bindings.findIndex(
-        (item) => item.id === active.id
+        (item) => item.id === active.id,
       );
       const newIndex = value.bindings.findIndex((item) => item.id === over.id);
 
@@ -126,7 +126,7 @@ function Editor({
           (
             bindingRefs.current[index - 1] || bindingRefs.current[index]
           )?.focus(),
-        0
+        0,
       );
       return;
     }
@@ -153,7 +153,7 @@ function Editor({
               token.type === "variable" &&
               token.value === value.bindings[index].name
                 ? { ...token, value: binding.name }
-                : token
+                : token,
             ),
           };
         }
@@ -221,10 +221,10 @@ function Editor({
           {activeId
             ? (() => {
                 const draggedIndex = value.bindings.findIndex(
-                  (b) => b.id === activeId
+                  (b) => b.id === activeId,
                 );
                 const draggedBinding = value.bindings.find(
-                  (b) => b.id === activeId
+                  (b) => b.id === activeId,
                 );
 
                 const overIndex = overItemId

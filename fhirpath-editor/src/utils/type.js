@@ -9,7 +9,7 @@ export const QuantityType = { type: "Quantity" };
 
 export const InvalidType = (error) => ({ type: "Invalid", error });
 export const TypeType = (ofType) => ({ type: "Type", ofType });
-export const CollectionType = (ofType) => ({ type: "Collection", ofType });
+export const SingleType = (ofType) => ({ type: "Single", ofType });
 export const ChoiceType = (options) => ({ type: "Choice", options });
 export const Generic = (name) => ({ type: "Generic", name });
 
@@ -66,8 +66,8 @@ export function stringifyType(t) {
   if (!t || typeof t !== "object") return String(t);
 
   switch (t.type) {
-    case "Collection":
-      return `Collection<${stringifyType(t.ofType)}>`;
+    case "Single":
+      return `Single<${stringifyType(t.ofType)}>`;
     case "Choice":
       return t.options.map(stringifyType).join(" | ");
     case "Invalid":
@@ -91,12 +91,8 @@ export function stringifyType(t) {
   }
 }
 
-export function unwrapCollection(t) {
-  return t?.type === "Collection" ? t.ofType : t;
-}
-
-export function wrapCollection(t) {
-  return CollectionType(t);
+export function unwrapSingle(t) {
+  return t?.type === "Single" ? t.ofType : t;
 }
 
 export function normalizeChoice(choice) {
@@ -192,6 +188,11 @@ export function matchTypePattern(pattern, actual, bindings = {}) {
     return newBindings;
   }
 
+  if (actual.type === "Single" && pattern.type !== "Single") {
+    // Promote Single to its ofType
+    return matchTypePattern(pattern, actual.ofType, newBindings);
+  }
+
   // Choice handling — try each branch
   if (actual?.type === "Choice") {
     for (const option of actual.options) {
@@ -238,8 +239,8 @@ export function substituteBindings(type, bindings) {
     return bindings[type.name] ?? type;
   }
 
-  if (type.type === "Collection") {
-    return CollectionType(substituteBindings(type.ofType, bindings));
+  if (type.type === "Single") {
+    return SingleType(substituteBindings(type.ofType, bindings));
   }
 
   if (type.type === "Choice") {

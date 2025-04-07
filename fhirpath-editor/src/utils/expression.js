@@ -15,11 +15,11 @@ import {
   TypeType,
   InvalidType,
   matchTypePattern,
-  unwrapCollection,
-  CollectionType,
+  SingleType,
+  unwrapSingle,
 } from "./type.js";
 import { distinct } from "./misc.js";
-import { getFields, PrimitiveBooleanType } from "./fhir-type.js";
+import { getFields } from "./fhir-type.js";
 import "./function.js";
 import {
   resolveFunctionCall,
@@ -79,7 +79,7 @@ function isChainingExpression(expression) {
             (token) =>
               token.type === "field" ||
               token.type === "index" ||
-              token.type === "function"
+              token.type === "function",
           )
       ) {
         return true;
@@ -104,14 +104,16 @@ export const getExpressionType = (expression, bindings) => {
     const token = expression[0];
     if (token.type === "number") {
       // Determine if the number is an integer or decimal based on its value
-      return token.value.includes(".") ? DecimalType : IntegerType;
+      return token.value.includes(".")
+        ? SingleType(DecimalType)
+        : SingleType(IntegerType);
     }
-    if (token.type === "string") return StringType;
-    if (token.type === "boolean") return BooleanType;
-    if (token.type === "date") return DateType;
-    if (token.type === "datetime") return DateTimeType;
-    if (token.type === "time") return TimeType;
-    if (token.type === "quantity") return QuantityType;
+    if (token.type === "string") return SingleType(StringType);
+    if (token.type === "boolean") return SingleType(BooleanType);
+    if (token.type === "date") return SingleType(DateType);
+    if (token.type === "datetime") return SingleType(DateTimeType);
+    if (token.type === "time") return SingleType(TimeType);
+    if (token.type === "quantity") return SingleType(QuantityType);
     if (token.type === "type") return TypeType(token.value); // Return the actual type value
     if (token.type === "variable") {
       const binding = bindings.find((b) => b.name === token.value);
@@ -144,7 +146,7 @@ export const getExpressionType = (expression, bindings) => {
           name: token.value,
           input: currentType,
           args: token.args?.map((arg) =>
-            getExpressionType(arg.expression, [...bindings, arg.bindings])
+            getExpressionType(arg.expression, [...bindings, arg.bindings]),
           ),
         });
       } else {
@@ -196,7 +198,7 @@ export const findCompatibleVariables = (bindings, expression) => {
       const bindingType =
         binding.type || getExpressionType(binding.expression, bindings);
       return rightTypes.some((rightType) =>
-        matchTypePattern(rightType, unwrapCollection(bindingType))
+        matchTypePattern(rightType, bindingType),
       );
     });
   }
@@ -248,9 +250,9 @@ export const suggestNextToken = (expression, bindings) => {
 
     return distinct(
       rightTypes
-        .map(({ type }) => typeName2tokenType[type])
+        .map((rightType) => typeName2tokenType[unwrapSingle(rightType).type])
         .concat(["variable"])
-        .filter((type) => type)
+        .filter((type) => type),
     ).map((type) => ({ type }));
   }
 
@@ -275,7 +277,7 @@ export const suggestNextToken = (expression, bindings) => {
       ...suggestFunctionsForInputType(type).map((name) => ({
         type: "function",
         value: name,
-      }))
+      })),
     );
   }
 

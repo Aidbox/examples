@@ -61,7 +61,7 @@ const Cursor = forwardRef(
       bindings,
       placeholder,
     },
-    forwardingRef
+    forwardingRef,
   ) => {
     const containerRef = React.useRef(null);
     const dropdownRef = React.useRef(null);
@@ -360,7 +360,7 @@ const Cursor = forwardRef(
         )}
       </div>
     );
-  }
+  },
 );
 
 export default Cursor;

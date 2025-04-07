@@ -47,7 +47,7 @@ const SortableBinding = forwardRef(
         />
       </div>
     );
-  }
+  },
 );
 
 export default SortableBinding;

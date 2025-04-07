@@ -58,7 +58,7 @@ export function useSearchParams() {
   };
 
   const [searchParams, setSearchParams] = React.useState(
-    parseSearchParams(window.location.search)
+    parseSearchParams(window.location.search),
   );
 
   // subscribe to search params

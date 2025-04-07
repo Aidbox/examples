@@ -1,6 +1,5 @@
 import {
   BooleanType,
-  CollectionType,
   Generic,
   IntegerType,
   matchTypePattern,
@@ -11,9 +10,9 @@ import {
   DateType,
   DateTimeType,
   TimeType,
-  TypeType,
   InvalidType,
   stringifyType,
+  mergeBindings,
 } from "./type";
 
 const LambdaType = (ofType) => ({
@@ -121,223 +120,99 @@ export const category = {
   "SDC Extensions": ["ordinal", "sum", "min", "max", "avg"],
 };
 
-/*
-FHIRPath Functions
-
-empty() : Boolean
-exists([criteria : expression]) : Boolean
-all(criteria : expression) : Boolean
-allTrue() : Boolean
-anyTrue() : Boolean
-allFalse() : Boolean
-anyFalse() : Boolean
-subsetOf(other : collection) : Boolean
-supersetOf(other : collection) : Boolean
-count() : Integer
-distinct() : collection
-isDistinct() : Boolean
-where(criteria : expression) : collection
-select(projection: expression) : collection
-repeat(projection: expression) : collection
-ofType(type : type specifier) : collection
-single() : collection
-first() : collection
-last() : collection
-tail() : collection
-skip(num : Integer) : collection
-take(num : Integer) : collection
-intersect(other: collection) : collection
-exclude(other: collection) : collection
-union(other : collection)
-combine(other : collection) : collection
-iif(criterion: expression, true-result: collection [, otherwise-result: collection]) : collection
-toBoolean() : Boolean
-convertsToBoolean() : Boolean
-toInteger() : Integer
-convertsToInteger() : Boolean
-toDate() : Date
-convertsToDate() : Boolean
-toDateTime() : DateTime
-convertsToDateTime() : Boolean
-toDecimal() : Decimal
-convertsToDecimal() : Boolean
-toQuantity([unit : String]) : Quantity
-convertsToQuantity([unit : String]) : Boolean
-toString() : String
-convertsToString() : String
-toTime() : Time
-convertsToTime() : Boolean
-indexOf(substring : String) : Integer
-substring(start : Integer [, length : Integer]) : String
-startsWith(prefix : String) : Boolean
-endsWith(suffix : String) : Boolean
-contains(substring : String) : Boolean
-upper() : String
-lower() : String
-replace(pattern : String, substitution : String) : String
-matches(regex : String) : Boolean
-replaceMatches(regex : String, substitution: String) : String
-length() : Integer
-toChars() : collection
-encode(format : String) : String
-decode(format : String) : String
-escape(target : String) : String
-unescape(target : String) : String
-trim() : String
-split(separator: String) : collection
-join([separator: String]) : String
-abs() : Integer | Decimal | Quantity
-ceiling() : Integer
-exp() : Decimal
-floor() : Integer
-ln() : Decimal
-log(base : Decimal) : Decimal
-power(exponent : Integer | Decimal) : Integer | Decimal
-round([precision : Integer]) : Decimal
-sqrt() : Decimal
-truncate() : Integer
-children() : collection
-descendants() : collection
-trace(name : String [, projection: Expression]) : collection
-now() : DateTime
-timeOfDay() : Time
-today() : Date
-defineVariable(name : string [, expr: expression]]) : collection
-is(type : type specifier)
-as(type : type specifier)
-aggregate(aggregator : expression [, init : value]) : value
-type() : SimpleTypeInfo | ClassInfo | ListTypeInfo
-extension(url : string) : collection
-hasValue() : Boolean
-getValue() : System.[type]
-resolve() : collection
-elementDefinition() : collection
-slice(structure : string, name : string) : collection
-checkModifiers(modifier : string) : collection
-conformsTo(structure : string) : Boolean
-memberOf(valueset : string) : Boolean
-subsumes(code : Coding | CodeableConcept) : Boolean
-subsumedBy(code: Coding | CodeableConcept) : Boolean
-htmlChecks : Boolean
-lowBoundary : T
-highBoundary : T
-comparable(quantity) : boolean
-ordinal() : decimal
-answers() : QuestionnaireItem#Answer
-sum() : decimal | integer | quantity
-min() : decimal | integer | quantity
-max() : decimal | integer | quantity
-avg() : decimal | integer | quantity
-*/
-
 export const functionMetadata = [
   // Section 5.1: Existence
-  fn("empty", CollectionType(Generic("T")), [], BooleanType),
+  fn("empty", Generic("T"), [], BooleanType),
   fn(
     "exists",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [{ name: "criteria", type: LambdaType(BooleanType), optional: true }],
-    BooleanType
+    BooleanType,
   ),
   fn(
     "all",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [{ name: "criteria", type: LambdaType(BooleanType) }],
-    BooleanType
+    BooleanType,
   ),
-  fn("allTrue", CollectionType(BooleanType), [], BooleanType),
-  fn("anyTrue", CollectionType(BooleanType), [], BooleanType),
-  fn("allFalse", CollectionType(BooleanType), [], BooleanType),
-  fn("anyFalse", CollectionType(BooleanType), [], BooleanType),
+  fn("allTrue", BooleanType, [], BooleanType),
+  fn("anyTrue", BooleanType, [], BooleanType),
+  fn("allFalse", BooleanType, [], BooleanType),
+  fn("anyFalse", BooleanType, [], BooleanType),
   fn(
     "subsetOf",
-    CollectionType(Generic("T")),
-    [{ name: "other", type: CollectionType(Generic("T")) }],
-    BooleanType
+    Generic("T"),
+    [{ name: "other", type: Generic("T") }],
+    BooleanType,
   ),
   fn(
     "supersetOf",
-    CollectionType(Generic("T")),
-    [{ name: "other", type: CollectionType(Generic("T")) }],
-    BooleanType
+    Generic("T"),
+    [{ name: "other", type: Generic("T") }],
+    BooleanType,
   ),
-  fn("count", CollectionType(Generic("T")), [], IntegerType),
-  fn(
-    "distinct",
-    CollectionType(Generic("T")),
-    [],
-    CollectionType(Generic("T"))
-  ),
-  fn("isDistinct", CollectionType(Generic("T")), [], BooleanType),
+  fn("count", Generic("T"), [], IntegerType),
+  fn("distinct", Generic("T"), [], Generic("T")),
+  fn("isDistinct", Generic("T"), [], BooleanType),
 
   // Section 5.2: Filtering and projection
   fn(
     "where",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [{ name: "criteria", type: LambdaType(BooleanType) }],
-    CollectionType(Generic("T"))
+    Generic("T"),
   ),
   fn(
     "select",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [{ name: "projection", type: LambdaType(Generic("R")) }],
-    ({ R }) => CollectionType(R)
+    ({ R }) => R,
   ),
   fn(
     "repeat",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [{ name: "projection", type: LambdaType(Generic("R")) }],
-    ({ R }) => CollectionType(R)
+    ({ R }) => R,
   ),
   fn(
     "ofType",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [{ name: "type", type: "TypeSpecifier" }],
-    CollectionType(Generic("T"))
+    Generic("T"),
   ),
 
   // Section 5.3: Subsetting
-  fn("single", CollectionType(Generic("T")), [], Generic("T")),
-  fn("first", CollectionType(Generic("T")), [], Generic("T")),
-  fn("last", CollectionType(Generic("T")), [], Generic("T")),
-  fn("tail", CollectionType(Generic("T")), [], CollectionType(Generic("T"))),
-  fn(
-    "skip",
-    CollectionType(Generic("T")),
-    [{ name: "num", type: IntegerType }],
-    CollectionType(Generic("T"))
-  ),
-  fn(
-    "take",
-    CollectionType(Generic("T")),
-    [{ name: "num", type: IntegerType }],
-    CollectionType(Generic("T"))
-  ),
+  fn("single", Generic("T"), [], Generic("T")),
+  fn("first", Generic("T"), [], Generic("T")),
+  fn("last", Generic("T"), [], Generic("T")),
+  fn("tail", Generic("T"), [], Generic("T")),
+  fn("skip", Generic("T"), [{ name: "num", type: IntegerType }], Generic("T")),
+  fn("take", Generic("T"), [{ name: "num", type: IntegerType }], Generic("T")),
   fn(
     "intersect",
-    CollectionType(Generic("T")),
-    [{ name: "other", type: CollectionType(Generic("T")) }],
-    CollectionType(Generic("T"))
+    Generic("T"),
+    [{ name: "other", type: Generic("T") }],
+    Generic("T"),
   ),
   fn(
     "exclude",
-    CollectionType(Generic("T")),
-    [{ name: "other", type: CollectionType(Generic("T")) }],
-    CollectionType(Generic("T"))
+    Generic("T"),
+    [{ name: "other", type: Generic("T") }],
+    Generic("T"),
   ),
 
   // Section 5.4: Combining
   fn(
     "union",
-    CollectionType(Generic("T")),
-    [{ name: "other", type: CollectionType(Generic("T")) }],
-    CollectionType(Generic("T"))
+    Generic("T"),
+    [{ name: "other", type: Generic("T") }],
+    Generic("T"),
   ),
   fn(
     "combine",
-    CollectionType(Generic("T")),
-    [{ name: "other", type: CollectionType(Generic("T")) }],
-    CollectionType(Generic("T"))
+    Generic("T"),
+    [{ name: "other", type: Generic("T") }],
+    Generic("T"),
   ),
 
   // Section 5.5: Conversion
@@ -355,13 +230,13 @@ export const functionMetadata = [
     "toQuantity",
     Generic("T"),
     [{ name: "unit", type: StringType, optional: true }],
-    QuantityType
+    QuantityType,
   ),
   fn(
     "convertsToQuantity",
     Generic("T"),
     [{ name: "unit", type: StringType, optional: true }],
-    BooleanType
+    BooleanType,
   ),
   fn("toString", Generic("T"), [], StringType),
   fn("convertsToString", Generic("T"), [], BooleanType),
@@ -373,7 +248,7 @@ export const functionMetadata = [
     "indexOf",
     StringType,
     [{ name: "substring", type: StringType }],
-    IntegerType
+    IntegerType,
   ),
   fn(
     "substring",
@@ -382,25 +257,25 @@ export const functionMetadata = [
       { name: "start", type: IntegerType },
       { name: "length", type: IntegerType, optional: true },
     ],
-    StringType
+    StringType,
   ),
   fn(
     "startsWith",
     StringType,
     [{ name: "prefix", type: StringType }],
-    BooleanType
+    BooleanType,
   ),
   fn(
     "endsWith",
     StringType,
     [{ name: "suffix", type: StringType }],
-    BooleanType
+    BooleanType,
   ),
   fn(
     "contains",
     StringType,
     [{ name: "substring", type: StringType }],
-    BooleanType
+    BooleanType,
   ),
   fn("upper", StringType, [], StringType),
   fn("lower", StringType, [], StringType),
@@ -411,7 +286,7 @@ export const functionMetadata = [
       { name: "pattern", type: StringType },
       { name: "substitution", type: StringType },
     ],
-    StringType
+    StringType,
   ),
   fn("matches", StringType, [{ name: "regex", type: StringType }], BooleanType),
   fn(
@@ -421,10 +296,10 @@ export const functionMetadata = [
       { name: "regex", type: StringType },
       { name: "substitution", type: StringType },
     ],
-    StringType
+    StringType,
   ),
   fn("length", StringType, [], IntegerType),
-  fn("toChars", StringType, [], CollectionType(StringType)),
+  fn("toChars", StringType, [], StringType),
 
   // Section 5.7: Additional String Functions
   fn("encode", StringType, [{ name: "format", type: StringType }], StringType),
@@ -434,13 +309,13 @@ export const functionMetadata = [
     "split",
     StringType,
     [{ name: "separator", type: StringType }],
-    CollectionType(StringType)
+    StringType,
   ),
   fn(
     "join",
-    CollectionType(StringType),
+    StringType,
     [{ name: "separator", type: StringType, optional: true }],
-    StringType
+    StringType,
   ),
 
   // Section 5.7: Math
@@ -448,7 +323,7 @@ export const functionMetadata = [
     "abs",
     ChoiceType([IntegerType, DecimalType, QuantityType]),
     [],
-    ChoiceType([IntegerType, DecimalType, QuantityType])
+    ChoiceType([IntegerType, DecimalType, QuantityType]),
   ),
   fn("ceiling", DecimalType, [], IntegerType),
   fn("exp", DecimalType, [], DecimalType),
@@ -459,30 +334,30 @@ export const functionMetadata = [
     "power",
     DecimalType,
     [{ name: "exponent", type: ChoiceType([IntegerType, DecimalType]) }],
-    DecimalType
+    DecimalType,
   ),
   fn(
     "round",
     DecimalType,
     [{ name: "precision", type: IntegerType, optional: true }],
-    DecimalType
+    DecimalType,
   ),
   fn("sqrt", DecimalType, [], DecimalType),
   fn("truncate", DecimalType, [], IntegerType),
 
   // Section 5.8: Tree Navigation
-  fn("children", Generic("T"), [], CollectionType(Generic("T"))),
-  fn("descendants", Generic("T"), [], CollectionType(Generic("T"))),
+  fn("children", Generic("T"), [], Generic("T")),
+  fn("descendants", Generic("T"), [], Generic("T")),
 
   // Section 5.9: Utility Functions
   fn(
     "trace",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [
       { name: "name", type: StringType },
       { name: "projection", type: LambdaType(Generic("T")), optional: true },
     ],
-    CollectionType(Generic("T"))
+    Generic("T"),
   ),
   fn("now", Generic("T"), [], DateTimeType),
   fn("timeOfDay", Generic("T"), [], TimeType),
@@ -491,23 +366,23 @@ export const functionMetadata = [
   // Section 5.10: Define Variable
   fn(
     "defineVariable",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [
       { name: "name", type: StringType },
       { name: "expr", type: LambdaType(Generic("T")), optional: true },
     ],
-    CollectionType(Generic("T"))
+    Generic("T"),
   ),
 
   // Section 7: Aggregates
   fn(
     "aggregate",
-    CollectionType(Generic("T")),
+    Generic("T"),
     [
       { name: "aggregator", type: LambdaType(Generic("R")) },
       { name: "init", type: Generic("R"), optional: true },
     ],
-    ({ R }) => R
+    ({ R }) => R,
   ),
 
   // FHIR Extensions
@@ -515,7 +390,7 @@ export const functionMetadata = [
     "extension",
     Generic("T"),
     [{ name: "url", type: StringType }],
-    CollectionType(Generic("T"))
+    Generic("T"),
   ),
   fn("hasValue", Generic("T"), [], BooleanType),
   fn("getValue", Generic("T"), [], Generic("T")),
@@ -524,27 +399,27 @@ export const functionMetadata = [
   fn("ordinal", Generic("T"), [], DecimalType),
   fn(
     "sum",
-    CollectionType(ChoiceType([DecimalType, IntegerType, QuantityType])),
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType])
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
   ),
   fn(
     "min",
-    CollectionType(ChoiceType([DecimalType, IntegerType, QuantityType])),
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType])
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
   ),
   fn(
     "max",
-    CollectionType(ChoiceType([DecimalType, IntegerType, QuantityType])),
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType])
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
   ),
   fn(
     "avg",
-    CollectionType(ChoiceType([DecimalType, IntegerType, QuantityType])),
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType])
+    ChoiceType([DecimalType, IntegerType, QuantityType]),
   ),
 ];
 
@@ -566,8 +441,8 @@ export function resolveFunctionCall({ name, input, args = [] }) {
       if (!b)
         return InvalidType(
           `Argument ${expected.name} does not match. Expected ${stringifyType(
-            expected.type
-          )}, got ${stringifyType(actual)}`
+            expected.type,
+          )}, got ${stringifyType(actual)}`,
         );
       bindings = mergeBindings(bindings, b);
     } else if (expected.optional) {
@@ -577,7 +452,7 @@ export function resolveFunctionCall({ name, input, args = [] }) {
     }
   }
 
-  return fn.returnType({ input, args, ...bindings });
+  return fn.returnType({ input, args, resolvedArgs, ...bindings });
 }
 
 export function suggestFunctionsForInputType(inputType) {

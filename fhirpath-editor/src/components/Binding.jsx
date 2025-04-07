@@ -20,23 +20,19 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
   const nameRef = React.useRef(null);
   const debug = useDebug();
 
-  useImperativeHandle(
-    forwardingRef,
-    () => {
-      return {
-        focus: () => {
-          cursorRef.current?.focus();
-        },
-        get width() {
-          const parent = nameRef.current?.parentElement;
-          if (parent) {
-            return getComputedStyle(parent).width;
-          }
-        },
-      };
-    },
-    []
-  );
+  useImperativeHandle(forwardingRef, () => {
+    return {
+      focus: () => {
+        cursorRef.current?.focus();
+      },
+      get width() {
+        const parent = nameRef.current?.parentElement;
+        if (parent) {
+          return getComputedStyle(parent).width;
+        }
+      },
+    };
+  }, []);
 
   React.useEffect(() => {
     if (deleting) {
@@ -73,7 +69,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
     if (token.type === "variable" && token.value === undefined) {
       const compatibleBindings = findCompatibleVariables(
         bindings,
-        value.expression
+        value.expression,
       );
       token.value = compatibleBindings[0]?.name || "";
     } else if (token.type === "string" && token.value === undefined) {
@@ -105,7 +101,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
     } else if (token.type === "operator" && token.value === undefined) {
       const compatibleOperators = findCompatibleOperators(
         bindings,
-        value.expression
+        value.expression,
       );
       token.value = compatibleOperators[0] || "+";
     }
@@ -129,7 +125,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
   const [name, setName, commitName] = useCommitableState(
     value.name,
     (name) => onChange?.({ ...value, name }),
-    () => setNameAnimation("animate__animated animate__shakeX animate__faster")
+    () => setNameAnimation("animate__animated animate__shakeX animate__faster"),
   );
 
   return (
@@ -170,7 +166,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
           onMouseMove={(e) => {
             setHovering(
               e.target === e.currentTarget ||
-                cursorRef.current?.contains(e.target)
+                cursorRef.current?.contains(e.target),
             );
           }}
           onMouseLeave={(e) => {
@@ -189,7 +185,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
             if (e.key === "ArrowLeft") {
               if (!e.target.selectionStart) {
                 const index = parseInt(
-                  e.target.closest("[data-index]")?.dataset?.index
+                  e.target.closest("[data-index]")?.dataset?.index,
                 );
                 if (index > 0) {
                   const element = tokenRefs.current[index - 1];
@@ -211,7 +207,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
                 e.target.selectionEnd === e.target.value.length
               ) {
                 const index = parseInt(
-                  e.target.closest("[data-index]")?.dataset?.index
+                  e.target.closest("[data-index]")?.dataset?.index,
                 );
 
                 if (index < value.expression.length - 1) {
@@ -267,7 +263,7 @@ const Binding = forwardRef(({ value, onChange, bindings }, forwardingRef) => {
             bindings={bindings}
             onMistake={() => {
               setExpressionAnimation(
-                "animate__animated animate__shakeX animate__faster"
+                "animate__animated animate__shakeX animate__faster",
               );
             }}
             placeholder={!value.name && "Add a binding to get started"}

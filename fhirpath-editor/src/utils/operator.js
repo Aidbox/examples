@@ -1,25 +1,23 @@
 import {
-  Generic,
   BooleanType,
-  IntegerType,
-  DecimalType,
-  QuantityType,
-  StringType,
-  DateType,
-  DateTimeType,
-  TimeType,
-  InvalidType,
-  TypeType,
-  CollectionType,
   ChoiceType,
-  substituteBindings,
-  matchTypePattern,
-  normalizeChoice,
-  wrapCollection,
-  unwrapCollection,
+  DateTimeType,
+  DateType,
+  DecimalType,
   deepEqual,
-  promote,
+  Generic,
+  IntegerType,
+  InvalidType,
+  matchTypePattern,
   mergeBindings,
+  normalizeChoice,
+  promote,
+  QuantityType,
+  SingleType,
+  StringType,
+  substituteBindings,
+  TimeType,
+  TypeType,
 } from "./type";
 
 // Helper to define individual overload
@@ -44,79 +42,314 @@ export const operatorMetadata = [
   op(">=", Generic("T"), Generic("T"), BooleanType),
 
   // Membership
-  op("in", Generic("T"), CollectionType(Generic("T")), BooleanType),
-  op("contains", CollectionType(Generic("T")), Generic("T"), BooleanType),
+  op("in", SingleType(Generic("T")), Generic("T"), BooleanType),
+  op("contains", Generic("T"), SingleType(Generic("T")), BooleanType),
 
   // Logical
-  op("and", BooleanType, BooleanType, BooleanType),
-  op("or", BooleanType, BooleanType, BooleanType),
-  op("xor", BooleanType, BooleanType, BooleanType),
-  op("implies", BooleanType, BooleanType, BooleanType),
+  op("and", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
+  op("or", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
+  op("xor", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
+  op("implies", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
 
   // String concat
-  op("&", StringType, StringType, StringType),
+  op(
+    "&",
+    SingleType(StringType),
+    SingleType(StringType),
+    SingleType(StringType),
+  ),
 
   // Arithmetic: +
-  op("+", IntegerType, IntegerType, IntegerType),
-  op("+", IntegerType, DecimalType, DecimalType),
-  op("+", IntegerType, QuantityType, QuantityType),
-  op("+", DecimalType, IntegerType, DecimalType),
-  op("+", DecimalType, DecimalType, DecimalType),
-  op("+", DecimalType, QuantityType, QuantityType),
-  op("+", QuantityType, IntegerType, QuantityType),
-  op("+", QuantityType, DecimalType, QuantityType),
-  op("+", QuantityType, QuantityType, QuantityType),
-  op("+", StringType, StringType, StringType),
-  op("+", DateType, QuantityType, DateType),
-  op("+", DateTimeType, QuantityType, DateTimeType),
-  op("+", TimeType, QuantityType, TimeType),
+  op(
+    "+",
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+  ),
+  op(
+    "+",
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "+",
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "+",
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "+",
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "+",
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "+",
+    SingleType(QuantityType),
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "+",
+    SingleType(QuantityType),
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "+",
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "+",
+    SingleType(StringType),
+    SingleType(StringType),
+    SingleType(StringType),
+  ),
+  op("+", SingleType(DateType), SingleType(QuantityType), SingleType(DateType)),
+  op(
+    "+",
+    SingleType(DateTimeType),
+    SingleType(QuantityType),
+    SingleType(DateTimeType),
+  ),
+  op("+", SingleType(TimeType), SingleType(QuantityType), SingleType(TimeType)),
 
   // Arithmetic: -
-  op("-", IntegerType, IntegerType, IntegerType),
-  op("-", IntegerType, DecimalType, DecimalType),
-  op("-", IntegerType, QuantityType, QuantityType),
-  op("-", DecimalType, IntegerType, DecimalType),
-  op("-", DecimalType, DecimalType, DecimalType),
-  op("-", DecimalType, QuantityType, QuantityType),
-  op("-", QuantityType, IntegerType, QuantityType),
-  op("-", QuantityType, DecimalType, QuantityType),
-  op("-", QuantityType, QuantityType, QuantityType),
-  op("-", DateType, QuantityType, DateType),
-  op("-", DateTimeType, QuantityType, DateTimeType),
-  op("-", TimeType, QuantityType, TimeType),
+  op(
+    "-",
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+  ),
+  op(
+    "-",
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "-",
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "-",
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "-",
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "-",
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "-",
+    SingleType(QuantityType),
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "-",
+    SingleType(QuantityType),
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "-",
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op("-", SingleType(DateType), SingleType(QuantityType), SingleType(DateType)),
+  op(
+    "-",
+    SingleType(DateTimeType),
+    SingleType(QuantityType),
+    SingleType(DateTimeType),
+  ),
+  op("-", SingleType(TimeType), SingleType(QuantityType), SingleType(TimeType)),
 
   // Arithmetic: *
-  op("*", IntegerType, IntegerType, IntegerType),
-  op("*", IntegerType, DecimalType, DecimalType),
-  op("*", IntegerType, QuantityType, QuantityType),
-  op("*", DecimalType, IntegerType, DecimalType),
-  op("*", DecimalType, DecimalType, DecimalType),
-  op("*", DecimalType, QuantityType, QuantityType),
-  op("*", QuantityType, IntegerType, QuantityType),
-  op("*", QuantityType, DecimalType, QuantityType),
+  op(
+    "*",
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+  ),
+  op(
+    "*",
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "*",
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "*",
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "*",
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "*",
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "*",
+    SingleType(QuantityType),
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "*",
+    SingleType(QuantityType),
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+  ),
 
   // Arithmetic: /
-  op("/", IntegerType, IntegerType, DecimalType),
-  op("/", IntegerType, DecimalType, DecimalType),
-  op("/", IntegerType, QuantityType, DecimalType),
-  op("/", DecimalType, IntegerType, DecimalType),
-  op("/", DecimalType, DecimalType, DecimalType),
-  op("/", DecimalType, QuantityType, DecimalType),
-  op("/", QuantityType, IntegerType, QuantityType),
-  op("/", QuantityType, DecimalType, QuantityType),
-  op("/", QuantityType, QuantityType, DecimalType),
+  op(
+    "/",
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "/",
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "/",
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "/",
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "/",
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "/",
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "/",
+    SingleType(QuantityType),
+    SingleType(IntegerType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "/",
+    SingleType(QuantityType),
+    SingleType(DecimalType),
+    SingleType(QuantityType),
+  ),
+  op(
+    "/",
+    SingleType(QuantityType),
+    SingleType(QuantityType),
+    SingleType(DecimalType),
+  ),
 
   // Arithmetic: mod
-  op("mod", IntegerType, IntegerType, IntegerType),
-  op("mod", IntegerType, DecimalType, DecimalType),
-  op("mod", DecimalType, IntegerType, DecimalType),
-  op("mod", DecimalType, DecimalType, DecimalType),
+  op(
+    "mod",
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+  ),
+  op(
+    "mod",
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "mod",
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+  ),
+  op(
+    "mod",
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+  ),
 
   // Arithmetic: div
-  op("div", IntegerType, IntegerType, IntegerType),
-  op("div", IntegerType, DecimalType, IntegerType),
-  op("div", DecimalType, IntegerType, IntegerType),
-  op("div", DecimalType, DecimalType, IntegerType),
+  op(
+    "div",
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+  ),
+  op(
+    "div",
+    SingleType(IntegerType),
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+  ),
+  op(
+    "div",
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+    SingleType(IntegerType),
+  ),
+  op(
+    "div",
+    SingleType(DecimalType),
+    SingleType(DecimalType),
+    SingleType(IntegerType),
+  ),
 
   // Union
   op("|", Generic("A"), Generic("B"), ({ A, B }) => {
@@ -131,59 +364,48 @@ export const operatorMetadata = [
   op("is", Generic("T"), TypeType(Generic("X")), BooleanType),
 
   op("as", Generic("T"), TypeType(Generic("X")), ({ X }) =>
-    normalizeChoice(ChoiceType([X]))
+    normalizeChoice(ChoiceType([X])),
   ),
 ];
 
 export function resolveOperator({ op, left, right }) {
-  const rawLeft = unwrapCollection(left);
-  const rawRight = unwrapCollection(right);
-
   for (const def of operatorMetadata) {
     if (def.op !== op) continue;
 
-    const b1 = matchTypePattern(def.args[0].type, rawLeft);
-    const b2 = matchTypePattern(def.args[1].type, rawRight);
+    const b1 = matchTypePattern(def.args[0].type, left);
+    const b2 = matchTypePattern(def.args[1].type, right);
     if (!b1 || !b2) continue;
 
     const bindings = mergeBindings(b1 ?? {}, b2 ?? {});
     if (!bindings) continue;
 
-    const resultType = def.returnType({
-      left: rawLeft,
-      right: rawRight,
+    // Always wrap operator result — FHIRPath operators always return collections
+    return def.returnType({
+      left,
+      right,
       ...bindings,
     });
-
-    // Always wrap operator result — FHIRPath operators always return collections
-    return wrapCollection(resultType);
   }
 
-  return wrapCollection(
-    InvalidType(`No matching overload for operator "${op}"`)
-  );
+  return InvalidType(`No matching overload for operator "${op}"`);
 }
 
 export function suggestOperatorsForLeftType(leftType) {
-  const rawLeft = unwrapCollection(leftType);
-
   return operatorMetadata
     .filter((def) => {
-      const bindings = matchTypePattern(def.args[0].type, rawLeft);
+      const bindings = matchTypePattern(def.args[0].type, leftType);
       return !!bindings;
     })
     .map((def) => def.op);
 }
 
 export function suggestRightTypesForOperator(op, leftType) {
-  const rawLeft = unwrapCollection(leftType);
-
   const suggestions = [];
 
   for (const def of operatorMetadata) {
     if (def.op !== op) continue;
 
-    const bindings = matchTypePattern(def.args[0].type, rawLeft);
+    const bindings = matchTypePattern(def.args[0].type, leftType);
     if (!bindings) continue;
 
     // Fill in bindings into right-hand type

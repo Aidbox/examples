@@ -7,13 +7,13 @@ const VariableToken = React.forwardRef(
     // Filter bindings based on compatibility and position
     const compatibleBindings = findCompatibleVariables(bindings, expression);
     const externalBindings = compatibleBindings.filter(
-      ({ expression }) => !expression
+      ({ expression }) => !expression,
     );
     const localBindings = compatibleBindings.filter(
-      ({ expression }) => expression
+      ({ expression }) => expression,
     );
     const invalid = !compatibleBindings.find(
-      ({ name }) => name === token.value
+      ({ name }) => name === token.value,
     );
 
     return (
@@ -49,7 +49,7 @@ const VariableToken = React.forwardRef(
         )}
       </select>
     );
-  }
+  },
 );
 
 export default VariableToken;

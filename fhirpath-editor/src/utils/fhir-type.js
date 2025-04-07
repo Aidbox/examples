@@ -2,7 +2,6 @@ import { resolveElements, resolvePath } from "./fhir-schema.js";
 import {
   BooleanType,
   ChoiceType,
-  CollectionType,
   DateTimeType,
   DateType,
   DecimalType,
@@ -10,7 +9,6 @@ import {
   IntegerType,
   StringType,
   TimeType,
-  unwrapCollection,
 } from "./type.js";
 
 export const PrimitiveCodeType = { type: "PrimitiveCode" };
@@ -120,14 +118,14 @@ export function fieldSchemaToType(schemaReference, siblingSchemas, fieldName) {
   } else {
     result = FhirType([...schemaReference, fieldName]);
   }
-  if (fieldSchema.array) {
-    result = CollectionType(result);
+  if (fieldSchema.scalar) {
+    // should we use SingleType here?
+    // result = SingleType(result);
   }
   return result;
 }
 
 export function getFields(type) {
-  type = unwrapCollection(type);
   if (type && type.type === "FhirType") {
     let schema = resolvePath(type.schemaReference);
     if (schema) {
