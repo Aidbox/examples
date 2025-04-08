@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Editor from "../Editor";
+import Editor from "@components/Editor";
 
 // Mock DnDKit
 vi.mock("@dnd-kit/core", () => ({
@@ -31,7 +31,7 @@ vi.mock("@dnd-kit/modifiers", () => ({
 }));
 
 // Mock the Binding and SortableBinding components
-vi.mock("../Binding", () => ({
+vi.mock("@components/Binding", () => ({
   default: ({ value }) => (
     <div data-testid="binding" data-name={value.name || "primary"}>
       Mock Binding
@@ -39,7 +39,7 @@ vi.mock("../Binding", () => ({
   ),
 }));
 
-vi.mock("../SortableBinding", () => ({
+vi.mock("@components/SortableBinding", () => ({
   default: React.forwardRef((props, ref) => (
     <div
       data-testid="sortable-binding"
@@ -54,12 +54,12 @@ vi.mock("../SortableBinding", () => ({
 }));
 
 // Mock utils
-vi.mock("../utils/expression", () => ({
+vi.mock("@utils/expression", () => ({
   canMoveBinding: vi.fn(() => true),
   generateBindingId: vi.fn(() => `binding-${Math.random()}`),
 }));
 
-vi.mock("../utils/fhir", () => ({
+vi.mock("@utils/fhir", () => ({
   default: vi.fn(() => "compiled-fhir-path"),
 }));
 

@@ -1,7 +1,7 @@
 import { highlightCode, tagHighlighter, tags } from "@lezer/highlight";
 import { parser } from "lezer-fhirpath";
 
-export const expressionToFhirPath = (expression) => {
+export const stringifyExpression = (expression) => {
   return expression
     .map((token, index) => {
       if (token.type === "number") {
@@ -46,7 +46,7 @@ export const expressionToFhirPath = (expression) => {
         return `${index === 0 ? "" : "."}${token.value}`;
       } else if (token.type === "function") {
         const args = token.args
-          ? token.args.map((arg) => appToFhirPath(arg)).join(", ")
+          ? token.args.map((arg) => stringifyProgram(arg)).join(", ")
           : "";
         return `${index === 0 ? "" : "."}${token.value}(${args})`;
       } else {
@@ -56,20 +56,20 @@ export const expressionToFhirPath = (expression) => {
     .join("");
 };
 
-export const bindingToFhirPath = (binding) => {
+export const stringifyBinding = (binding) => {
   return `defineVariable(${binding.name}${
     binding.expression.length > 0
-      ? `, ${expressionToFhirPath(binding.expression)}`
+      ? `, ${stringifyExpression(binding.expression)}`
       : ""
   })`;
 };
 
-export const appToFhirPath = (app) => {
-  let result = expressionToFhirPath(app.expression);
+export const stringifyProgram = (program) => {
+  let result = stringifyExpression(program.expression);
 
-  if (app.bindings.length > 0) {
-    result = `${app.bindings
-      .map(bindingToFhirPath)
+  if (program.bindings.length > 0) {
+    result = `${program.bindings
+      .map(stringifyBinding)
       .join(".\n")}.\nselect(${result})`;
   }
 
@@ -97,7 +97,6 @@ export function highlightFhirPath(code) {
   result.appendChild(style);
 
   function emit(text, classes) {
-    console.log(arguments);
     let node = document.createTextNode(text);
     if (classes) {
       let span = document.createElement("span");

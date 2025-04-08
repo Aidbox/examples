@@ -1,7 +1,7 @@
 import React from "react";
 
-import { findCompatibleOperators } from "../../utils/expression.js";
-import { useContextType } from "../../utils/react.js";
+import { findCompatibleOperators } from "@utils/expression.js";
+import { useContextType } from "@utils/react.js";
 
 // Group operators by category for better organization in the dropdown
 const operatorGroups = {
@@ -18,7 +18,7 @@ const OperatorToken = React.forwardRef(
     const compatibleOperators = findCompatibleOperators(
       [expression[0]],
       bindings,
-      contextType,
+      contextType
     );
 
     const invalid = !compatibleOperators.find((op) => op === token.value);
@@ -40,7 +40,7 @@ const OperatorToken = React.forwardRef(
         {Object.entries(operatorGroups).map(([groupName, operators]) => {
           // Filter operators by compatibility
           const groupOperators = operators.filter((op) =>
-            compatibleOperators.includes(op),
+            compatibleOperators.includes(op)
           );
 
           // Only render group if it has compatible operators
@@ -58,7 +58,7 @@ const OperatorToken = React.forwardRef(
         })}
       </select>
     );
-  },
+  }
 );
 
 export default OperatorToken;

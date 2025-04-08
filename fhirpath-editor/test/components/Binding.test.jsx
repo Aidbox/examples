@@ -2,10 +2,10 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Binding from "../Binding";
+import Binding from "@components/Binding";
 
 // Mock the imported components
-vi.mock("../Token", () => {
+vi.mock("@components/Token", () => {
   const MockToken = React.forwardRef(({ value, index, deleting }, ref) => (
     <div
       data-testid={`token-${index}`}
@@ -20,7 +20,7 @@ vi.mock("../Token", () => {
   return { default: MockToken };
 });
 
-vi.mock("../Cursor", () => {
+vi.mock("@components/Cursor", () => {
   const MockCursor = React.forwardRef(({ hovering, empty }, ref) => (
     <div
       data-testid="cursor"
@@ -35,13 +35,13 @@ vi.mock("../Cursor", () => {
 });
 
 // Mock the utility functions
-vi.mock("../utils/types", () => ({
+vi.mock("@utils/type", () => ({
   suggestNextToken: vi.fn(() => []),
   getExpressionType: vi.fn(() => "string"),
   findCompatibleVariables: vi.fn(() => []),
 }));
 
-vi.mock("../utils/react", () => ({
+vi.mock("@utils/react", () => ({
   __esModule: true,
   mergeRefs: () => vi.fn(),
   useCommitableState: (initialValue, onCommit) => {
@@ -88,7 +88,7 @@ describe("Binding", () => {
 
   it("should not render name input if name is null", () => {
     render(
-      <Binding {...mockProps} value={{ ...mockProps.value, name: null }} />,
+      <Binding {...mockProps} value={{ ...mockProps.value, name: null }} />
     );
 
     // There should be no input for name
@@ -128,7 +128,7 @@ describe("Binding", () => {
             { type: "operator", value: "+" },
           ],
         }}
-      />,
+      />
     );
 
     // There should be one less token
@@ -158,7 +158,7 @@ describe("Binding", () => {
 
   it("should handle deleting the binding when name is not null and expression is empty", () => {
     render(
-      <Binding {...mockProps} value={{ ...mockProps.value, expression: [] }} />,
+      <Binding {...mockProps} value={{ ...mockProps.value, expression: [] }} />
     );
 
     // Simulate deleting with empty expression

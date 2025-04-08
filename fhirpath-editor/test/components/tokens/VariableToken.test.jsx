@@ -2,10 +2,10 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import VariableToken from "../VariableToken";
+import VariableToken from "@components/tokens/VariableToken";
 
 // Mock the utility function
-vi.mock("../../../utils/types", () => ({
+vi.mock("@utils/type", () => ({
   findCompatibleVariables: vi.fn((bindings) => bindings),
 }));
 

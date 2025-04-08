@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
-import SortableBinding from "../SortableBinding";
+import SortableBinding from "@components/SortableBinding";
 
 // Mock the useSortable hook
 vi.mock("@dnd-kit/sortable", () => ({
@@ -17,7 +17,7 @@ vi.mock("@dnd-kit/sortable", () => ({
 }));
 
 // Mock the Binding and DragHandle components
-vi.mock("../Binding", () => ({
+vi.mock("@components/Binding", () => ({
   default: React.forwardRef((props, ref) => (
     <div data-testid="binding" ref={ref}>
       Mock Binding
@@ -25,7 +25,7 @@ vi.mock("../Binding", () => ({
   )),
 }));
 
-vi.mock("../DragHandle", () => ({
+vi.mock("@components/DragHandle", () => ({
   default: () => <div data-testid="drag-handle">Mock DragHandle</div>,
 }));
 

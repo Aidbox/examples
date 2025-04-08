@@ -17,6 +17,7 @@ import {
   QuantityType,
   SingleType,
   StringType,
+  substituteBindings,
   TimeType,
   TypeType,
   unwrapSingle,
@@ -178,6 +179,7 @@ export const getExpressionType = (expression, bindings, contextType) => {
         for (let i = 0; i < meta.args.length; i++) {
           const arg = meta.args[i];
           const program = token.args?.[i];
+          const expectedType = meta.args[i].type;
 
           if (!program) {
             if (arg.optional) {
@@ -188,11 +190,7 @@ export const getExpressionType = (expression, bindings, contextType) => {
             }
           }
 
-          const suggestedType = suggestArgumentTypesForFunction(
-            meta.name,
-            currentType,
-            result,
-          )[i];
+          const suggestedType = substituteBindings(expectedType, bindings);
 
           const programType = getExpressionType(
             program.expression,
@@ -202,20 +200,23 @@ export const getExpressionType = (expression, bindings, contextType) => {
               : contextType,
           );
 
-          const expected = meta.args[i].type;
-          const actual =
+          const actualType =
             suggestedType?.type === "Lambda"
               ? LambdaType(programType, suggestedType.contextType)
               : programType;
 
-          const newBindings = matchTypePattern(expected, actual, bindings);
+          const newBindings = matchTypePattern(
+            expectedType,
+            actualType,
+            bindings,
+          );
           if (!newBindings)
             return InvalidType(`Argument mismatch at index ${i}`);
 
           bindings = mergeBindings(bindings, newBindings);
           if (!bindings) return InvalidType(`Binding mismatch at index ${i}`);
 
-          result.push(actual);
+          result.push(actualType);
         }
 
         currentType = meta.returnType({

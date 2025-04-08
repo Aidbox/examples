@@ -2,43 +2,43 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Token from "../Token";
+import Token from "@components/Token";
 
 // Mock the token subcomponents
-vi.mock("../tokens/NumberToken", () => ({
+vi.mock("@components/tokens/NumberToken", () => ({
   default: () => <div data-testid="number-token">Number Token</div>,
 }));
-vi.mock("../tokens/StringToken", () => ({
+vi.mock("@components/tokens/StringToken", () => ({
   default: () => <div data-testid="string-token">String Token</div>,
 }));
-vi.mock("../tokens/BooleanToken", () => ({
+vi.mock("@components/tokens/BooleanToken", () => ({
   default: () => <div data-testid="boolean-token">Boolean Token</div>,
 }));
-vi.mock("../tokens/DateToken", () => ({
+vi.mock("@components/tokens/DateToken", () => ({
   default: () => <div data-testid="date-token">Date Token</div>,
 }));
-vi.mock("../tokens/DateTimeToken", () => ({
+vi.mock("@components/tokens/DateTimeToken", () => ({
   default: () => <div data-testid="datetime-token">DateTime Token</div>,
 }));
-vi.mock("../tokens/TimeToken", () => ({
+vi.mock("@components/tokens/TimeToken", () => ({
   default: () => <div data-testid="time-token">Time Token</div>,
 }));
-vi.mock("../tokens/QuantityToken", () => ({
+vi.mock("@components/tokens/QuantityToken", () => ({
   default: () => <div data-testid="quantity-token">Quantity Token</div>,
 }));
-vi.mock("../tokens/TypeToken", () => ({
+vi.mock("@components/tokens/TypeToken", () => ({
   default: () => <div data-testid="type-token">Type Token</div>,
 }));
-vi.mock("../tokens/IndexToken", () => ({
+vi.mock("@components/tokens/IndexToken", () => ({
   default: () => <div data-testid="index-token">Index Token</div>,
 }));
-vi.mock("../tokens/OperatorToken", () => ({
+vi.mock("@components/tokens/OperatorToken", () => ({
   default: () => <div data-testid="operator-token">Operator Token</div>,
 }));
-vi.mock("../tokens/VariableToken", () => ({
+vi.mock("@components/tokens/VariableToken", () => ({
   default: () => <div data-testid="variable-token">Variable Token</div>,
 }));
-vi.mock("../tokens/FieldToken", () => ({
+vi.mock("@components/tokens/FieldToken", () => ({
   default: () => <div data-testid="field-token">Field Token</div>,
 }));
 
@@ -72,7 +72,7 @@ describe("Token", () => {
 
   it("should render date token", () => {
     render(
-      <Token {...mockProps} value={{ type: "date", value: "2023-05-15" }} />,
+      <Token {...mockProps} value={{ type: "date", value: "2023-05-15" }} />
     );
     expect(screen.getByTestId("date-token")).toBeInTheDocument();
   });
@@ -82,7 +82,7 @@ describe("Token", () => {
       <Token
         {...mockProps}
         value={{ type: "datetime", value: "2023-05-15T14:30" }}
-      />,
+      />
     );
     expect(screen.getByTestId("datetime-token")).toBeInTheDocument();
   });
@@ -100,7 +100,7 @@ describe("Token", () => {
           type: "quantity",
           value: { value: "70", unit: "kg" },
         }}
-      />,
+      />
     );
     expect(screen.getByTestId("quantity-token")).toBeInTheDocument();
   });
@@ -122,7 +122,7 @@ describe("Token", () => {
 
   it("should render variable token", () => {
     render(
-      <Token {...mockProps} value={{ type: "variable", value: "var1" }} />,
+      <Token {...mockProps} value={{ type: "variable", value: "var1" }} />
     );
     expect(screen.getByTestId("variable-token")).toBeInTheDocument();
   });
@@ -143,7 +143,7 @@ describe("Token", () => {
         {...mockProps}
         value={{ type: "number", value: "42" }}
         deleting={true}
-      />,
+      />
     );
     const container = screen.getByTestId("number-token").parentElement;
     expect(container).toHaveClass("bg-red-500");

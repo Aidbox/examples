@@ -1,12 +1,12 @@
 import React from "react";
-import Editor from "./components/Editor";
-import { FhirType } from "./utils/fhir-type";
-import { appToFhirPath, highlightFhirPath } from "./utils/fhir";
-import { useDebug } from "./utils/react";
+import Editor from "@components/Editor";
+import { FhirType } from "@utils/fhir-type";
+import { stringifyProgram, highlightFhirPath } from "@utils/fhir";
+import { useDebug } from "@utils/react";
 
 export function App() {
   const debug = useDebug();
-  const [app, setApp] = React.useState({
+  const [program, setProgram] = React.useState({
     bindings: [
       {
         name: "myString",
@@ -86,8 +86,8 @@ export function App() {
     <div className="gap-2 h-screen grid grid-cols-2">
       <div className="p-8 border-r border-gray-200 overflow-auto">
         <Editor
-          value={app}
-          setValue={setApp}
+          value={program}
+          setValue={setProgram}
           contextType={FhirType(["Patient"])}
           externalBindings={[
             {
@@ -111,14 +111,14 @@ export function App() {
         <div
           className="text-xs p-4 rounded-md border border-gray-200 w-fit"
           dangerouslySetInnerHTML={{
-            __html: highlightFhirPath(appToFhirPath(app)),
+            __html: highlightFhirPath(stringifyProgram(program)),
           }}
         />
         {debug && (
           <>
             <h2 className="font-semibold">State</h2>
             <pre className="mt-2 text-xs bg-gray-50 p-2 rounded-md border border-gray-200">
-              {JSON.stringify(app, null, 2)}
+              {JSON.stringify(program, null, 2)}
             </pre>
           </>
         )}

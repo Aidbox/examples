@@ -29,8 +29,8 @@ import {
   Timer,
 } from "@phosphor-icons/react";
 import React, { forwardRef, useImperativeHandle } from "react";
-import { useContextType } from "../utils/react";
-import { suggestNextToken } from "../utils/expression.js";
+import { useContextType } from "@utils/react";
+import { suggestNextToken } from "@utils/expression.js";
 
 const labels = {
   number: "Number",
@@ -59,7 +59,7 @@ const Cursor = forwardRef(
       bindings,
       placeholder,
     },
-    forwardingRef,
+    forwardingRef
   ) => {
     const containerRef = React.useRef(null);
     const dropdownRef = React.useRef(null);
@@ -361,7 +361,7 @@ const Cursor = forwardRef(
         )}
       </div>
     );
-  },
+  }
 );
 
 export default Cursor;

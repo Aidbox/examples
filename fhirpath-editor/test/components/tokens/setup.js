@@ -6,7 +6,7 @@ export const mockFn = vi.fn;
 
 // Create mock implementations
 export const mockModules = {
-  "../../../utils/types": {
+  "@utils/type": {
     findCompatibleVariables: vi.fn((bindings) => bindings),
     getCompatibleOperators: vi.fn(() => ["+", "-", "*", "/"]),
     getAvailableFields: vi.fn(() => ["name", "id", "status"]),

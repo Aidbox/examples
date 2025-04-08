@@ -15,11 +15,11 @@ import {
   category,
   functionMetadata,
   suggestArgumentTypesForFunction,
-} from "../../utils/function";
-import Editor from "../Editor";
+} from "@utils/function";
+import Editor from "@components/Editor";
 import { CircleDashed, DotsThreeCircle, Trash } from "@phosphor-icons/react";
-import { useContextType } from "../../utils/react.js";
-import { getExpressionType } from "../../utils/expression.js";
+import { useContextType } from "@utils/react.js";
+import { getExpressionType } from "@utils/expression.js";
 
 const Argument = ({ arg, value, onChange, bindings, suggestedType }) => {
   const contextType = useContextType();
@@ -42,7 +42,7 @@ const Argument = ({ arg, value, onChange, bindings, suggestedType }) => {
             });
           },
         },
-        [value],
+        [value]
       ),
     ],
   });
@@ -132,7 +132,7 @@ const FunctionToken = React.forwardRef(
     const suggestArgumentTypes = suggestArgumentTypesForFunction(
       meta.name,
       inputType,
-      [],
+      []
     );
 
     const empty =
@@ -190,7 +190,7 @@ const FunctionToken = React.forwardRef(
         ))}
       </div>
     );
-  },
+  }
 );
 
 export default FunctionToken;

@@ -8,8 +8,8 @@ import {
   QuantityType,
   StringType,
   TimeType,
-} from "../../utils/type";
-import { primitiveTypeMap } from "../../utils/fhir-type";
+} from "@utils/type";
+import { primitiveTypeMap } from "@utils/fhir-type";
 
 const typeNames = {
   "Literal types": [

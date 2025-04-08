@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import TypeToken from "../TypeToken";
+import TypeToken from "@components/tokens/TypeToken";
 
 describe("TypeToken", () => {
   const mockProps = {

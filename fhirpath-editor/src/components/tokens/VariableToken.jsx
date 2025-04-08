@@ -1,7 +1,7 @@
 import React from "react";
 
-import { findCompatibleVariables } from "../../utils/expression.js";
-import { useContextType } from "../../utils/react.js";
+import { findCompatibleVariables } from "@utils/expression.js";
+import { useContextType } from "@utils/react.js";
 
 const VariableToken = React.forwardRef(
   ({ token, onChange, bindings, expression }, ref) => {
@@ -11,16 +11,16 @@ const VariableToken = React.forwardRef(
     const compatibleBindings = findCompatibleVariables(
       expression,
       bindings,
-      contextType,
+      contextType
     );
     const externalBindings = compatibleBindings.filter(
-      ({ expression }) => !expression,
+      ({ expression }) => !expression
     );
     const localBindings = compatibleBindings.filter(
-      ({ expression }) => expression,
+      ({ expression }) => expression
     );
     const invalid = !compatibleBindings.find(
-      ({ name }) => name === token.value,
+      ({ name }) => name === token.value
     );
 
     return (
@@ -56,7 +56,7 @@ const VariableToken = React.forwardRef(
         )}
       </select>
     );
-  },
+  }
 );
 
 export default VariableToken;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import appToFhirPath, { expressionToFhirPath } from "../fhir";
+import { stringifyProgram, stringifyExpression } from "@utils/fhir";
 
 describe("FHIRPath conversion", () => {
   it("should convert number tokens correctly", () => {
@@ -7,12 +7,12 @@ describe("FHIRPath conversion", () => {
       { type: "number", value: "42" },
       { type: "number", value: "3.14" },
     ];
-    expect(expressionToFhirPath(expression)).toBe("423.14");
+    expect(stringifyExpression(expression)).toBe("423.14");
   });
 
   it("should convert string tokens correctly", () => {
     const expression = [{ type: "string", value: "hello" }];
-    expect(expressionToFhirPath(expression)).toBe("'hello'");
+    expect(stringifyExpression(expression)).toBe("'hello'");
   });
 
   it("should convert boolean tokens correctly", () => {
@@ -21,44 +21,44 @@ describe("FHIRPath conversion", () => {
       { type: "operator", value: "and" },
       { type: "boolean", value: "false" },
     ];
-    expect(expressionToFhirPath(expression)).toBe("true and false");
+    expect(stringifyExpression(expression)).toBe("true and false");
   });
 
   it("should convert date tokens correctly", () => {
     const expression = [{ type: "date", value: "2023-05-15" }];
-    expect(expressionToFhirPath(expression)).toBe("@2023-05-15");
+    expect(stringifyExpression(expression)).toBe("@2023-05-15");
   });
 
   it("should convert datetime tokens correctly", () => {
     const expression = [{ type: "datetime", value: "2023-05-15T14:30:00" }];
-    expect(expressionToFhirPath(expression)).toBe("@2023-05-15T14:30:00");
+    expect(stringifyExpression(expression)).toBe("@2023-05-15T14:30:00");
   });
 
   it("should convert time tokens correctly", () => {
     const expression = [{ type: "time", value: "14:30:00" }];
-    expect(expressionToFhirPath(expression)).toBe("@T14:30:00");
+    expect(stringifyExpression(expression)).toBe("@T14:30:00");
   });
 
   it("should convert quantity tokens with object values correctly", () => {
     const expression = [
       { type: "quantity", value: { value: "70", unit: "kg" } },
     ];
-    expect(expressionToFhirPath(expression)).toBe("70 'kg'");
+    expect(stringifyExpression(expression)).toBe("70 'kg'");
   });
 
   it("should handle empty quantity tokens gracefully", () => {
     const expression = [{ type: "quantity", value: "" }];
-    expect(expressionToFhirPath(expression)).toBe("0 ''");
+    expect(stringifyExpression(expression)).toBe("0 ''");
   });
 
   it("should handle null quantity tokens gracefully", () => {
     const expression = [{ type: "quantity", value: null }];
-    expect(expressionToFhirPath(expression)).toBe("0 ''");
+    expect(stringifyExpression(expression)).toBe("0 ''");
   });
 
   it("should convert variable tokens correctly", () => {
     const expression = [{ type: "variable", value: "patient" }];
-    expect(expressionToFhirPath(expression)).toBe("%patient");
+    expect(stringifyExpression(expression)).toBe("%patient");
   });
 
   it("should convert field tokens correctly", () => {
@@ -66,7 +66,7 @@ describe("FHIRPath conversion", () => {
       { type: "variable", value: "patient" },
       { type: "field", value: "name" },
     ];
-    expect(expressionToFhirPath(expression)).toBe("%patient.name");
+    expect(stringifyExpression(expression)).toBe("%patient.name");
   });
 
   it("should handle various operators correctly", () => {
@@ -76,7 +76,7 @@ describe("FHIRPath conversion", () => {
       { type: "operator", value: "=" },
       { type: "number", value: "42" },
     ];
-    expect(expressionToFhirPath(eqExpression)).toBe("%age = 42");
+    expect(stringifyExpression(eqExpression)).toBe("%age = 42");
 
     // Test & operator (string concatenation)
     const concatExpression = [
@@ -84,7 +84,7 @@ describe("FHIRPath conversion", () => {
       { type: "operator", value: "&" },
       { type: "string", value: "World" },
     ];
-    expect(expressionToFhirPath(concatExpression)).toBe("'Hello' & 'World'");
+    expect(stringifyExpression(concatExpression)).toBe("'Hello' & 'World'");
 
     // Test other operators
     const otherOperators = [
@@ -92,7 +92,7 @@ describe("FHIRPath conversion", () => {
       { type: "operator", value: ">" },
       { type: "number", value: "5" },
     ];
-    expect(expressionToFhirPath(otherOperators)).toBe("10 > 5");
+    expect(stringifyExpression(otherOperators)).toBe("10 > 5");
   });
 
   it("should convert complex expressions correctly", () => {
@@ -108,8 +108,8 @@ describe("FHIRPath conversion", () => {
       { type: "quantity", value: { value: "100", unit: "kg" } },
     ];
 
-    expect(expressionToFhirPath(complexExpression)).toBe(
-      "%patient.age > 18 and %patient.weight < 100 'kg'",
+    expect(stringifyExpression(complexExpression)).toBe(
+      "%patient.age > 18 and %patient.weight < 100 'kg'"
     );
   });
 
@@ -129,14 +129,14 @@ describe("FHIRPath conversion", () => {
       ],
     };
 
-    expect(appToFhirPath(app)).toBe(
-      "defineVariable(patient, %Resource)\n.select(%patient.age > 18)",
+    expect(stringifyProgram(app)).toBe(
+      "defineVariable(patient, %Resource)\n.select(%patient.age > 18)"
     );
   });
 
   it("should convert type tokens correctly", () => {
     const expression = [{ type: "type", value: "String" }];
-    expect(expressionToFhirPath(expression)).toBe("String");
+    expect(stringifyExpression(expression)).toBe("String");
   });
 
   it("should convert is operator with type token correctly", () => {
@@ -146,7 +146,7 @@ describe("FHIRPath conversion", () => {
       { type: "operator", value: "is" },
       { type: "type", value: "String" },
     ];
-    expect(expressionToFhirPath(expression)).toBe("%patient.name is String");
+    expect(stringifyExpression(expression)).toBe("%patient.name is String");
   });
 
   it("should convert as operator with type token correctly", () => {
@@ -156,7 +156,7 @@ describe("FHIRPath conversion", () => {
       { type: "operator", value: "as" },
       { type: "type", value: "Decimal" },
     ];
-    expect(expressionToFhirPath(expression)).toBe("%patient.age as Decimal");
+    expect(stringifyExpression(expression)).toBe("%patient.age as Decimal");
   });
 
   it("should convert index tokens correctly", () => {
@@ -165,7 +165,7 @@ describe("FHIRPath conversion", () => {
       { type: "field", value: "name" },
       { type: "index", value: "0" },
     ];
-    expect(expressionToFhirPath(expression)).toBe("%patient.name[0]");
+    expect(stringifyExpression(expression)).toBe("%patient.name[0]");
   });
 
   it("should handle nested field access with indices", () => {
@@ -176,6 +176,6 @@ describe("FHIRPath conversion", () => {
       { type: "field", value: "given" },
       { type: "index", value: "0" },
     ];
-    expect(expressionToFhirPath(expression)).toBe("%patient.name[0].given[0]");
+    expect(stringifyExpression(expression)).toBe("%patient.name[0].given[0]");
   });
 });

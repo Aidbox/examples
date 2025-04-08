@@ -2,9 +2,9 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import FieldToken from "../FieldToken";
+import FieldToken from "@components/tokens/FieldToken";
 
-vi.mock(import("../../../utils/fhir-type.js"), async (importOriginal) => {
+vi.mock(import("@utils/fhir-type.js"), async (importOriginal) => {
   const mod = await importOriginal();
   return {
     ...mod,
@@ -12,7 +12,7 @@ vi.mock(import("../../../utils/fhir-type.js"), async (importOriginal) => {
   };
 });
 
-vi.mock(import("../../../utils/expression.js"), async (importOriginal) => {
+vi.mock(import("@utils/expression.js"), async (importOriginal) => {
   const mod = await importOriginal();
   return {
     ...mod,

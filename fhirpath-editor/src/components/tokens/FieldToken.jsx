@@ -1,7 +1,7 @@
 import React from "react";
-import { getExpressionType } from "../../utils/expression.js";
-import { getFields } from "../../utils/fhir-type";
-import { useContextType } from "../../utils/react.js";
+import { getExpressionType } from "@utils/expression.js";
+import { getFields } from "@utils/fhir-type";
+import { useContextType } from "@utils/react.js";
 
 const FieldToken = React.forwardRef(
   ({ token, onChange, bindings, expression }, ref) => {
@@ -10,7 +10,7 @@ const FieldToken = React.forwardRef(
     const fields = getFields(
       expression.length > 1
         ? getExpressionType(expression.slice(0, -1), bindings, contextType)
-        : contextType,
+        : contextType
     );
     const invalid = fields[token.value] === undefined;
 
@@ -35,7 +35,7 @@ const FieldToken = React.forwardRef(
         </select>
       </label>
     );
-  },
+  }
 );
 
 export default FieldToken;

@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import IndexToken from "../IndexToken";
+import IndexToken from "@components/tokens/IndexToken";
 
 describe("IndexToken", () => {
   const mockProps = {

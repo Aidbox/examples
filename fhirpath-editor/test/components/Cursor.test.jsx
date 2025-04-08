@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Cursor from "../Cursor";
+import Cursor from "@components/Cursor";
 
 // Mock floating-ui
 vi.mock("@floating-ui/react", () => ({
@@ -24,7 +24,7 @@ vi.mock("react-dom", () => ({
 }));
 
 // Mock utils
-vi.mock("../utils/react", () => ({
+vi.mock("@utils/react", () => ({
   __esModule: true,
   mergeRefs: () => vi.fn(),
 }));
@@ -80,7 +80,7 @@ describe("Cursor", () => {
 
     // Initially should show all tokens
     expect(screen.getAllByRole("button").length).toBe(
-      mockProps.nextTokens.length,
+      mockProps.nextTokens.length
     );
 
     // Type in search to filter
