@@ -45,7 +45,7 @@ function Editor({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const addBinding = (binding, afterIndex = value.bindings.length) => {
@@ -67,7 +67,7 @@ function Editor({
 
   const handleDragStart = (event) => {
     setLastInputWidth(
-      bindingRefs.current[value.bindings.length - 1]?.width || "auto"
+      bindingRefs.current[value.bindings.length - 1]?.width || "auto",
     );
     setActiveId(event.active.id);
   };
@@ -81,7 +81,7 @@ function Editor({
 
     if (over && active.id !== over.id) {
       const oldIndex = value.bindings.findIndex(
-        (item) => item.id === active.id
+        (item) => item.id === active.id,
       );
       const newIndex = value.bindings.findIndex((item) => item.id === over.id);
 
@@ -129,7 +129,7 @@ function Editor({
           (
             bindingRefs.current[index - 1] || bindingRefs.current[index]
           )?.focus(),
-        0
+        0,
       );
       return;
     }
@@ -156,7 +156,7 @@ function Editor({
               token.type === "variable" &&
               token.value === value.bindings[index].name
                 ? { ...token, value: binding.name }
-                : token
+                : token,
             ),
           };
         }
@@ -226,10 +226,10 @@ function Editor({
             {activeId
               ? (() => {
                   const draggedIndex = value.bindings.findIndex(
-                    (b) => b.id === activeId
+                    (b) => b.id === activeId,
                   );
                   const draggedBinding = value.bindings.find(
-                    (b) => b.id === activeId
+                    (b) => b.id === activeId,
                   );
 
                   const overIndex = overItemId
@@ -240,11 +240,13 @@ function Editor({
                     overIndex === -1 ||
                     canMoveBinding(value.bindings, draggedIndex, overIndex);
 
+                  const movingUp = overIndex < draggedIndex;
+
                   return (
                     <div
                       className="grid opacity-80 *:bg-white flex flex-row gap-2 relative items-center"
                       style={{
-                        gridTemplateColumns: `${lastInputWidth} auto 1fr`,
+                        gridTemplateColumns: `${lastInputWidth} auto 1fr auto`,
                       }}
                     >
                       <BindingMenu valid={isValidMove} active={true} />
@@ -255,6 +257,13 @@ function Editor({
                           ...value.bindings.slice(0, draggedIndex),
                         ]}
                       />
+                      {!isValidMove && (
+                        <div className="text-red-500 text-xs whitespace-nowrap">
+                          {movingUp
+                            ? "This expression refers to at least one of the expressions above"
+                            : "This expression is referenced by at least one of the expressions below"}
+                        </div>
+                      )}
                     </div>
                   );
                 })()
