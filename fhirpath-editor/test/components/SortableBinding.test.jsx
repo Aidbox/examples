@@ -40,7 +40,7 @@ describe("SortableBinding", () => {
   it("should render the drag handle and binding", () => {
     render(<SortableBinding {...mockProps} />);
 
-    expect(screen.getByTestId("drag-handle")).toBeInTheDocument();
+    expect(screen.getByRole("button")).toBeInTheDocument();
     expect(screen.getByTestId("binding")).toBeInTheDocument();
   });
 

@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import OperatorToken from "@components/tokens/OperatorToken";
+import { ContextTypeProvider } from "@utils/react";
 
 describe("OperatorToken", () => {
   const mockProps = {
@@ -12,18 +13,29 @@ describe("OperatorToken", () => {
     expression: [{ type: "number", value: "5" }],
   };
 
+  const renderWithProvider = (ui, { providerProps, ...renderOptions } = {}) => {
+    return render(
+      <ContextTypeProvider {...providerProps}>{ui}</ContextTypeProvider>,
+      renderOptions
+    );
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("should render with the correct value", () => {
-    render(<OperatorToken {...mockProps} />);
+    renderWithProvider(<OperatorToken {...mockProps} />, {
+      providerProps: { value: { type: "number" } },
+    });
     const select = screen.getByRole("combobox");
     expect(select).toHaveValue("+");
   });
 
   it("should render all operator options in the dropdown", () => {
-    render(<OperatorToken {...mockProps} />);
+    renderWithProvider(<OperatorToken {...mockProps} />, {
+      providerProps: { value: { type: "number" } },
+    });
     const select = screen.getByRole("combobox");
 
     // Open dropdown
@@ -38,7 +50,9 @@ describe("OperatorToken", () => {
   });
 
   it("should call onChange when selection changes", () => {
-    render(<OperatorToken {...mockProps} />);
+    renderWithProvider(<OperatorToken {...mockProps} />, {
+      providerProps: { value: { type: "number" } },
+    });
     const select = screen.getByRole("combobox");
 
     // Change selection
@@ -51,7 +65,9 @@ describe("OperatorToken", () => {
   });
 
   it("should have proper styling for the token", () => {
-    render(<OperatorToken {...mockProps} />);
+    renderWithProvider(<OperatorToken {...mockProps} />, {
+      providerProps: { value: { type: "number" } },
+    });
     const select = screen.getByRole("combobox");
 
     // Operator tokens typically have special styling
@@ -59,7 +75,9 @@ describe("OperatorToken", () => {
   });
 
   it("should apply focus styling", () => {
-    render(<OperatorToken {...mockProps} />);
+    renderWithProvider(<OperatorToken {...mockProps} />, {
+      providerProps: { value: { type: "number" } },
+    });
     const select = screen.getByRole("combobox");
 
     fireEvent.focus(select);
@@ -68,7 +86,9 @@ describe("OperatorToken", () => {
 
   it("should forward the ref to the select element", () => {
     const ref = React.createRef();
-    render(<OperatorToken {...mockProps} ref={ref} />);
+    renderWithProvider(<OperatorToken {...mockProps} ref={ref} />, {
+      providerProps: { value: { type: "number" } },
+    });
 
     expect(ref.current).toBeInstanceOf(HTMLSelectElement);
     expect(ref.current).toHaveValue("+");

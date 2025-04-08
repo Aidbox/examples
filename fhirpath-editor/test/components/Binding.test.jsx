@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Binding from "@components/Binding";
+import { FhirType } from "@utils/fhir-type";
 
 // Mock the imported components
 vi.mock("@components/Token", () => {
@@ -35,11 +36,15 @@ vi.mock("@components/Cursor", () => {
 });
 
 // Mock the utility functions
-vi.mock("@utils/type", () => ({
-  suggestNextToken: vi.fn(() => []),
-  getExpressionType: vi.fn(() => "string"),
-  findCompatibleVariables: vi.fn(() => []),
-}));
+vi.mock(import("@utils/type"), async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    suggestNextToken: vi.fn(() => []),
+    getExpressionType: vi.fn(() => "string"),
+    findCompatibleVariables: vi.fn(() => []),
+  };
+});
 
 vi.mock("@utils/react", () => ({
   __esModule: true,
@@ -48,6 +53,8 @@ vi.mock("@utils/react", () => ({
     const [value, setValue] = React.useState(initialValue);
     return [value, setValue, () => onCommit(value)];
   },
+  useDebug: vi.fn(() => false),
+  useContextType: vi.fn(() => FhirType(["Patient"])),
 }));
 
 describe("Binding", () => {

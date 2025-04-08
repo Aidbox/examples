@@ -277,6 +277,7 @@ const Cursor = forwardRef(
                 dropdownRef.current = ref;
                 refs.setFloating(ref);
               }}
+              data-testid="cursor-dropdown"
             >
               {tokens.length > 0
                 ? tokens.map((token, index) => (
@@ -356,7 +357,6 @@ const Cursor = forwardRef(
                 </div>
               )}
             </div>
-            ,
           </FloatingPortal>
         )}
       </div>

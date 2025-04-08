@@ -177,6 +177,7 @@ function Editor({
           <button
             className="cursor-pointer rounded-full p-0.5 border hover:text-blue-500 active:text-white active:bg-blue-500 active:border-blue-500"
             onClick={() => addBinding()}
+            aria-label="add binding"
           >
             <Plus size={10} weight="bold" />
           </button>

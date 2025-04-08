@@ -94,11 +94,6 @@ describe("Editor", () => {
     // Check if add binding button is rendered
     const addButton = screen.getByRole("button", { name: /add binding/i });
     expect(addButton).toBeInTheDocument();
-
-    screen.getByText("Debug").click();
-
-    // Check if compiled FHIRPath is rendered
-    // expect(screen.getByText("compiled-fhir-path")).toBeInTheDocument();
   });
 
   it("should add a new binding when Add Binding button is clicked", () => {

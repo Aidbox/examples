@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Cursor from "@components/Cursor";
+import { FhirType } from "@utils/fhir-type";
 
 // Mock floating-ui
 vi.mock("@floating-ui/react", () => ({
@@ -12,10 +13,16 @@ vi.mock("@floating-ui/react", () => ({
   useFloating: () => ({
     refs: { setReference: vi.fn(), setFloating: vi.fn() },
     floatingStyles: { position: "absolute" },
+    context: {}, // Mock context object
+  }),
+  useInteractions: () => ({
+    getReferenceProps: vi.fn(() => ({})), // Mock getReferenceProps
+    getFloatingProps: vi.fn(() => ({})), // Mock getFloatingProps
   }),
   shift: vi.fn(() => ({ shift: true })),
   flip: vi.fn(() => ({ flip: true })),
   size: vi.fn(() => ({ size: true })),
+  FloatingPortal: ({ children }) => <>{children}</>,
 }));
 
 // Mock createPortal to render children directly
@@ -27,17 +34,21 @@ vi.mock("react-dom", () => ({
 vi.mock("@utils/react", () => ({
   __esModule: true,
   mergeRefs: () => vi.fn(),
+  useContextType: vi.fn(() => FhirType(["Patient"])),
+}));
+
+vi.mock("@utils/expression", () => ({
+  suggestNextToken: vi.fn(() => [
+    { type: "number" },
+    { type: "string" },
+    { type: "variable" },
+    { type: "operator" },
+  ]),
 }));
 
 describe("Cursor", () => {
   const mockProps = {
     id: "test-cursor",
-    nextTokens: [
-      { type: "number" },
-      { type: "string" },
-      { type: "variable" },
-      { type: "operator" },
-    ],
     onAddToken: vi.fn(),
     onDeleteToken: vi.fn(),
     hovering: false,
@@ -51,19 +62,19 @@ describe("Cursor", () => {
   });
 
   it("should render input field", () => {
-    render(<Cursor {...mockProps} />);
+    render(<Cursor {...mockProps} expression={[]} />);
     expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 
   it("should show arrow icon when hovering", () => {
-    render(<Cursor {...mockProps} hovering={true} />);
+    render(<Cursor {...mockProps} hovering={true} expression={[]} />);
     expect(screen.getByRole("textbox")).toBeInTheDocument();
     // The arrow icon would be rendered when hovering is true
     // but it's difficult to test directly due to the PhosphorIcons component
   });
 
   it("should open dropdown when input is focused", () => {
-    render(<Cursor {...mockProps} />);
+    render(<Cursor {...mockProps} expression={[]} />);
     const input = screen.getByRole("textbox");
     fireEvent.focus(input);
 
@@ -73,14 +84,14 @@ describe("Cursor", () => {
 
   it("should filter tokens based on search input", async () => {
     const user = userEvent.setup();
-    render(<Cursor {...mockProps} />);
+    render(<Cursor {...mockProps} expression={[]} />);
 
     const input = screen.getByRole("textbox");
     fireEvent.focus(input);
 
     // Initially should show all tokens
     expect(screen.getAllByRole("button").length).toBe(
-      mockProps.nextTokens.length
+      4
     );
 
     // Type in search to filter
@@ -92,7 +103,7 @@ describe("Cursor", () => {
   });
 
   it("should call onAddToken when a token is selected", () => {
-    render(<Cursor {...mockProps} />);
+    render(<Cursor {...mockProps} expression={[]} />);
     const input = screen.getByRole("textbox");
     fireEvent.focus(input);
 
@@ -104,7 +115,7 @@ describe("Cursor", () => {
   });
 
   it("should call onDeleteToken when backspace is pressed with empty search", () => {
-    render(<Cursor {...mockProps} />);
+    render(<Cursor {...mockProps} expression={[]} />);
     const input = screen.getByRole("textbox");
 
     fireEvent.focus(input);
@@ -114,7 +125,7 @@ describe("Cursor", () => {
   });
 
   it("should navigate dropdown with arrow keys", () => {
-    render(<Cursor {...mockProps} />);
+    render(<Cursor {...mockProps} expression={[]} />);
     const input = screen.getByRole("textbox");
 
     fireEvent.focus(input);
@@ -133,7 +144,7 @@ describe("Cursor", () => {
   });
 
   it("should close dropdown when escape is pressed", () => {
-    render(<Cursor {...mockProps} />);
+    render(<Cursor {...mockProps} expression={[]} />);
     const input = screen.getByRole("textbox");
 
     fireEvent.focus(input);

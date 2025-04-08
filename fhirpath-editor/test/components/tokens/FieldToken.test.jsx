@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FieldToken from "@components/tokens/FieldToken";
+import { ContextTypeProvider } from "@utils/react";
 
 vi.mock(import("@utils/fhir-type.js"), async (importOriginal) => {
   const mod = await importOriginal();
@@ -32,18 +33,29 @@ describe("FieldToken", () => {
     deleting: false,
   };
 
+  const renderWithProvider = (ui, { providerProps, ...renderOptions } = {}) => {
+    return render(
+      <ContextTypeProvider {...providerProps}>{ui}</ContextTypeProvider>,
+      renderOptions
+    );
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("should render with the correct value", () => {
-    render(<FieldToken {...mockProps} />);
+    renderWithProvider(<FieldToken {...mockProps} />, {
+      providerProps: { value: { type: "Patient" } },
+    });
     const select = screen.getByRole("combobox");
     expect(select).toHaveValue("name");
   });
 
   it("should render all field options in the dropdown", () => {
-    render(<FieldToken {...mockProps} />);
+    renderWithProvider(<FieldToken {...mockProps} />, {
+      providerProps: { value: { type: "Patient" } },
+    });
     const select = screen.getByRole("combobox");
 
     // Open dropdown
@@ -58,7 +70,9 @@ describe("FieldToken", () => {
   });
 
   it("should call onChange when selection changes", () => {
-    render(<FieldToken {...mockProps} />);
+    renderWithProvider(<FieldToken {...mockProps} />, {
+      providerProps: { value: { type: "Patient" } },
+    });
     const select = screen.getByRole("combobox");
 
     // Change selection
@@ -71,14 +85,18 @@ describe("FieldToken", () => {
   });
 
   it("should show deleting style when deleting prop is true", () => {
-    render(<FieldToken {...mockProps} deleting={true} />);
+    renderWithProvider(<FieldToken {...mockProps} deleting={true} />, {
+      providerProps: { value: { type: "Patient" } },
+    });
     const fieldContainer = screen.getByTestId("field-token");
     expect(fieldContainer).toBeInTheDocument();
   });
 
   it("should forward the ref to the select element", () => {
     const ref = React.createRef();
-    render(<FieldToken {...mockProps} ref={ref} />);
+    renderWithProvider(<FieldToken {...mockProps} ref={ref} />, {
+      providerProps: { value: { type: "Patient" } },
+    });
 
     expect(ref.current).toBeInstanceOf(HTMLSelectElement);
     expect(ref.current).toHaveValue("name");
@@ -89,7 +107,9 @@ describe("FieldToken", () => {
       ...mockProps,
       token: { type: "field", value: "invalidField" },
     };
-    render(<FieldToken {...invalidProps} />);
+    renderWithProvider(<FieldToken {...invalidProps} />, {
+      providerProps: { value: { type: "Patient" } },
+    });
 
     const options = screen.getAllByRole("option");
     expect(options[0]).toHaveValue("invalidField");

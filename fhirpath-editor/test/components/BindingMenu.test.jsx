@@ -4,15 +4,12 @@ import "@testing-library/jest-dom";
 import { describe, expect, it, vi } from "vitest";
 import BindingMenu from "@components/BindingMenu.jsx";
 
-describe("DragHandle", () => {
-  const mockListeners = { onMouseDown: vi.fn() };
-  const mockAttributes = { "aria-pressed": "false" };
-
+describe("BindingMenu", () => {
   it("should render with default props", () => {
     const { container } = render(
-      <BindingMenu attributes={mockAttributes} listeners={mockListeners} />
+      <BindingMenu attributes={{}} listeners={{}}/>
     );
-    const handle = container.querySelector("div");
+    const handle = container.querySelector("button");
     expect(handle).toBeInTheDocument();
     expect(handle).not.toHaveAttribute("data-active");
     expect(handle).not.toHaveAttribute("data-invalid");
@@ -21,24 +18,24 @@ describe("DragHandle", () => {
   it("should render with active state", () => {
     const { container } = render(
       <BindingMenu
-        attributes={mockAttributes}
-        listeners={mockListeners}
-        active={true}
+        attributes={{}}
+        listeners={{}}
+        active={{ id: "test", data: {} }}
       />
     );
-    const handle = container.querySelector("div");
+    const handle = container.querySelector("button");
     expect(handle).toHaveAttribute("data-active");
   });
 
   it("should render with invalid state", () => {
     const { container } = render(
       <BindingMenu
-        attributes={mockAttributes}
-        listeners={mockListeners}
+        attributes={{}}
+        listeners={{}}
         valid={false}
       />
     );
-    const handle = container.querySelector("div");
+    const handle = container.querySelector("button");
     expect(handle).toHaveAttribute("data-invalid");
   });
 });

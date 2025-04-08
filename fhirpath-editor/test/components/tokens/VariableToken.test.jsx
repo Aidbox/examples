@@ -3,10 +3,19 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import VariableToken from "@components/tokens/VariableToken";
+import { FhirType } from "@utils/fhir-type";
 
 // Mock the utility function
-vi.mock("@utils/type", () => ({
-  findCompatibleVariables: vi.fn((bindings) => bindings),
+vi.mock(import("@utils/type"), async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    findCompatibleVariables: vi.fn((bindings) => bindings),
+  };
+});
+
+vi.mock("@utils/react", () => ({
+  useContextType: vi.fn(() => FhirType(["Patient"])),
 }));
 
 describe("VariableToken", () => {

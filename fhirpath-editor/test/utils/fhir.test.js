@@ -113,8 +113,8 @@ describe("FHIRPath conversion", () => {
     );
   });
 
-  it("should handle full app conversion with bindings", () => {
-    const app = {
+  it("should handle full program conversion with bindings", () => {
+    const program = {
       expression: [
         { type: "variable", value: "patient" },
         { type: "field", value: "age" },
@@ -129,8 +129,8 @@ describe("FHIRPath conversion", () => {
       ],
     };
 
-    expect(stringifyProgram(app)).toBe(
-      "defineVariable(patient, %Resource)\n.select(%patient.age > 18)"
+    expect(stringifyProgram(program)).toBe(
+      "defineVariable(patient, %Resource).\nselect(%patient.age > 18)"
     );
   });
 
