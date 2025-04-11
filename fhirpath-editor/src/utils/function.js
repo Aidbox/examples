@@ -180,7 +180,7 @@ export const functionMetadata = [
     [{ name: "projection", type: LambdaType(Generic("R"), Generic("T")) }],
     ({ R }) => unwrapSingle(R),
   ),
-  fn("ofType", Generic("T"), TypeType(Generic("X")), ({ X }) =>
+  fn("ofType", Generic("T"), [TypeType(Generic("X"))], ({ X }) =>
     normalizeChoice(ChoiceType([X])),
   ),
 

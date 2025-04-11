@@ -29,8 +29,7 @@ import {
   Timer,
 } from "@phosphor-icons/react";
 import React, { forwardRef, useImperativeHandle } from "react";
-import { useContextType } from "@utils/react";
-import { suggestNextToken } from "@utils/expression.js";
+import { useProgramContext } from "@utils/store.jsx";
 
 const labels = {
   number: "Number",
@@ -48,30 +47,29 @@ const labels = {
 };
 
 const Cursor = forwardRef(
-  (
-    {
-      id,
-      expression,
-      onAddToken,
-      onDeleteToken,
-      hovering,
-      onMistake,
-      bindings,
-      placeholder,
-    },
-    forwardingRef
-  ) => {
+  ({ bindingId, hovering, placeholder, onBackspace, onMistake }, ref) => {
+    const precedingBindings = useProgramContext((state) =>
+      state.getPrecedingBindings(bindingId),
+    );
+
+    const { addToken, empty, suggestNextToken } = useProgramContext(
+      (state) => ({
+        empty: !state.getBindingExpression(bindingId).length,
+        addToken: state.addToken,
+        suggestNextToken: state.suggestNextToken,
+      }),
+    );
+
+    const nextTokens = suggestNextToken(bindingId);
+
     const containerRef = React.useRef(null);
     const dropdownRef = React.useRef(null);
     const inputRef = React.useRef(null);
-    const [dropdownVisible, setDropdownVisible] = React.useState(false);
+    const [isOpen, setIsOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [selected, setSelected] = React.useState(0);
-    const empty = expression.length === 0;
-    const contextType = useContextType();
-    const nextTokens = suggestNextToken(expression, bindings, contextType);
 
-    useImperativeHandle(forwardingRef, () => ({
+    useImperativeHandle(ref, () => ({
       focus: () => {
         inputRef.current?.focus();
       },
@@ -89,7 +87,7 @@ const Cursor = forwardRef(
       const variable = nextTokens.find(({ type }) => type === "variable");
 
       if (variable) {
-        if (bindings.find((binding) => binding.name === search)) {
+        if (precedingBindings.find((binding) => binding.name === search)) {
           tokens.push({ ...variable, value: search });
         }
       }
@@ -119,9 +117,9 @@ const Cursor = forwardRef(
       }
     }
 
-    const addToken = (token) => {
+    const handleAddToken = (token) => {
       let blur = !token.value;
-      onAddToken(token, blur);
+      addToken(bindingId, token, blur);
       hideDropdown(blur);
     };
 
@@ -129,13 +127,13 @@ const Cursor = forwardRef(
       setSearch("");
       setSelected(0);
       if (blur) {
-        setDropdownVisible(false);
+        setIsOpen(false);
         inputRef.current?.blur();
       }
     };
 
     React.useEffect(() => {
-      if (!dropdownVisible) return;
+      if (!isOpen) return;
 
       const handleClickOutside = (event) => {
         if (
@@ -151,10 +149,10 @@ const Cursor = forwardRef(
       return () => {
         document.removeEventListener("mousedown", handleClickOutside);
       };
-    }, [dropdownVisible]);
+    }, [isOpen]);
 
     const handleKeyDown = (e) => {
-      if (!dropdownVisible) return;
+      if (!isOpen) return;
 
       switch (e.key) {
         case "ArrowDown":
@@ -168,7 +166,7 @@ const Cursor = forwardRef(
         case "Enter":
           e.preventDefault();
           if (tokens[selected]) {
-            addToken(tokens[selected]);
+            handleAddToken(tokens[selected]);
           }
           break;
         case "Escape":
@@ -178,13 +176,13 @@ const Cursor = forwardRef(
         case "Backspace":
           if (search.length === 0) {
             e.preventDefault();
-            onDeleteToken();
+            onBackspace();
           }
           break;
       }
     };
 
-    const visible = hovering || dropdownVisible;
+    const visible = hovering || isOpen;
     const finished = nextTokens.length === 0;
 
     const { refs, floatingStyles } = useFloating({
@@ -217,7 +215,7 @@ const Cursor = forwardRef(
           refs.setReference(ref && ref.parentElement);
         }}
       >
-        {(visible || (placeholder && empty)) && !search && !dropdownVisible && (
+        {(visible || (placeholder && empty)) && !search && !isOpen && (
           <div
             onMouseDown={(e) => {
               e.preventDefault();
@@ -241,8 +239,7 @@ const Cursor = forwardRef(
           autoComplete="off"
           ref={inputRef}
           className="focus:outline-none field-sizing-content data-[visible]:min-w-5 indent-0.5 data-[visible]:ml-1"
-          data-visible={dropdownVisible || undefined}
-          id={id}
+          data-visible={isOpen || undefined}
           type="text"
           value={search}
           onChange={(e) => {
@@ -254,7 +251,7 @@ const Cursor = forwardRef(
             }
           }}
           onFocus={() => {
-            setDropdownVisible(true);
+            setIsOpen(true);
           }}
           onBlur={(e) => {
             const focusedElement = e.relatedTarget;
@@ -268,7 +265,7 @@ const Cursor = forwardRef(
           }}
           onKeyDown={handleKeyDown}
         />
-        {dropdownVisible && (
+        {isOpen && (
           <FloatingPortal>
             <div
               className="bg-white border border-gray-300 rounded-md shadow-lg min-w-[160px] empty:hidden py-2 overflow-y-auto"
@@ -293,7 +290,7 @@ const Cursor = forwardRef(
                       onMouseEnter={() => setSelected(index)}
                       onClick={() => {
                         inputRef.current?.focus();
-                        addToken(token);
+                        handleAddToken(token);
                       }}
                     >
                       {token.type === "string" ? (
@@ -361,7 +358,7 @@ const Cursor = forwardRef(
         )}
       </div>
     );
-  }
+  },
 );
 
 export default Cursor;

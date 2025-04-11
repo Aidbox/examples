@@ -1,6 +1,11 @@
 import React from "react";
+import { useProgramContext } from "@utils/store.jsx";
 
-const TimeToken = React.forwardRef(({ token, onChange }, ref) => {
+const TimeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
+  const { token, updateToken } = useProgramContext((state) => ({
+    token: state.getToken(bindingId, tokenIndex),
+    updateToken: state.updateToken,
+  }));
   const empty = !token.value;
   return (
     <input
@@ -12,7 +17,9 @@ const TimeToken = React.forwardRef(({ token, onChange }, ref) => {
       type="time"
       value={token.value}
       onFocus={(e) => e.target.showPicker()}
-      onChange={(e) => onChange({ ...token, value: e.target.value })}
+      onChange={(e) =>
+        updateToken(bindingId, tokenIndex, { value: e.target.value })
+      }
     />
   );
 });

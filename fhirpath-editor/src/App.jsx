@@ -3,6 +3,7 @@ import Editor from "@components/Editor";
 import { FhirType } from "@utils/fhir-type";
 import { stringifyProgram, highlightFhirPath } from "@utils/fhir";
 import { useDebug } from "@utils/react";
+import { ProgramProvider } from "@utils/store.jsx";
 
 export function App() {
   const debug = useDebug();
@@ -82,28 +83,37 @@ export function App() {
     ],
   });
 
+  const externalBindings = [
+    {
+      name: "observation",
+      type: FhirType(["Observation"]),
+    },
+    {
+      name: "questionnaire",
+      type: FhirType(["Questionnaire"]),
+    },
+    {
+      name: "patient",
+      type: FhirType(["Patient"]),
+    },
+  ];
+
   return (
     <div className="gap-2 h-screen grid grid-cols-2">
       <div className="p-8 border-r border-gray-200 overflow-auto">
-        <Editor
-          value={program}
-          setValue={setProgram}
+        <ProgramProvider
+          program={program}
+          onProgramChange={setProgram}
           contextType={FhirType(["Patient"])}
-          externalBindings={[
-            {
-              name: "observation",
-              type: FhirType(["Observation"]),
-            },
-            {
-              name: "questionnaire",
-              type: FhirType(["Questionnaire"]),
-            },
-            {
-              name: "patient",
-              type: FhirType(["Patient"]),
-            },
-          ]}
-        />
+          externalBindings={externalBindings}
+        >
+          <Editor
+            value={program}
+            setValue={setProgram}
+            contextType={FhirType(["Patient"])}
+            externalBindings={externalBindings}
+          />
+        </ProgramProvider>
       </div>
 
       <div className="p-8 flex flex-col gap-2 overflow-auto">

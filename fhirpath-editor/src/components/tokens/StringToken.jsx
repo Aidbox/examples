@@ -1,6 +1,12 @@
 import React from "react";
+import { useProgramContext } from "@utils/store.jsx";
 
-const StringToken = React.forwardRef(({ token, onChange }, ref) => {
+const StringToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
+  const { token, updateToken } = useProgramContext((state) => ({
+    token: state.getToken(bindingId, tokenIndex),
+    updateToken: state.updateToken,
+  }));
+
   const empty = !token.value;
   return (
     <label
@@ -19,7 +25,9 @@ const StringToken = React.forwardRef(({ token, onChange }, ref) => {
         className="focus:outline-none field-sizing-content text-orange-800"
         type="text"
         value={token.value}
-        onChange={(e) => onChange({ ...token, value: e.target.value })}
+        onChange={(e) =>
+          updateToken(bindingId, tokenIndex, { value: e.target.value })
+        }
       />
       <span
         className="text-orange-800 opacity-75 data-[empty]:text-gray-400 select-none"

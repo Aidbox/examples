@@ -1,5 +1,44 @@
 import React from "react";
 
+export const useFlashState = (initialValue, delay = 300) => {
+  const [value, setValue] = React.useState(initialValue);
+  const timer = React.useRef(null);
+
+  const setFlashState = (newValue) => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+    }
+
+    setValue(newValue);
+
+    if (newValue !== initialValue) {
+      timer.current = setTimeout(() => {
+        setValue(initialValue);
+      }, delay);
+    }
+  };
+
+  return [value, setFlashState];
+};
+
+export const useDoubleInvoke = (fn, delay = 300) => {
+  const [invoking, setInvoking] = useFlashState(false, delay);
+
+  const invoke = React.useCallback(
+    (...args) => {
+      if (invoking) {
+        setInvoking(false);
+        fn(...args);
+      } else {
+        setInvoking(true);
+      }
+    },
+    [fn, invoking, setInvoking],
+  );
+
+  return [invoking, invoke];
+};
+
 export const useCommitableState = (original, onCommit, onFail) => {
   const [value, setValue] = React.useState(original);
   const timer = React.useRef(null);
@@ -77,15 +116,3 @@ export function useDebug() {
   const { debug } = useSearchParams();
   return !!debug;
 }
-
-const contextTypeContext = React.createContext(null);
-
-export const ContextTypeProvider = contextTypeContext.Provider;
-
-export const useContextType = () => {
-  const contextType = React.useContext(contextTypeContext);
-  if (!contextType) {
-    throw new Error("useContextType must be used within a ContextTypeProvider");
-  }
-  return contextType;
-};

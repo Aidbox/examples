@@ -13,73 +13,54 @@ import TypeToken from "./tokens/TypeToken";
 import IndexToken from "./tokens/IndexToken";
 import FunctionToken from "./tokens/FunctionToken";
 
-const Token = React.forwardRef(
-  ({ value, onChange, bindings, expression, deleting, index }, ref) => {
-    return (
-      <div
-        data-index={index}
-        className={`${
-          deleting
-            ? "bg-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
-            : ""
-        }`}
-      >
-        {value.type === "number" ? (
-          <NumberToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "string" ? (
-          <StringToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "boolean" ? (
-          <BooleanToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "date" ? (
-          <DateToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "datetime" ? (
-          <DateTimeToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "time" ? (
-          <TimeToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "quantity" ? (
-          <QuantityToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "type" ? (
-          <TypeToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "index" ? (
-          <IndexToken token={value} onChange={onChange} ref={ref} />
-        ) : value.type === "operator" ? (
-          <OperatorToken
-            token={value}
-            onChange={onChange}
-            expression={expression}
-            bindings={bindings}
-            ref={ref}
-          />
-        ) : value.type === "variable" ? (
-          <VariableToken
-            token={value}
-            onChange={onChange}
-            bindings={bindings}
-            expression={expression}
-            ref={ref}
-          />
-        ) : value.type === "field" ? (
-          <FieldToken
-            token={value}
-            onChange={onChange}
-            bindings={bindings}
-            expression={expression}
-            ref={ref}
-          />
-        ) : value.type === "function" ? (
-          <FunctionToken
-            token={value}
-            onChange={onChange}
-            bindings={bindings}
-            expression={expression}
-            ref={ref}
-          />
-        ) : (
-          <div className="text-red-500">⚠️ unknown token type</div>
-        )}
-      </div>
-    );
-  },
-);
+const getTokenComponent = (type) => {
+  switch (type) {
+    case "number":
+      return NumberToken;
+    case "string":
+      return StringToken;
+    case "boolean":
+      return BooleanToken;
+    case "date":
+      return DateToken;
+    case "datetime":
+      return DateTimeToken;
+    case "time":
+      return TimeToken;
+    case "quantity":
+      return QuantityToken;
+    case "type":
+      return TypeToken;
+    case "index":
+      return IndexToken;
+    case "operator":
+      return OperatorToken;
+    case "variable":
+      return VariableToken;
+    case "field":
+      return FieldToken;
+    case "function":
+      return FunctionToken;
+    default:
+      throw new Error(`Unknown token type: ${type}`);
+  }
+};
+
+const Token = React.forwardRef(({ type, deleting, ...props }, ref) => {
+  const TokenComponent = getTokenComponent(type);
+
+  return (
+    <div
+      data-token-index={props.tokenIndex}
+      className={
+        deleting
+          ? "bg-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
+          : ""
+      }
+    >
+      <TokenComponent ref={ref} {...props} />
+    </div>
+  );
+});
 
 export default Token;

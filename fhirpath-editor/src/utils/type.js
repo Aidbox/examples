@@ -109,7 +109,7 @@ export function normalizeChoice(choice) {
   const seen = [];
   while (options.length > 0) {
     const opt = options.shift();
-    if (!seen.some((t) => deepEqual(t, opt))) {
+    if (opt && !seen.some((t) => deepEqual(t, opt))) {
       if (opt.type === "Choice") {
         const normalized = normalizeChoice(opt);
         if (normalized.type === "Choice") {

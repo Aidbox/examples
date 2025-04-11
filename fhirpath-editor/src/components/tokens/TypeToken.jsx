@@ -10,6 +10,7 @@ import {
   TimeType,
 } from "@utils/type";
 import { primitiveTypeMap } from "@utils/fhir-type";
+import { useProgramContext } from "@utils/store.jsx";
 
 const typeNames = {
   "Literal types": [
@@ -30,7 +31,12 @@ Object.values(primitiveTypeMap).forEach((type) => {
   typeNames["Primitive types"].push(type.type);
 });
 
-const TypeToken = React.forwardRef(({ token, onChange }, ref) => {
+const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
+  const { token, updateToken } = useProgramContext((state) => ({
+    token: state.getToken(bindingId, tokenIndex),
+    updateToken: state.updateToken,
+  }));
+
   const empty = !token.value;
   const invalid =
     !empty && !Object.values(typeNames).flat().includes(token.value);
@@ -42,7 +48,9 @@ const TypeToken = React.forwardRef(({ token, onChange }, ref) => {
       data-testid="type-token"
       data-empty={empty || undefined}
       value={token.value || ""}
-      onChange={(e) => onChange({ ...token, value: e.target.value })}
+      onChange={(e) =>
+        updateToken(bindingId, tokenIndex, { value: e.target.value })
+      }
     >
       {invalid && (
         <option value={token.value} disabled>

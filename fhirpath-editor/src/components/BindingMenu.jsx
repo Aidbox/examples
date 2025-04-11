@@ -8,16 +8,18 @@ import {
   useFloating,
   useInteractions,
 } from "@floating-ui/react";
+import { useProgramContext } from "@utils/store.jsx";
 
 const BindingMenu = ({
   attributes,
   listeners,
   valid = true,
   active = false,
-  onDelete,
-  onDuplicate,
+  bindingId,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const duplicateBinding = useProgramContext((state) => state.duplicateBinding);
+  const deleteBinding = useProgramContext((state) => state.deleteBinding);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -61,7 +63,7 @@ const BindingMenu = ({
         )}
         <DotsSixVertical size={16} weight="bold" />
       </button>
-      {isOpen && (onDelete || onDuplicate) && (
+      {isOpen && (
         <FloatingPortal>
           <div
             ref={refs.setFloating}
@@ -69,11 +71,11 @@ const BindingMenu = ({
             className="bg-white border border-gray-300 rounded-md shadow-lg flex flex-col overflow-hidden min-w-36 animate__animated animate__fadeIn animate__faster"
             {...getFloatingProps()}
           >
-            {onDelete && (
+            {bindingId != null && (
               <button
                 className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
                 onClick={() => {
-                  onDelete?.();
+                  deleteBinding(bindingId);
                   setIsOpen(false);
                 }}
               >
@@ -81,11 +83,11 @@ const BindingMenu = ({
                 Delete
               </button>
             )}
-            {onDuplicate && (
+            {bindingId != null && (
               <button
                 className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
                 onClick={() => {
-                  onDuplicate?.();
+                  duplicateBinding(bindingId);
                   setIsOpen(false);
                 }}
               >
