@@ -205,6 +205,12 @@ const createProgramStore = (contextType, externalBindings) => {
           if (token.type !== "function") {
             throw new Error("Token is not a function");
           }
+
+          if (argIndex >= token.args.length) {
+            token.args.push(
+              ...Array(argIndex - token.args.length + 1).fill({}),
+            );
+          }
           if (typeof arg === "function") {
             arg(token.args[argIndex]);
           } else {
@@ -243,6 +249,28 @@ const createProgramStore = (contextType, externalBindings) => {
           }
           state.bindingsIndex = buildIndex(state.program.bindings);
         }),
+
+      nameExpression: () => {
+        get().addBinding(
+          {
+            name: "var1",
+            expression: get().program.expression,
+          },
+          undefined,
+          false,
+        );
+        set((state) => {
+          state.program.expression = [
+            {
+              type: "variable",
+              value:
+                state.program.bindings[state.program.bindings.length - 1].name,
+            },
+          ];
+
+          get().focusBinding(null);
+        });
+      },
 
       addBinding: (binding, afterIndex, focus = true) =>
         set((state) => {

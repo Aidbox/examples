@@ -56,23 +56,23 @@ describe("Token", () => {
   });
 
   it("should render number token", () => {
-    render(<Token {...mockProps} value={{ type: "number", value: "42" }} />);
+    render(<Token {...mockProps} token={{ type: "number", value: "42" }} />);
     expect(screen.getByTestId("number-token")).toBeInTheDocument();
   });
 
   it("should render string token", () => {
-    render(<Token {...mockProps} value={{ type: "string", value: "test" }} />);
+    render(<Token {...mockProps} token={{ type: "string", value: "test" }} />);
     expect(screen.getByTestId("string-token")).toBeInTheDocument();
   });
 
   it("should render boolean token", () => {
-    render(<Token {...mockProps} value={{ type: "boolean", value: "true" }} />);
+    render(<Token {...mockProps} token={{ type: "boolean", value: "true" }} />);
     expect(screen.getByTestId("boolean-token")).toBeInTheDocument();
   });
 
   it("should render date token", () => {
     render(
-      <Token {...mockProps} value={{ type: "date", value: "2023-05-15" }} />
+      <Token {...mockProps} token={{ type: "date", value: "2023-05-15" }} />,
     );
     expect(screen.getByTestId("date-token")).toBeInTheDocument();
   });
@@ -81,14 +81,14 @@ describe("Token", () => {
     render(
       <Token
         {...mockProps}
-        value={{ type: "datetime", value: "2023-05-15T14:30" }}
-      />
+        token={{ type: "datetime", value: "2023-05-15T14:30" }}
+      />,
     );
     expect(screen.getByTestId("datetime-token")).toBeInTheDocument();
   });
 
   it("should render time token", () => {
-    render(<Token {...mockProps} value={{ type: "time", value: "14:30" }} />);
+    render(<Token {...mockProps} token={{ type: "time", value: "14:30" }} />);
     expect(screen.getByTestId("time-token")).toBeInTheDocument();
   });
 
@@ -96,44 +96,44 @@ describe("Token", () => {
     render(
       <Token
         {...mockProps}
-        value={{
+        token={{
           type: "quantity",
           value: { value: "70", unit: "kg" },
         }}
-      />
+      />,
     );
     expect(screen.getByTestId("quantity-token")).toBeInTheDocument();
   });
 
   it("should render type token", () => {
-    render(<Token {...mockProps} value={{ type: "type", value: "String" }} />);
+    render(<Token {...mockProps} token={{ type: "type", value: "String" }} />);
     expect(screen.getByTestId("type-token")).toBeInTheDocument();
   });
 
   it("should render index token", () => {
-    render(<Token {...mockProps} value={{ type: "index", value: "0" }} />);
+    render(<Token {...mockProps} token={{ type: "index", value: "0" }} />);
     expect(screen.getByTestId("index-token")).toBeInTheDocument();
   });
 
   it("should render operator token", () => {
-    render(<Token {...mockProps} value={{ type: "operator", value: "+" }} />);
+    render(<Token {...mockProps} token={{ type: "operator", value: "+" }} />);
     expect(screen.getByTestId("operator-token")).toBeInTheDocument();
   });
 
   it("should render variable token", () => {
     render(
-      <Token {...mockProps} value={{ type: "variable", value: "var1" }} />
+      <Token {...mockProps} token={{ type: "variable", value: "var1" }} />,
     );
     expect(screen.getByTestId("variable-token")).toBeInTheDocument();
   });
 
   it("should render field token", () => {
-    render(<Token {...mockProps} value={{ type: "field", value: "field1" }} />);
+    render(<Token {...mockProps} token={{ type: "field", value: "field1" }} />);
     expect(screen.getByTestId("field-token")).toBeInTheDocument();
   });
 
   it("should show error for unknown token type", () => {
-    render(<Token {...mockProps} value={{ type: "unknown", value: "test" }} />);
+    render(<Token {...mockProps} token={{ type: "unknown", value: "test" }} />);
     expect(screen.getByText("⚠️ unknown token type")).toBeInTheDocument();
   });
 
@@ -141,9 +141,9 @@ describe("Token", () => {
     render(
       <Token
         {...mockProps}
-        value={{ type: "number", value: "42" }}
+        token={{ type: "number", value: "42" }}
         deleting={true}
-      />
+      />,
     );
     const container = screen.getByTestId("number-token").parentElement;
     expect(container).toHaveClass("bg-red-500");

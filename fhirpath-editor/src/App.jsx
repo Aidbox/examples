@@ -10,15 +10,19 @@ export function App() {
   const [program, setProgram] = React.useState({
     bindings: [
       {
-        name: "myString",
+        name: "valid",
+        expression: [{ type: "boolean", value: "false" }],
+      },
+      {
+        name: "greet",
         expression: [{ type: "string", value: "Hello, world!" }],
       },
       {
-        name: "myQuantity",
+        name: "weight",
         expression: [{ type: "quantity", value: { value: "100", unit: "kg" } }],
       },
       {
-        name: "var1",
+        name: "addition",
         expression: [
           {
             type: "number",
@@ -35,28 +39,26 @@ export function App() {
         ],
       },
       {
-        name: "var2",
+        name: "subtraction",
         expression: [
+          {
+            type: "variable",
+            value: "weight",
+          },
+          {
+            type: "operator",
+            value: "-",
+          },
           {
             type: "number",
             value: "1",
           },
-          {
-            type: "operator",
-            value: "+",
-          },
-          {
-            type: "variable",
-            value: "var1",
-          },
         ],
       },
       {
-        name: "var3",
+        name: "item",
         expression: [
           { type: "variable", value: "questionnaire" },
-          { type: "field", value: "item" },
-          { type: "field", value: "item" },
           {
             type: "function",
             value: "repeat",
@@ -68,7 +70,23 @@ export function App() {
                     type: "field",
                     value: "item",
                   },
-                  { type: "index", value: "3" },
+                ],
+              },
+            ],
+          },
+          {
+            type: "function",
+            value: "where",
+            args: [
+              {
+                bindings: [],
+                expression: [
+                  {
+                    type: "field",
+                    value: "linkId",
+                  },
+                  { type: "operator", value: "=" },
+                  { type: "string", value: "weight" },
                 ],
               },
             ],
@@ -79,7 +97,7 @@ export function App() {
     expression: [
       { type: "number", value: "1" },
       { type: "operator", value: "+" },
-      { type: "variable", value: "var1" },
+      { type: "variable", value: "subtraction" },
     ],
   });
 

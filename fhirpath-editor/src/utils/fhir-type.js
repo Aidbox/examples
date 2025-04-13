@@ -7,8 +7,10 @@ import {
   DecimalType,
   extendType,
   IntegerType,
+  SingleType,
   StringType,
   TimeType,
+  unwrapSingle,
 } from "./type.js";
 
 export const PrimitiveCodeType = { type: "PrimitiveCode" };
@@ -104,7 +106,12 @@ export const FhirType = (schemaReference) => ({
 
 const cache = new Map();
 
-export function fieldSchemaToType(schemaReference, siblingSchemas, fieldName) {
+export function fieldSchemaToType(
+  single,
+  schemaReference,
+  siblingSchemas,
+  fieldName,
+) {
   const fieldSchema = siblingSchemas[fieldName];
 
   if (cache.has(fieldSchema)) {
@@ -117,7 +124,7 @@ export function fieldSchemaToType(schemaReference, siblingSchemas, fieldName) {
   } else if (fieldSchema.choices) {
     result = ChoiceType(
       fieldSchema.choices.map((choice) =>
-        fieldSchemaToType(schemaReference, siblingSchemas, choice),
+        fieldSchemaToType(single, schemaReference, siblingSchemas, choice),
       ),
     );
   } else if (!fieldSchema.elements && !fieldSchema.elementReference) {
@@ -131,15 +138,20 @@ export function fieldSchemaToType(schemaReference, siblingSchemas, fieldName) {
     }
     result = FhirType([...schemaReference, fieldName]);
   }
-  if (fieldSchema.scalar) {
-    // should we use SingleType here?
-    // result = SingleType(result);
+  if (fieldSchema.scalar && single) {
+    result = SingleType(result);
   }
   cache.set(fieldSchema, result);
   return result;
 }
 
 export function getFields(type) {
+  let single = false;
+  if (type && type.type === "Single") {
+    single = true;
+    type = unwrapSingle(type);
+  }
+
   if (type && type.type === "FhirType") {
     let schema = resolvePath(type.schemaReference);
     if (schema) {
@@ -147,7 +159,7 @@ export function getFields(type) {
       return Object.fromEntries(
         Object.keys(elements).map((fieldName) => [
           fieldName,
-          fieldSchemaToType(type.schemaReference, elements, fieldName),
+          fieldSchemaToType(single, type.schemaReference, elements, fieldName),
         ]),
       );
     }

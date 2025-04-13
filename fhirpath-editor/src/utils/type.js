@@ -175,6 +175,13 @@ export function deepEqual(a, b) {
   if (typeof a !== "object" || a == null || b == null) return a === b;
 
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+
+  if ("type" in a && "type" in b) {
+    if (a.type !== b.type && !isSubtypeOf(a, b) && !isSubtypeOf(b, a))
+      return false;
+    keys.delete("type");
+  }
+
   for (const key of keys) {
     if (!deepEqual(a[key], b[key])) return false;
   }

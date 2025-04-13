@@ -7,18 +7,23 @@ const BooleanToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
     updateToken: state.updateToken,
   }));
   return (
-    <select
+    <label
       ref={ref}
-      data-testid="boolean-token"
-      className="focus:bg-gray-100 focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded field-sizing-content text-green-800 appearance-none"
-      value={token.value}
-      onChange={(e) =>
-        updateToken(bindingId, tokenIndex, { value: e.target.value })
-      }
+      className="focus-within:bg-gray-100 focus-within:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded text-green-800 appearance-none flex items-center gap-1 select-none"
     >
-      <option value="true">true</option>
-      <option value="false">false</option>
-    </select>
+      <input
+        type="checkbox"
+        className="focus:outline-none"
+        checked={token.value === "true"}
+        onChange={(e) =>
+          updateToken(bindingId, tokenIndex, {
+            value: e.target.checked ? "true" : "false",
+          })
+        }
+      />
+
+      {token.value}
+    </label>
   );
 });
 

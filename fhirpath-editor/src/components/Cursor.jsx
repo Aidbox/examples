@@ -283,7 +283,7 @@ const Cursor = forwardRef(
                         token.type +
                         (typeof token === "string" ? "" : token.value)
                       }
-                      className={`w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer active:bg-gray-200 ${
+                      className={`text-sm w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer active:bg-gray-200 ${
                         index === selected ? "bg-gray-100" : ""
                       }`}
                       tabIndex="-1"

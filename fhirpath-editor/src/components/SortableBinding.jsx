@@ -3,7 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import BindingMenu from "./BindingMenu.jsx";
 import Binding from "./Binding";
 
-const SortableBinding = forwardRef(({ active, ...props }, forwardingRef) => {
+const SortableBinding = forwardRef((props, forwardingRef) => {
   const {
     attributes,
     listeners,
@@ -28,7 +28,7 @@ const SortableBinding = forwardRef(({ active, ...props }, forwardingRef) => {
       style={style}
       className="grid grid-cols-subgrid col-span-4 relative items-center"
     >
-      {!active && (
+      {!isDragging && (
         <BindingMenu
           attributes={attributes}
           listeners={listeners}

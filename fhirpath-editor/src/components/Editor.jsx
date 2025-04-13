@@ -98,7 +98,6 @@ function Editor({ className = "", title }) {
                 ref={(ref) => setBindingRef(bindingId, ref)}
                 bindingId={bindingId}
                 key={bindingId}
-                active={bindingId === draggingBindingId}
               />
             ))}
             {!bindingIds.length && (
@@ -121,7 +120,7 @@ function Editor({ className = "", title }) {
                 gridTemplateColumns: `${bindingNameWidth} auto 1fr auto`,
               }}
             >
-              <BindingMenu valid={isValidBindingDrag} active={true} />
+              <BindingMenu valid={isValidBindingDrag} dragging={true} />
               <Binding bindingId={draggingBindingId} shadow />
               {!isValidBindingDrag && (
                 <div className="text-red-500 text-xs whitespace-nowrap">
@@ -138,8 +137,11 @@ function Editor({ className = "", title }) {
       <div className="font-medium text-gray-600 text-sm">
         {title || "Main Expression"}
       </div>
-      <div className="flex flex-row gap-2 items-center pl-6">
-        <Binding bindingId={null} />
+      <div className=" pl-6">
+        <div className="relative flex flex-row gap-2 items-center">
+          <BindingMenu bindingId={null} />
+          <Binding ref={(ref) => setBindingRef(null, ref)} bindingId={null} />
+        </div>
       </div>
 
       {debug && (

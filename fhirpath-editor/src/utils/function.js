@@ -11,7 +11,9 @@ import {
   matchTypePattern,
   mergeBindings,
   normalizeChoice,
+  NullType,
   QuantityType,
+  SingleType,
   stringifyType,
   StringType,
   substituteBindings,
@@ -19,6 +21,7 @@ import {
   TypeType,
   unwrapSingle,
 } from "./type";
+import { primitiveTypeMap } from "@utils/fhir-type.js";
 
 const fn = (name, input, args, returnType) => ({
   name,
@@ -158,26 +161,41 @@ export const functionMetadata = [
     BooleanType,
   ),
   fn("count", Generic("T"), [], IntegerType),
-  fn("distinct", Generic("T"), [], Generic("T")),
+  fn("distinct", Generic("T"), [], ({ T }) => T),
   fn("isDistinct", Generic("T"), [], BooleanType),
 
   // Section 5.2: Filtering and projection
   fn(
     "where",
     Generic("T"),
-    [{ name: "criteria", type: LambdaType(BooleanType, Generic("T")) }],
-    Generic("T"),
+    [
+      {
+        name: "criteria",
+        type: LambdaType(BooleanType, SingleType(Generic("T"))),
+      },
+    ],
+    ({ T }) => T,
   ),
   fn(
     "select",
     Generic("T"),
-    [{ name: "projection", type: LambdaType(Generic("R"), Generic("T")) }],
+    [
+      {
+        name: "projection",
+        type: LambdaType(Generic("R"), SingleType(Generic("T"))),
+      },
+    ],
     ({ R }) => R,
   ),
   fn(
     "repeat",
     Generic("T"),
-    [{ name: "projection", type: LambdaType(Generic("R"), Generic("T")) }],
+    [
+      {
+        name: "projection",
+        type: LambdaType(Generic("R"), SingleType(Generic("T"))),
+      },
+    ],
     ({ R }) => unwrapSingle(R),
   ),
   fn("ofType", Generic("T"), [TypeType(Generic("X"))], ({ X }) =>
@@ -185,23 +203,23 @@ export const functionMetadata = [
   ),
 
   // Section 5.3: Subsetting
-  fn("single", Generic("T"), [], Generic("T")),
-  fn("first", Generic("T"), [], Generic("T")),
-  fn("last", Generic("T"), [], Generic("T")),
-  fn("tail", Generic("T"), [], Generic("T")),
-  fn("skip", Generic("T"), [{ name: "num", type: IntegerType }], Generic("T")),
-  fn("take", Generic("T"), [{ name: "num", type: IntegerType }], Generic("T")),
+  fn("single", Generic("T"), [], ({ T }) => T),
+  fn("first", Generic("T"), [], ({ T }) => T),
+  fn("last", Generic("T"), [], ({ T }) => T),
+  fn("tail", Generic("T"), [], ({ T }) => T),
+  fn("skip", Generic("T"), [{ name: "num", type: IntegerType }], ({ T }) => T),
+  fn("take", Generic("T"), [{ name: "num", type: IntegerType }], ({ T }) => T),
   fn(
     "intersect",
     Generic("T"),
     [{ name: "other", type: Generic("T") }],
-    Generic("T"),
+    ({ T }) => T,
   ),
   fn(
     "exclude",
     Generic("T"),
     [{ name: "other", type: Generic("T") }],
-    Generic("T"),
+    ({ T }) => T,
   ),
 
   // Section 5.4: Combining
@@ -209,16 +227,42 @@ export const functionMetadata = [
     "union",
     Generic("T"),
     [{ name: "other", type: Generic("T") }],
-    Generic("T"),
+    ({ T }) => T,
   ),
   fn(
     "combine",
     Generic("T"),
     [{ name: "other", type: Generic("T") }],
-    Generic("T"),
+    ({ T }) => T,
   ),
 
   // Section 5.5: Conversion
+  fn(
+    "iif",
+    Generic("I"),
+    [
+      {
+        name: "condition",
+        type: LambdaType(Generic("C"), SingleType(Generic("I"))),
+      },
+      {
+        name: "then",
+        type: LambdaType(Generic("T"), SingleType(Generic("I"))),
+      },
+      {
+        name: "else",
+        type: LambdaType(Generic("F"), SingleType(Generic("I"))),
+        optional: true,
+      },
+    ],
+    ({ T, F, args: [, , elseArg] }) => {
+      if (elseArg.type !== NullType.type) {
+        return ChoiceType([T, F]);
+      } else {
+        return T;
+      }
+    },
+  ),
   fn("toBoolean", Generic("T"), [], BooleanType),
   fn("convertsToBoolean", Generic("T"), [], BooleanType),
   fn("toInteger", Generic("T"), [], IntegerType),
@@ -349,8 +393,8 @@ export const functionMetadata = [
   fn("truncate", DecimalType, [], IntegerType),
 
   // Section 5.8: Tree Navigation
-  fn("children", Generic("T"), [], Generic("T")),
-  fn("descendants", Generic("T"), [], Generic("T")),
+  fn("children", Generic("T"), [], Generic("X")), // todo: define any type?
+  fn("descendants", Generic("T"), [], Generic("X")), // todo: define any type?
 
   // Section 5.9: Utility Functions
   fn(
@@ -364,7 +408,7 @@ export const functionMetadata = [
         optional: true,
       },
     ],
-    Generic("T"),
+    ({ T }) => T,
   ),
   fn("now", Generic("T"), [], DateTimeType),
   fn("timeOfDay", Generic("T"), [], TimeType),
@@ -386,10 +430,10 @@ export const functionMetadata = [
     "extension",
     Generic("T"),
     [{ name: "url", type: StringType }],
-    Generic("T"),
+    ({ T }) => T,
   ),
   fn("hasValue", Generic("T"), [], BooleanType),
-  fn("getValue", Generic("T"), [], Generic("T")),
+  fn("getValue", Generic("T"), [], ChoiceType(Object.values(primitiveTypeMap))),
 
   // SDC Extensions
   fn("ordinal", Generic("T"), [], DecimalType),
@@ -418,38 +462,6 @@ export const functionMetadata = [
     ChoiceType([DecimalType, IntegerType, QuantityType]),
   ),
 ];
-
-export function resolveFunctionCall({ name, input, args = [] }) {
-  const meta = functionMetadata.find((f) => f.name === name);
-  if (!meta) return InvalidType(`Function "${name}" not found`);
-
-  let bindings = matchTypePattern(meta.input, input);
-  if (!bindings) return InvalidType(`Input type does not match for "${name}"`);
-
-  const resolvedArgs = [];
-
-  for (let i = 0; i < (meta.args.length || 0); i++) {
-    const expected = meta.args[i];
-    const actual = args[i];
-
-    if (actual) {
-      const b = matchTypePattern(expected.type, actual);
-      if (!b)
-        return InvalidType(
-          `Argument ${expected.name} does not match. Expected ${stringifyType(
-            expected.type,
-          )}, got ${stringifyType(actual)}`,
-        );
-      bindings = mergeBindings(bindings, b);
-    } else if (expected.optional) {
-      resolvedArgs.push({ type: "Null" });
-    } else {
-      return InvalidType(`Missing required argument: ${expected.name}`);
-    }
-  }
-
-  return meta.returnType({ input, args, resolvedArgs, ...bindings });
-}
 
 export function suggestFunctionsForInputType(inputType) {
   return functionMetadata

@@ -52,11 +52,11 @@ const Token = React.forwardRef(({ type, deleting, ...props }, ref) => {
   return (
     <div
       data-token-index={props.tokenIndex}
-      className={
+      className={`flex items-stretch ${
         deleting
           ? "bg-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
           : ""
-      }
+      }`}
     >
       <TokenComponent ref={ref} {...props} />
     </div>

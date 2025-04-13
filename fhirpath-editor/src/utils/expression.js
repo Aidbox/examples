@@ -31,6 +31,12 @@ import {
   suggestFunctionsForInputType,
 } from "./function.js";
 
+export const isEmptyProgram = (program) => {
+  return (
+    !program ||
+    (program.bindings.length === 0 && program.expression.length === 0)
+  );
+};
 export const findReferencedVariables = (binding) => {
   return binding.expression
     .filter((token) => token.type === "variable")
@@ -160,7 +166,6 @@ export const getExpressionType = (expression, bindings, contextType) => {
             first = false;
             break; // handle the token as a regular token
           default:
-            debugger;
             return InvalidType("Unexpected first token");
         }
       }
@@ -211,7 +216,7 @@ export const getExpressionType = (expression, bindings, contextType) => {
             bindings,
           );
           if (!newBindings)
-            return InvalidType(`Argument mismatch at index ${i}`);
+            return InvalidType(`Argument type mismatch at index ${i}`);
 
           bindings = mergeBindings(bindings, newBindings);
           if (!bindings) return InvalidType(`Binding mismatch at index ${i}`);

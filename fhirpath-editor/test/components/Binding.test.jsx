@@ -67,7 +67,7 @@ describe("Binding", () => {
         { type: "number", value: "42" },
       ],
     },
-    onChange: vi.fn(),
+    setBinding: vi.fn(),
     bindings: [
       { name: "var1", expression: [] },
       { name: "var2", expression: [] },
@@ -95,7 +95,7 @@ describe("Binding", () => {
 
   it("should not render name input if name is null", () => {
     render(
-      <Binding {...mockProps} value={{ ...mockProps.value, name: null }} />
+      <Binding {...mockProps} value={{ ...mockProps.value, name: null }} />,
     );
 
     // There should be no input for name
@@ -105,7 +105,7 @@ describe("Binding", () => {
     expect(screen.getByTestId("token-0")).toBeInTheDocument();
   });
 
-  it("should call onChange when name is changed and committed", async () => {
+  it("should call setBinding when name is changed and committed", async () => {
     // const user = userEvent.setup();
     render(<Binding {...mockProps} />);
 
@@ -114,7 +114,7 @@ describe("Binding", () => {
     // await user.type(nameInput, "newName");
     // fireEvent.blur(nameInput);
 
-    // expect(mockProps.onChange).toHaveBeenCalledWith({
+    // expect(mockProps.setBinding).toHaveBeenCalledWith({
     //   ...mockProps.value,
     //   name: "newName",
     // });
@@ -135,7 +135,7 @@ describe("Binding", () => {
             { type: "operator", value: "+" },
           ],
         }}
-      />
+      />,
     );
 
     // There should be one less token
@@ -147,17 +147,17 @@ describe("Binding", () => {
   it("should handle adding tokens", () => {
     render(<Binding {...mockProps} />);
 
-    // Mock the addToken function by directly calling onChange with a new token
-    mockProps.onChange.mockClear();
+    // Mock the addToken function by directly calling setBinding with a new token
+    mockProps.setBinding.mockClear();
     const newToken = { type: "string", value: "hello" };
 
     // Simulate adding a token
-    mockProps.onChange({
+    mockProps.setBinding({
       ...mockProps.value,
       expression: [...mockProps.value.expression, newToken],
     });
 
-    expect(mockProps.onChange).toHaveBeenCalledWith({
+    expect(mockProps.setBinding).toHaveBeenCalledWith({
       ...mockProps.value,
       expression: [...mockProps.value.expression, newToken],
     });
@@ -165,15 +165,15 @@ describe("Binding", () => {
 
   it("should handle deleting the binding when name is not null and expression is empty", () => {
     render(
-      <Binding {...mockProps} value={{ ...mockProps.value, expression: [] }} />
+      <Binding {...mockProps} value={{ ...mockProps.value, expression: [] }} />,
     );
 
     // Simulate deleting with empty expression
-    mockProps.onChange.mockClear();
+    mockProps.setBinding.mockClear();
 
     // This would normally be triggered by the onDeleteToken callback when expression is empty
-    mockProps.onChange(null);
+    mockProps.setBinding(null);
 
-    expect(mockProps.onChange).toHaveBeenCalledWith(null);
+    expect(mockProps.setBinding).toHaveBeenCalledWith(null);
   });
 });

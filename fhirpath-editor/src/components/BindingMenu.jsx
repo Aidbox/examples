@@ -1,4 +1,10 @@
-import { Copy, DotsSixVertical, Trash, Warning } from "@phosphor-icons/react";
+import {
+  Copy,
+  DotsSixVertical,
+  PuzzlePiece,
+  Trash,
+  Warning,
+} from "@phosphor-icons/react";
 import React, { useState } from "react";
 import {
   FloatingPortal,
@@ -14,22 +20,27 @@ const BindingMenu = ({
   attributes,
   listeners,
   valid = true,
-  active = false,
+  dragging = false,
   bindingId,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const duplicateBinding = useProgramContext((state) => state.duplicateBinding);
-  const deleteBinding = useProgramContext((state) => state.deleteBinding);
+  const { nameExpression, deleteBinding, duplicateBinding } = useProgramContext(
+    (state) => ({
+      nameExpression: state.nameExpression,
+      deleteBinding: state.deleteBinding,
+      duplicateBinding: state.duplicateBinding,
+    }),
+  );
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
-    placement: "right-start",
+    placement: "bottom-start",
     middleware: [
       offset({
         mainAxis: 4,
-        alignmentAxis: -10,
-        crossAxis: 40,
+        alignmentAxis: 0,
+        crossAxis: -40,
       }),
       // shift({
       //   padding: 10,
@@ -48,8 +59,8 @@ const BindingMenu = ({
     <>
       <button
         ref={refs.setReference}
-        className="absolute hover:bg-gray-100 active:bg-gray-200 right-full top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer rounded mr-1 py-1 text-gray-400 focus:outline-blue-500 focus:text-gray-500 data-[active]:cursor-grabbing data-[active]:bg-gray-200"
-        data-active={active || undefined}
+        className="absolute hover:bg-gray-100 active:bg-gray-200 right-full top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer rounded mr-1 py-1 text-gray-400 focus:outline-blue-500 focus:text-gray-500 data-[dragging]:cursor-grabbing data-[dragging]:bg-gray-200"
+        data-dragging={dragging || undefined}
         {...getReferenceProps({
           ...attributes,
           ...listeners,
@@ -65,15 +76,16 @@ const BindingMenu = ({
       </button>
       {isOpen && (
         <FloatingPortal>
+          <div className="fixed inset-0 bg-black/30" />
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="bg-white border border-gray-300 rounded-md shadow-lg flex flex-col overflow-hidden min-w-36 animate__animated animate__fadeIn animate__faster"
+            className="bg-white rounded-md shadow-lg min-w-40 empty:hidden overflow-y-auto relative"
             {...getFloatingProps()}
           >
             {bindingId != null && (
               <button
-                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
+                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
                 onClick={() => {
                   deleteBinding(bindingId);
                   setIsOpen(false);
@@ -85,7 +97,7 @@ const BindingMenu = ({
             )}
             {bindingId != null && (
               <button
-                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_0.75rem] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
+                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
                 onClick={() => {
                   duplicateBinding(bindingId);
                   setIsOpen(false);
@@ -93,6 +105,18 @@ const BindingMenu = ({
               >
                 <Copy size={16} className="text-gray-500" />
                 Duplicate
+              </button>
+            )}
+            {bindingId === null && (
+              <button
+                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
+                onClick={() => {
+                  nameExpression();
+                  setIsOpen(false);
+                }}
+              >
+                <PuzzlePiece size={16} className="text-gray-500" />
+                As named expression
               </button>
             )}
           </div>

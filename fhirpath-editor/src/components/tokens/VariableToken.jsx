@@ -18,6 +18,7 @@ import {
 import { useProgramContext } from "@utils/store.jsx";
 import { useDebug } from "@utils/react.js";
 import { stringifyType } from "@utils/type.js";
+import { Plus, PuzzlePiece } from "@phosphor-icons/react";
 
 const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,14 +56,17 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
 
   const groupedBindings = filteredBindings.reduce(
     (acc, binding, index) => {
-      acc[binding.expression ? "Local" : "Global"].push({ ...binding, index });
+      acc[binding.expression?.length ? "Local" : "Global"].push({
+        ...binding,
+        index,
+      });
       return acc;
     },
     { Local: [], Global: [] },
   );
 
   const { refs, floatingStyles, context } = useFloating({
-    placement: "right-start",
+    placement: "right",
     strategy: "absolute",
     whileElementsMounted: autoUpdate,
     open: isOpen,
@@ -75,10 +79,9 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
     middleware: [
       offset({
         mainAxis: 6,
-        crossAxis: -6,
       }),
-      shift({ padding: 6 }),
-      flip({ padding: 6 }),
+      shift(),
+      flip(),
       size({
         apply({ availableHeight, elements }) {
           Object.assign(elements.floating.style, {
@@ -123,7 +126,7 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
         ref={mergedRefs}
         {...getReferenceProps()}
         data-open={isOpen || undefined}
-        className={`focus:bg-gray-100 focus:outline-none data-[open]:bg-gray-100 data-[open]:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded field-sizing-content text-green-800 ${
+        className={`cursor-pointer focus:bg-gray-100 focus:outline-none data-[open]:bg-gray-100 data-[open]:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded field-sizing-content text-green-800 ${
           invalid ? "text-red-600" : ""
         }`}
       >
@@ -132,11 +135,12 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
 
       {isOpen && (
         <FloatingPortal>
+          <div className="fixed inset-0 bg-black/30" />
           <div
             ref={refs.setFloating}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="bg-white border border-gray-300 rounded-md shadow-lg min-w-[160px] empty:hidden overflow-y-auto relative"
+            className="bg-white rounded-md shadow-lg min-w-60 empty:hidden overflow-y-auto relative"
           >
             <div className="p-2 sticky top-0 bg-white border-b border-gray-200">
               <input
@@ -155,11 +159,12 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                   ref: (node) => (listRef.current[0] = node),
                   onClick: handleCreate,
                 })}
-                className={`w-full px-3 py-2 text-left gap-2 cursor-pointer active:bg-gray-200 ${
+                className={`w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 ${
                   activeIndex === 0 ? "bg-gray-100" : ""
                 }`}
               >
-                Create new
+                <Plus size={16} className="text-gray-500" />
+                New binding
               </button>
             )}
 
@@ -178,14 +183,14 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                             (listRef.current[binding.index + 1] = node),
                           onClick: () => handleSelect(binding.name),
                         })}
-                        className={`w-full px-3 py-2 text-left flex justify-between gap-4 cursor-pointer active:bg-gray-200 last:rounded-b ${
+                        className={`text-sm w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 last:rounded-b ${
                           activeIndex === binding.index + 1 ? "bg-gray-100" : ""
                         }`}
                       >
+                        <PuzzlePiece size={16} className="text-gray-500" />
                         {binding.name}
-
                         {debug && (
-                          <span className="text-gray-500 inline-flex items-center gap-1 text-xs whitespace-nowrap">
+                          <span className="text-gray-500 inline-flex items-center gap-1 text-xs whitespace-nowrap pl-2 ml-auto">
                             {stringifyType(
                               getBindingExpressionType(binding.id),
                             )}
@@ -198,7 +203,7 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
             )}
 
             {!canCreateNewVariable && filteredBindings.length === 0 && (
-              <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-2 mt-1 first:mt-0">
+              <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-3">
                 No variables found
               </div>
             )}

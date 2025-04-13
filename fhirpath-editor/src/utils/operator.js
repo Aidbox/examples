@@ -19,6 +19,8 @@ import {
   TimeType,
   TypeType,
 } from "./type";
+import { distinct } from "@utils/misc.js";
+import { PrimitiveStringType } from "@utils/fhir-type.js";
 
 // Helper to define individual overload
 const op = (symbol, left, right, result) => ({
@@ -31,26 +33,6 @@ const op = (symbol, left, right, result) => ({
 });
 
 export const operatorMetadata = [
-  // Equality and comparison (generic)
-  op("=", Generic("T"), Generic("T"), BooleanType),
-  op("!=", Generic("T"), Generic("T"), BooleanType),
-  op("~", Generic("T"), Generic("T"), BooleanType),
-  op("!~", Generic("T"), Generic("T"), BooleanType),
-  op("<", Generic("T"), Generic("T"), BooleanType),
-  op("<=", Generic("T"), Generic("T"), BooleanType),
-  op(">", Generic("T"), Generic("T"), BooleanType),
-  op(">=", Generic("T"), Generic("T"), BooleanType),
-
-  // Membership
-  op("in", SingleType(Generic("T")), Generic("T"), BooleanType),
-  op("contains", Generic("T"), SingleType(Generic("T")), BooleanType),
-
-  // Logical
-  op("and", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
-  op("or", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
-  op("xor", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
-  op("implies", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
-
   // String concat
   op(
     "&",
@@ -351,6 +333,26 @@ export const operatorMetadata = [
     SingleType(IntegerType),
   ),
 
+  // Equality and comparison (generic)
+  op("=", Generic("T"), Generic("T"), BooleanType),
+  op("!=", Generic("T"), Generic("T"), BooleanType),
+  op("~", Generic("T"), Generic("T"), BooleanType),
+  op("!~", Generic("T"), Generic("T"), BooleanType),
+  op("<", Generic("T"), Generic("T"), BooleanType),
+  op("<=", Generic("T"), Generic("T"), BooleanType),
+  op(">", Generic("T"), Generic("T"), BooleanType),
+  op(">=", Generic("T"), Generic("T"), BooleanType),
+
+  // Membership
+  op("in", SingleType(Generic("T")), Generic("T"), BooleanType),
+  op("contains", Generic("T"), SingleType(Generic("T")), BooleanType),
+
+  // Logical
+  op("and", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
+  op("or", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
+  op("xor", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
+  op("implies", SingleType(BooleanType), SingleType(BooleanType), BooleanType),
+
   // Union
   op("|", Generic("A"), Generic("B"), ({ A, B }) => {
     if (deepEqual(A, B)) return A;
@@ -391,12 +393,14 @@ export function resolveOperator({ op, left, right }) {
 }
 
 export function suggestOperatorsForLeftType(leftType) {
-  return operatorMetadata
-    .filter((def) => {
-      const bindings = matchTypePattern(def.args[0].type, leftType);
-      return !!bindings;
-    })
-    .map((def) => def.op);
+  return distinct(
+    operatorMetadata
+      .filter((def) => {
+        const bindings = matchTypePattern(def.args[0].type, leftType);
+        return !!bindings;
+      })
+      .map((def) => def.op),
+  );
 }
 
 export function suggestRightTypesForOperator(op, leftType) {
@@ -424,4 +428,12 @@ export function suggestRightTypesForOperator(op, leftType) {
 //     "",
 //     CollectionType({ type: "PrimitiveCanonical" })
 //   )
+// );
+
+// console.log(
+//   resolveOperator({
+//     op: "=",
+//     left: PrimitiveStringType,
+//     right: StringType,
+//   }),
 // );
