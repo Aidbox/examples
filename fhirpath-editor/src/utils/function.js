@@ -6,7 +6,6 @@ import {
   DecimalType,
   Generic,
   IntegerType,
-  InvalidType,
   LambdaType,
   matchTypePattern,
   mergeBindings,
@@ -14,7 +13,6 @@ import {
   NullType,
   QuantityType,
   SingleType,
-  stringifyType,
   StringType,
   substituteBindings,
   TimeType,
@@ -256,7 +254,7 @@ export const functionMetadata = [
       },
     ],
     ({ T, F, args: [, , elseArg] }) => {
-      if (elseArg.type !== NullType.type) {
+      if (elseArg?.type !== NullType.type) {
         return ChoiceType([T, F]);
       } else {
         return T;
@@ -464,9 +462,9 @@ export const functionMetadata = [
 ];
 
 export function suggestFunctionsForInputType(inputType) {
-  return functionMetadata
-    .filter((meta) => !!matchTypePattern(meta.input, inputType))
-    .map((meta) => meta.name);
+  return functionMetadata.filter(
+    (meta) => !!matchTypePattern(meta.input, inputType),
+  );
 }
 
 export function suggestArgumentTypesForFunction(

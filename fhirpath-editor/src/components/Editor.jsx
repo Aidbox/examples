@@ -22,7 +22,7 @@ import SortableBinding from "./SortableBinding";
 import BindingMenu from "./BindingMenu.jsx";
 import { useDebug } from "@utils/react";
 import { Plus } from "@phosphor-icons/react";
-import { stringifyType } from "@utils/type.js";
+import { stringifyType } from "@utils/stringify.js";
 import { useProgramContext } from "@utils/store.jsx";
 
 function Editor({ className = "", title }) {

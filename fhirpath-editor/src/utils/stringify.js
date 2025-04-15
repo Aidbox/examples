@@ -1,5 +1,40 @@
-import { highlightCode, tagHighlighter, tags } from "@lezer/highlight";
-import { parser } from "lezer-fhirpath";
+import { FhirType, typePrimitiveMap } from "@utils/fhir-type.js";
+import {
+  ChoiceType,
+  Generic,
+  InvalidType,
+  LambdaType,
+  SingleType,
+} from "@utils/type.js";
+
+export function stringifyType(t) {
+  if (!t || typeof t !== "object") return String(t);
+
+  switch (t.type) {
+    case SingleType.type:
+      return `Single<${stringifyType(t.ofType)}>`;
+    case Generic.type:
+      return `${t.name}`;
+    case LambdaType.type:
+      return `Lambda<${stringifyType(t.contextType)} => ${stringifyType(
+        t.returnType,
+      )}>`;
+    case ChoiceType.type:
+      return t.options.map(stringifyType).join(" | ");
+    case InvalidType.type:
+      return `Invalid${t.error ? ` (${t.error})` : ""}`;
+    case FhirType.type:
+      return `${t.schemaReference[0]}${t.schemaReference
+        .slice(1)
+        .map((field) => `["${field}"]`)
+        .join("")}`;
+    default:
+      if (typePrimitiveMap[t.type]) {
+        return `Primitive<${typePrimitiveMap[t.type]}>`;
+      }
+      return t.type;
+  }
+}
 
 export const stringifyExpression = (expression) => {
   return expression
@@ -75,61 +110,3 @@ export const stringifyProgram = (program) => {
 
   return result;
 };
-
-export function highlightFhirPath(code) {
-  let result = document.createElement("pre");
-  let style = document.createElement("style");
-
-  style.innerHTML = `
-    .tok-string { color: #a11; }
-    .tok-number { color: #192b8c; }
-    .tok-operator, .tok-keyword { color: #4c0793; } /* Keywords like 'is', 'as', 'and' */
-    .tok-variableName { color: #675900; } /* Variables like %patient */
-    .tok-literal { color: #fa1c9c; } /* Date/Time/Quantity literals */
-    .tok-functionName { color: green; } /* Function names like exists() */
-    .tok-propertyName { color: #192b8c; font-style: italic; } /* Field access like .name */
-    .tok-constantName, .tok-bool { color: #975305; } /* Booleans true/false */
-    .tok-punctuation { color: #555; } /* Brackets, parens, commas */
-    .tok-typeName { color: #192b8c; } /* Type specifiers like Patient */
-    .tok-invalid { color: red; text-decoration: underline; } /* For errors */
-  `;
-
-  result.appendChild(style);
-
-  function emit(text, classes) {
-    let node = document.createTextNode(text);
-    if (classes) {
-      let span = document.createElement("span");
-      span.appendChild(node);
-      span.className = classes;
-      node = span;
-    }
-    result.appendChild(node);
-  }
-
-  function emitBreak() {
-    result.appendChild(document.createTextNode("\n"));
-  }
-
-  highlightCode(
-    code,
-    parser.parse(code),
-    tagHighlighter([
-      { tag: tags.string, class: "tok-string" },
-      { tag: tags.number, class: "tok-number" },
-      { tag: tags.operator, class: "tok-operator" },
-      { tag: tags.special(tags.variableName), class: "tok-variableName" },
-      { tag: tags.special(tags.literal), class: "tok-literal" },
-      { tag: tags.function(tags.variableName), class: "tok-functionName" },
-      {
-        tag: tags.function(tags.attributeName),
-        class: "tok-propertyName",
-        fontStyle: "italic",
-      },
-      { tag: tags.constant(tags.variableName), class: "tok-constantName" },
-    ]),
-    emit,
-    emitBreak,
-  );
-  return result.outerHTML;
-}

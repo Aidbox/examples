@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from "react";
+import React, { Fragment, useMemo, useRef, useState } from "react";
 import {
   arrow,
   autoUpdate,
@@ -30,17 +30,30 @@ import {
 } from "@phosphor-icons/react";
 import { ProgramProvider, useProgramContext } from "@utils/store.jsx";
 import { isEmptyProgram } from "@utils/expression.js";
+import { LambdaType } from "@utils/type.js";
 
 const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
-  const { arg, updateArg, contextType } = useProgramContext((state) => ({
-    arg: state.getArg(bindingId, tokenIndex, argIndex),
-    updateArg: state.updateArg,
-    deleteArg: state.deleteArg,
-    contextType: state.getContextType(),
-  }));
+  const { arg, updateArg, contextType, getBindingExpressionType } =
+    useProgramContext((state) => ({
+      arg: state.getArg(bindingId, tokenIndex, argIndex),
+      updateArg: state.updateArg,
+      deleteArg: state.deleteArg,
+      contextType: state.getContextType(),
+      getBindingExpressionType: state.getBindingExpressionType,
+    }));
 
   const precedingBindings = useProgramContext((state) =>
     state.getPrecedingBindings(bindingId),
+  );
+
+  const externalizedBindings = useMemo(
+    () =>
+      precedingBindings.map((binding) => ({
+        id: binding.id,
+        name: binding.name,
+        type: getBindingExpressionType(binding.id),
+      })),
+    [precedingBindings, getBindingExpressionType],
   );
 
   return (
@@ -51,11 +64,11 @@ const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
           updateArg(bindingId, tokenIndex, argIndex, arg)
         }
         contextType={
-          suggestedType?.type === "Lambda"
+          suggestedType?.type === LambdaType.type
             ? suggestedType.contextType
             : contextType
         }
-        externalBindings={precedingBindings}
+        externalBindings={externalizedBindings}
       >
         <Editor className="px-4 pt-3 pb-5" title="Argument expression" />
       </ProgramProvider>

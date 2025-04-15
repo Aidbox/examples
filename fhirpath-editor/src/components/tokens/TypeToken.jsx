@@ -1,35 +1,52 @@
-import React from "react";
+import React, { Fragment, useRef, useState } from "react";
 import {
   BooleanType,
   DateTimeType,
   DateType,
   DecimalType,
+  deepEqual,
   IntegerType,
   QuantityType,
   StringType,
   TimeType,
 } from "@utils/type";
-import { primitiveTypeMap } from "@utils/fhir-type";
+import { FhirType, primitiveTypeMap } from "@utils/fhir-type";
 import { useProgramContext } from "@utils/store.jsx";
+import {
+  autoUpdate,
+  flip,
+  FloatingPortal,
+  offset,
+  shift,
+  size,
+  useClick,
+  useDismiss,
+  useFloating,
+  useInteractions,
+  useListNavigation,
+  useMergeRefs,
+  useRole,
+} from "@floating-ui/react";
+import { stringifyType } from "@utils/stringify.js";
 
-const typeNames = {
+const typesGroups = {
   "Literal types": [
-    IntegerType.type,
-    DecimalType.type,
-    StringType.type,
-    BooleanType.type,
-    DateType.type,
-    DateTimeType.type,
-    TimeType.type,
-    QuantityType.type,
+    IntegerType,
+    DecimalType,
+    StringType,
+    BooleanType,
+    DateType,
+    DateTimeType,
+    TimeType,
+    QuantityType,
   ],
-  "Primitive types": [],
-  "Resource types": ["Patient", "Questionnaire", "Address"],
+  "Primitive types": [...Object.values(primitiveTypeMap)],
+  "Resource types": [
+    FhirType(["Patient"]),
+    FhirType(["Questionnaire"]),
+    FhirType(["Address"]),
+  ],
 };
-
-Object.values(primitiveTypeMap).forEach((type) => {
-  typeNames["Primitive types"].push(type.type);
-});
 
 const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const { token, updateToken } = useProgramContext((state) => ({
@@ -37,49 +54,149 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
     updateToken: state.updateToken,
   }));
 
-  const empty = !token.value;
-  const invalid =
-    !empty && !Object.values(typeNames).flat().includes(token.value);
+  const invalid = false;
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [activeIndex, setActiveIndex] = useState(null);
+  const listRef = useRef([]);
+
+  const filteredTypes = Object.entries(typesGroups)
+    .flatMap(([, values]) => values)
+    .filter((type) =>
+      JSON.stringify(type).toLowerCase().includes(search.toLowerCase()),
+    );
+
+  const groupedOptions = filteredTypes.reduce((acc, type, index) => {
+    const group = Object.keys(typesGroups).find((group) =>
+      typesGroups[group].includes(type),
+    );
+
+    if (!acc[group]) {
+      acc[group] = [];
+    }
+
+    acc[group].push({ type, index });
+    return acc;
+  }, {});
+
+  const { refs, floatingStyles, context } = useFloating({
+    placement: "right",
+    strategy: "absolute",
+    whileElementsMounted: autoUpdate,
+    open: isOpen,
+    onOpenChange: (open) => {
+      setIsOpen(open);
+      if (!open) {
+        setSearch("");
+      }
+    },
+    middleware: [
+      offset({
+        mainAxis: 6,
+      }),
+      shift(),
+      flip(),
+      size({
+        apply({ availableHeight, elements }) {
+          Object.assign(elements.floating.style, {
+            maxHeight: `${Math.max(0, availableHeight)}px`,
+          });
+        },
+      }),
+    ],
+  });
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: "listbox" });
+  const listNav = useListNavigation(context, {
+    listRef,
+    activeIndex,
+    onNavigate: setActiveIndex,
+    virtual: true,
+    loop: true,
+  });
+
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions(
+    [click, dismiss, role, listNav],
+  );
+
+  const handleSelect = (value) => {
+    updateToken(bindingId, tokenIndex, { value });
+    setIsOpen(false);
+    setSearch("");
+  };
+
+  const mergedRefs = useMergeRefs([ref, refs.setReference]);
 
   return (
-    <select
-      ref={ref}
-      className="focus:bg-gray-100 focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded field-sizing-content text-teal-700 appearance-none data-[empty]:outline data-[empty]:not-hover:outline-dashed data-[empty]:outline-gray-300"
-      data-testid="type-token"
-      data-empty={empty || undefined}
-      value={token.value || ""}
-      onChange={(e) =>
-        updateToken(bindingId, tokenIndex, { value: e.target.value })
-      }
-    >
-      {invalid && (
-        <option value={token.value} disabled>
-          ⚠️ {token.value}
-        </option>
+    <>
+      <button
+        ref={mergedRefs}
+        {...getReferenceProps()}
+        data-open={isOpen || undefined}
+        className={`cursor-pointer focus:bg-gray-100 focus:outline-none data-[open]:bg-gray-100 data-[open]:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded field-sizing-content text-green-800 ${
+          invalid ? "text-red-600" : ""
+        }`}
+      >
+        {stringifyType(token.value)}
+      </button>
+
+      {isOpen && (
+        <FloatingPortal>
+          <div className="fixed inset-0 bg-black/30" />
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+            className="bg-white rounded-md shadow-lg min-w-60 empty:hidden overflow-y-auto relative grid grid-cols-[auto_1fr] items-center"
+          >
+            <div className="p-2 sticky top-0 bg-white border-b border-gray-200 col-span-2">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-2 py-1 focus:outline-none text-sm"
+                placeholder="Search..."
+                autoFocus
+              />
+            </div>
+
+            {Object.entries(groupedOptions).map(
+              ([group, options]) =>
+                options.length > 0 && (
+                  <Fragment key={group}>
+                    <div className="text-xs font-semibold text-gray-500 px-3 py-3 pb-1 col-span-2">
+                      {group}
+                    </div>
+                    {options.map(({ type, index }) => (
+                      <button
+                        key={index}
+                        {...getItemProps({
+                          ref: (node) => (listRef.current[index] = node),
+                          onClick: () => handleSelect(type),
+                        })}
+                        className={`text-sm col-span-2 grid grid-cols-subgrid w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 last:rounded-b ${
+                          activeIndex === index ? "bg-gray-100" : ""
+                        }`}
+                      >
+                        {stringifyType(type)}
+                      </button>
+                    ))}
+                  </Fragment>
+                ),
+            )}
+
+            {!filteredTypes.length && (
+              <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-3 col-span-2">
+                No types found
+              </div>
+            )}
+          </div>
+        </FloatingPortal>
       )}
-      {Object.entries(typeNames).map(([group, types]) => (
-        <optgroup key={group} label={group}>
-          {types.map((type) => {
-            const [, primitiveTypeName] = type.match(/^Primitive(.*)$/) || [];
-            if (primitiveTypeName) {
-              if (!typeNames["Literal types"].includes(primitiveTypeName)) {
-                return (
-                  <option key={type} value={type}>
-                    {primitiveTypeName}
-                  </option>
-                );
-              }
-            } else {
-              return (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              );
-            }
-          })}
-        </optgroup>
-      ))}
-    </select>
+    </>
   );
 });
 

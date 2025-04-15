@@ -4,13 +4,15 @@ import { immer } from "zustand/middleware/immer";
 import {
   canMoveBinding,
   findCompatibleOperators,
-  findCompatibleVariables,
+  findCompatibleBindings,
   generateBindingId,
   getExpressionType,
   suggestNextToken,
 } from "@utils/expression.js";
 import { delay } from "@utils/misc.js";
 import { useShallow } from "zustand/react/shallow";
+import { pick } from "./misc";
+import { StringType } from "@utils/type.js";
 
 const emptyProgram = { bindings: [], expression: [] };
 
@@ -37,7 +39,7 @@ const createProgramStore = (contextType, externalBindings) => {
 
       getBindingExpression: (id) =>
         id
-          ? get().program.bindings[get().bindingsIndex[id]].expression
+          ? get().program.bindings[get().bindingsIndex[id]]?.expression
           : get().program.expression,
 
       getBindingName: (id) =>
@@ -49,7 +51,19 @@ const createProgramStore = (contextType, externalBindings) => {
       },
 
       getBindingExpressionType: (id, upToIndex) => {
-        let expression = get().getBindingExpression(id) || [];
+        let expression = get().getBindingExpression(id);
+
+        if (!expression) {
+          const externalBinding = externalBindings.find(
+            (binding) => binding.id === id,
+          );
+          if (externalBinding) {
+            return externalBinding.type;
+          } else {
+            expression = [];
+          }
+        }
+
         if (upToIndex != null) expression = expression.slice(0, upToIndex);
         if (upToIndex != null && !expression.length) return contextType;
 
@@ -66,11 +80,11 @@ const createProgramStore = (contextType, externalBindings) => {
         return suggestNextToken(expression, precedingBindings, contextType);
       },
 
-      getCompatibleVariables: (id, upToIndex) => {
+      getCompatibleBindings: (id, upToIndex) => {
         let expression = get().getBindingExpression(id) || [];
         expression = expression.slice(0, upToIndex);
 
-        return findCompatibleVariables(
+        return findCompatibleBindings(
           expression,
           get().getPrecedingBindings(id),
           contextType,
@@ -119,7 +133,7 @@ const createProgramStore = (contextType, externalBindings) => {
           if (token.value === undefined) {
             if (token.type === "variable") {
               token.value =
-                findCompatibleVariables(
+                findCompatibleBindings(
                   expression,
                   precedingBindings,
                   contextType,
@@ -137,7 +151,7 @@ const createProgramStore = (contextType, externalBindings) => {
             } else if (token.type === "time") {
               token.value = now.toTimeString().slice(0, 5);
             } else if (token.type === "type") {
-              token.value = "String";
+              token.value = StringType;
             } else if (token.type === "index") {
               token.value = "0";
             } else if (token.type === "quantity") {
@@ -148,7 +162,7 @@ const createProgramStore = (contextType, externalBindings) => {
                   expression,
                   precedingBindings,
                   contextType,
-                )[0] || "+";
+                )[0]?.name || "+";
             }
           }
 
@@ -156,7 +170,8 @@ const createProgramStore = (contextType, externalBindings) => {
             token.args = []; //
           }
 
-          expression.push(token);
+          expression.push(pick(token, ["type", "value", "args"]));
+
           if (focus) {
             delay(get().focusToken.bind(null, id, expression.length - 1));
           }
@@ -242,11 +257,6 @@ const createProgramStore = (contextType, externalBindings) => {
       setProgram: (program) =>
         set((state) => {
           state.program = program;
-          for (const binding of state.program.bindings) {
-            if (!binding.id) {
-              binding.id = generateBindingId();
-            }
-          }
           state.bindingsIndex = buildIndex(state.program.bindings);
         }),
 

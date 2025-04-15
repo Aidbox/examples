@@ -21,8 +21,9 @@ import {
   TimeType,
   TypeType,
   unwrapSingle,
+  wrapSingle,
 } from "./type.js";
-import { distinct } from "./misc.js";
+import { distinct, pick } from "./misc.js";
 import { getFields } from "./fhir-type.js";
 import "./function.js";
 import {
@@ -30,6 +31,7 @@ import {
   suggestArgumentTypesForFunction,
   suggestFunctionsForInputType,
 } from "./function.js";
+import { stringifyType } from "@utils/stringify.js";
 
 export const isEmptyProgram = (program) => {
   return (
@@ -37,7 +39,7 @@ export const isEmptyProgram = (program) => {
     (program.bindings.length === 0 && program.expression.length === 0)
   );
 };
-export const findReferencedVariables = (binding) => {
+export const findReferencedBindings = (binding) => {
   return binding.expression
     .filter((token) => token.type === "variable")
     .map((token) => token.value);
@@ -51,10 +53,10 @@ export const canMoveBinding = (bindings, sourceIndex, targetIndex) => {
 
   // Moving up
   if (targetIndex < sourceIndex) {
-    const referencedVars = findReferencedVariables(binding);
+    const referencedBindings = findReferencedBindings(binding);
 
     for (let i = targetIndex; i < sourceIndex; i++) {
-      if (referencedVars.includes(bindings[i].name)) {
+      if (referencedBindings.includes(bindings[i].name)) {
         return false;
       }
     }
@@ -66,8 +68,8 @@ export const canMoveBinding = (bindings, sourceIndex, targetIndex) => {
     const bindingName = binding.name;
 
     for (let i = sourceIndex + 1; i <= targetIndex; i++) {
-      const referencingVars = findReferencedVariables(bindings[i]);
-      if (referencingVars.includes(bindingName)) {
+      const referencingBindings = findReferencedBindings(bindings[i]);
+      if (referencingBindings.includes(bindingName)) {
         return false;
       }
     }
@@ -147,7 +149,7 @@ export const getExpressionType = (expression, bindings, contextType) => {
     let first = true;
     if (!tokens.length) return InvalidType("Empty expression");
 
-    while (tokens.length > 0 && currentType?.type !== "Invalid") {
+    while (tokens.length > 0 && currentType?.type !== InvalidType.type) {
       const token = tokens.shift();
 
       if (first) {
@@ -172,7 +174,7 @@ export const getExpressionType = (expression, bindings, contextType) => {
 
       // Skip index tokens - they don't change the type
       if (token.type === "index") {
-        currentType = SingleType(currentType);
+        currentType = wrapSingle(currentType);
       } else if (token.type === "function") {
         const meta = functionMetadata.find((f) => f.name === token.value);
         if (!meta) return InvalidType("Unknown function");
@@ -200,13 +202,13 @@ export const getExpressionType = (expression, bindings, contextType) => {
           const programType = getExpressionType(
             program.expression,
             program.bindings,
-            suggestedType?.type === "Lambda"
+            suggestedType?.type === LambdaType.type
               ? suggestedType.contextType
               : contextType,
           );
 
           const actualType =
-            suggestedType?.type === "Lambda"
+            suggestedType?.type === LambdaType.type
               ? LambdaType(programType, suggestedType.contextType)
               : programType;
 
@@ -215,8 +217,15 @@ export const getExpressionType = (expression, bindings, contextType) => {
             actualType,
             bindings,
           );
-          if (!newBindings)
+          if (!newBindings) {
+            console.log("  ↳ expected", stringifyType(expectedType));
+            console.log("  ↳ actual", stringifyType(actualType));
+            console.log("  ↳ bindings");
+            Object.entries(bindings).map(([name, type]) => {
+              console.log(`    ↳  ${name}: `, stringifyType(type));
+            });
             return InvalidType(`Argument type mismatch at index ${i}`);
+          }
 
           bindings = mergeBindings(bindings, newBindings);
           if (!bindings) return InvalidType(`Binding mismatch at index ${i}`);
@@ -232,7 +241,8 @@ export const getExpressionType = (expression, bindings, contextType) => {
       } else {
         const availableFields = getFields(currentType);
         currentType =
-          availableFields[token.value] || InvalidType("Unknown field");
+          availableFields[token.value] ||
+          InvalidType(`Unknown field ${token.value}`);
       }
     }
 
@@ -241,26 +251,24 @@ export const getExpressionType = (expression, bindings, contextType) => {
 
   // For expressions with operators
   if (isOperatorExpression(expression)) {
-    const [left, op, right] = expression;
+    const [left, operator, right] = expression;
 
     const leftType = getExpressionType([left], bindings, contextType);
     const rightType = getExpressionType([right], bindings, contextType);
 
-    if (leftType.type === "Invalid" || rightType.type === "Invalid")
+    if (
+      leftType.type === InvalidType.type ||
+      rightType.type === InvalidType.type
+    )
       return InvalidType("Invalid argument types");
 
-    return resolveOperator({
-      op: op.value,
-      left: leftType,
-      right: rightType,
-    });
+    return resolveOperator(operator.value, leftType, rightType);
   }
 
   return InvalidType("Unknown expression");
 };
 
-// Filter variables for compatibility when suggesting
-export const findCompatibleVariables = (expression, bindings, contextType) => {
+export const findCompatibleBindings = (expression, bindings, contextType) => {
   if (expression.length === 0) return bindings;
 
   // If we have an operator and left operand
@@ -268,11 +276,11 @@ export const findCompatibleVariables = (expression, bindings, contextType) => {
     (expression.length === 3 || expression.length === 2) &&
     expression[1].type === "operator"
   ) {
-    const [left, op] = expression;
+    const [left, operator] = expression;
     const leftType = getExpressionType([left], bindings, contextType);
 
-    if (leftType.type === "Invalid") return [];
-    const rightTypes = suggestRightTypesForOperator(op.value, leftType);
+    if (leftType.type === InvalidType.type) return [];
+    const rightTypes = suggestRightTypesForOperator(operator.value, leftType);
 
     return bindings.filter((binding) => {
       const bindingType =
@@ -321,7 +329,14 @@ export const suggestNextToken = (expression, bindings, contextType) => {
       { type: "time" },
       { type: "quantity" },
       { type: "type" },
-      { type: "variable" },
+      ...bindings.map((binding) => ({
+        type: "variable",
+        value: binding.name,
+        debug: stringifyType(
+          binding.type ||
+            getExpressionType(binding.expression, bindings, contextType),
+        ),
+      })),
     );
   }
 
@@ -333,11 +348,23 @@ export const suggestNextToken = (expression, bindings, contextType) => {
 
     result.push(
       ...distinct(
-        rightTypes
-          .map((rightType) => typeName2tokenType[unwrapSingle(rightType).type])
-          .concat(["variable"])
-          .filter((type) => type),
+        Object.values(
+          pick(
+            typeName2tokenType,
+            rightTypes.map((type) => unwrapSingle(type).type),
+          ),
+        ),
       ).map((type) => ({ type })),
+      ...findCompatibleBindings(expression, bindings, contextType).map(
+        (binding) => ({
+          type: "variable",
+          value: binding.name,
+          debug: stringifyType(
+            binding.type ||
+              getExpressionType(binding.expression, bindings, contextType),
+          ),
+        }),
+      ),
     );
   }
 
@@ -352,9 +379,14 @@ export const suggestNextToken = (expression, bindings, contextType) => {
       contextType,
     );
 
-    if (suggestOperatorsForLeftType(firstTokenType).length > 0) {
-      result.push({ type: "operator" });
-    }
+    result.push(
+      ...distinct(
+        suggestOperatorsForLeftType(firstTokenType).map((meta) => meta.name),
+      ).map((name) => ({
+        type: "operator",
+        value: name,
+      })),
+    );
   }
 
   if (isChainingExpression(expression) || expression.length === 0) {
@@ -362,18 +394,19 @@ export const suggestNextToken = (expression, bindings, contextType) => {
       ? getExpressionType(expression, bindings, contextType)
       : contextType;
 
-    if (type.type !== "Single") {
+    if (type.type !== SingleType.type) {
       result.push({ type: "index" });
     }
 
     result.push(
-      ...Object.keys(getFields(type)).map((field) => ({
+      ...Object.entries(getFields(type)).map(([field, type]) => ({
         type: "field",
         value: field,
+        debug: stringifyType(type),
       })),
-      ...suggestFunctionsForInputType(type).map((name) => ({
+      ...suggestFunctionsForInputType(type).map((meta) => ({
         type: "function",
-        value: name,
+        value: meta.name,
       })),
     );
   }

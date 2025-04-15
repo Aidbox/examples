@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { stringifyProgram, stringifyExpression } from "@utils/fhir";
+
+import { stringifyExpression, stringifyProgram } from "@utils/stringify.js";
 
 describe("FHIRPath conversion", () => {
   it("should convert number tokens correctly", () => {
@@ -109,7 +110,7 @@ describe("FHIRPath conversion", () => {
     ];
 
     expect(stringifyExpression(complexExpression)).toBe(
-      "%patient.age > 18 and %patient.weight < 100 'kg'"
+      "%patient.age > 18 and %patient.weight < 100 'kg'",
     );
   });
 
@@ -130,7 +131,7 @@ describe("FHIRPath conversion", () => {
     };
 
     expect(stringifyProgram(program)).toBe(
-      "defineVariable(patient, %Resource).\nselect(%patient.age > 18)"
+      "defineVariable(patient, %Resource).\nselect(%patient.age > 18)",
     );
   });
 

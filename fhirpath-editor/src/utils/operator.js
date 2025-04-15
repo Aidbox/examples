@@ -23,13 +23,13 @@ import { distinct } from "@utils/misc.js";
 import { PrimitiveStringType } from "@utils/fhir-type.js";
 
 // Helper to define individual overload
-const op = (symbol, left, right, result) => ({
-  op: symbol,
+const op = (name, left, right, returnType) => ({
+  name: name,
   args: [
     { name: "left", type: left },
     { name: "right", type: right },
   ],
-  returnType: typeof result === "function" ? result : () => result,
+  returnType: typeof returnType === "function" ? returnType : () => returnType,
 });
 
 export const operatorMetadata = [
@@ -370,9 +370,9 @@ export const operatorMetadata = [
   ),
 ];
 
-export function resolveOperator({ op, left, right }) {
+export function resolveOperator(name, left, right) {
   for (const def of operatorMetadata) {
-    if (def.op !== op) continue;
+    if (def.name !== name) continue;
 
     const b1 = matchTypePattern(def.args[0].type, left);
     const b2 = matchTypePattern(def.args[1].type, right);
@@ -389,25 +389,21 @@ export function resolveOperator({ op, left, right }) {
     });
   }
 
-  return InvalidType(`No matching overload for operator "${op}"`);
+  return InvalidType(`No matching overload for operator "${name}"`);
 }
 
 export function suggestOperatorsForLeftType(leftType) {
-  return distinct(
-    operatorMetadata
-      .filter((def) => {
-        const bindings = matchTypePattern(def.args[0].type, leftType);
-        return !!bindings;
-      })
-      .map((def) => def.op),
-  );
+  return operatorMetadata.filter((def) => {
+    const bindings = matchTypePattern(def.args[0].type, leftType);
+    return !!bindings;
+  });
 }
 
-export function suggestRightTypesForOperator(op, leftType) {
+export function suggestRightTypesForOperator(name, leftType) {
   const suggestions = [];
 
   for (const def of operatorMetadata) {
-    if (def.op !== op) continue;
+    if (def.name !== name) continue;
 
     const bindings = matchTypePattern(def.args[0].type, leftType);
     if (!bindings) continue;
@@ -431,9 +427,5 @@ export function suggestRightTypesForOperator(op, leftType) {
 // );
 
 // console.log(
-//   resolveOperator({
-//     op: "=",
-//     left: PrimitiveStringType,
-//     right: StringType,
-//   }),
+//   resolveOperator("=", PrimitiveStringType, StringType),
 // );

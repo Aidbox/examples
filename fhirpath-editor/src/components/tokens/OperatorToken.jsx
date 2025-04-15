@@ -18,6 +18,7 @@ import {
   useRole,
 } from "@floating-ui/react";
 import {
+  Calculator,
   Divide,
   Equals,
   GreaterThan,
@@ -30,7 +31,7 @@ import {
   PuzzlePiece,
   X,
 } from "@phosphor-icons/react";
-import { stringifyType } from "@utils/type.js";
+import { distinct } from "@utils/misc.js";
 
 const operatorGroups = {
   "Math Operators": ["+", "-", "*", "/", "mod", "div"],
@@ -40,7 +41,7 @@ const operatorGroups = {
   "Type Operators": ["is", "as"],
 };
 
-const operatorNames = {
+export const operatorNames = {
   "+": "Plus",
   "-": "Minus",
   "*": "Multiply",
@@ -80,6 +81,21 @@ const operatorIcons = {
   ">=": GreaterThanOrEqual,
 };
 
+export const OperatorIcon = ({ name }) => (
+  <span className="text-center">
+    {operatorIcons[name] ? (
+      createElement(operatorIcons[name], {
+        size: 16,
+        className: "text-gray-500",
+      })
+    ) : !name.match(/[a-z]/) ? (
+      <span className="font-thin">{name}</span>
+    ) : (
+      <Calculator size={16} className="text-gray-500" />
+    )}
+  </span>
+);
+
 const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const { token, updateToken } = useProgramContext((state) => ({
     token: state.getToken(bindingId, tokenIndex),
@@ -87,27 +103,31 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   }));
 
   const precedingExpressionType = useProgramContext((state) =>
-    state.getBindingExpressionType(bindingId, tokenIndex),
+    state.getBindingExpressionType(bindingId, tokenIndex)
   );
 
-  const compatibleOperators = suggestOperatorsForLeftType(
-    precedingExpressionType,
+  const compatibleOperators = distinct(
+    suggestOperatorsForLeftType(precedingExpressionType).map(
+      (meta) => meta.name
+    )
   );
 
-  const invalid = !compatibleOperators.find((op) => op === token.value);
+  const invalid = !compatibleOperators.find((name) => name === token.value);
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [activeIndex, setActiveIndex] = useState(null);
   const listRef = useRef([]);
 
-  const filteredOperators = compatibleOperators.filter((name) =>
-    operatorNames[name].toLowerCase().includes(search.toLowerCase()),
+  const filteredOperators = compatibleOperators.filter(
+    (name) =>
+      operatorNames[name].toLowerCase().includes(search.toLowerCase()) ||
+      name.toLowerCase().includes(search.toLowerCase())
   );
 
   const groupedOperators = filteredOperators.reduce((acc, name, index) => {
     const group = Object.keys(operatorGroups).find((groupName) =>
-      operatorGroups[groupName].includes(name),
+      operatorGroups[groupName].includes(name)
     );
 
     if (!acc[group]) {
@@ -157,7 +177,7 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions(
-    [click, dismiss, role, listNav],
+    [click, dismiss, role, listNav]
   );
 
   const handleSelect = (value) => {
@@ -228,23 +248,12 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                             : ""
                         }`}
                       >
-                        <span className="text-center">
-                          {operatorIcons[operator.name]
-                            ? createElement(operatorIcons[operator.name], {
-                                size: 16,
-                                className: "text-gray-500",
-                              })
-                            : !operator.name.match(/[a-z]/) && (
-                                <span className="font-thin">
-                                  {operator.name}
-                                </span>
-                              )}
-                        </span>
+                        <OperatorIcon name={operator.name} />
                         <span>{operatorNames[operator.name]}</span>
                       </button>
                     ))}
                   </Fragment>
-                ),
+                )
             )}
 
             {!filteredOperators.length && (

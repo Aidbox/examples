@@ -17,7 +17,7 @@ import {
 
 import { useProgramContext } from "@utils/store.jsx";
 import { useDebug } from "@utils/react.js";
-import { stringifyType } from "@utils/type.js";
+import { stringifyType } from "@utils/stringify.js";
 import { Plus, PuzzlePiece } from "@phosphor-icons/react";
 
 const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
@@ -44,7 +44,7 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   }));
 
   const compatibleBindings = useProgramContext((state) =>
-    state.getCompatibleVariables(bindingId, tokenIndex),
+    state.getCompatibleBindings(bindingId, tokenIndex),
   );
 
   const filteredBindings = compatibleBindings.filter(({ name }) =>
@@ -159,12 +159,12 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                   ref: (node) => (listRef.current[0] = node),
                   onClick: handleCreate,
                 })}
-                className={`w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 ${
+                className={`text-sm w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 ${
                   activeIndex === 0 ? "bg-gray-100" : ""
                 }`}
               >
                 <Plus size={16} className="text-gray-500" />
-                New binding
+                New named expression
               </button>
             )}
 
@@ -204,7 +204,7 @@ const VariableToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
 
             {!canCreateNewVariable && filteredBindings.length === 0 && (
               <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-3">
-                No variables found
+                No named expressions found
               </div>
             )}
           </div>

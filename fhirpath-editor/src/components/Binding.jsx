@@ -2,7 +2,7 @@ import React, { forwardRef, useImperativeHandle } from "react";
 import Token from "./Token";
 import Cursor from "./Cursor";
 import { useCommitableState, useDebug, useDoubleInvoke } from "@utils/react";
-import { stringifyType } from "@utils/type.js";
+import { stringifyType } from "@utils/stringify.js";
 import { Equals } from "@phosphor-icons/react";
 import { useProgramContext } from "@utils/store.jsx";
 import { delay } from "@utils/misc.js";

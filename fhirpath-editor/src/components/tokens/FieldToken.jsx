@@ -17,8 +17,9 @@ import {
   useMergeRefs,
   useRole,
 } from "@floating-ui/react";
-import { Plus, PuzzlePiece } from "@phosphor-icons/react";
-import { stringifyType } from "@utils/type.js";
+import { Plus, PuzzlePiece, Shapes } from "@phosphor-icons/react";
+
+import { stringifyType } from "@utils/stringify.js";
 
 const FieldToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const { token, updateToken } = useProgramContext((state) => ({
@@ -138,7 +139,7 @@ const FieldToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                   activeIndex === index ? "bg-gray-100" : ""
                 }`}
               >
-                <PuzzlePiece size={16} className="text-gray-500" />
+                <Shapes size={16} className="text-gray-500" />
                 {name}
                 {debug && (
                   <span className="text-gray-500 inline-flex items-center gap-1 text-xs whitespace-nowrap pl-2 ml-auto">

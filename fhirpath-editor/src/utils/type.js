@@ -9,15 +9,26 @@ export const QuantityType = { type: "Quantity" };
 export const NullType = { type: "Null" };
 
 export const InvalidType = (error) => ({ type: "Invalid", error });
+InvalidType.type = "Invalid"; // For type checking
+
 export const TypeType = (ofType) => ({ type: "Type", ofType });
+TypeType.type = "Type"; // For type checking
+
 export const SingleType = (ofType) => ({ type: "Single", ofType });
+SingleType.type = "Single"; // For type checking
+
 export const ChoiceType = (options) => ({ type: "Choice", options });
+ChoiceType.type = "Choice"; // For type checking
+
 export const Generic = (name) => ({ type: "Generic", name });
+Generic.type = "Generic"; // For type checking
+
 export const LambdaType = (returnType, contextType) => ({
   type: "Lambda",
   returnType,
   contextType,
 });
+LambdaType.type = "Lambda"; // For type checking
 
 const typeHierarchy = {};
 
@@ -68,39 +79,13 @@ export function isSubtypeOf(actual, expected) {
   return false;
 }
 
-export function stringifyType(t) {
-  if (!t || typeof t !== "object") return String(t);
-
-  switch (t.type) {
-    case "Single":
-      return `Single<${stringifyType(t.ofType)}>`;
-    case "Generic":
-      return `Generic<${t.name}>`;
-    case "Choice":
-      return t.options.map(stringifyType).join(" | ");
-    case "Invalid":
-      return `Invalid${t.error ? ` (${t.error})` : ""}`;
-    case "FhirType":
-      if (t.schemaReference.length === 1) {
-        const [name] = t.schemaReference;
-        if (name[0] === name[0].toLowerCase()) {
-          return `Primitive${name[0].toUpperCase()}${name.slice(1)}`;
-        } else {
-          return name;
-        }
-      } else {
-        return `${t.schemaReference[0]}${t.schemaReference
-          .slice(1)
-          .map((field) => `["${field}"]`)
-          .join("")}`;
-      }
-    default:
-      return t.type;
-  }
+export function wrapSingle(t) {
+  if (t.type === SingleType.type) return t;
+  return SingleType(t);
 }
 
 export function unwrapSingle(t) {
-  return t?.type === "Single" ? t.ofType : t;
+  return t?.type === SingleType.type ? t.ofType : t;
 }
 
 export function normalizeChoice(choice) {
@@ -110,9 +95,9 @@ export function normalizeChoice(choice) {
   while (options.length > 0) {
     const opt = options.shift();
     if (opt && !seen.some((t) => deepEqual(t, opt))) {
-      if (opt.type === "Choice") {
+      if (opt.type === ChoiceType.type) {
         const normalized = normalizeChoice(opt);
-        if (normalized.type === "Choice") {
+        if (normalized.type === ChoiceType.type) {
           options.push(...normalized.options); // flatten
         } else {
           options.push(normalized);
@@ -142,12 +127,6 @@ export function promote(a, b) {
   return map[t1]?.[t2] || map[t2]?.[t1] || null;
 }
 
-export function stringifyBindings(bindings) {
-  return Object.entries(bindings)
-    .map(([k, v]) => `${k} = ${stringifyType(v)}`)
-    .join(", ");
-}
-
 export function mergeBindings(a, b) {
   const result = { ...a };
   for (const key in b) {
@@ -161,13 +140,13 @@ export function mergeBindings(a, b) {
 }
 
 export function deepEqual(a, b) {
-  if (a?.type === "Generic" || b?.type === "Generic") {
+  if (a?.type === Generic.type || b?.type === Generic.type) {
     return true;
   }
-  if (a?.type === "Choice") {
+  if (a?.type === ChoiceType.type) {
     return a.options.some((opt) => deepEqual(opt, b));
   }
-  if (b?.type === "Choice") {
+  if (b?.type === ChoiceType.type) {
     return b.options.some((opt) => deepEqual(opt, a));
   }
 
@@ -188,30 +167,43 @@ export function deepEqual(a, b) {
   return true;
 }
 
-export function matchTypePattern(pattern, actual, bindings = {}) {
+export function matchTypePattern(
+  pattern,
+  actual,
+  bindings = {},
+  parentOfPattern,
+) {
   let newBindings = { ...bindings };
 
   // If pattern is a Generic, record or check consistency
-  if (pattern?.type === "Generic") {
+  if (pattern?.type === Generic.type) {
     const name = pattern.name;
 
     if (bindings[name]) {
-      if (!deepEqual(bindings[name], actual)) return null;
+      if (
+        !deepEqual(bindings[name], actual) &&
+        !(
+          parentOfPattern.type === SingleType.type &&
+          bindings[name].type === SingleType.type &&
+          deepEqual(bindings[name].ofType, actual)
+        )
+      )
+        return null;
     } else {
       newBindings[name] = actual;
     }
     return newBindings;
   }
 
-  if (actual.type === "Single" && pattern.type !== "Single") {
+  if (actual.type === SingleType.type && pattern.type !== SingleType.type) {
     // Promote Single to its ofType
-    return matchTypePattern(pattern, actual.ofType, newBindings);
+    return matchTypePattern(pattern, actual.ofType, newBindings, undefined);
   }
 
   // Choice handling — try each branch
-  if (actual?.type === "Choice") {
+  if (actual?.type === ChoiceType.type) {
     for (const option of actual.options) {
-      const b = matchTypePattern(pattern, option, newBindings);
+      const b = matchTypePattern(pattern, option, newBindings, undefined);
       if (b) return b;
     }
     return null;
@@ -237,7 +229,12 @@ export function matchTypePattern(pattern, actual, bindings = {}) {
     if (!(key in actual)) return null;
 
     if (key === "ofType" || key === "returnType" || key === "contextType") {
-      const sub = matchTypePattern(pattern[key], actual[key], newBindings);
+      const sub = matchTypePattern(
+        pattern[key],
+        actual[key],
+        newBindings,
+        pattern,
+      );
       if (!sub) return null;
       newBindings = mergeBindings(newBindings, sub);
       if (!newBindings) return null;
@@ -250,15 +247,15 @@ export function matchTypePattern(pattern, actual, bindings = {}) {
 export function substituteBindings(type, bindings) {
   if (!type || typeof type !== "object") return type;
 
-  if (type.type === "Generic") {
+  if (type.type === Generic.type) {
     return bindings[type.name] ?? type;
   }
 
-  if (type.type === "Single") {
-    return SingleType(substituteBindings(type.ofType, bindings));
+  if (type.type === SingleType.type) {
+    return wrapSingle(substituteBindings(type.ofType, bindings));
   }
 
-  if (type.type === "Choice") {
+  if (type.type === ChoiceType.type) {
     return normalizeChoice(
       ChoiceType(type.options.map((opt) => substituteBindings(opt, bindings))),
     );

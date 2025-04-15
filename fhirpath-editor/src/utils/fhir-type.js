@@ -10,7 +10,7 @@ import {
   SingleType,
   StringType,
   TimeType,
-  unwrapSingle,
+  unwrapSingle, wrapSingle,
 } from "./type.js";
 
 export const PrimitiveCodeType = { type: "PrimitiveCode" };
@@ -99,10 +99,15 @@ export const primitiveTypeMap = {
   base64Binary: PrimitiveBase64BinaryType,
 };
 
+export const typePrimitiveMap = Object.fromEntries(
+  Object.entries(primitiveTypeMap).map(([key, value]) => [value.type, key]),
+);
+
 export const FhirType = (schemaReference) => ({
   type: "FhirType",
   schemaReference,
 });
+FhirType.type = "FhirType";
 
 const cache = new Map();
 
@@ -113,47 +118,51 @@ export function fieldSchemaToType(
   fieldName,
 ) {
   const fieldSchema = siblingSchemas[fieldName];
+  let result;
 
   if (cache.has(fieldSchema)) {
-    return cache.get(fieldSchema);
+    result = cache.get(fieldSchema);
+  } else {
+    if (primitiveTypeMap[fieldSchema.type]) {
+      result = primitiveTypeMap[fieldSchema.type];
+    } else if (fieldSchema.choices) {
+      result = ChoiceType(
+        fieldSchema.choices.map((choice) =>
+          fieldSchemaToType(single, schemaReference, siblingSchemas, choice),
+        ),
+      );
+    } else if (!fieldSchema.elements && !fieldSchema.elementReference) {
+      result = FhirType([fieldSchema.type || fieldSchema.base]);
+    } else {
+      if (fieldSchema.elementReference) {
+        const referencedSchema = resolvePath(fieldSchema.elementReference);
+        if (referencedSchema && cache.has(referencedSchema)) {
+          return cache.get(referencedSchema);
+        }
+      }
+      result = FhirType([...schemaReference, fieldName]);
+    }
+    cache.set(fieldSchema, result);
   }
 
-  let result;
-  if (primitiveTypeMap[fieldSchema.type]) {
-    result = primitiveTypeMap[fieldSchema.type];
-  } else if (fieldSchema.choices) {
-    result = ChoiceType(
-      fieldSchema.choices.map((choice) =>
-        fieldSchemaToType(single, schemaReference, siblingSchemas, choice),
-      ),
-    );
-  } else if (!fieldSchema.elements && !fieldSchema.elementReference) {
-    result = FhirType([fieldSchema.type || fieldSchema.base]);
-  } else {
-    if (fieldSchema.elementReference) {
-      const referencedSchema = resolvePath(fieldSchema.elementReference);
-      if (referencedSchema && cache.has(referencedSchema)) {
-        return cache.get(referencedSchema);
-      }
-    }
-    result = FhirType([...schemaReference, fieldName]);
-  }
-  if (fieldSchema.scalar && single) {
-    result = SingleType(result);
-  }
-  cache.set(fieldSchema, result);
-  return result;
+  return fieldSchema.scalar && single ? wrapSingle(result) : result;
 }
 
 export function getFields(type) {
   let single = false;
-  if (type && type.type === "Single") {
+  if (type && type.type === SingleType.type) {
     single = true;
     type = unwrapSingle(type);
   }
 
-  if (type && type.type === "FhirType") {
-    let schema = resolvePath(type.schemaReference);
+  if (type) {
+    let schema =
+      type.type === "FhirType"
+        ? resolvePath(type.schemaReference)
+        : typePrimitiveMap[type.type]
+          ? resolvePath([typePrimitiveMap[type.type]])
+          : undefined;
+
     if (schema) {
       const elements = Object.fromEntries(resolveElements(schema));
       return Object.fromEntries(

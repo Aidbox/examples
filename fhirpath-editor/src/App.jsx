@@ -1,27 +1,44 @@
 import React from "react";
 import Editor from "@components/Editor";
 import { FhirType } from "@utils/fhir-type";
-import { stringifyProgram, highlightFhirPath } from "@utils/fhir";
 import { useDebug } from "@utils/react";
 import { ProgramProvider } from "@utils/store.jsx";
+import { generateBindingId } from "@utils/expression.js";
+import { SingleType } from "@utils/type.js";
+
+import { stringifyProgram } from "@utils/stringify.js";
+import Code from "@components/Code.jsx";
 
 export function App() {
   const debug = useDebug();
   const [program, setProgram] = React.useState({
     bindings: [
       {
+        id: generateBindingId(),
+        name: "casted",
+        expression: [
+          { type: "number", value: "42" },
+          { type: "operator", value: "as" },
+          { type: "type", value: { type: "Decimal" } },
+        ],
+      },
+      {
+        id: generateBindingId(),
         name: "valid",
         expression: [{ type: "boolean", value: "false" }],
       },
       {
+        id: generateBindingId(),
         name: "greet",
         expression: [{ type: "string", value: "Hello, world!" }],
       },
       {
+        id: generateBindingId(),
         name: "weight",
         expression: [{ type: "quantity", value: { value: "100", unit: "kg" } }],
       },
       {
+        id: generateBindingId(),
         name: "addition",
         expression: [
           {
@@ -39,6 +56,7 @@ export function App() {
         ],
       },
       {
+        id: generateBindingId(),
         name: "subtraction",
         expression: [
           {
@@ -56,6 +74,7 @@ export function App() {
         ],
       },
       {
+        id: generateBindingId(),
         name: "item",
         expression: [
           { type: "variable", value: "questionnaire" },
@@ -91,6 +110,10 @@ export function App() {
               },
             ],
           },
+          {
+            type: "field",
+            value: "text",
+          },
         ],
       },
     ],
@@ -103,16 +126,19 @@ export function App() {
 
   const externalBindings = [
     {
+      id: generateBindingId(),
       name: "observation",
-      type: FhirType(["Observation"]),
+      type: SingleType(FhirType(["Observation"])),
     },
     {
+      id: generateBindingId(),
       name: "questionnaire",
-      type: FhirType(["Questionnaire"]),
+      type: SingleType(FhirType(["Questionnaire"])),
     },
     {
+      id: generateBindingId(),
       name: "patient",
-      type: FhirType(["Patient"]),
+      type: SingleType(FhirType(["Patient"])),
     },
   ];
 
@@ -125,23 +151,13 @@ export function App() {
           contextType={FhirType(["Patient"])}
           externalBindings={externalBindings}
         >
-          <Editor
-            value={program}
-            setValue={setProgram}
-            contextType={FhirType(["Patient"])}
-            externalBindings={externalBindings}
-          />
+          <Editor />
         </ProgramProvider>
       </div>
 
       <div className="p-8 flex flex-col gap-2 overflow-auto">
         <h2 className="font-semibold">Compiled</h2>
-        <div
-          className="text-xs p-4 rounded-md border border-gray-200 w-fit"
-          dangerouslySetInnerHTML={{
-            __html: highlightFhirPath(stringifyProgram(program)),
-          }}
-        />
+        <Code value={stringifyProgram(program)} />
         {debug && (
           <>
             <h2 className="font-semibold">State</h2>
