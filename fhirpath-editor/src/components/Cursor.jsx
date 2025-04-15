@@ -36,12 +36,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 import { useDebug } from "@utils/react.js";
-import {
-  OperatorIcon,
-  operatorNames,
-} from "@components/tokens/OperatorToken.jsx";
+import { operatorNames } from "@utils/operator.js";
+import OperatorIcon from "@components/OperatorIcon.jsx";
 
 const labels = {
   number: "Number",

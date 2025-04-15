@@ -1,17 +1,17 @@
 import React from "react";
-import NumberToken from "./tokens/NumberToken";
-import StringToken from "./tokens/StringToken";
-import OperatorToken from "./tokens/OperatorToken";
-import VariableToken from "./tokens/VariableToken";
-import FieldToken from "./tokens/FieldToken";
-import BooleanToken from "./tokens/BooleanToken";
-import DateToken from "./tokens/DateToken";
-import DateTimeToken from "./tokens/DateTimeToken";
-import TimeToken from "./tokens/TimeToken";
-import QuantityToken from "./tokens/QuantityToken";
-import TypeToken from "./tokens/TypeToken";
-import IndexToken from "./tokens/IndexToken";
-import FunctionToken from "./tokens/FunctionToken";
+import NumberToken from "./NumberToken.jsx";
+import StringToken from "./StringToken.jsx";
+import OperatorToken from "./OperatorToken.jsx";
+import VariableToken from "./VariableToken.jsx";
+import FieldToken from "./FieldToken.jsx";
+import BooleanToken from "./BooleanToken.jsx";
+import DateToken from "./DateToken.jsx";
+import DateTimeToken from "./DateTimeToken.jsx";
+import TimeToken from "./TimeToken.jsx";
+import QuantityToken from "./QuantityToken.jsx";
+import TypeToken from "./TypeToken.jsx";
+import IndexToken from "./IndexToken.jsx";
+import FunctionToken from "./FunctionToken.jsx";
 
 const getTokenComponent = (type) => {
   switch (type) {

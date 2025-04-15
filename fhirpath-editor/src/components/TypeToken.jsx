@@ -9,7 +9,7 @@ import {
   TimeType,
 } from "@utils/type";
 import { FhirType, primitiveTypeMap } from "@utils/fhir";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 import {
   autoUpdate,
   flip,

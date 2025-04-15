@@ -1,10 +1,9 @@
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext } from "react";
 import { createStore, useStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
   canMoveBinding,
   findCompatibleBindings,
-  findCompatibleOperators,
   generateBindingId,
   getExpressionType,
   suggestNextToken,
@@ -23,7 +22,11 @@ const buildIndex = (objects) =>
     return acc;
   }, {});
 
-const createProgramStore = (contextType, externalBindings, rawFhirSchema) => {
+export const createProgramStore = (
+  contextType,
+  externalBindings,
+  rawFhirSchema,
+) => {
   const fhirSchema = Array.isArray(rawFhirSchema)
     ? indexFhirSchemas(rawFhirSchema)
     : rawFhirSchema;
@@ -424,48 +427,7 @@ const createProgramStore = (contextType, externalBindings, rawFhirSchema) => {
   );
 };
 
-const ProgramContext = createContext(null);
-
-export function ProgramProvider({
-  program,
-  onProgramChange,
-  contextType,
-  externalBindings,
-  fhirSchema,
-  children,
-}) {
-  const store = useRef(null);
-
-  if (!store.current) {
-    store.current = createProgramStore(
-      contextType,
-      externalBindings,
-      fhirSchema,
-    );
-  }
-
-  useEffect(() => {
-    if (store.current) {
-      return store.current.subscribe((curState, prevState) => {
-        if (curState.program !== prevState.program) {
-          onProgramChange(curState.program);
-        }
-      });
-    }
-  }, [onProgramChange]);
-
-  useEffect(() => {
-    if (store.current) {
-      store.current.getState().setProgram(program);
-    }
-  }, [program]);
-
-  return (
-    <ProgramContext.Provider value={store.current}>
-      {children}
-    </ProgramContext.Provider>
-  );
-}
+export const ProgramContext = createContext(null);
 
 export function useProgramContext(selector) {
   const store = useContext(ProgramContext);

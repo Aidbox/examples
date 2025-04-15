@@ -14,7 +14,7 @@ import {
   useFloating,
   useInteractions,
 } from "@floating-ui/react";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 
 const BindingMenu = ({
   attributes,

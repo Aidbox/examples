@@ -1,5 +1,5 @@
 import React from "react";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 
 const DateToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const { token, updateToken } = useProgramContext((state) => ({

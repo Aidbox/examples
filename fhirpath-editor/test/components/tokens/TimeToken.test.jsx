@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import TimeToken from "@components/tokens/TimeToken";
+import TimeToken from "@components/TimeToken.jsx";
 
 describe("TimeToken", () => {
   const mockProps = {

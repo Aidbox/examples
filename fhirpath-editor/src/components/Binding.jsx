@@ -4,7 +4,7 @@ import Cursor from "./Cursor";
 import { useCommitableState, useDebug, useDoubleInvoke } from "@utils/react";
 import { stringifyType } from "@utils/stringify.js";
 import { Equals } from "@phosphor-icons/react";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 import { delay } from "@utils/misc.js";
 
 const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {

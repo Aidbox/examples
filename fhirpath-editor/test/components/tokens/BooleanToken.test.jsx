@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import BooleanToken from "@components/tokens/BooleanToken";
+import BooleanToken from "@components/BooleanToken.jsx";
 
 describe("BooleanToken", () => {
   const mockProps = {

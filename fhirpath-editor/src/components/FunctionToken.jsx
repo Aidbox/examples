@@ -28,9 +28,10 @@ import {
   Empty,
   Function,
 } from "@phosphor-icons/react";
-import { ProgramProvider, useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 import { isEmptyProgram } from "@utils/expression.js";
 import { LambdaType } from "@utils/type.js";
+import { ProgramProvider } from "@components/ProgramProvider.jsx";
 
 const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
   const {

@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import FieldToken from "@components/tokens/FieldToken";
+import FieldToken from "@components/FieldToken.jsx";
 import { ContextTypeProvider } from "@utils/react";
 
 vi.mock(import("@utils/fhir-type.js"), async (importOriginal) => {

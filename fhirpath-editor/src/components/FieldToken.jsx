@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from "react";
 import { getFields } from "@utils/fhir";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 import { useDebug } from "@utils/react.js";
 import {
   autoUpdate,

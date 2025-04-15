@@ -1,7 +1,11 @@
 import React, { createElement, Fragment, useRef, useState } from "react";
 
-import { useProgramContext } from "@utils/store.jsx";
-import { suggestOperatorsForLeftType } from "@utils/operator.js";
+import { useProgramContext } from "@utils/store.js";
+import {
+  operatorGroups,
+  operatorNames,
+  suggestOperatorsForLeftType,
+} from "@utils/operator.js";
 import {
   autoUpdate,
   flip,
@@ -17,83 +21,8 @@ import {
   useMergeRefs,
   useRole,
 } from "@floating-ui/react";
-import {
-  Calculator,
-  Divide,
-  Equals,
-  GreaterThan,
-  GreaterThanOrEqual,
-  LessThan,
-  LessThanOrEqual,
-  Minus,
-  NotEquals,
-  Plus,
-  X,
-} from "@phosphor-icons/react";
 import { distinct } from "@utils/misc.js";
-
-const operatorGroups = {
-  "Math Operators": ["+", "-", "*", "/", "mod", "div"],
-  "Comparison Operators": ["=", "!=", "<", ">", "<=", ">=", "~", "!~"],
-  "Logical Operators": ["and", "or", "xor", "implies"],
-  "Collection Operators": ["in", "contains", "&", "|"],
-  "Type Operators": ["is", "as"],
-};
-
-export const operatorNames = {
-  "+": "Plus",
-  "-": "Minus",
-  "*": "Multiply",
-  "/": "Divide",
-  mod: "Modulo",
-  div: "Integer divide",
-  "=": "Equals",
-  "!=": "Not equals",
-  "<": "Less than",
-  ">": "Greater than",
-  "<=": "Less than or equal to",
-  ">=": "Greater than or equal to",
-  "~": "Equivalent",
-  "!~": "Not equivalent",
-  and: "And",
-  or: "Or",
-  xor: "Xor",
-  implies: "Implies",
-  in: "In",
-  contains: "Contains",
-  "&": "Concatenate",
-  "|": "Union",
-  is: "Is type",
-  as: "As type",
-};
-
-const operatorIcons = {
-  "+": Plus,
-  "-": Minus,
-  "*": X,
-  "/": Divide,
-  "=": Equals,
-  "!=": NotEquals,
-  "<": LessThan,
-  "<=": LessThanOrEqual,
-  ">": GreaterThan,
-  ">=": GreaterThanOrEqual,
-};
-
-export const OperatorIcon = ({ name }) => (
-  <span className="text-center">
-    {operatorIcons[name] ? (
-      createElement(operatorIcons[name], {
-        size: 16,
-        className: "text-gray-500",
-      })
-    ) : !name.match(/[a-z]/) ? (
-      <span className="font-thin">{name}</span>
-    ) : (
-      <Calculator size={16} className="text-gray-500" />
-    )}
-  </span>
-);
+import OperatorIcon from "@components/OperatorIcon.jsx";
 
 const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const { token, updateToken } = useProgramContext((state) => ({
@@ -197,13 +126,7 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
           invalid ? "text-red-600" : ""
         }`}
       >
-        {operatorIcons[token.value]
-          ? createElement(operatorIcons[token.value], {
-              size: 12,
-              className: "text-green-800 mt-0.5",
-              weight: "bold",
-            })
-          : token.value}
+        <OperatorIcon name={token.value} compact={false} />
       </button>
 
       {isOpen && (

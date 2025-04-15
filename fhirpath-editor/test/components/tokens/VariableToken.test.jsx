@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import VariableToken from "@components/tokens/VariableToken";
+import VariableToken from "@components/VariableToken.jsx";
 import { FhirType } from "@utils/fhir-type";
 
 // Mock the utility function

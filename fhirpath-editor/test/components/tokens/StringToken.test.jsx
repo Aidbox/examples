@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import StringToken from "@components/tokens/StringToken";
+import StringToken from "@components/StringToken.jsx";
 
 describe("StringToken", () => {
   const mockProps = {

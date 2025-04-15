@@ -15,7 +15,7 @@ import {
   useRole,
 } from "@floating-ui/react";
 
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 import { useDebug } from "@utils/react.js";
 import { stringifyType } from "@utils/stringify.js";
 import { Plus, PuzzlePiece } from "@phosphor-icons/react";

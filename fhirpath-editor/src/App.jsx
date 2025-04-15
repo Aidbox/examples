@@ -2,16 +2,16 @@ import React from "react";
 import Editor from "@components/Editor";
 import { FhirType } from "@utils/fhir";
 import { useDebug, useJsonFetch } from "@utils/react";
-import { ProgramProvider } from "@utils/store.jsx";
 import { generateBindingId } from "@utils/expression.js";
 import { SingleType } from "@utils/type.js";
 
 import { stringifyProgram } from "@utils/stringify.js";
 import Code from "@components/Code.jsx";
+import { ProgramProvider } from "@components/ProgramProvider.jsx";
 
 export function App() {
   const debug = useDebug();
-  const { data: fhirSchema, loading, error } = useJsonFetch("/schema.json");
+  const { data: fhirSchema, loading, error } = useJsonFetch("schema.json");
   const [program, setProgram] = React.useState({
     bindings: [
       {

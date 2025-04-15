@@ -1,5 +1,5 @@
 import React, { Fragment, useRef, useState } from "react";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 import { UcumLhcUtils, UnitTables } from "@lhncbc/ucum-lhc";
 import { useDebug } from "@utils/react.js";
 import {

@@ -416,6 +416,40 @@ export function suggestRightTypesForOperator(name, leftType) {
   return suggestions;
 }
 
+export const operatorGroups = {
+  "Math Operators": ["+", "-", "*", "/", "mod", "div"],
+  "Comparison Operators": ["=", "!=", "<", ">", "<=", ">=", "~", "!~"],
+  "Logical Operators": ["and", "or", "xor", "implies"],
+  "Collection Operators": ["in", "contains", "&", "|"],
+  "Type Operators": ["is", "as"],
+};
+export const operatorNames = {
+  "+": "Plus",
+  "-": "Minus",
+  "*": "Multiply",
+  "/": "Divide",
+  mod: "Modulo",
+  div: "Integer divide",
+  "=": "Equals",
+  "!=": "Not equals",
+  "<": "Less than",
+  ">": "Greater than",
+  "<=": "Less than or equal to",
+  ">=": "Greater than or equal to",
+  "~": "Equivalent",
+  "!~": "Not equivalent",
+  and: "And",
+  or: "Or",
+  xor: "Xor",
+  implies: "Implies",
+  in: "In",
+  contains: "Contains",
+  "&": "Concatenate",
+  "|": "Union",
+  is: "Is type",
+  as: "As type",
+};
+
 // console.log(
 //   "suggestRightTypesForOperator",
 //   suggestRightTypesForOperator(

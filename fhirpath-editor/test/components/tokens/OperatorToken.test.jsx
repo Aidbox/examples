@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import OperatorToken from "@components/tokens/OperatorToken";
+import OperatorToken from "@components/OperatorToken.jsx";
 import { ContextTypeProvider } from "@utils/react";
 
 describe("OperatorToken", () => {
@@ -16,7 +16,7 @@ describe("OperatorToken", () => {
   const renderWithProvider = (ui, { providerProps, ...renderOptions } = {}) => {
     return render(
       <ContextTypeProvider {...providerProps}>{ui}</ContextTypeProvider>,
-      renderOptions
+      renderOptions,
     );
   };
 

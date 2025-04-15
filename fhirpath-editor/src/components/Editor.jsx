@@ -23,7 +23,7 @@ import BindingMenu from "./BindingMenu.jsx";
 import { useDebug } from "@utils/react";
 import { Plus } from "@phosphor-icons/react";
 import { stringifyType } from "@utils/stringify.js";
-import { useProgramContext } from "@utils/store.jsx";
+import { useProgramContext } from "@utils/store.js";
 
 function Editor({ className = "", title }) {
   const debug = useDebug();
