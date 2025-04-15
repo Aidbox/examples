@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from "react";
+import React, { Fragment, useMemo, useRef, useState } from "react";
 import {
   BooleanType,
   DateTimeType,
@@ -26,30 +26,48 @@ import {
   useRole,
 } from "@floating-ui/react";
 import { stringifyTypeToken } from "@utils/stringify.js";
-
-const typesGroups = {
-  "Literal Types": [
-    IntegerType,
-    DecimalType,
-    StringType,
-    BooleanType,
-    DateType,
-    DateTimeType,
-    TimeType,
-  ],
-  "FHIR Primitive Types": [...Object.values(primitiveTypeMap)],
-  "FHIR Resource Types": [
-    FhirType(["Patient"]),
-    FhirType(["Questionnaire"]),
-    FhirType(["Address"]),
-  ],
-};
+import { distinct } from "../utils/misc";
+import { Tag } from "@phosphor-icons/react";
 
 const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
-  const { token, updateToken } = useProgramContext((state) => ({
+  const { token, updateToken, getFhirSchema } = useProgramContext((state) => ({
     token: state.getToken(bindingId, tokenIndex),
     updateToken: state.updateToken,
+    getFhirSchema: state.getFhirSchema,
   }));
+
+  const typesGroups = {
+    "Literal Types": [
+      IntegerType,
+      DecimalType,
+      StringType,
+      BooleanType,
+      DateType,
+      DateTimeType,
+      TimeType,
+    ],
+    "FHIR Primitive Types": [...Object.values(primitiveTypeMap)],
+    "FHIR Complex Types": distinct(
+      Object.values(getFhirSchema())
+        .filter(
+          (schema) =>
+            schema.kind === "complex-type" && schema.derivation !== "constraint"
+        )
+        .map((schema) => schema.id)
+    )
+      .sort()
+      .map((id) => FhirType([id])),
+    "FHIR Resource Types": distinct(
+      Object.values(getFhirSchema())
+        .filter(
+          (schema) =>
+            schema.kind === "resource" && schema.derivation !== "constraint"
+        )
+        .map((schema) => schema.id)
+    )
+      .sort()
+      .map((id) => FhirType([id])),
+  };
 
   const invalid = false;
 
@@ -61,13 +79,13 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const filteredTypes = Object.entries(typesGroups)
     .flatMap(([, values]) => values)
     .filter((type) =>
-      JSON.stringify(type).toLowerCase().includes(search.toLowerCase()),
+      JSON.stringify(type).toLowerCase().includes(search.toLowerCase())
     );
 
   const groupedOptions = filteredTypes.reduce((acc, type, index) => {
-    const group = Object.keys(typesGroups).find((group) =>
-      typesGroups[group].includes(type),
-    );
+    const group = Object.keys(typesGroups).find((group) => {
+      return typesGroups[group].includes(type);
+    });
 
     if (!acc[group]) {
       acc[group] = [];
@@ -116,7 +134,7 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions(
-    [click, dismiss, role, listNav],
+    [click, dismiss, role, listNav]
   );
 
   const handleSelect = (value) => {
@@ -157,6 +175,14 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                 className="w-full px-2 py-1 focus:outline-none text-sm"
                 placeholder="Search..."
                 autoFocus
+                onKeyDown={(e) => {
+                  if (
+                    (e.key === "Enter" || e.key === "Tab") &&
+                    filteredTypes[activeIndex]
+                  ) {
+                    handleSelect(filteredTypes[activeIndex]);
+                  }
+                }}
               />
             </div>
 
@@ -164,7 +190,7 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
               ([group, options]) =>
                 options.length > 0 && (
                   <Fragment key={group}>
-                    <div className="text-xs font-semibold text-gray-500 px-3 py-3 pb-1 col-span-2">
+                    <div className="text-xs font-semibold text-gray-500 px-3 py-3 pb-1 col-span-2 sticky top-[calc(2.75rem_+_1px)] bg-white">
                       {group}
                     </div>
                     {options.map(({ type, index }) => (
@@ -174,15 +200,16 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                           ref: (node) => (listRef.current[index] = node),
                           onClick: () => handleSelect(type),
                         })}
-                        className={`text-sm col-span-2 grid grid-cols-subgrid w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 last:rounded-b ${
+                        className={`focus:outline-none text-sm col-span-2 grid grid-cols-subgrid w-full pl-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 last:rounded-b ${
                           activeIndex === index ? "bg-gray-100" : ""
                         }`}
                       >
+                        <Tag size={16} className="text-gray-500" />
                         {stringifyTypeToken({ type: "type", value: type })}
                       </button>
                     ))}
                   </Fragment>
-                ),
+                )
             )}
 
             {!filteredTypes.length && (
