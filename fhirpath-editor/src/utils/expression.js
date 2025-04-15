@@ -24,7 +24,7 @@ import {
   wrapSingle,
 } from "./type.js";
 import { distinct, pick } from "./misc.js";
-import { getFields } from "./fhir-type.js";
+import { getFields } from "./fhir.js";
 import "./function.js";
 import { functionMetadata, suggestFunctionsForInputType } from "./function.js";
 import { stringifyType } from "@utils/stringify.js";
@@ -111,7 +111,12 @@ function isOperatorExpression(expression) {
 }
 
 // Calculate the result type of expression
-export const getExpressionType = (expression, bindings, contextType) => {
+export const getExpressionType = (
+  expression,
+  bindings,
+  contextType,
+  fhirSchema,
+) => {
   if (expression.length === 0) return InvalidType("Empty expression");
 
   if (expression.length === 1) {
@@ -135,7 +140,12 @@ export const getExpressionType = (expression, bindings, contextType) => {
       // If this is a global binding, return its type
       if (binding.type) return binding.type;
       // Otherwise, calculate the result type of its expression
-      return getExpressionType(binding.expression, bindings, contextType);
+      return getExpressionType(
+        binding.expression,
+        bindings,
+        contextType,
+        fhirSchema,
+      );
     }
   }
 
@@ -157,7 +167,12 @@ export const getExpressionType = (expression, bindings, contextType) => {
             currentType = !binding
               ? InvalidType("Unknown variable")
               : binding.type ||
-                getExpressionType(binding.expression, bindings, contextType);
+                getExpressionType(
+                  binding.expression,
+                  bindings,
+                  contextType,
+                  fhirSchema,
+                );
             first = false;
             continue; // skip the rest of the loop
           case "field":
@@ -202,6 +217,7 @@ export const getExpressionType = (expression, bindings, contextType) => {
             suggestedType?.type === LambdaType.type
               ? suggestedType.contextType
               : contextType,
+            fhirSchema,
           );
 
           const actualType =
@@ -236,7 +252,7 @@ export const getExpressionType = (expression, bindings, contextType) => {
           ...bindings,
         });
       } else {
-        const availableFields = getFields(currentType);
+        const availableFields = getFields(currentType, fhirSchema);
         currentType =
           availableFields[token.value] ||
           InvalidType(`Unknown field ${token.value}`);
@@ -250,8 +266,18 @@ export const getExpressionType = (expression, bindings, contextType) => {
   if (isOperatorExpression(expression)) {
     const [left, operator, right] = expression;
 
-    const leftType = getExpressionType([left], bindings, contextType);
-    const rightType = getExpressionType([right], bindings, contextType);
+    const leftType = getExpressionType(
+      [left],
+      bindings,
+      contextType,
+      fhirSchema,
+    );
+    const rightType = getExpressionType(
+      [right],
+      bindings,
+      contextType,
+      fhirSchema,
+    );
 
     if (
       leftType.type === InvalidType.type ||
@@ -265,7 +291,12 @@ export const getExpressionType = (expression, bindings, contextType) => {
   return InvalidType("Unknown expression");
 };
 
-export const findCompatibleBindings = (expression, bindings, contextType) => {
+export const findCompatibleBindings = (
+  expression,
+  bindings,
+  contextType,
+  fhirSchema,
+) => {
   if (expression.length === 0) return bindings;
 
   // If we have an operator and left operand
@@ -274,7 +305,12 @@ export const findCompatibleBindings = (expression, bindings, contextType) => {
     expression[1].type === "operator"
   ) {
     const [left, operator] = expression;
-    const leftType = getExpressionType([left], bindings, contextType);
+    const leftType = getExpressionType(
+      [left],
+      bindings,
+      contextType,
+      fhirSchema,
+    );
 
     if (leftType.type === InvalidType.type) return [];
     const rightTypes = suggestRightTypesForOperator(operator.value, leftType);
@@ -282,7 +318,12 @@ export const findCompatibleBindings = (expression, bindings, contextType) => {
     return bindings.filter((binding) => {
       const bindingType =
         binding.type ||
-        getExpressionType(binding.expression, bindings, contextType);
+        getExpressionType(
+          binding.expression,
+          bindings,
+          contextType,
+          fhirSchema,
+        );
       return rightTypes.some((rightType) =>
         matchTypePattern(rightType, bindingType),
       );
@@ -292,10 +333,20 @@ export const findCompatibleBindings = (expression, bindings, contextType) => {
   return bindings;
 };
 
-export const findCompatibleOperators = (expression, bindings, contextType) => {
+export const findCompatibleOperators = (
+  expression,
+  bindings,
+  contextType,
+  fhirSchema,
+) => {
   if (expression.length !== 1) return [];
 
-  const leftType = getExpressionType([expression[0]], bindings, contextType);
+  const leftType = getExpressionType(
+    [expression[0]],
+    bindings,
+    contextType,
+    fhirSchema,
+  );
   return suggestOperatorsForLeftType(leftType);
 };
 
@@ -312,7 +363,12 @@ const typeName2tokenType = {
 };
 
 // Suggest next tokens based on current expression
-export const suggestNextToken = (expression, bindings, contextType) => {
+export const suggestNextToken = (
+  expression,
+  bindings,
+  contextType,
+  fhirSchema,
+) => {
   const result = [];
 
   // if the expression is empty, suggest all primitive types and variable
@@ -331,7 +387,12 @@ export const suggestNextToken = (expression, bindings, contextType) => {
         value: binding.name,
         debug: stringifyType(
           binding.type ||
-            getExpressionType(binding.expression, bindings, contextType),
+            getExpressionType(
+              binding.expression,
+              bindings,
+              contextType,
+              fhirSchema,
+            ),
         ),
       })),
     );
@@ -340,7 +401,12 @@ export const suggestNextToken = (expression, bindings, contextType) => {
   if (expression.length === 2 && expression[1].type === "operator") {
     const operator = expression[1].value;
 
-    const leftType = getExpressionType([expression[0]], bindings, contextType);
+    const leftType = getExpressionType(
+      [expression[0]],
+      bindings,
+      contextType,
+      fhirSchema,
+    );
     const rightTypes = suggestRightTypesForOperator(operator, leftType);
 
     result.push(
@@ -352,16 +418,24 @@ export const suggestNextToken = (expression, bindings, contextType) => {
           ),
         ),
       ).map((type) => ({ type })),
-      ...findCompatibleBindings(expression, bindings, contextType).map(
-        (binding) => ({
-          type: "variable",
-          value: binding.name,
-          debug: stringifyType(
-            binding.type ||
-              getExpressionType(binding.expression, bindings, contextType),
-          ),
-        }),
-      ),
+      ...findCompatibleBindings(
+        expression,
+        bindings,
+        contextType,
+        fhirSchema,
+      ).map((binding) => ({
+        type: "variable",
+        value: binding.name,
+        debug: stringifyType(
+          binding.type ||
+            getExpressionType(
+              binding.expression,
+              bindings,
+              contextType,
+              fhirSchema,
+            ),
+        ),
+      })),
     );
   }
 
@@ -374,6 +448,7 @@ export const suggestNextToken = (expression, bindings, contextType) => {
       [expression[0]],
       bindings,
       contextType,
+      fhirSchema,
     );
 
     result.push(
@@ -388,7 +463,7 @@ export const suggestNextToken = (expression, bindings, contextType) => {
 
   if (isChainingExpression(expression) || expression.length === 0) {
     const type = expression.length
-      ? getExpressionType(expression, bindings, contextType)
+      ? getExpressionType(expression, bindings, contextType, fhirSchema)
       : contextType;
 
     if (type.type !== SingleType.type) {
@@ -396,7 +471,7 @@ export const suggestNextToken = (expression, bindings, contextType) => {
     }
 
     result.push(
-      ...Object.entries(getFields(type)).map(([field, type]) => ({
+      ...Object.entries(getFields(type, fhirSchema)).map(([field, type]) => ({
         type: "field",
         value: field,
         debug: stringifyType(type),

@@ -33,7 +33,7 @@ export const useDoubleInvoke = (fn, delay = 300) => {
         setInvoking(true);
       }
     },
-    [fn, invoking, setInvoking],
+    [fn, invoking, setInvoking]
   );
 
   return [invoking, invoke];
@@ -97,7 +97,7 @@ export function useSearchParams() {
   };
 
   const [searchParams, setSearchParams] = React.useState(
-    parseSearchParams(window.location.search),
+    parseSearchParams(window.location.search)
   );
 
   // subscribe to search params
@@ -115,4 +115,40 @@ export function useSearchParams() {
 export function useDebug() {
   const { debug } = useSearchParams();
   return !!debug;
+}
+
+export function useJsonFetch(url) {
+  const [state, setState] = React.useState({
+    data: null,
+    loading: false,
+    error: null,
+  });
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setState({ data, loading: false, error: null });
+      } catch (error) {
+        setState((prev) => ({ ...prev, loading: false, error: error.message }));
+      }
+    };
+
+    fetchData();
+  }, [url]);
+
+  return state;
 }

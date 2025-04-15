@@ -1,5 +1,5 @@
 import React, { Fragment, useRef, useState } from "react";
-import { getFields } from "@utils/fhir-type";
+import { getFields } from "@utils/fhir";
 import { useProgramContext } from "@utils/store.jsx";
 import { useDebug } from "@utils/react.js";
 import {
@@ -22,16 +22,17 @@ import { Shapes } from "@phosphor-icons/react";
 import { stringifyType } from "@utils/stringify.js";
 
 const FieldToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
-  const { token, updateToken } = useProgramContext((state) => ({
+  const { token, updateToken, getFhirSchema } = useProgramContext((state) => ({
     token: state.getToken(bindingId, tokenIndex),
     updateToken: state.updateToken,
+    getFhirSchema: state.getFhirSchema,
   }));
 
   const precedingExpressionType = useProgramContext((state) =>
     state.getBindingExpressionType(bindingId, tokenIndex),
   );
 
-  const fields = getFields(precedingExpressionType);
+  const fields = getFields(precedingExpressionType, getFhirSchema());
   const invalid = fields[token.value] === undefined;
 
   const [isOpen, setIsOpen] = useState(false);

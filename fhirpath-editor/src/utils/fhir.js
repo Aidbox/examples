@@ -1,4 +1,3 @@
-import { resolveElements, resolvePath } from "./fhir-schema.js";
 import {
   BooleanType,
   ChoiceType,
@@ -13,6 +12,7 @@ import {
   unwrapSingle,
   wrapSingle,
 } from "./type.js";
+import { hasProperty } from "@utils/misc.js";
 
 export const PrimitiveCodeType = { type: "PrimitiveCode" };
 extendType(PrimitiveCodeType, StringType);
@@ -110,13 +110,103 @@ export const FhirType = (schemaReference) => ({
 });
 FhirType.type = "FhirType";
 
+export function indexFhirSchemas(fhirSchema) {
+  let result = {};
+  fhirSchema.forEach((schema) => {
+    if (hasProperty(schema, "id")) result[schema["id"]] = schema;
+    if (hasProperty(schema, "url")) result[schema["url"]] = schema;
+  });
+  return result;
+}
+
+function resolveElements(node, fhirSchema) {
+  let elements = [];
+  if (node) {
+    if (hasProperty(node, "elements")) {
+      elements = elements.concat(Object.entries(node["elements"]));
+    }
+    let typeDefinition = null;
+    if (hasProperty(node, "type") && !hasProperty(node, "id")) {
+      typeDefinition = fhirSchema[node["type"]];
+      if (typeDefinition && hasProperty(typeDefinition, "elements")) {
+        elements = elements.concat(Object.entries(typeDefinition["elements"]));
+      }
+    } else if (hasProperty(node, "elementReference")) {
+      typeDefinition = resolvePath(node["elementReference"], fhirSchema);
+      if (typeDefinition && hasProperty(typeDefinition, "elements")) {
+        elements = elements.concat(Object.entries(typeDefinition["elements"]));
+      }
+    }
+    let baseNode = typeDefinition || node;
+    while (baseNode && hasProperty(baseNode, "base")) {
+      baseNode = fhirSchema[baseNode["base"]];
+      if (baseNode && hasProperty(baseNode, "elements")) {
+        elements = elements.concat(Object.entries(baseNode["elements"]));
+      }
+    }
+  }
+  return elements;
+}
+
+function resolveField(field, node, fhirSchema) {
+  let currentNode = node;
+  let visitedTypes = new Set();
+  while (currentNode) {
+    if (hasProperty(currentNode, field)) {
+      return currentNode[field];
+    }
+    if (hasProperty(currentNode, "elements")) {
+      let elements = currentNode["elements"];
+      if (hasProperty(elements, field)) {
+        return elements[field];
+      }
+    }
+    if (hasProperty(currentNode, "elementReference")) {
+      return resolvePath(undefined, currentNode["elementReference"]);
+    }
+    if (hasProperty(currentNode, "base")) {
+      currentNode = fhirSchema[currentNode["base"]];
+    } else if (hasProperty(currentNode, "type")) {
+      currentNode = fhirSchema[currentNode["type"]];
+    } else {
+      return null;
+    }
+    if (currentNode) {
+      let id = currentNode["id"];
+      if (visitedTypes.has(id)) {
+        return null;
+      }
+      visitedTypes.add(id);
+    }
+  }
+  return null;
+}
+
+function resolvePath(path, fhirSchema) {
+  if (path.length > 0) {
+    let currentNode = fhirSchema[path[0]];
+    if (currentNode === null || currentNode === undefined) {
+      return null;
+    }
+    for (let field of path.slice(1)) {
+      currentNode = resolveField(field, currentNode, fhirSchema);
+      if (currentNode === null) {
+        return null;
+      }
+    }
+    return currentNode;
+  }
+  return null;
+}
+
 const cache = new Map();
 
-export function fieldSchemaToType(
-  single,
-  schemaReference,
-  siblingSchemas,
+function fieldSchemaToType(
   fieldName,
+  siblingSchemas,
+  schemaReference,
+  single,
+  fhirSchema,
 ) {
   const fieldSchema = siblingSchemas[fieldName];
   let result;
@@ -129,14 +219,23 @@ export function fieldSchemaToType(
     } else if (fieldSchema.choices) {
       result = ChoiceType(
         fieldSchema.choices.map((choice) =>
-          fieldSchemaToType(single, schemaReference, siblingSchemas, choice),
+          fieldSchemaToType(
+            choice,
+            siblingSchemas,
+            schemaReference,
+            single,
+            fhirSchema,
+          ),
         ),
       );
     } else if (!fieldSchema.elements && !fieldSchema.elementReference) {
       result = FhirType([fieldSchema.type || fieldSchema.base]);
     } else {
       if (fieldSchema.elementReference) {
-        const referencedSchema = resolvePath(fieldSchema.elementReference);
+        const referencedSchema = resolvePath(
+          fieldSchema.elementReference,
+          fhirSchema,
+        );
         if (referencedSchema && cache.has(referencedSchema)) {
           return cache.get(referencedSchema);
         }
@@ -149,7 +248,7 @@ export function fieldSchemaToType(
   return fieldSchema.scalar && single ? wrapSingle(result) : result;
 }
 
-export function getFields(type) {
+export function getFields(type, fhirSchema) {
   let single = false;
   if (type && type.type === SingleType.type) {
     single = true;
@@ -159,27 +258,26 @@ export function getFields(type) {
   if (type) {
     let schema =
       type.type === "FhirType"
-        ? resolvePath(type.schemaReference)
+        ? resolvePath(type.schemaReference, fhirSchema)
         : typePrimitiveMap[type.type]
-          ? resolvePath([typePrimitiveMap[type.type]])
+          ? resolvePath([typePrimitiveMap[type.type]], fhirSchema)
           : undefined;
 
     if (schema) {
-      const elements = Object.fromEntries(resolveElements(schema));
+      const elements = Object.fromEntries(resolveElements(schema, fhirSchema));
       return Object.fromEntries(
         Object.keys(elements).map((fieldName) => [
           fieldName,
-          fieldSchemaToType(single, type.schemaReference, elements, fieldName),
+          fieldSchemaToType(
+            fieldName,
+            elements,
+            type.schemaReference,
+            single,
+            fhirSchema,
+          ),
         ]),
       );
     }
   }
   return {};
-}
-
-export function getType(type) {
-  if (type && type.schemaReference) {
-    return resolvePath(type.schemaReference);
-  }
-  return null;
 }

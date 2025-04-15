@@ -33,14 +33,20 @@ import { isEmptyProgram } from "@utils/expression.js";
 import { LambdaType } from "@utils/type.js";
 
 const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
-  const { arg, updateArg, contextType, getBindingExpressionType } =
-    useProgramContext((state) => ({
-      arg: state.getArg(bindingId, tokenIndex, argIndex),
-      updateArg: state.updateArg,
-      deleteArg: state.deleteArg,
-      contextType: state.getContextType(),
-      getBindingExpressionType: state.getBindingExpressionType,
-    }));
+  const {
+    arg,
+    updateArg,
+    contextType,
+    getBindingExpressionType,
+    getFhirSchema,
+  } = useProgramContext((state) => ({
+    arg: state.getArg(bindingId, tokenIndex, argIndex),
+    updateArg: state.updateArg,
+    deleteArg: state.deleteArg,
+    contextType: state.getContextType(),
+    getBindingExpressionType: state.getBindingExpressionType,
+    getFhirSchema: state.getFhirSchema,
+  }));
 
   const precedingBindings = useProgramContext((state) =>
     state.getPrecedingBindings(bindingId),
@@ -69,6 +75,7 @@ const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
             : contextType
         }
         externalBindings={externalizedBindings}
+        fhirSchema={getFhirSchema()}
       >
         <Editor className="px-4 pt-3 pb-5" title="Argument expression" />
       </ProgramProvider>

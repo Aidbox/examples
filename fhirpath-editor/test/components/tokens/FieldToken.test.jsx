@@ -36,7 +36,7 @@ describe("FieldToken", () => {
   const renderWithProvider = (ui, { providerProps, ...renderOptions } = {}) => {
     return render(
       <ContextTypeProvider {...providerProps}>{ui}</ContextTypeProvider>,
-      renderOptions
+      renderOptions,
     );
   };
 

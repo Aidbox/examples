@@ -90,9 +90,7 @@ describe("Cursor", () => {
     fireEvent.focus(input);
 
     // Initially should show all tokens
-    expect(screen.getAllByRole("button").length).toBe(
-      4
-    );
+    expect(screen.getAllByRole("button").length).toBe(4);
 
     // Type in search to filter
     await user.type(input, "num");

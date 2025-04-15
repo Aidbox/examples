@@ -19,7 +19,7 @@ import {
   TypeType,
   unwrapSingle,
 } from "./type";
-import { primitiveTypeMap } from "@utils/fhir-type.js";
+import { primitiveTypeMap } from "@utils/fhir.js";
 
 const fn = (name, input, args, returnType) => ({
   name,

@@ -1,7 +1,7 @@
 import React from "react";
 import Editor from "@components/Editor";
-import { FhirType } from "@utils/fhir-type";
-import { useDebug } from "@utils/react";
+import { FhirType } from "@utils/fhir";
+import { useDebug, useJsonFetch } from "@utils/react";
 import { ProgramProvider } from "@utils/store.jsx";
 import { generateBindingId } from "@utils/expression.js";
 import { SingleType } from "@utils/type.js";
@@ -11,6 +11,7 @@ import Code from "@components/Code.jsx";
 
 export function App() {
   const debug = useDebug();
+  const { data: fhirSchema, loading, error } = useJsonFetch("/schema.json");
   const [program, setProgram] = React.useState({
     bindings: [
       {
@@ -142,6 +143,28 @@ export function App() {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg">Loading schema...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg text-red-500">
+          Error loading schema: {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!fhirSchema) {
+    return null;
+  }
+
   return (
     <div className="gap-2 h-screen grid grid-cols-2">
       <div className="p-8 border-r border-gray-200 overflow-auto">
@@ -150,6 +173,7 @@ export function App() {
           onProgramChange={setProgram}
           contextType={FhirType(["Patient"])}
           externalBindings={externalBindings}
+          fhirSchema={fhirSchema}
         >
           <Editor />
         </ProgramProvider>

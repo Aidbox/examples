@@ -1,4 +1,4 @@
-import { FhirType, typePrimitiveMap } from "@utils/fhir-type.js";
+import { FhirType, typePrimitiveMap } from "@utils/fhir.js";
 import {
   ChoiceType,
   Generic,

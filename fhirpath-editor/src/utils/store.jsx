@@ -13,6 +13,7 @@ import { delay } from "@utils/misc.js";
 import { useShallow } from "zustand/react/shallow";
 import { pick } from "./misc";
 import { StringType } from "@utils/type.js";
+import { indexFhirSchemas } from "@utils/fhir.js";
 
 const emptyProgram = { bindings: [], expression: [] };
 
@@ -22,7 +23,11 @@ const buildIndex = (objects) =>
     return acc;
   }, {});
 
-const createProgramStore = (contextType, externalBindings) => {
+const createProgramStore = (contextType, externalBindings, rawFhirSchema) => {
+  const fhirSchema = Array.isArray(rawFhirSchema)
+    ? indexFhirSchemas(rawFhirSchema)
+    : rawFhirSchema;
+
   return createStore(
     immer((set, get) => ({
       program: emptyProgram,
@@ -36,6 +41,8 @@ const createProgramStore = (contextType, externalBindings) => {
       tokenRefs: {},
 
       getContextType: () => contextType,
+
+      getFhirSchema: () => fhirSchema,
 
       getBindingExpression: (id) =>
         id
@@ -71,13 +78,19 @@ const createProgramStore = (contextType, externalBindings) => {
           expression,
           get().getPrecedingBindings(id),
           contextType,
+          fhirSchema,
         );
       },
 
       suggestNextToken: (id) => {
         const expression = get().getBindingExpression(id);
         const precedingBindings = get().getPrecedingBindings(id);
-        return suggestNextToken(expression, precedingBindings, contextType);
+        return suggestNextToken(
+          expression,
+          precedingBindings,
+          contextType,
+          fhirSchema,
+        );
       },
 
       getCompatibleBindings: (id, upToIndex) => {
@@ -88,6 +101,7 @@ const createProgramStore = (contextType, externalBindings) => {
           expression,
           get().getPrecedingBindings(id),
           contextType,
+          fhirSchema,
         );
       },
 
@@ -127,18 +141,10 @@ const createProgramStore = (contextType, externalBindings) => {
               ? state.program.expression
               : state.program.bindings[state.bindingsIndex[id]].expression;
 
-          const precedingBindings = get().getPrecedingBindings(id);
           const now = new Date();
 
           if (token.value === undefined) {
-            if (token.type === "variable") {
-              token.value =
-                findCompatibleBindings(
-                  expression,
-                  precedingBindings,
-                  contextType,
-                )[0]?.name || "";
-            } else if (token.type === "string") {
+            if (token.type === "string") {
               token.value = "";
             } else if (token.type === "number") {
               token.value = "";
@@ -156,13 +162,6 @@ const createProgramStore = (contextType, externalBindings) => {
               token.value = "0";
             } else if (token.type === "quantity") {
               token.value = { value: "", unit: "seconds" };
-            } else if (token.type === "operator") {
-              token.value =
-                findCompatibleOperators(
-                  expression,
-                  precedingBindings,
-                  contextType,
-                )[0]?.name || "+";
             }
           }
 
@@ -432,12 +431,17 @@ export function ProgramProvider({
   onProgramChange,
   contextType,
   externalBindings,
+  fhirSchema,
   children,
 }) {
   const store = useRef(null);
 
   if (!store.current) {
-    store.current = createProgramStore(contextType, externalBindings);
+    store.current = createProgramStore(
+      contextType,
+      externalBindings,
+      fhirSchema,
+    );
   }
 
   useEffect(() => {

@@ -8,7 +8,7 @@ import {
   StringType,
   TimeType,
 } from "@utils/type";
-import { FhirType, primitiveTypeMap } from "@utils/fhir-type";
+import { FhirType, primitiveTypeMap } from "@utils/fhir";
 import { useProgramContext } from "@utils/store.jsx";
 import {
   autoUpdate,
