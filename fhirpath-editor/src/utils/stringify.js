@@ -6,6 +6,15 @@ import {
   LambdaType,
   SingleType,
 } from "@utils/type.js";
+import {
+  BooleanType,
+  DateTimeType,
+  DateType,
+  DecimalType,
+  IntegerType,
+  StringType,
+  TimeType,
+} from "./type";
 
 export function stringifyType(t) {
   if (!t || typeof t !== "object") return String(t);
@@ -36,57 +45,90 @@ export function stringifyType(t) {
   }
 }
 
+const stringifyNumberToken = (token) => token.value || 0;
+
+const stringifyStringToken = (token) => `'${token.value}'`;
+
+const stringifyBooleanToken = (token) => token.value;
+
+const stringifyDateToken = (token) => `@${token.value}`;
+
+const stringifyDateTimeToken = (token) => `@${token.value}`;
+
+const stringifyTimeToken = (token) => `@T${token.value}`;
+
+const stringifyQuantityToken = (token) => {
+  if (token.value && typeof token.value === "object") {
+    const { value, unit } = token.value;
+    return `${value || 0} '${unit || ""}'`;
+  }
+  return "0 ''";
+};
+
+export const stringifyTypeToken = (token) => {
+  if (
+    token.value.type === IntegerType.type ||
+    token.value.type === DecimalType.type ||
+    token.value.type === StringType.type ||
+    token.value.type === BooleanType.type ||
+    token.value.type === DateType.type ||
+    token.value.type === DateTimeType.type ||
+    token.value.type === TimeType.type
+  ) {
+    return token.value.type;
+  } else if (typePrimitiveMap[token.value.type]) {
+    return typePrimitiveMap[token.value.type];
+  } else if (token.value.type === FhirType.type) {
+    return token.value.schemaReference.join(".");
+  }
+};
+
+const stringifyIndexToken = (token) => `[${token.value || 0}]`;
+
+const stringifyOperatorToken = (token) => {
+  if (token.value === "=") {
+    return " = ";
+  } else if (token.value === "&") {
+    return " & ";
+  } else if (token.value === "is" || token.value === "as") {
+    return ` ${token.value} `;
+  }
+  return ` ${token.value} `;
+};
+
+const stringifyVariableToken = (token) => `%${token.value}`;
+
+const stringifyFieldToken = (token, index) =>
+  `${index === 0 ? "" : "."}${token.value}`;
+
+const stringifyFunctionToken = (token, index) => {
+  const args = token.args
+    ? token.args.map((arg) => stringifyProgram(arg)).join(", ")
+    : "";
+  return `${index === 0 ? "" : "."}${token.value}(${args})`;
+};
+
+const tokenStringifiers = {
+  number: stringifyNumberToken,
+  string: stringifyStringToken,
+  boolean: stringifyBooleanToken,
+  date: stringifyDateToken,
+  datetime: stringifyDateTimeToken,
+  time: stringifyTimeToken,
+  quantity: stringifyQuantityToken,
+  type: stringifyTypeToken,
+  index: stringifyIndexToken,
+  operator: stringifyOperatorToken,
+  variable: stringifyVariableToken,
+  field: stringifyFieldToken,
+  function: stringifyFunctionToken,
+};
+
 export const stringifyExpression = (expression) => {
   return expression
     .map((token, index) => {
-      if (token.type === "number") {
-        return token.value || 0;
-      } else if (token.type === "string") {
-        return `'${token.value}'`;
-      } else if (token.type === "boolean") {
-        return token.value;
-      } else if (token.type === "date") {
-        return `@${token.value}`;
-      } else if (token.type === "datetime") {
-        return `@${token.value}`;
-      } else if (token.type === "time") {
-        return `@T${token.value}`;
-      } else if (token.type === "quantity") {
-        if (token.value && typeof token.value === "object") {
-          const { value, unit } = token.value;
-          return `${value || 0} '${unit || ""}'`;
-        } else {
-          return "0 ''";
-        }
-      } else if (token.type === "type") {
-        // Handle type tokens
-        return token.value;
-      } else if (token.type === "index") {
-        // Handle index tokens - don't add a space before the brackets
-        return `[${token.value || 0}]`;
-      } else if (token.type === "operator") {
-        if (token.value === "=") {
-          return " = ";
-        } else if (token.value === "&") {
-          return " & ";
-        } else if (token.value === "is" || token.value === "as") {
-          // Special handling for type operators
-          return ` ${token.value} `;
-        } else {
-          return ` ${token.value} `;
-        }
-      } else if (token.type === "variable") {
-        return `%${token.value}`;
-      } else if (token.type === "field") {
-        return `${index === 0 ? "" : "."}${token.value}`;
-      } else if (token.type === "function") {
-        const args = token.args
-          ? token.args.map((arg) => stringifyProgram(arg)).join(", ")
-          : "";
-        return `${index === 0 ? "" : "."}${token.value}(${args})`;
-      } else {
-        return "";
-      }
+      const stringifier = tokenStringifiers[token.type];
+      return stringifier ? stringifier(token, index) : "";
     })
     .join("");
 };

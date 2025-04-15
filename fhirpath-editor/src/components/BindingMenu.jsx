@@ -85,7 +85,7 @@ const BindingMenu = ({
           >
             {bindingId != null && (
               <button
-                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
+                className="text-sm w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
                 onClick={() => {
                   deleteBinding(bindingId);
                   setIsOpen(false);
@@ -97,7 +97,7 @@ const BindingMenu = ({
             )}
             {bindingId != null && (
               <button
-                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
+                className="text-sm w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
                 onClick={() => {
                   duplicateBinding(bindingId);
                   setIsOpen(false);
@@ -109,7 +109,7 @@ const BindingMenu = ({
             )}
             {bindingId === null && (
               <button
-                className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
+                className="text-sm w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr] items-center gap-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200"
                 onClick={() => {
                   nameExpression();
                   setIsOpen(false);

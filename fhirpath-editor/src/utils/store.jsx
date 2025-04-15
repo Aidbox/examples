@@ -3,8 +3,8 @@ import { createStore, useStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
   canMoveBinding,
-  findCompatibleOperators,
   findCompatibleBindings,
+  findCompatibleOperators,
   generateBindingId,
   getExpressionType,
   suggestNextToken,

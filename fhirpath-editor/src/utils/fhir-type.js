@@ -10,7 +10,8 @@ import {
   SingleType,
   StringType,
   TimeType,
-  unwrapSingle, wrapSingle,
+  unwrapSingle,
+  wrapSingle,
 } from "./type.js";
 
 export const PrimitiveCodeType = { type: "PrimitiveCode" };

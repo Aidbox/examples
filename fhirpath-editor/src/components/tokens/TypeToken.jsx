@@ -4,9 +4,7 @@ import {
   DateTimeType,
   DateType,
   DecimalType,
-  deepEqual,
   IntegerType,
-  QuantityType,
   StringType,
   TimeType,
 } from "@utils/type";
@@ -27,10 +25,10 @@ import {
   useMergeRefs,
   useRole,
 } from "@floating-ui/react";
-import { stringifyType } from "@utils/stringify.js";
+import { stringifyTypeToken } from "@utils/stringify.js";
 
 const typesGroups = {
-  "Literal types": [
+  "Literal Types": [
     IntegerType,
     DecimalType,
     StringType,
@@ -38,10 +36,9 @@ const typesGroups = {
     DateType,
     DateTimeType,
     TimeType,
-    QuantityType,
   ],
-  "Primitive types": [...Object.values(primitiveTypeMap)],
-  "Resource types": [
+  "FHIR Primitive Types": [...Object.values(primitiveTypeMap)],
+  "FHIR Resource Types": [
     FhirType(["Patient"]),
     FhirType(["Questionnaire"]),
     FhirType(["Address"]),
@@ -140,7 +137,7 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
           invalid ? "text-red-600" : ""
         }`}
       >
-        {stringifyType(token.value)}
+        {stringifyTypeToken(token)}
       </button>
 
       {isOpen && (
@@ -181,7 +178,7 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                           activeIndex === index ? "bg-gray-100" : ""
                         }`}
                       >
-                        {stringifyType(type)}
+                        {stringifyTypeToken({ type: "type", value: type })}
                       </button>
                     ))}
                   </Fragment>

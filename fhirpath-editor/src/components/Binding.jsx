@@ -70,7 +70,7 @@ const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {
     <>
       {name != null && (
         <label
-          className={`flex border border-gray-300 rounded-md px-2 py-1 items-center focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 h-11 ${nameAnimation}
+          className={`flex border border-gray-300 rounded-md px-2 py-1.5 items-center focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 ${nameAnimation}
           ${
             trimming && tokenTypes.length === 0
               ? "bg-red-500 border-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
@@ -80,7 +80,7 @@ const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {
         >
           <input
             ref={nameRef}
-            className="focus:outline-none field-sizing-content"
+            className="focus:outline-none field-sizing-content border border-transparent"
             type="text"
             placeholder="Name"
             value={uncommitedName}

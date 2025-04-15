@@ -28,7 +28,6 @@ import {
   Minus,
   NotEquals,
   Plus,
-  PuzzlePiece,
   X,
 } from "@phosphor-icons/react";
 import { distinct } from "@utils/misc.js";
@@ -103,13 +102,13 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   }));
 
   const precedingExpressionType = useProgramContext((state) =>
-    state.getBindingExpressionType(bindingId, tokenIndex)
+    state.getBindingExpressionType(bindingId, tokenIndex),
   );
 
   const compatibleOperators = distinct(
     suggestOperatorsForLeftType(precedingExpressionType).map(
-      (meta) => meta.name
-    )
+      (meta) => meta.name,
+    ),
   );
 
   const invalid = !compatibleOperators.find((name) => name === token.value);
@@ -122,12 +121,12 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const filteredOperators = compatibleOperators.filter(
     (name) =>
       operatorNames[name].toLowerCase().includes(search.toLowerCase()) ||
-      name.toLowerCase().includes(search.toLowerCase())
+      name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const groupedOperators = filteredOperators.reduce((acc, name, index) => {
     const group = Object.keys(operatorGroups).find((groupName) =>
-      operatorGroups[groupName].includes(name)
+      operatorGroups[groupName].includes(name),
     );
 
     if (!acc[group]) {
@@ -177,7 +176,7 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions(
-    [click, dismiss, role, listNav]
+    [click, dismiss, role, listNav],
   );
 
   const handleSelect = (value) => {
@@ -253,7 +252,7 @@ const OperatorToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                       </button>
                     ))}
                   </Fragment>
-                )
+                ),
             )}
 
             {!filteredOperators.length && (

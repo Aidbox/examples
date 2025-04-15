@@ -26,11 +26,7 @@ import {
 import { distinct, pick } from "./misc.js";
 import { getFields } from "./fhir-type.js";
 import "./function.js";
-import {
-  functionMetadata,
-  suggestArgumentTypesForFunction,
-  suggestFunctionsForInputType,
-} from "./function.js";
+import { functionMetadata, suggestFunctionsForInputType } from "./function.js";
 import { stringifyType } from "@utils/stringify.js";
 
 export const isEmptyProgram = (program) => {
@@ -39,6 +35,7 @@ export const isEmptyProgram = (program) => {
     (program.bindings.length === 0 && program.expression.length === 0)
   );
 };
+
 export const findReferencedBindings = (binding) => {
   return binding.expression
     .filter((token) => token.type === "variable")

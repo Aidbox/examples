@@ -17,8 +17,6 @@ import {
   useMergeRefs,
   useRole,
 } from "@floating-ui/react";
-import { Plus, PuzzlePiece } from "@phosphor-icons/react";
-import { stringifyType } from "@utils/stringify.js";
 import { upperFirst } from "@utils/misc.js";
 
 UcumLhcUtils.getInstance();

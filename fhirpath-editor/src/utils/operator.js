@@ -19,8 +19,6 @@ import {
   TimeType,
   TypeType,
 } from "./type";
-import { distinct } from "@utils/misc.js";
-import { PrimitiveStringType } from "@utils/fhir-type.js";
 
 // Helper to define individual overload
 const op = (name, left, right, returnType) => ({

@@ -14,10 +14,8 @@ import {
   ArrowRight,
   Backspace,
   BracketsSquare,
-  Calculator,
   Calendar,
   Clock,
-  Code,
   Empty,
   Flag,
   Function,
@@ -33,10 +31,9 @@ import {
 } from "@phosphor-icons/react";
 import React, {
   forwardRef,
-  useDebugValue,
+  Fragment,
   useImperativeHandle,
   useRef,
-  Fragment,
   useState,
 } from "react";
 import { useProgramContext } from "@utils/store.jsx";

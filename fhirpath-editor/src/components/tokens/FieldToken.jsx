@@ -17,7 +17,7 @@ import {
   useMergeRefs,
   useRole,
 } from "@floating-ui/react";
-import { Plus, PuzzlePiece, Shapes } from "@phosphor-icons/react";
+import { Shapes } from "@phosphor-icons/react";
 
 import { stringifyType } from "@utils/stringify.js";
 

@@ -1,6 +1,5 @@
 import { highlightCode, tagHighlighter, tags } from "@lezer/highlight";
 import { parser } from "lezer-fhirpath";
-import { stringifyProgram } from "@utils/stringify.js";
 import React from "react";
 
 function highlightFhirPath(code) {
@@ -45,6 +44,7 @@ function highlightFhirPath(code) {
       { tag: tags.string, class: "tok-string" },
       { tag: tags.number, class: "tok-number" },
       { tag: tags.operator, class: "tok-operator" },
+      { tag: tags.typeName, class: "tok-typeName" },
       { tag: tags.special(tags.variableName), class: "tok-variableName" },
       { tag: tags.special(tags.literal), class: "tok-literal" },
       { tag: tags.function(tags.variableName), class: "tok-functionName" },
