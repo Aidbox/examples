@@ -27,7 +27,39 @@ import { distinct, pick } from "./misc.js";
 import { getFields } from "./fhir.js";
 import "./function.js";
 import { functionMetadata, suggestFunctionsForInputType } from "./function.js";
-import { stringifyType } from "@utils/stringify.js";
+import { stringifyProgram, stringifyType } from "@utils/stringify.js";
+import fhirpath from "fhirpath";
+
+export const evaluateExpression = (
+  expression,
+  bindings,
+  contextValue,
+  externalBindings,
+) => {
+  if (isEmptyProgram({ bindings, expression })) return null;
+
+  const code = stringifyProgram({
+    bindings,
+    expression,
+  });
+
+  try {
+    return fhirpath.evaluate(
+      contextValue,
+      code,
+      Object.fromEntries(
+        externalBindings.map((binding) => [
+          binding.name,
+          structuredClone(binding.value),
+        ]),
+      ),
+    );
+  } catch (e) {
+    console.debug("Error evaluating binding:", code);
+    console.debug(e);
+    throw e;
+  }
+};
 
 export const isEmptyProgram = (program) => {
   return (
@@ -162,7 +194,7 @@ export const getExpressionType = (
       if (first) {
         // we are at the first token
         switch (token.type) {
-          case "variable":
+          case "variable": {
             const binding = bindings.find((b) => b.name === token.value);
             currentType = !binding
               ? InvalidType("Unknown variable")
@@ -175,6 +207,7 @@ export const getExpressionType = (
                 );
             first = false;
             continue; // skip the rest of the loop
+          }
           case "field":
           case "function":
             first = false;
@@ -231,11 +264,11 @@ export const getExpressionType = (
             bindings,
           );
           if (!newBindings) {
-            console.log("  ↳ expected", stringifyType(expectedType));
-            console.log("  ↳ actual", stringifyType(actualType));
-            console.log("  ↳ bindings");
+            console.debug("  ↳ expected", stringifyType(expectedType));
+            console.debug("  ↳ actual", stringifyType(actualType));
+            console.debug("  ↳ bindings");
             Object.entries(bindings).map(([name, type]) => {
-              console.log(`    ↳  ${name}: `, stringifyType(type));
+              console.debug(`    ↳  ${name}: `, stringifyType(type));
             });
             return InvalidType(`Argument type mismatch at index ${i}`);
           }

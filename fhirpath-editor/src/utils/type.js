@@ -183,7 +183,7 @@ export function matchTypePattern(
       if (
         !deepEqual(bindings[name], actual) &&
         !(
-          parentOfPattern.type === SingleType.type &&
+          parentOfPattern?.type === SingleType.type &&
           bindings[name].type === SingleType.type &&
           deepEqual(bindings[name].ofType, actual)
         )

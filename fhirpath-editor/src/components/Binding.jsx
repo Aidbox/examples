@@ -6,6 +6,7 @@ import { stringifyType } from "@utils/stringify.js";
 import { Equals } from "@phosphor-icons/react";
 import { useProgramContext } from "@utils/store.js";
 import { delay } from "@utils/misc.js";
+import EvalViewer from "./EvalViewer";
 
 const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {
   const [isHovered, setIsHovered] = React.useState(false);
@@ -189,14 +190,19 @@ const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {
             }}
           />
         </div>
-        {debug && !shadow && tokenTypes.length > 0 && (
-          <span
-            className="text-gray-500 inline-flex items-center gap-1 text-xs whitespace-nowrap"
-            title={type.error}
-          >
-            {stringifyType(type)}
-          </span>
-        )}
+        <div className="flex gap-2">
+          {debug && !shadow && tokenTypes.length > 0 && (
+            <span
+              className="text-gray-500 inline-flex items-center gap-1 text-xs whitespace-nowrap"
+              title={type.error}
+            >
+              {stringifyType(type)}
+            </span>
+          )}
+          {!shadow && tokenTypes.length > 0 && (
+            <EvalViewer bindingId={bindingId} />
+          )}
+        </div>
       </div>
     </>
   );

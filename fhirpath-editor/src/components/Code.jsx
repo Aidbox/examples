@@ -61,10 +61,10 @@ function highlightFhirPath(code) {
   return result.outerHTML;
 }
 
-const Code = ({ value }) => {
+const Code = ({ value, className }) => {
   return (
     <div
-      className="text-xs p-4 rounded-md border border-gray-200 w-fit"
+      className={className}
       dangerouslySetInnerHTML={{
         __html: highlightFhirPath(value),
       }}

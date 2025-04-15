@@ -3,6 +3,7 @@ import { createStore, useStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
   canMoveBinding,
+  evaluateExpression,
   findCompatibleBindings,
   generateBindingId,
   getExpressionType,
@@ -23,6 +24,7 @@ const buildIndex = (objects) =>
   }, {});
 
 export const createProgramStore = (
+  contextValue,
   contextType,
   externalBindings,
   rawFhirSchema,
@@ -42,6 +44,7 @@ export const createProgramStore = (
       bindingRefs: {},
       bindingsIndex: {},
       tokenRefs: {},
+      contextValue,
 
       getContextType: () => contextType,
 
@@ -83,6 +86,66 @@ export const createProgramStore = (
           contextType,
           fhirSchema,
         );
+      },
+
+      getBindingDependencies: (id, seen = undefined) => {
+        if (seen?.has(id)) return [];
+        seen = seen || new Set();
+        seen.add(id);
+
+        const expression = get().getBindingExpression(id);
+        const index = get().bindingsIndex[id];
+        const knownBindings = Object.fromEntries(
+          get()
+            .program.bindings.slice(0, index)
+            .map((binding) => [binding.name, binding.id]),
+        );
+
+        function walk(expression) {
+          return expression
+            .flatMap((token) => {
+              if (token.type === "variable") {
+                const id = knownBindings[token.value];
+                return id ? [id] : [];
+              } else if (token.type === "function") {
+                return token.args.flatMap((arg) => [
+                  ...walk(arg.expression),
+                  ...arg.bindings.flatMap((binding) =>
+                    walk(binding.expression),
+                  ),
+                ]);
+              }
+            })
+            .filter(Boolean);
+        }
+
+        const directDependencies = walk(expression);
+
+        return [
+          ...directDependencies,
+          ...directDependencies.flatMap((id) =>
+            get().getBindingDependencies(id, seen),
+          ),
+        ];
+      },
+
+      getBindingValue: (id) => {
+        try {
+          const expression = get().getBindingExpression(id);
+          const index = get().bindingsIndex[id];
+          const deps = get().getBindingDependencies(id);
+
+          return evaluateExpression(
+            expression,
+            get()
+              .program.bindings.slice(0, index)
+              .filter((binding) => deps.includes(binding.id)),
+            contextValue,
+            externalBindings,
+          );
+        } catch (error) {
+          return error;
+        }
       },
 
       suggestNextToken: (id) => {
@@ -431,6 +494,6 @@ export const ProgramContext = createContext(null);
 
 export function useProgramContext(selector) {
   const store = useContext(ProgramContext);
-  if (!store) throw new Error("Missing BearContext.Provider in the tree");
+  if (!store) throw new Error("Missing ProgramContext.Provider in the tree");
   return useStore(store, useShallow(selector));
 }

@@ -1,43 +1,49 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { createProgramStore, ProgramContext } from "@utils/store.js";
 
 export function ProgramProvider({
   program,
   onProgramChange,
   contextType,
+  contextValue,
   externalBindings,
   fhirSchema,
   children,
 }) {
-  const store = useRef(null);
-
-  if (!store.current) {
-    store.current = createProgramStore(
-      contextType,
-      externalBindings,
-      fhirSchema,
-    );
-  }
+  const [store, setStore] = useState(null);
 
   useEffect(() => {
-    if (store.current) {
-      return store.current.subscribe((curState, prevState) => {
+    setStore(
+      createProgramStore(
+        contextValue,
+        contextType,
+        externalBindings,
+        fhirSchema,
+      ),
+    );
+  }, [contextType, externalBindings, fhirSchema, contextValue]);
+
+  useEffect(() => {
+    if (store) {
+      return store.subscribe((curState, prevState) => {
         if (curState.program !== prevState.program) {
           onProgramChange(curState.program);
         }
       });
     }
-  }, [onProgramChange]);
+  }, [store, onProgramChange]);
 
   useEffect(() => {
-    if (store.current) {
-      store.current.getState().setProgram(program);
+    if (store) {
+      store.getState().setProgram(program);
     }
-  }, [program]);
+  }, [store, program]);
 
   return (
-    <ProgramContext.Provider value={store.current}>
-      {children}
-    </ProgramContext.Provider>
+    store && (
+      <ProgramContext.Provider value={store}>
+        {children}
+      </ProgramContext.Provider>
+    )
   );
 }

@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo, useRef, useState } from "react";
+import React, { Fragment, useRef, useState } from "react";
 import {
   BooleanType,
   DateTimeType,
@@ -51,9 +51,10 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
       Object.values(getFhirSchema())
         .filter(
           (schema) =>
-            schema.kind === "complex-type" && schema.derivation !== "constraint"
+            schema.kind === "complex-type" &&
+            schema.derivation !== "constraint",
         )
-        .map((schema) => schema.id)
+        .map((schema) => schema.id),
     )
       .sort()
       .map((id) => FhirType([id])),
@@ -61,9 +62,9 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
       Object.values(getFhirSchema())
         .filter(
           (schema) =>
-            schema.kind === "resource" && schema.derivation !== "constraint"
+            schema.kind === "resource" && schema.derivation !== "constraint",
         )
-        .map((schema) => schema.id)
+        .map((schema) => schema.id),
     )
       .sort()
       .map((id) => FhirType([id])),
@@ -79,7 +80,7 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const filteredTypes = Object.entries(typesGroups)
     .flatMap(([, values]) => values)
     .filter((type) =>
-      JSON.stringify(type).toLowerCase().includes(search.toLowerCase())
+      JSON.stringify(type).toLowerCase().includes(search.toLowerCase()),
     );
 
   const groupedOptions = filteredTypes.reduce((acc, type, index) => {
@@ -134,7 +135,7 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions(
-    [click, dismiss, role, listNav]
+    [click, dismiss, role, listNav],
   );
 
   const handleSelect = (value) => {
@@ -209,7 +210,7 @@ const TypeToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                       </button>
                     ))}
                   </Fragment>
-                )
+                ),
             )}
 
             {!filteredTypes.length && (

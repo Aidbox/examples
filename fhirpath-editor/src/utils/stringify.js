@@ -134,7 +134,7 @@ export const stringifyExpression = (expression) => {
 };
 
 export const stringifyBinding = (binding) => {
-  return `defineVariable(${binding.name}${
+  return `defineVariable('${binding.name}'${
     binding.expression.length > 0
       ? `, ${stringifyExpression(binding.expression)}`
       : ""
