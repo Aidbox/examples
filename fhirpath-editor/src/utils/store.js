@@ -36,11 +36,7 @@ export const createProgramStore = (
   return createStore(
     immer((set, get) => ({
       program: emptyProgram,
-      draggingBindingId: undefined,
       overBindingId: undefined,
-      isValidBindingDrag: true,
-      isBindingDraggingUp: false,
-      bindingNameWidth: "auto",
       bindingRefs: {},
       bindingsIndex: {},
       tokenRefs: {},
@@ -432,60 +428,6 @@ export const createProgramStore = (
         ref?.focus();
         return ref != null;
       },
-
-      handleBindingDragStart: (id) =>
-        set((state) => {
-          state.draggingBindingId = id;
-          state.isValidBindingDrag = true;
-          state.bindingNameWidth =
-            state.bindingRefs[state.draggingBindingId]?.width || "auto";
-        }),
-
-      handleBindingDragOver: (id) =>
-        set((state) => {
-          const changed = state.overBindingId !== id;
-          state.overBindingId = id;
-
-          if (changed) {
-            if (!state.overBindingId) {
-              state.isValidBindingDrag = true;
-            } else {
-              const oldIndex = state.bindingsIndex[state.draggingBindingId];
-              const newIndex = state.bindingsIndex[state.overBindingId];
-              state.isBindingDraggingUp = newIndex < oldIndex;
-              state.isValidBindingDrag = canMoveBinding(
-                state.program.bindings,
-                oldIndex,
-                newIndex,
-              );
-            }
-          }
-        }),
-
-      handleBindingDragCancel: () =>
-        set((state) => {
-          state.draggingBindingId = undefined;
-          state.overBindingId = undefined;
-        }),
-
-      handleBindingDragEnd: () =>
-        set((state) => {
-          if (
-            state.overBindingId &&
-            state.draggingBindingId !== state.overBindingId
-          ) {
-            const oldIndex = state.bindingsIndex[state.draggingBindingId];
-            const newIndex = state.bindingsIndex[state.overBindingId];
-            if (canMoveBinding(state.program.bindings, oldIndex, newIndex)) {
-              const [movedItem] = state.program.bindings.splice(oldIndex, 1);
-              state.program.bindings.splice(newIndex, 0, movedItem);
-              state.bindingsIndex = buildIndex(state.program.bindings);
-            }
-          }
-
-          state.draggingBindingId = undefined;
-          state.overBindingId = undefined;
-        }),
     })),
   );
 };

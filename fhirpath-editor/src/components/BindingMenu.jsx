@@ -1,6 +1,7 @@
 import {
   Copy,
   DotsSixVertical,
+  DotsThreeVertical,
   PuzzlePiece,
   Trash,
   Warning,
@@ -72,7 +73,7 @@ const BindingMenu = ({
             className="absolute right-full text-red-500 mr-0.5"
           />
         )}
-        <DotsSixVertical size={16} weight="bold" />
+        <DotsThreeVertical size={16} weight="bold" />
       </button>
       {isOpen && (
         <FloatingPortal>
