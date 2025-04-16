@@ -10,6 +10,7 @@ import Code from "@components/Code.jsx";
 import { ProgramProvider } from "@components/ProgramProvider.jsx";
 import ContextEditor from "./ContextEditor.jsx";
 import { useLocalStorageState } from "./utils/react.js";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 export function App() {
   const { data: fhirSchema, loading, error } = useJsonFetch("schema.json");
@@ -128,7 +129,7 @@ export function App() {
         { type: "operator", value: "+" },
         { type: "variable", value: "subtraction" },
       ],
-    },
+    }
   );
 
   const patient = {
@@ -161,7 +162,7 @@ export function App() {
     {
       value: patient,
       type: FhirType(["Patient"]),
-    },
+    }
   );
 
   const [externalBindings, setExternalBindings] = useLocalStorageState(
@@ -225,13 +226,13 @@ export function App() {
         type: SingleType(FhirType(["Patient"])),
         value: patient,
       },
-    ],
+    ]
   );
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">Loading schema...</div>
+        <div className="text-xs">Loading schema...</div>
       </div>
     );
   }
@@ -239,7 +240,7 @@ export function App() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-lg text-red-500">
+        <div className="text-xs text-red-500">
           Error loading schema: {error}
         </div>
       </div>
@@ -251,36 +252,54 @@ export function App() {
   }
 
   return (
-    <div className="gap-2 h-screen grid grid-cols-2">
-      <div className="p-8 overflow-auto">
-        <ProgramProvider
-          program={program}
-          onProgramChange={setProgram}
-          contextType={context.type}
-          contextValue={context.value}
-          externalBindings={externalBindings}
-          fhirSchema={fhirSchema}
-        >
-          <Editor />
-        </ProgramProvider>
-      </div>
-
-      <div className="flex flex-col overflow-auto border-l border-gray-200">
-        <h2 className="font-semibold py-2 px-4">Compiled</h2>
-        <Code
-          className="text-xs p-4 border-t border-gray-200 w-fit"
-          value={stringifyProgram(program)}
-        />
-
-        <h2 className="font-semibold py-2 px-4">External Bindings</h2>
-        <ContextEditor
-          context={context}
-          setContext={setContext}
-          externalBindings={externalBindings}
-          setExternalBindings={setExternalBindings}
-          fhirSchema={fhirSchema}
-        />
-      </div>
+    <div className="h-screen">
+      <PanelGroup direction="horizontal" autoSaveId="fhirpath-editor/1">
+        <Panel className="flex flex-col">
+          <div className="p-8 flex-1 overflow-auto">
+            <ProgramProvider
+              program={program}
+              onProgramChange={setProgram}
+              contextType={context.type}
+              contextValue={context.value}
+              externalBindings={externalBindings}
+              fhirSchema={fhirSchema}
+            >
+              <Editor />
+            </ProgramProvider>
+          </div>
+        </Panel>
+        <PanelResizeHandle>
+          <div className="bg-gray-200 w-[1px] h-full" />
+        </PanelResizeHandle>
+        <Panel>
+          <PanelGroup direction="vertical" autoSaveId="fhirpath-editor/2">
+            <Panel className="flex flex-col">
+              <h2 className="font-medium py-2 px-2 text-xs text-gray-500">
+                Compiled FHIRPath
+              </h2>
+              <Code
+                className="text-xs p-4 border-t border-gray-200 w-full flex-1 overflow-auto"
+                value={stringifyProgram(program)}
+              />
+            </Panel>
+            <PanelResizeHandle>
+              <div className="bg-gray-200 h-[1px] w-full" />
+            </PanelResizeHandle>
+            <Panel className="flex flex-col">
+              <h2 className="font-medium py-2 px-2 text-xs text-gray-500">
+                External Bindings
+              </h2>
+              <ContextEditor
+                context={context}
+                setContext={setContext}
+                externalBindings={externalBindings}
+                setExternalBindings={setExternalBindings}
+                fhirSchema={fhirSchema}
+              />
+            </Panel>
+          </PanelGroup>
+        </Panel>
+      </PanelGroup>
     </div>
   );
 }

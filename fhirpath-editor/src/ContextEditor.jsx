@@ -102,18 +102,18 @@ export default function ContextEditor({
     <div className="flex flex-col overflow-hidden flex-1">
       <div className="flex border-b border-gray-200">
         <div
-          className={`text-sm cursor-pointer flex items-center border-t border-r border-gray-200 ${
-            activeTabId === null ? "bg-green-100" : "hover:bg-green-50"
+          className={`text-xs cursor-pointer flex items-center border-t border-r border-gray-200 ${
+            null === activeTabId ? "bg-gray-100" : "hover:bg-gray-50"
           }`}
           onClick={() => setActiveTabId(null)}
         >
-          <span className="py-1 px-2 text-green-700">context</span>
+          <span className="py-1.5 px-2 text-green-700">context</span>
         </div>
 
         {externalBindings.map((binding) => (
           <div
             key={binding.id}
-            className={`text-sm cursor-pointer flex items-center border-t border-r border-gray-200 ${
+            className={`text-xs cursor-pointer flex items-center border-t border-r border-gray-200 ${
               binding.id === activeTabId ? "bg-gray-100" : "hover:bg-gray-50"
             }`}
             onClick={() => setActiveTabId(binding.id)}
@@ -139,11 +139,11 @@ export default function ContextEditor({
                     }
                   }
                 }}
-                className="pl-2 py-1 focus:outline-none field-sizing-content"
+                className="pl-2 py-1.5 focus:outline-none field-sizing-content"
               />
             ) : (
               <span
-                className="truncate max-w-52 py-1 pl-2"
+                className="truncate max-w-52 py-1.5 pl-2"
                 onDoubleClick={() => setEditingBinding(binding.id)}
               >
                 {binding.name}
@@ -152,7 +152,9 @@ export default function ContextEditor({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                deleteBinding(binding.id);
+                if (confirm("Are you sure you want to delete this binding?")) {
+                  deleteBinding(binding.id);
+                }
               }}
               className="text-gray-400 hover:text-gray-700 cursor-pointer px-1 py-1"
               title="Delete binding"
@@ -162,11 +164,11 @@ export default function ContextEditor({
           </div>
         ))}
         <button
-          className="px-2 text-gray-400 hover:text-gray-700 cursor-pointer"
+          className="px-2 text-gray-400 hover:text-gray-700 cursor-pointer active:bg-gray-100 border-t border-r border-transparent active:border-gray-200"
           onClick={addNewBinding}
           title="Add new binding"
         >
-          <Plus size={16} />
+          <Plus size={14} />
         </button>
       </div>
 
