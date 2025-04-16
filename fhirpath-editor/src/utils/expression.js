@@ -45,7 +45,7 @@ export const evaluateExpression = (
 
   try {
     return fhirpath.evaluate(
-      contextValue,
+      structuredClone(contextValue),
       code,
       Object.fromEntries(
         externalBindings.map((binding) => [

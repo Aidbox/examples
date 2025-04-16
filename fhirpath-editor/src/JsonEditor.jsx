@@ -8,6 +8,7 @@ import { indentWithTab } from "@codemirror/commands";
 export function JsonEditor({ value, onChange }) {
   const editorRef = React.useRef(null);
   const viewRef = React.useRef(null);
+  const userEditRef = React.useRef(false);
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -19,6 +20,7 @@ export function JsonEditor({ value, onChange }) {
         json(),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
+            userEditRef.current = true;
             try {
               const jsonValue = JSON.parse(update.state.doc.toString());
               onChange(jsonValue);
@@ -46,6 +48,12 @@ export function JsonEditor({ value, onChange }) {
 
   useEffect(() => {
     if (!viewRef.current) return;
+
+    // Skip update if change was initiated by user
+    if (userEditRef.current) {
+      userEditRef.current = false;
+      return;
+    }
 
     const currentDoc = viewRef.current.state.doc.toString();
     const newDoc = JSON.stringify(value, null, 2);

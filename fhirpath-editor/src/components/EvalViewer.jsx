@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { JsonView } from "react-json-view-lite";
 import "react-json-view-lite/dist/index.css";
-import { Warning } from "@phosphor-icons/react";
+import { Empty, Warning } from "@phosphor-icons/react";
 import { useProgramContext } from "@utils/store.js";
 import {
   arrow,
@@ -20,21 +20,27 @@ import {
 } from "@floating-ui/react";
 
 function format(value) {
-  if (value === null || value === undefined) return "null";
-  if (value instanceof Error)
+  if (value === null || value === undefined) {
+    return (
+      <>
+        <Empty size={14} weight="regular" className="mr-1" /> empty result
+      </>
+    );
+  } else if (value instanceof Error) {
     return (
       <>
         <Warning size={14} weight="regular" className="mr-1" /> Evaluation
         failed
       </>
     );
-  if (Array.isArray(value)) {
-    // If it's a simple array with primitive values, join them
-    if (value.length === 0) return "[]";
-    if (value.length <= 3) {
-      return `[${value.map(format).join(", ")}]`;
-    }
-    return `[...]`;
+  } else if (Array.isArray(value)) {
+    return value.length ? (
+      `${value.slice(0, 3).map(format).join(", ")}${value.length > 3 ? ", ..." : ""}`
+    ) : (
+      <>
+        <Empty size={14} weight="regular" className="mr-1" /> empty result
+      </>
+    );
   }
   if (typeof value === "object") {
     if (Object.keys(value).length === 0) return "{}";
@@ -90,7 +96,7 @@ const EvalViewer = ({ bindingId }) => {
       <button
         ref={refs.setReference}
         {...getReferenceProps()}
-        className="flex items-center cursor-pointer text-gray-500 hover:text-gray-700 data-[error]:text-red-500 data-[error]:hover:text-red-700 text-xs font-mono whitespace-nowrap group"
+        className="flex items-center cursor-pointer rounded px-2 py-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200 data-[error]:text-red-500 data-[error]:hover:text-red-700 text-xs font-mono whitespace-nowrap group"
         data-error={value instanceof Error || undefined}
       >
         {format(value)}
@@ -125,6 +131,8 @@ const EvalViewer = ({ bindingId }) => {
                 // noQuotesForStringValues: true,
                 label: "font-normal mr-2 text-gray-600",
                 stringValue: "text-orange-800",
+                collapsedContent:
+                  "px-1 after:content-['...'] font-normal text-gray-600 font-sans",
               }}
             />
           </div>
