@@ -1,34 +1,34 @@
 import React, { Fragment } from "react";
 import { useProgramContext } from "@utils/store.js";
-import { stringifyType } from "@utils/stringify.js";
 import { Textbox } from "@phosphor-icons/react";
 import Dropdown from "@components/Dropdown.jsx";
 import { mergeRefs, useDebug } from "@utils/react.js";
 
 const AnswerToken = React.forwardRef(
   ({ bindingId, tokenIndex }, forwardedRef) => {
-    const debug = useDebug();
-
-    const { token, updateToken, getQuestionnaireItems } = useProgramContext(
-      (state) => ({
+    const { token, updateToken, suggestTokensAt, getQuestionnaireItems } =
+      useProgramContext((state) => ({
         token: state.getToken(bindingId, tokenIndex),
         updateToken: state.updateToken,
-        getFhirSchema: state.getFhirSchema,
+        suggestTokensAt: state.suggestTokensAt,
         getQuestionnaireItems: state.getQuestionnaireItems,
-      }),
-    );
+      }));
 
-    const items = getQuestionnaireItems();
+    const questionnaireItems = getQuestionnaireItems();
+    const tokens = suggestTokensAt(bindingId, tokenIndex);
+    const debug = useDebug();
 
     return (
       <Dropdown
-        items={Object.keys(items)}
-        searchFn={(linkId, term) =>
-          items[linkId]?.text.toLowerCase().includes(term.toLowerCase()) ||
-          linkId.toLowerCase().includes(term.toLowerCase())
+        items={tokens}
+        searchFn={(token, term) =>
+          questionnaireItems[token.value]?.text
+            .toLowerCase()
+            .includes(term.toLowerCase()) ||
+          token.value.toLowerCase().includes(term.toLowerCase())
         }
-        onClick={(linkId) => {
-          updateToken(bindingId, tokenIndex, { value: linkId });
+        onClick={(token) => {
+          updateToken(bindingId, tokenIndex, { value: token.value });
         }}
         renderReference={(mergeProps, ref) => (
           <button
@@ -37,24 +37,26 @@ const AnswerToken = React.forwardRef(
               className: `cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 flex items-center gap-1`,
             })}
           >
-            <Textbox className="opacity-50" />{" "}
+            <Textbox className="opacity-50" />
             <span className="max-w-42 truncate">
-              {items[token.value]?.text || token.value}
+              {questionnaireItems[token.value]?.text || token.value}
             </span>
           </button>
         )}
-        renderItem={(linkId) => (
+        renderItem={(token) => (
           <>
             <Textbox size={16} className="text-gray-500 shrink-0" />
-            <span className="truncate">{items[linkId]?.text || linkId} </span>
+            <span className="truncate">
+              {questionnaireItems[token.value]?.text || token.value}{" "}
+            </span>
             {debug ? (
               <span className="text-sm text-gray-500 truncate flex-1 text-right">
-                {stringifyType(items[linkId].type)}
+                {token.debug}
               </span>
             ) : (
-              items[linkId] && (
+              questionnaireItems[token.value] && (
                 <div className="text-sm text-gray-500 truncate flex-1 text-right">
-                  {linkId}
+                  {token.value}
                 </div>
               )
             )}

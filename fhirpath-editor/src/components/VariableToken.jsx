@@ -8,44 +8,45 @@ import Dropdown from "@components/Dropdown.jsx";
 
 const VariableToken = React.forwardRef(
   ({ bindingId, tokenIndex }, forwardedRef) => {
-    const debug = useDebug();
-
     const {
       bindingIndex,
       token,
       updateToken,
-      isBindingNameUnique,
       addBinding,
-      getBindingExpressionType,
+      suggestTokensAt,
+      isBindingNameUnique,
+      getBindingExpression,
     } = useProgramContext((state) => ({
       bindingIndex: state.bindingsIndex[bindingId],
       token: state.getToken(bindingId, tokenIndex),
       updateToken: state.updateToken,
       addBinding: state.addBinding,
+      suggestTokensAt: state.suggestTokensAt,
       isBindingNameUnique: state.isBindingNameUnique,
-      getBindingExpressionType: state.getBindingExpressionType,
+      getBindingExpression: state.getBindingExpression,
     }));
 
-    const compatibleBindings = useProgramContext((state) =>
-      state.getCompatibleBindings(bindingId, tokenIndex),
-    );
+    const tokens = suggestTokensAt(bindingId, tokenIndex);
+    const debug = useDebug();
 
     return (
       <Dropdown
-        items={compatibleBindings}
-        searchFn={(binding, term) =>
-          binding.name.toLowerCase().includes(term.toLowerCase())
+        items={tokens}
+        searchFn={(token, term) =>
+          token.value.toLowerCase().includes(term.toLowerCase())
         }
-        groupFn={(binding) => (binding.expression?.length ? "Local" : "Global")}
-        keyFn={(binding) => binding.id || binding.name}
+        groupFn={(token) =>
+          getBindingExpression(token.value)?.length ? "Local" : "Global"
+        }
+        keyFn={(token) => token.value}
         createFn={(term) =>
-          isBindingNameUnique(term, bindingId) && { name: term, new: true }
+          isBindingNameUnique(term, bindingId) && { value: term, new: true }
         }
-        onClick={(binding) => {
-          if (binding.new) {
-            addBinding({ name: binding.name }, bindingIndex, false);
+        onClick={(token) => {
+          if (token.new) {
+            addBinding({ name: token.value }, bindingIndex, false);
           }
-          updateToken(bindingId, tokenIndex, { value: binding.name });
+          updateToken(bindingId, tokenIndex, { value: token.value });
         }}
         renderReference={(mergeProps, ref) => (
           <button
@@ -57,8 +58,8 @@ const VariableToken = React.forwardRef(
             {token.value}
           </button>
         )}
-        renderItem={(binding) =>
-          binding.new ? (
+        renderItem={(token) =>
+          token.new ? (
             <>
               <Plus size={16} className="text-gray-500" />
               New named expression
@@ -66,10 +67,10 @@ const VariableToken = React.forwardRef(
           ) : (
             <>
               <PuzzlePiece size={16} className="text-gray-500 shrink-0" />
-              <span className="truncate">{binding.name}</span>
+              <span className="truncate">{token.value}</span>
               {debug && (
                 <span className="text-sm text-gray-500 truncate flex-1 text-right">
-                  {stringifyType(getBindingExpressionType(binding.id))}
+                  {token.debug}
                 </span>
               )}
             </>

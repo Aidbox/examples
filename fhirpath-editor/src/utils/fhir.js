@@ -10,6 +10,7 @@ import {
   SingleType,
   StringType,
   TimeType,
+  TypeType,
   unwrapSingle,
   wrapSingle,
 } from "./type.js";
@@ -254,6 +255,10 @@ export function getFields(type, fhirSchema) {
   if (type && type.type === SingleType.type) {
     single = true;
     type = unwrapSingle(type);
+  }
+
+  if (type && type.type === TypeType.type) {
+    type = type.ofType;
   }
 
   if (type.type === QuantityType.type) {

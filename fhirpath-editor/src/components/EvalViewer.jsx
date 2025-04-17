@@ -50,24 +50,9 @@ function format(value) {
 }
 
 const EvalViewer = ({ bindingId }) => {
-  const { getBindingValue, getBindingExpression } = useProgramContext(
-    (state) => ({
-      getBindingValue: state.getBindingValue,
-      getBindingExpression: state.getBindingExpression,
-    }),
-  );
-
-  const expression = getBindingExpression(bindingId);
-  const isSimpleExpression =
-    expression.length === 1 &&
-    (expression[0].type === "number" ||
-      expression[0].type === "string" ||
-      expression[0].type === "boolean" ||
-      expression[0].type === "date" ||
-      expression[0].type === "datetime" ||
-      expression[0].type === "time" ||
-      expression[0].type === "quantity" ||
-      expression[0].type === "type");
+  const { getBindingValue } = useProgramContext((state) => ({
+    getBindingValue: state.getBindingValue,
+  }));
 
   const value = getBindingValue(bindingId);
   const [isOpen, setIsOpen] = useState(false);
@@ -109,57 +94,55 @@ const EvalViewer = ({ bindingId }) => {
   const headingId = useId();
 
   return (
-    !isSimpleExpression && (
-      <>
-        <button
-          ref={refs.setReference}
-          {...getReferenceProps()}
-          className="cursor-pointer focus:outline-none rounded px-1.5 py-0.5 text-gray-500 data-[error]:text-red-500 data-[error]:font-mono flex items-center gap-1 text-sm truncate"
-          // data-error={value instanceof Error || undefined}
-        >
-          <ArrowRight size={12} />
+    <>
+      <button
+        ref={refs.setReference}
+        {...getReferenceProps()}
+        className="cursor-pointer focus:outline-none rounded px-1.5 py-0.5 text-gray-500 data-[error]:text-red-500 data-[error]:font-mono flex items-center gap-1 text-sm truncate"
+        // data-error={value instanceof Error || undefined}
+      >
+        <ArrowRight size={12} />
 
-          {format(value)}
-        </button>
+        {format(value)}
+      </button>
 
-        {isOpen && (
-          <FloatingPortal>
-            <div
-              ref={refs.setFloating}
-              style={floatingStyles}
-              aria-labelledby={headingId}
-              {...getFloatingProps()}
-              className="max-w-96"
-            >
-              <FloatingArrow
-                ref={arrowRef}
-                context={context}
-                className="fill-white [&>path:first-of-type]:stroke-gray-300 [&>path:last-of-type]:stroke-white"
-                strokeWidth={1}
-                height={6}
-                width={10}
-                style={{
-                  right: "calc(100% - 2px)",
-                }}
-              />
-              <JsonView
-                data={value instanceof Error ? value.message : value}
-                style={{
-                  container:
-                    "bg-white rounded-md border border-gray-300 shadow-lg overflow-auto text-xs p-2 bg-gray-50 font-mono",
-                  punctuation: "text-gray-400",
-                  // noQuotesForStringValues: true,
-                  label: "font-normal mr-2 text-gray-600",
-                  stringValue: "text-orange-800 break-all",
-                  collapsedContent:
-                    "px-1 after:content-['...'] font-normal text-gray-600 font-sans",
-                }}
-              />
-            </div>
-          </FloatingPortal>
-        )}
-      </>
-    )
+      {isOpen && (
+        <FloatingPortal>
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            aria-labelledby={headingId}
+            {...getFloatingProps()}
+            className="max-w-96"
+          >
+            <FloatingArrow
+              ref={arrowRef}
+              context={context}
+              className="fill-white [&>path:first-of-type]:stroke-gray-300 [&>path:last-of-type]:stroke-white"
+              strokeWidth={1}
+              height={6}
+              width={10}
+              style={{
+                right: "calc(100% - 2px)",
+              }}
+            />
+            <JsonView
+              data={value instanceof Error ? value.message : value}
+              style={{
+                container:
+                  "bg-white rounded-md border border-gray-300 shadow-lg overflow-auto text-xs p-2 bg-gray-50 font-mono",
+                punctuation: "text-gray-400",
+                // noQuotesForStringValues: true,
+                label: "font-normal mr-2 text-gray-600",
+                stringValue: "text-orange-800 break-all",
+                collapsedContent:
+                  "px-1 after:content-['...'] font-normal text-gray-600 font-sans",
+              }}
+            />
+          </div>
+        </FloatingPortal>
+      )}
+    </>
   );
 };
 

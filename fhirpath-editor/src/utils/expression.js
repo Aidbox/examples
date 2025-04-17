@@ -1,8 +1,8 @@
 import {
   operatorMetadata,
+  precedence,
   resolveOperator,
   suggestOperatorsForLeftType,
-  suggestRightTypesForOperator,
 } from "./operator.js";
 import {
   BooleanType,
@@ -24,7 +24,7 @@ import {
   unwrapSingle,
   wrapSingle,
 } from "./type.js";
-import { distinct, pick } from "./misc.js";
+import { distinct } from "./misc.js";
 import { FhirType, getFields } from "./fhir.js";
 import "./function.js";
 import { functionMetadata, suggestFunctionsForInputType } from "./function.js";
@@ -71,49 +71,69 @@ export const isEmptyProgram = (program) => {
   );
 };
 
-export const findReferencedBindings = (binding) => {
-  return binding.expression
-    .filter((token) => token.type === "variable")
-    .map((token) => token.value);
-};
-
 export const generateBindingId = () =>
   `binding-${Math.random().toString(36).substring(2, 9)}`;
 
-function isChainingExpression(expression) {
-  if (expression.length >= 1) {
-    if (
-      expression[0].type === "variable" ||
-      expression[0].type === "field" ||
-      expression[0].type === "answer" ||
-      expression[0].type === "function"
-    ) {
-      if (
-        expression
-          .slice(1)
-          .every(
-            (token) =>
-              token.type === "field" ||
-              token.type === "index" ||
-              token.type === "answer" ||
-              token.type === "function",
-          )
-      ) {
-        return true;
-      }
+function buildOperatorTree(tokens) {
+  let pos = 0;
+
+  function peek() {
+    return tokens[pos];
+  }
+
+  function next() {
+    return tokens[pos++];
+  }
+
+  function parseLeaf() {
+    const leaf = [];
+    while (pos < tokens.length && peek()?.type !== "operator") {
+      leaf.push(next());
     }
+    return leaf;
   }
-  return false;
+
+  function parseExpression(minPrec = 0) {
+    let left;
+
+    // Missing left operand (e.g., starts with operator)
+    if (peek()?.type === "operator") {
+      left = [];
+    } else {
+      left = parseLeaf();
+    }
+
+    while (true) {
+      const token = peek();
+      if (token?.type !== "operator") break;
+
+      const [prec, assoc] = precedence[token.value] || [0, "left"];
+      if (prec < minPrec) break;
+
+      next(); // consume operator
+
+      // Gracefully handle missing right operand (e.g., end of input)
+      let right;
+      if (peek() == null || peek()?.type === "operator") {
+        right = []; // missing right operand
+      } else {
+        const nextMinPrec = assoc === "left" ? prec + 1 : prec;
+        right = parseExpression(nextMinPrec);
+      }
+
+      left = {
+        op: token.value,
+        left,
+        right,
+      };
+    }
+
+    return left;
+  }
+
+  return parseExpression();
 }
 
-function isOperatorExpression(expression) {
-  if (expression.length === 3 && expression[1].type === "operator") {
-    return true;
-  }
-  return false;
-}
-
-// Calculate the result type of expression
 export const getExpressionType = (
   expression,
   questionnaireItems,
@@ -121,42 +141,28 @@ export const getExpressionType = (
   contextType,
   fhirSchema,
 ) => {
-  if (expression.length === 0) return InvalidType("Empty expression");
+  function getOperatorExpressionType(operator, left, right) {
+    const leftType = Array.isArray(left)
+      ? getChainingExpressionType(left)
+      : getOperatorExpressionType(left.op, left.left, left.right);
 
-  if (expression.length === 1) {
-    const token = expression[0];
-    if (token.type === "number") {
-      // Determine if the number is an integer or decimal based on its value
-      return token.value.includes(".")
-        ? SingleType(DecimalType)
-        : SingleType(IntegerType);
-    }
-    if (token.type === "string") return SingleType(StringType);
-    if (token.type === "boolean") return SingleType(BooleanType);
-    if (token.type === "date") return SingleType(DateType);
-    if (token.type === "datetime") return SingleType(DateTimeType);
-    if (token.type === "time") return SingleType(TimeType);
-    if (token.type === "quantity") return SingleType(QuantityType);
-    if (token.type === "type") return TypeType(token.value); // Return the actual type value
-    if (token.type === "variable") {
-      const binding = bindings.find((b) => b.name === token.value);
-      if (!binding) return InvalidType("Unknown variable");
-      // If this is a global binding, return its type
-      if (binding.type) return binding.type;
-      // Otherwise, calculate the result type of its expression
-      return getExpressionType(
-        binding.expression,
-        questionnaireItems,
-        bindings,
-        contextType,
-        fhirSchema,
-      );
-    }
+    const rightType = Array.isArray(right)
+      ? getChainingExpressionType(right)
+      : getOperatorExpressionType(right.op, right.left, right.right);
+
+    if (leftType.type === InvalidType.type)
+      return InvalidType(`Left operand is "${leftType.error}"`);
+
+    if (rightType.type === InvalidType.type)
+      return InvalidType(`Right operand is "${rightType.error}"`);
+
+    return resolveOperator(operator, leftType, rightType);
   }
 
-  if (isChainingExpression(expression)) {
-    let tokens = [...expression];
+  function getChainingExpressionType(expression) {
+    if (expression.length === 0) return InvalidType("Empty expression");
 
+    let tokens = [...expression];
     let currentType = contextType;
     let first = true;
     if (!tokens.length) return InvalidType("Empty expression");
@@ -164,22 +170,54 @@ export const getExpressionType = (
     while (tokens.length > 0 && currentType?.type !== InvalidType.type) {
       const token = tokens.shift();
 
-      if (token.type === "variable") {
-        if (!first) {
-          return InvalidType(`Unexpected token "variable"`);
+      if (first) {
+        first = false;
+        // we are at the first token
+        switch (token.type) {
+          case "number":
+            currentType = token.value.includes(".")
+              ? SingleType(DecimalType)
+              : SingleType(IntegerType);
+            continue;
+          case "string":
+            currentType = SingleType(StringType);
+            continue;
+          case "boolean":
+            currentType = SingleType(BooleanType);
+            continue;
+          case "date":
+            currentType = SingleType(DateType);
+            continue;
+          case "datetime":
+            currentType = SingleType(DateTimeType);
+            continue;
+          case "time":
+            currentType = SingleType(TimeType);
+            continue;
+          case "quantity":
+            currentType = SingleType(QuantityType);
+            continue;
+          case "type":
+            currentType = TypeType(token.value); // Return the actual type value
+            continue;
+          case "variable": {
+            const binding = bindings.find((b) => b.name === token.value);
+            currentType = !binding
+              ? InvalidType("Unknown variable")
+              : binding.type ||
+                getExpressionType(
+                  binding.expression,
+                  questionnaireItems,
+                  bindings,
+                  contextType,
+                  fhirSchema,
+                );
+            continue;
+          }
         }
-        const binding = bindings.find((b) => b.name === token.value);
-        currentType = !binding
-          ? InvalidType(`Unknown variable "${token.value}"`)
-          : binding.type ||
-            getExpressionType(
-              binding.expression,
-              questionnaireItems,
-              bindings,
-              contextType,
-              fhirSchema,
-            );
-      } else if (token.type === "index") {
+      }
+
+      if (token.type === "index") {
         // Skip index tokens - they don't change the type
         currentType = wrapSingle(currentType);
       } else if (token.type === "function") {
@@ -281,125 +319,131 @@ export const getExpressionType = (
     return currentType;
   }
 
-  // For expressions with operators
-  if (isOperatorExpression(expression)) {
-    const [left, operator, right] = expression;
+  const tree = buildOperatorTree(expression);
 
-    const leftType = getExpressionType(
-      [left],
-      questionnaireItems,
-      bindings,
-      contextType,
-      fhirSchema,
-    );
-    const rightType = getExpressionType(
-      [right],
-      questionnaireItems,
-      bindings,
-      contextType,
-      fhirSchema,
-    );
-
-    if (
-      leftType.type === InvalidType.type ||
-      rightType.type === InvalidType.type
-    )
-      return InvalidType("Invalid argument types");
-
-    return resolveOperator(operator.value, leftType, rightType);
+  if (Array.isArray(tree)) {
+    return getChainingExpressionType(tree);
+  } else {
+    return getOperatorExpressionType(tree.op, tree.left, tree.right);
   }
-
-  return InvalidType("Unknown expression");
 };
 
-export const findCompatibleBindings = (
-  expression,
+function extractOperatorContext(tokens) {
+  const opIndex = tokens.length - 1;
+  const op = tokens[opIndex];
+  const [opPrec, opAssoc] = precedence[op.value] || [0, "left"];
+
+  // Walk left to find the start of the left-hand operand
+  let i = opIndex - 1;
+  while (i >= 0) {
+    const t = tokens[i];
+    if (t.type === "operator") {
+      const [tPrec, tAssoc] = precedence[t.value] || [0, "left"];
+      const breakByPrecedence =
+        tPrec < opPrec || (tPrec === opPrec && tAssoc !== opAssoc);
+      if (breakByPrecedence) break;
+    }
+    i--;
+  }
+
+  const leftStart = Math.max(0, i + 1);
+  return [tokens.slice(leftStart, opIndex), tokens[opIndex]]; // includes left operand + current operator
+}
+
+function suggestNextTokenTypes(tokens) {
+  const last = tokens[tokens.length - 1];
+
+  const literalTypes = [
+    "string",
+    "number",
+    "boolean",
+    "date",
+    "datetime",
+    "quantity",
+    "time",
+  ];
+
+  const startTypes = [
+    "field",
+    "function",
+    "variable",
+    "type",
+    "answer",
+    ...literalTypes,
+  ];
+
+  const valueTypes = new Set([
+    "field",
+    "function",
+    "variable",
+    "index",
+    "type",
+    "answer",
+    ...literalTypes,
+  ]);
+
+  let types;
+  let contextTokens;
+  let operatorToken;
+
+  if (!last) {
+    types = startTypes;
+    contextTokens = null;
+  } else if (last.type === "operator") {
+    types = startTypes;
+    [contextTokens, operatorToken] = extractOperatorContext(tokens);
+  } else if (valueTypes.has(last.type)) {
+    types = ["field", "function", "index", "operator"];
+    let i = tokens.length - 1;
+    while (i > 0 && tokens[i - 1]?.type !== "operator") i--;
+    contextTokens = tokens.slice(i);
+  } else {
+    types = [];
+    contextTokens = null;
+  }
+
+  return [types, contextTokens, operatorToken];
+}
+
+function toTokens(
+  type,
+  contextExpressionType,
   questionnaireItems,
   bindings,
   contextType,
   fhirSchema,
-) => {
-  if (expression.length === 0) return bindings;
-
-  // If we have an operator and left operand
-  if (
-    (expression.length === 3 || expression.length === 2) &&
-    expression[1].type === "operator"
-  ) {
-    const [left, operator] = expression;
-    const leftType = getExpressionType(
-      [left],
-      questionnaireItems,
-      bindings,
-      contextType,
-      fhirSchema,
-    );
-
-    if (leftType.type === InvalidType.type) return [];
-    // const rightTypes = suggestRightTypesForOperator(operator.value, leftType);
-    return bindings;
-
-    // return bindings.filter((binding) => {
-    //   const bindingType =
-    //     binding.type ||
-    //     getExpressionType(
-    //       binding.expression,
-    //       questionnaireItems,
-    //       bindings,
-    //       contextType,
-    //       fhirSchema,
-    //     );
-    //   return rightTypes.some((rightType) =>
-    //     matchTypePattern(rightType, bindingType),
-    //   );
-    // });
-  }
-
-  return bindings;
-};
-
-const typeName2tokenType = {
-  [IntegerType.type]: "number",
-  [DecimalType.type]: "number",
-  [StringType.type]: "string",
-  [BooleanType.type]: "boolean",
-  [DateType.type]: "date",
-  [DateTimeType.type]: "datetime",
-  [TimeType.type]: "time",
-  [QuantityType.type]: "quantity",
-  [TypeType.type]: "type",
-};
-
-// Suggest next tokens based on current expression
-export const suggestNextToken = (
-  expression,
-  questionnaireItems,
-  bindings,
-  contextType,
-  fhirSchema,
-) => {
-  const result = [];
-
-  // if the expression is empty, suggest all primitive types and variable
-  if (expression.length === 0) {
-    if (matchTypePattern(FhirType(["QuestionnaireResponse"]), contextType)) {
-      result.push(
-        ...Object.keys(questionnaireItems).map((linkId) => ({
-          type: "answer",
-          value: linkId,
-        })),
+) {
+  switch (type) {
+    case "string":
+    case "number":
+    case "boolean":
+    case "date":
+    case "datetime":
+    case "quantity":
+    case "time":
+    case "index":
+    case "type":
+      return [{ type }];
+    case "field": {
+      return Object.entries(getFields(contextExpressionType, fhirSchema)).map(
+        ([field, type]) => ({
+          type: "field",
+          value: field,
+          debug: stringifyType(type),
+        }),
       );
     }
-    result.push(
-      { type: "number" },
-      { type: "string" },
-      { type: "boolean" },
-      { type: "date" },
-      { type: "datetime" },
-      { type: "time" },
-      { type: "quantity" },
-      { type: "type" },
-      ...bindings.map((binding) => ({
+    case "answer": {
+      return matchTypePattern(FhirType(["QuestionnaireResponse"]), contextType)
+        ? Object.keys(questionnaireItems).map((linkId) => ({
+            type: "answer",
+            value: linkId,
+            debug: stringifyType(questionnaireItems[linkId].type),
+          }))
+        : [];
+    }
+    case "variable": {
+      return bindings.map((binding) => ({
         type: "variable",
         value: binding.name,
         debug: stringifyType(
@@ -412,83 +456,52 @@ export const suggestNextToken = (
               fhirSchema,
             ),
         ),
-      })),
-    );
-  }
-
-  if (expression.length === 2 && expression[1].type === "operator") {
-    // const operator = expression[1].value;
-    //
-    // const leftType = getExpressionType(
-    //   [expression[0]],
-    //   questionnaireItems,
-    //   bindings,
-    //   contextType,
-    //   fhirSchema,
-    // );
-    // const rightTypes = suggestRightTypesForOperator(operator, leftType);
-
-    result.push(
-      ...distinct(
-        Object.values(
-          typeName2tokenType,
-          // pick(
-          //   typeName2tokenType,
-          //   rightTypes.map((type) => unwrapSingle(type).type),
-          // ),
+      }));
+    }
+    case "function": {
+      const compatible = new Set(
+        suggestFunctionsForInputType(contextExpressionType).map(
+          (meta) => meta.name,
         ),
-      ).map((type) => ({ type })),
-      ...findCompatibleBindings(
-        expression,
-        questionnaireItems,
-        bindings,
-        contextType,
-        fhirSchema,
-      ).map((binding) => ({
-        type: "variable",
-        value: binding.name,
-        debug: stringifyType(
-          binding.type ||
-            getExpressionType(
-              binding.expression,
-              questionnaireItems,
-              bindings,
-              contextType,
-              fhirSchema,
-            ),
+      );
+      return functionMetadata.map((meta) => ({
+        type: "function",
+        value: meta.name,
+        incompatible: !compatible.has(meta.name),
+      }));
+    }
+    case "operator": {
+      const compatible = new Set(
+        suggestOperatorsForLeftType(contextExpressionType).map(
+          (meta) => meta.name,
         ),
-      })),
-    );
+      );
+      return distinct(operatorMetadata.map((meta) => meta.name)).map(
+        (name) => ({
+          type: "operator",
+          value: name,
+          incompatible: !compatible.has(name),
+        }),
+      );
+    }
   }
+}
 
-  if (
-    expression.length === 1 &&
-    expression[0].type !== "field" &&
-    expression[0].type !== "function"
-  ) {
-    // const firstTokenType = getExpressionType(
-    //   [expression[0]],
-    //   questionnaireItems,
-    //   bindings,
-    //   contextType,
-    //   fhirSchema,
-    // );
+// Suggest next tokens based on current expression
+export const suggestNextTokens = (
+  expression,
+  questionnaireItems,
+  bindings,
+  contextType,
+  fhirSchema,
+) => {
+  const [types, contextExpression, operatorToken] =
+    suggestNextTokenTypes(expression);
 
-    result.push(
-      ...distinct(
-        // suggestOperatorsForLeftType(firstTokenType).map((meta) => meta.name),
-        operatorMetadata.map((meta) => meta.name),
-      ).map((name) => ({
-        type: "operator",
-        value: name,
-      })),
-    );
-  }
-
-  if (isChainingExpression(expression) || expression.length === 0) {
-    const type = expression.length
+  let contextExpressionType =
+    !operatorToken && contextExpression
       ? getExpressionType(
-          expression,
+          contextExpression,
           questionnaireItems,
           bindings,
           contextType,
@@ -496,25 +509,60 @@ export const suggestNextToken = (
         )
       : contextType;
 
-    if (type.type !== SingleType.type) {
-      result.push({ type: "index" });
-    }
+  // let contextOperandType =
+  //   operatorToken &&
+  //   suggestRightTypesForOperator(
+  //     operatorToken.value,
+  //     contextExpression
+  //       ? contextExpressionType
+  //       : InvalidType("Empty right operand"),
+  //   );
 
-    result.push(
-      ...Object.entries(getFields(type, fhirSchema)).map(([field, type]) => ({
-        type: "field",
-        value: field,
-        debug: stringifyType(type),
-      })),
-      // ...suggestFunctionsForInputType(type).map((meta) => ({
-      ...functionMetadata.map((meta) => ({
-        type: "function",
-        value: meta.name,
-      })),
-    );
-  }
-
-  return result;
+  return types.flatMap((type) =>
+    toTokens(
+      type,
+      contextExpressionType,
+      questionnaireItems,
+      bindings,
+      contextType,
+      fhirSchema,
+    ),
+  );
 };
 
-// console.log(suggestFunctionsForInputType(CollectionType(StringType)));
+export const suggestTokensAt = (
+  index,
+  expression,
+  questionnaireItems,
+  bindings,
+  contextType,
+  fhirSchema,
+) => {
+  const token = expression[index];
+  const precedingExpression = expression.slice(0, index);
+
+  const [types, contextExpression, operatorToken] =
+    suggestNextTokenTypes(precedingExpression);
+
+  let contextExpressionType =
+    !operatorToken && contextExpression
+      ? getExpressionType(
+          contextExpression,
+          questionnaireItems,
+          bindings,
+          contextType,
+          fhirSchema,
+        )
+      : contextType;
+
+  if (types.includes(token.type)) {
+    return toTokens(
+      token.type,
+      contextExpressionType,
+      questionnaireItems,
+      bindings,
+      contextType,
+      fhirSchema,
+    );
+  }
+};

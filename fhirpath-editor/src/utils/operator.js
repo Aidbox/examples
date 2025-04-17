@@ -20,6 +20,33 @@ import {
   TypeType,
 } from "./type";
 
+export const precedence = {
+  "*": [10, "left"],
+  "/": [10, "left"],
+  div: [10, "left"],
+  mod: [10, "left"],
+  "+": [9, "left"],
+  "-": [9, "left"],
+  "&": [9, "left"],
+  is: [8, "left"],
+  as: [8, "left"],
+  "|": [7, "left"],
+  ">": [6, "left"],
+  "<": [6, "left"],
+  ">=": [6, "left"],
+  "<=": [6, "left"],
+  "=": [5, "left"],
+  "!=": [5, "left"],
+  "~": [5, "left"],
+  "!~": [5, "left"],
+  in: [4, "left"],
+  contains: [4, "left"],
+  and: [3, "left"],
+  xor: [2, "left"],
+  or: [2, "left"],
+  implies: [1, "right"],
+};
+
 // Helper to define individual overload
 const op = (name, left, right, returnType) => ({
   name: name,
@@ -413,7 +440,7 @@ export function suggestRightTypesForOperator(name, leftType) {
     suggestions.push(resolvedRight);
   }
 
-  return suggestions;
+  return normalizeChoice(ChoiceType(suggestions));
 }
 
 export const operatorGroups = {

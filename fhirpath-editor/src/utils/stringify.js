@@ -98,17 +98,17 @@ const stringifyOperatorToken = (token) => {
 
 const stringifyVariableToken = (token) => `%${token.value}`;
 
-const stringifyFieldToken = (token, index) =>
-  `${index === 0 ? "" : "."}${token.value}`;
+const stringifyFieldToken = (token, first) =>
+  `${first ? "" : "."}${token.value}`;
 
-const stringifyAnswerToken = (token, index) =>
-  `${index === 0 ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
+const stringifyAnswerToken = (token, first) =>
+  `${first ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
 
-const stringifyFunctionToken = (token, index) => {
+const stringifyFunctionToken = (token, first) => {
   const args = token.args
     ? token.args.map((arg) => stringifyProgram(arg)).join(", ")
     : "";
-  return `${index === 0 ? "" : "."}${token.value}(${args})`;
+  return `${first ? "" : "."}${token.value}(${args})`;
 };
 
 const tokenStringifiers = {
@@ -129,12 +129,19 @@ const tokenStringifiers = {
 };
 
 export const stringifyExpression = (expression) => {
-  return expression
-    .map((token, index) => {
-      const stringifier = tokenStringifiers[token.type];
-      return stringifier ? stringifier(token, index) : "";
-    })
-    .join("");
+  let result = "";
+
+  for (let i = 0; i < expression.length; i++) {
+    const token = expression[i];
+    const stringifier = tokenStringifiers[token.type];
+    if (stringifier) {
+      result += stringifier(
+        token,
+        i === 0 || expression[i - 1].type === "operator",
+      );
+    }
+  }
+  return result.trim();
 };
 
 export const stringifyBinding = (binding) => {

@@ -56,13 +56,13 @@ function Editor({ className = "", title }) {
       </div>
 
       <div
-        className={`font-medium text-gray-600 flex items-center gap-2 py-2 ${debug ? "col-span-6" : "col-span-5"}`}
+        className={`font-medium text-gray-600 flex items-center gap-2 py-2 ${debug ? "col-span-5" : "col-span-4"}`}
       >
         {title || "Main Expression"}
       </div>
 
       {debug && (
-        <div className="font-bold text-purple-600 truncate text-sm self-center">
+        <div className="text-purple-600 truncate text-sm self-center">
           <span>{stringifyType(contextType)}</span>
         </div>
       )}

@@ -1,5 +1,4 @@
 import React, { Fragment } from "react";
-import { getFields } from "@utils/fhir";
 import { useProgramContext } from "@utils/store.js";
 import { mergeRefs, useDebug } from "@utils/react.js";
 import { Shapes } from "@phosphor-icons/react";
@@ -9,30 +8,26 @@ import Dropdown from "@components/Dropdown.jsx";
 
 const FieldToken = React.forwardRef(
   ({ bindingId, tokenIndex }, forwardedRef) => {
-    const { token, updateToken, getFhirSchema } = useProgramContext(
-      (state) => ({
+    const { token, isLeadingToken, updateToken, suggestTokensAt } =
+      useProgramContext((state) => ({
         token: state.getToken(bindingId, tokenIndex),
+        isLeadingToken: state.isLeadingToken,
         updateToken: state.updateToken,
-        getFhirSchema: state.getFhirSchema,
-      }),
-    );
+        suggestTokensAt: state.suggestTokensAt,
+      }));
 
-    const precedingExpressionType = useProgramContext((state) =>
-      state.getBindingExpressionType(bindingId, tokenIndex),
-    );
-
-    const fields = getFields(precedingExpressionType, getFhirSchema());
+    const tokens = suggestTokensAt(bindingId, tokenIndex);
     const debug = useDebug();
 
     return (
       <Dropdown
-        items={Object.keys(fields)}
-        searchFn={(name, term) =>
-          name.toLowerCase().includes(term.toLowerCase())
+        items={tokens}
+        searchFn={(token, term) =>
+          token.value.toLowerCase().includes(term.toLowerCase())
         }
-        keyFn={(name) => name}
-        onClick={(name) => {
-          updateToken(bindingId, tokenIndex, { value: name });
+        keyFn={(token) => token.value}
+        onClick={(token) => {
+          updateToken(bindingId, tokenIndex, { value: token.value });
         }}
         renderReference={(mergeProps, ref) => (
           <button
@@ -41,17 +36,17 @@ const FieldToken = React.forwardRef(
               className: `cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600`,
             })}
           >
-            {tokenIndex > 0 ? "." : ""}
+            {isLeadingToken ? "" : "."}
             {token.value}
           </button>
         )}
-        renderItem={(name) => (
+        renderItem={(token) => (
           <>
             <Shapes size={16} className="text-gray-500 flex-shrink-0" />
-            <span className="truncate">{name}</span>
+            <span className="truncate">{token.value}</span>
             {debug && (
               <span className="text-sm text-gray-500 truncate flex-1 text-right">
-                {stringifyType(fields[name])}
+                {stringifyType(token.debug)}
               </span>
             )}
           </>

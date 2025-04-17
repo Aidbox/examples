@@ -62,18 +62,18 @@ const Cursor = forwardRef(
       empty,
       addToken,
       addBinding,
-      suggestNextToken,
+      suggestNextTokens,
       getQuestionnaireItems,
     } = useProgramContext((state) => ({
       bindingIndex: state.bindingsIndex[bindingId],
       empty: !state.getBindingExpression(bindingId).length,
       addToken: state.addToken,
       addBinding: state.addBinding,
-      suggestNextToken: state.suggestNextToken,
+      suggestNextTokens: state.suggestNextTokens,
       getQuestionnaireItems: state.getQuestionnaireItems,
     }));
 
-    const nextTokens = suggestNextToken(bindingId);
+    const nextTokens = suggestNextTokens(bindingId);
     const items = getQuestionnaireItems();
 
     const containerRef = useRef(null);
@@ -327,18 +327,20 @@ const Cursor = forwardRef(
             >
               {Object.entries(groupedTokens).map(([group, tokens]) => (
                 <Fragment key={group}>
-                  <div className="text-sm font-semibold text-gray-500 px-3 py-3 pb-1 truncate sticky top-0 bg-white">
+                  <div className="text-sm font-semibold text-gray-500 px-3 py-3 pb-1 truncate sticky top-0 bg-white z-10">
                     {group}
                   </div>
                   {tokens.map((token) => (
                     <button
+                      tabIndex="-1"
+                      ref={(node) => {
+                        listRef.current[token.index] = node;
+                      }}
+                      className="w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_auto] items-center gap-2 cursor-pointer data-[active]:bg-gray-100 data-[incompatible]:opacity-50"
+                      data-active={token.index === activeIndex ? "" : undefined}
+                      data-incompatible={token.incompatible || undefined}
                       key={token.type + (token.value || "")}
                       {...getItemProps({
-                        className: `w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_auto] items-center gap-2 cursor-pointer ${
-                          token.index === activeIndex ? "bg-gray-100" : ""
-                        }`,
-                        tabIndex: "-1",
-                        ref: (node) => (listRef.current[token.index] = node),
                         onClick: () => {
                           inputRef.current?.focus();
                           handleAddToken(token);
@@ -389,12 +391,6 @@ const Cursor = forwardRef(
                           weight="fill"
                           className="text-yellow-500"
                         />
-                      ) : token.type === "answer" ? (
-                        items[token.value] && (
-                          <div className="text-sm text-gray-500 truncate flex-1 text-right">
-                            {token.value}
-                          </div>
-                        )
                       ) : debug && token.debug ? (
                         <span className="text-sm text-gray-500 truncate flex-1 text-right">
                           {token.debug}

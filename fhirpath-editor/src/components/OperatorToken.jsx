@@ -1,53 +1,40 @@
 import React, { Fragment } from "react";
 
 import { useProgramContext } from "@utils/store.js";
-import {
-  operatorGroups,
-  operatorMetadata,
-  operatorNames,
-  suggestOperatorsForLeftType,
-} from "@utils/operator.js";
-import { distinct } from "@utils/misc.js";
+import { operatorGroups, operatorNames } from "@utils/operator.js";
 import OperatorIcon from "@components/OperatorIcon.jsx";
 import Dropdown from "@components/Dropdown.jsx";
 import { mergeRefs } from "@utils/react.js";
 
 const OperatorToken = React.forwardRef(
   ({ bindingId, tokenIndex }, forwardedRef) => {
-    const { token, updateToken } = useProgramContext((state) => ({
-      token: state.getToken(bindingId, tokenIndex),
-      updateToken: state.updateToken,
-    }));
-
-    // const precedingExpressionType = useProgramContext((state) =>
-    //   state.getBindingExpressionType(bindingId, tokenIndex),
-    // );
-    //
-    // const compatibleOperators = distinct(
-    //   suggestOperatorsForLeftType(precedingExpressionType).map(
-    //     (meta) => meta.name,
-    //   ),
-    // );
-
-    const compatibleOperators = distinct(
-      operatorMetadata.map((meta) => meta.name),
+    const { token, updateToken, suggestTokensAt } = useProgramContext(
+      (state) => ({
+        token: state.getToken(bindingId, tokenIndex),
+        updateToken: state.updateToken,
+        suggestTokensAt: state.suggestTokensAt,
+      }),
     );
+
+    const tokens = suggestTokensAt(bindingId, tokenIndex);
 
     return (
       <Dropdown
-        items={compatibleOperators}
-        searchFn={(operator, term) =>
-          operatorNames[operator].toLowerCase().includes(term.toLowerCase()) ||
-          operator.toLowerCase().includes(term.toLowerCase())
+        items={tokens}
+        searchFn={(token, term) =>
+          operatorNames[token.value]
+            .toLowerCase()
+            .includes(term.toLowerCase()) ||
+          token.value.toLowerCase().includes(term.toLowerCase())
         }
-        groupFn={(operator) =>
+        groupFn={(token) =>
           Object.keys(operatorGroups).find((groupName) =>
-            operatorGroups[groupName].includes(operator),
+            operatorGroups[groupName].includes(token.value),
           )
         }
-        keyFn={(operator) => operator}
-        onClick={(operator) =>
-          updateToken(bindingId, tokenIndex, { value: operator })
+        keyFn={(token) => token.value}
+        onClick={(token) =>
+          updateToken(bindingId, tokenIndex, { value: token.value })
         }
         renderReference={(mergeProps, ref) => (
           <button
@@ -60,10 +47,10 @@ const OperatorToken = React.forwardRef(
             <OperatorIcon name={token.value} compact={false} />
           </button>
         )}
-        renderItem={(operator) => (
+        renderItem={(token) => (
           <>
-            <OperatorIcon name={operator} />
-            <span>{operatorNames[operator]}</span>
+            <OperatorIcon name={token.value} />
+            <span>{operatorNames[token.value]}</span>
           </>
         )}
       />

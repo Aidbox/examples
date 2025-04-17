@@ -92,8 +92,9 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const listRef = useRef([]);
   const arrowRef = useRef(null);
 
-  const { token, updateToken } = useProgramContext((state) => ({
+  const { token, isLeadingToken, updateToken } = useProgramContext((state) => ({
     token: state.getToken(bindingId, tokenIndex),
+    isLeadingToken: state.isLeadingToken,
     updateToken: state.updateToken,
   }));
 
@@ -211,7 +212,7 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
         data-open={isOpen || undefined}
         className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 flex items-center"
       >
-        {tokenIndex > 0 ? "." : ""}
+        {isLeadingToken ? "" : "."}
         {token.value}
         <BracketsRound
           size={16}

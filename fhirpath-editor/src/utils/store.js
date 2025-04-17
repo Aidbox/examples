@@ -3,10 +3,10 @@ import { createStore, useStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
   evaluateExpression,
-  findCompatibleBindings,
   generateBindingId,
   getExpressionType,
-  suggestNextToken,
+  suggestNextTokens,
+  suggestTokensAt,
 } from "@utils/expression.js";
 import { delay } from "@utils/misc.js";
 import { useShallow } from "zustand/react/shallow";
@@ -154,8 +154,8 @@ export const createProgramStore = (
         }
       },
 
-      suggestNextToken: (id) =>
-        suggestNextToken(
+      suggestNextTokens: (id) =>
+        suggestNextTokens(
           get().getBindingExpression(id),
           get().getQuestionnaireItems(),
           get().getPrecedingBindings(id),
@@ -163,18 +163,15 @@ export const createProgramStore = (
           fhirSchema,
         ),
 
-      getCompatibleBindings: (id, upToIndex) => {
-        let expression = get().getBindingExpression(id) || [];
-        expression = expression.slice(0, upToIndex);
-
-        return findCompatibleBindings(
-          expression,
+      suggestTokensAt: (id, index) =>
+        suggestTokensAt(
+          index,
+          get().getBindingExpression(id),
           get().getQuestionnaireItems(),
           get().getPrecedingBindings(id),
           contextType,
           fhirSchema,
-        );
-      },
+        ),
 
       isBindingNameUnique: (name, excludeId) =>
         !get()
@@ -187,6 +184,15 @@ export const createProgramStore = (
             ? get().program.expression
             : get().program.bindings[get().bindingsIndex[id]].expression;
         return expression[index];
+      },
+
+      isLeadingToken: (id, index) => {
+        if (index === 0) return true;
+        const expression =
+          id == null
+            ? get().program.expression
+            : get().program.bindings[get().bindingsIndex[id]].expression;
+        return expression[index - 1].type === "operator";
       },
 
       updateToken: (id, index, token) =>
