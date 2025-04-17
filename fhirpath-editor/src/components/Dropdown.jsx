@@ -116,7 +116,7 @@ const Dropdown = ({
   };
 
   const optionClass =
-    "focus:outline-none w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer last:rounded-b data-[active]:bg-gray-100";
+    "focus:outline-none w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_auto] items-center gap-2 cursor-pointer last:rounded-b data-[active]:bg-gray-100";
 
   return (
     <>
@@ -136,7 +136,7 @@ const Dropdown = ({
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="bg-white rounded-md shadow-lg min-w-60 max-w-72 empty:hidden overflow-y-auto relative"
+            className="bg-white rounded-md shadow-lg min-w-72 max-w-92 empty:hidden overflow-y-auto relative"
             {...getFloatingProps()}
           >
             {searchFn && (

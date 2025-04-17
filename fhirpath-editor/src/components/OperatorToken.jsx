@@ -54,7 +54,7 @@ const OperatorToken = React.forwardRef(
             ref={mergeRefs(forwardedRef, ref)}
             {...mergeProps({
               className:
-                "cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-blue-50 border border-slate-300 text-blue-800",
+                "cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-blue-50 border border-slate-300 text-blue-800 min-w-8 flex items-center justify-center",
             })}
           >
             <OperatorIcon name={token.value} compact={false} />

@@ -6,6 +6,7 @@ import {
   GreaterThanOrEqual,
   LessThan,
   LessThanOrEqual,
+  LineVertical,
   Minus,
   NotEquals,
   Plus,
@@ -24,6 +25,7 @@ const operatorIcons = {
   "<=": LessThanOrEqual,
   ">": GreaterThan,
   ">=": GreaterThanOrEqual,
+  "|": LineVertical,
 };
 
 const OperatorIcon = ({ name, compact = true }) => (
