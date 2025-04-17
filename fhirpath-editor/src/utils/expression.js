@@ -1,4 +1,5 @@
 import {
+  operatorMetadata,
   resolveOperator,
   suggestOperatorsForLeftType,
   suggestRightTypesForOperator,
@@ -335,22 +336,23 @@ export const findCompatibleBindings = (
     );
 
     if (leftType.type === InvalidType.type) return [];
-    const rightTypes = suggestRightTypesForOperator(operator.value, leftType);
+    // const rightTypes = suggestRightTypesForOperator(operator.value, leftType);
+    return bindings;
 
-    return bindings.filter((binding) => {
-      const bindingType =
-        binding.type ||
-        getExpressionType(
-          binding.expression,
-          questionnaireItems,
-          bindings,
-          contextType,
-          fhirSchema,
-        );
-      return rightTypes.some((rightType) =>
-        matchTypePattern(rightType, bindingType),
-      );
-    });
+    // return bindings.filter((binding) => {
+    //   const bindingType =
+    //     binding.type ||
+    //     getExpressionType(
+    //       binding.expression,
+    //       questionnaireItems,
+    //       bindings,
+    //       contextType,
+    //       fhirSchema,
+    //     );
+    //   return rightTypes.some((rightType) =>
+    //     matchTypePattern(rightType, bindingType),
+    //   );
+    // });
   }
 
   return bindings;
@@ -415,24 +417,25 @@ export const suggestNextToken = (
   }
 
   if (expression.length === 2 && expression[1].type === "operator") {
-    const operator = expression[1].value;
-
-    const leftType = getExpressionType(
-      [expression[0]],
-      questionnaireItems,
-      bindings,
-      contextType,
-      fhirSchema,
-    );
-    const rightTypes = suggestRightTypesForOperator(operator, leftType);
+    // const operator = expression[1].value;
+    //
+    // const leftType = getExpressionType(
+    //   [expression[0]],
+    //   questionnaireItems,
+    //   bindings,
+    //   contextType,
+    //   fhirSchema,
+    // );
+    // const rightTypes = suggestRightTypesForOperator(operator, leftType);
 
     result.push(
       ...distinct(
         Object.values(
-          pick(
-            typeName2tokenType,
-            rightTypes.map((type) => unwrapSingle(type).type),
-          ),
+          typeName2tokenType,
+          // pick(
+          //   typeName2tokenType,
+          //   rightTypes.map((type) => unwrapSingle(type).type),
+          // ),
         ),
       ).map((type) => ({ type })),
       ...findCompatibleBindings(
@@ -463,17 +466,18 @@ export const suggestNextToken = (
     expression[0].type !== "field" &&
     expression[0].type !== "function"
   ) {
-    const firstTokenType = getExpressionType(
-      [expression[0]],
-      questionnaireItems,
-      bindings,
-      contextType,
-      fhirSchema,
-    );
+    // const firstTokenType = getExpressionType(
+    //   [expression[0]],
+    //   questionnaireItems,
+    //   bindings,
+    //   contextType,
+    //   fhirSchema,
+    // );
 
     result.push(
       ...distinct(
-        suggestOperatorsForLeftType(firstTokenType).map((meta) => meta.name),
+        // suggestOperatorsForLeftType(firstTokenType).map((meta) => meta.name),
+        operatorMetadata.map((meta) => meta.name),
       ).map((name) => ({
         type: "operator",
         value: name,
@@ -502,7 +506,8 @@ export const suggestNextToken = (
         value: field,
         debug: stringifyType(type),
       })),
-      ...suggestFunctionsForInputType(type).map((meta) => ({
+      // ...suggestFunctionsForInputType(type).map((meta) => ({
+      ...functionMetadata.map((meta) => ({
         type: "function",
         value: meta.name,
       })),

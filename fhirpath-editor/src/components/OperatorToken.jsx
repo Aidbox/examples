@@ -3,6 +3,7 @@ import React, { Fragment } from "react";
 import { useProgramContext } from "@utils/store.js";
 import {
   operatorGroups,
+  operatorMetadata,
   operatorNames,
   suggestOperatorsForLeftType,
 } from "@utils/operator.js";
@@ -18,14 +19,18 @@ const OperatorToken = React.forwardRef(
       updateToken: state.updateToken,
     }));
 
-    const precedingExpressionType = useProgramContext((state) =>
-      state.getBindingExpressionType(bindingId, tokenIndex),
-    );
+    // const precedingExpressionType = useProgramContext((state) =>
+    //   state.getBindingExpressionType(bindingId, tokenIndex),
+    // );
+    //
+    // const compatibleOperators = distinct(
+    //   suggestOperatorsForLeftType(precedingExpressionType).map(
+    //     (meta) => meta.name,
+    //   ),
+    // );
 
     const compatibleOperators = distinct(
-      suggestOperatorsForLeftType(precedingExpressionType).map(
-        (meta) => meta.name,
-      ),
+      operatorMetadata.map((meta) => meta.name),
     );
 
     return (
