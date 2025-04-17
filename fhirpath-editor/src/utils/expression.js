@@ -74,40 +74,6 @@ export const findReferencedBindings = (binding) => {
     .map((token) => token.value);
 };
 
-// Check if a binding can be moved to a target position
-export const canMoveBinding = (bindings, sourceIndex, targetIndex) => {
-  if (sourceIndex === targetIndex) return true;
-
-  const binding = bindings[sourceIndex];
-
-  // Moving up
-  if (targetIndex < sourceIndex) {
-    const referencedBindings = findReferencedBindings(binding);
-
-    for (let i = targetIndex; i < sourceIndex; i++) {
-      if (referencedBindings.includes(bindings[i].name)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  // Moving down
-  if (targetIndex > sourceIndex) {
-    const bindingName = binding.name;
-
-    for (let i = sourceIndex + 1; i <= targetIndex; i++) {
-      const referencingBindings = findReferencedBindings(bindings[i]);
-      if (referencingBindings.includes(bindingName)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  return true;
-};
-
 export const generateBindingId = () =>
   `binding-${Math.random().toString(36).substring(2, 9)}`;
 

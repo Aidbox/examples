@@ -13,7 +13,7 @@ const BooleanToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   return (
     <label
       ref={ref}
-      className="focus-within:bg-gray-100 focus-within:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded text-green-800 appearance-none flex items-center gap-1 select-none cursor-pointer"
+      className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 flex items-center gap-1 select-none"
     >
       <input
         type="checkbox"
@@ -25,11 +25,7 @@ const BooleanToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
           })
         }
       />
-      {isChecked ? (
-        <CheckSquare size={18} weight="bold" className="text-green-800" />
-      ) : (
-        <Square size={18} weight="regular" className="text-gray-400" />
-      )}
+      {isChecked ? <CheckSquare size={18} /> : <Square size={18} />}
       {token.value}
     </label>
   );

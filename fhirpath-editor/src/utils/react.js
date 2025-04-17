@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 export const useFlashState = (initialValue, delay = 300) => {
   const [value, setValue] = React.useState(initialValue);
@@ -175,24 +175,25 @@ export function useLocalStorageState(key, initialValue) {
 
   // Return a wrapped version of useState's setter function that
   // persists the new value to localStorage.
-  const setValue = (value) => {
-    try {
-      // Allow value to be a function so we have same API as useState
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
+  const setValue = useCallback(
+    (value) => {
+      try {
+        setStoredValue((storedValue) => {
+          const valueToStore =
+            value instanceof Function ? value(storedValue) : value;
 
-      // Save state
-      setStoredValue(valueToStore);
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          }
 
-      // Save to local storage
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          return valueToStore;
+        });
+      } catch (error) {
+        console.error(`Error setting localStorage key "${key}":`, error);
       }
-    } catch (error) {
-      // A more advanced implementation would handle the error case
-      console.error(`Error setting localStorage key "${key}":`, error);
-    }
-  };
+    },
+    [key],
+  );
 
   return [storedValue, setValue];
 }

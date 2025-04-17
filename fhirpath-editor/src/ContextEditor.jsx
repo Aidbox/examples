@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { SingleType } from "@utils/type.js";
 import { FhirType } from "@utils/fhir";
 import { Plus, X } from "@phosphor-icons/react";
@@ -63,19 +63,29 @@ export default function ContextEditor({
     setActiveTabId(newBinding.id);
   };
 
-  const updateBindingValue = (id, newValue) => {
-    setExternalBindings(
-      externalBindings.map((binding) =>
-        binding.id === id
-          ? { ...binding, value: newValue, type: detectFhirType(newValue) }
-          : binding,
-      ),
-    );
-  };
+  const updateBindingValue = useCallback(
+    (id, newValue) => {
+      setExternalBindings((externalBindings) =>
+        externalBindings.map((binding) =>
+          binding.id === id
+            ? { ...binding, value: newValue, type: detectFhirType(newValue) }
+            : binding,
+        ),
+      );
+    },
+    [setExternalBindings],
+  );
 
-  const updateContextValue = (newValue) => {
-    setContext({ ...context, value: newValue, type: detectFhirType(newValue) });
-  };
+  const updateContextValue = useCallback(
+    (newValue) => {
+      setContext({
+        ...context,
+        value: newValue,
+        type: detectFhirType(newValue),
+      });
+    },
+    [context, setContext],
+  );
 
   const updateBindingName = (id, newName) => {
     if (externalBindings.some((b) => b.id !== id && b.name === newName)) {
@@ -98,11 +108,22 @@ export default function ContextEditor({
       ? externalBindings.find((b) => b.id === activeTabId)
       : undefined;
 
+  const onChange = useCallback(
+    (newValue) => {
+      if (activeBinding != null) {
+        updateBindingValue(activeBinding.id, newValue);
+      } else {
+        updateContextValue(newValue);
+      }
+    },
+    [activeBinding, updateBindingValue, updateContextValue],
+  );
+
   return (
     <div className="flex flex-col overflow-hidden flex-1">
       <div className="flex border-b border-gray-200">
         <div
-          className={`text-xs cursor-pointer flex items-center border-t border-r border-gray-200 ${
+          className={`text-sm cursor-pointer flex items-center border-t border-r border-gray-200 ${
             null === activeTabId ? "bg-gray-100" : "hover:bg-gray-50"
           }`}
           onClick={() => setActiveTabId(null)}
@@ -113,7 +134,7 @@ export default function ContextEditor({
         {externalBindings.map((binding) => (
           <div
             key={binding.id}
-            className={`text-xs cursor-pointer flex items-center border-t border-r border-gray-200 ${
+            className={`text-sm cursor-pointer flex items-center border-t border-r border-gray-200 ${
               binding.id === activeTabId ? "bg-gray-100" : "hover:bg-gray-50"
             }`}
             onClick={() => setActiveTabId(binding.id)}
@@ -175,13 +196,7 @@ export default function ContextEditor({
       <JsonEditor
         key={activeBinding?.id || "context"}
         value={activeBinding?.value || context.value}
-        onChange={(newValue) => {
-          if (activeBinding != null) {
-            updateBindingValue(activeBinding.id, newValue);
-          } else {
-            updateContextValue(newValue);
-          }
-        }}
+        onChange={onChange}
       />
     </div>
   );

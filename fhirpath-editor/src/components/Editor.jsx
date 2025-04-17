@@ -21,11 +21,13 @@ function Editor({ className = "", title }) {
   const contextType = useProgramContext((state) => state.getContextType());
 
   return (
-    <div className={`flex flex-col gap-2 w-fit ${className}`}>
-      <div className="font-medium text-gray-600 text-sm flex items-center gap-2">
+    <div
+      className={`grid grid-cols-[min-content_min-content_min-content_auto_auto] gap-x-1 w-full ${className}`}
+    >
+      <div className="col-span-5 font-medium text-gray-600 flex items-center gap-2 py-2">
         Named Expressions
         <button
-          className="cursor-pointer rounded-full p-0.5 border hover:text-blue-500 active:text-white active:bg-blue-500 active:border-blue-500"
+          className="cursor-pointer rounded-full p-0.5 border"
           onClick={() => addBinding({ name: "var1" })}
           aria-label="add binding"
         >
@@ -33,37 +35,31 @@ function Editor({ className = "", title }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-[auto_auto_1fr] gap-2 w-fit pl-6">
-        {bindingIds.map((bindingId) => (
-          <>
-            <div className="grid grid-cols-subgrid col-span-4 relative items-center">
-              <BindingMenu bindingId={bindingId} />
-              <Binding bindingId={bindingId} />
-            </div>
-          </>
-        ))}
-        {!bindingIds.length && (
-          <div className="text-gray-500 text-sm border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2">
-            Press the + button to add a named expression.
+      {bindingIds.map((bindingId) => (
+        <Binding
+          key={bindingId}
+          ref={(ref) => setBindingRef(bindingId, ref)}
+          bindingId={bindingId}
+        />
+      ))}
+
+      {!bindingIds.length && (
+        <div className="col-span-5 text-gray-500 border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2">
+          Press the + button to add a named expression.
+        </div>
+      )}
+
+      <div className="col-span-5 font-medium text-gray-600 flex items-center gap-2 py-2">
+        {title || "Main Expression"}
+
+        {debug && (
+          <div className="font-normal text-purple-600 truncate text-sm ml-auto">
+            <span>Context type: {stringifyType(contextType)}</span>
           </div>
         )}
       </div>
 
-      <div className="font-medium text-gray-600 text-sm">
-        {title || "Main Expression"}
-      </div>
-      <div className=" pl-6">
-        <div className="relative flex flex-row gap-2 items-center">
-          <BindingMenu bindingId={null} />
-          <Binding ref={(ref) => setBindingRef(null, ref)} bindingId={null} />
-        </div>
-      </div>
-
-      {debug && (
-        <div className="text-gray-500 flex flex-col gap-1 text-xs whitespace-nowrap">
-          <span>Context type: {stringifyType(contextType)}</span>
-        </div>
-      )}
+      <Binding ref={(ref) => setBindingRef(null, ref)} bindingId={null} />
     </div>
   );
 }

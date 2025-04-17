@@ -12,6 +12,7 @@ import QuantityToken from "./QuantityToken.jsx";
 import TypeToken from "./TypeToken.jsx";
 import IndexToken from "./IndexToken.jsx";
 import FunctionToken from "./FunctionToken.jsx";
+import { X } from "@phosphor-icons/react";
 
 const getTokenComponent = (type) => {
   switch (type) {
@@ -54,7 +55,7 @@ const Token = React.forwardRef(({ type, deleting, ...props }, ref) => {
       data-token-index={props.tokenIndex}
       className={`flex items-stretch ${
         deleting
-          ? "bg-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
+          ? "bg-red-500 group **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none **:!bg-transparent rounded"
           : ""
       }`}
     >

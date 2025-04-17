@@ -87,7 +87,7 @@ const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
 const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [selectingName, setSelectingName] = useState(false);
+  const [_selectingName, setSelectingName] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null);
 
   const listRef = useRef([]);
@@ -105,6 +105,8 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   const meta = token.value
     ? functionMetadata.find((f) => f.name === token.value)
     : null;
+
+  const selectingName = _selectingName || !meta?.args.length;
 
   const [selectedArgIndex, setSelectedArgIndex] = useState(
     meta?.args.length &&
@@ -166,7 +168,6 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
     [click, dismiss, role, listNav],
   );
 
-  const invalid = false;
   const mergedRefs = useMergeRefs([ref, refs.setReference]);
 
   const filteredFunctions = functionMetadata.filter(
@@ -187,16 +188,16 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   }, {});
 
   function handleSelectName(name) {
+    const meta = functionMetadata.find((f) => f.name === name);
     setSearch("");
     setSelectingName(false);
-    const meta = functionMetadata.find((f) => f.name === name);
-    setSelectedArgIndex(
-      meta?.args.length &&
-        !meta.args[0].optional &&
-        !isEmptyProgram(token.args[0])
-        ? 0
-        : null,
-    );
+    if (meta?.args.length) {
+      setSelectedArgIndex(
+        !meta.args[0].optional && !isEmptyProgram(token.args[0]) ? 0 : null,
+      );
+    } else {
+      setIsOpen(false);
+    }
     updateToken(bindingId, tokenIndex, {
       value: name,
       args: [],
@@ -209,17 +210,11 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
         ref={mergedRefs}
         {...getReferenceProps()}
         data-open={isOpen || undefined}
-        className={`cursor-pointer flex items-center focus:bg-gray-100 focus:outline-none data-[open]:bg-gray-100 data-[open]:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded field-sizing-content text-blue-800 ${
-          invalid ? "text-red-600" : ""
-        }`}
+        className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 flex items-center"
       >
         {tokenIndex > 0 ? "." : ""}
         {token.value}
-        <BracketsRound
-          size={16}
-          className="mt-[0.0825rem] ml-0.5 text-gray-400"
-          weight="bold"
-        />
+        <BracketsRound size={16} className="mt-[0.0825rem] ml-0.5" />
       </button>
       {isOpen && (
         <FloatingPortal>
@@ -227,7 +222,7 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className="rounded-md shadow-xl min-w-72 flex flex-col bg-gray-50 overflow-hidden"
+            className="bg-gray-50 rounded-md shadow-lg min-w-72 flex flex-col overflow-hidden"
             {...getFloatingProps()}
           >
             <FloatingArrow ref={arrowRef} context={context} fill="red" />
@@ -237,7 +232,7 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full px-2 py-1.5 focus:outline-none text-sm"
+                  className="w-full px-2 py-1 focus:outline-none"
                   placeholder="Search..."
                   autoFocus
                   onKeyDown={(e) => {
@@ -250,23 +245,21 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
               ) : (
                 <>
                   <button
-                    className="flex items-center justify-between gap-1 cursor-pointer hover:bg-gray-100 active:bg-gray-200 rounded px-2 py-1 flex-1"
+                    className="flex items-center justify-between gap-1 cursor-pointer rounded px-2 py-1 flex-1"
                     onClick={() => setSelectingName(true)}
                   >
                     {meta.name} <CaretDown />
                   </button>
 
                   {meta.args.length > 0 && (
-                    <span className="text-xs text-gray-500 mt-0.5">
-                      Arguments
-                    </span>
+                    <span className="text-gray-500 mt-0.5">Arguments</span>
                   )}
 
                   <div className="empty:hidden flex gap-[1px]">
                     {meta.args.map((arg, argIndex) => (
                       <button
                         key={argIndex}
-                        className="relative cursor-pointer box-border hover:bg-gray-100 active:bg-gray-200 first:rounded-l last:rounded-r px-2 py-1 data-[selected]:bg-gray-200 outline data-[optional]:outline-dashed outline-gray-300"
+                        className="relative cursor-pointer box-border first:rounded-l last:rounded-r px-2 py-1 data-[selected]:bg-gray-200 outline data-[optional]:outline-dashed outline-gray-300"
                         data-selected={
                           argIndex === selectedArgIndex || undefined
                         }
@@ -314,14 +307,14 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                 (filteredFunctions.length > 0 ? (
                   Object.entries(groupedFunctions).map(([group, functions]) => (
                     <Fragment key={group}>
-                      <div className="text-xs font-semibold text-gray-500 px-3 py-3 pb-1">
+                      <div className="font-semibold text-gray-500 px-3 py-3 pb-1">
                         {group}
                       </div>
                       {functions.map(({ name, index }) => (
                         <button
                           key={name}
                           {...getItemProps({
-                            className: `text-sm focus:outline-none w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer active:bg-gray-200 last:rounded-b-md ${
+                            className: `focus:outline-none w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer last:rounded-b-md ${
                               activeIndex === index ? "bg-gray-100" : ""
                             }`,
                             tabIndex: activeIndex === index ? 0 : -1,
@@ -336,8 +329,8 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                     </Fragment>
                   ))
                 ) : (
-                  <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-3">
-                    <Empty size={16} /> No matching functions found
+                  <div className="text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-3">
+                    <Empty size={16} /> Nothing found
                   </div>
                 ))}
             </div>

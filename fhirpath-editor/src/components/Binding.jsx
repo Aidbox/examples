@@ -7,9 +7,9 @@ import { Equals } from "@phosphor-icons/react";
 import { useProgramContext } from "@utils/store.js";
 import { delay } from "@utils/misc.js";
 import EvalViewer from "./EvalViewer";
+import BindingMenu from "@components/BindingMenu.jsx";
 
-const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {
-  const [isHovered, setIsHovered] = React.useState(false);
+const Binding = forwardRef(({ bindingId }, forwardingRef) => {
   const cursorRef = React.useRef(null);
   const nameRef = React.useRef(null);
   const debug = useDebug();
@@ -68,119 +68,88 @@ const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {
   );
 
   return (
-    <>
+    <div className="grid grid-cols-subgrid col-span-5 items-center hover:bg-gray-50 py-1 pr-0.5 my-0.5 rounded">
+      <BindingMenu bindingId={bindingId} />
+
       {name != null && (
-        <label
-          className={`flex border border-gray-300 rounded-md px-2 py-1.5 items-center focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 ${nameAnimation}
+        <input
+          ref={nameRef}
+          className={`justify-self-start focus:outline-none field-sizing-content rounded px-1.5 py-0.5 bg-green-50 border border-slate-300 text-green-800 placeholder:text-green-100 ${nameAnimation}
           ${
             trimming && tokenTypes.length === 0
               ? "bg-red-500 border-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
               : ""
           }`}
           onAnimationEnd={() => setNameAnimation("")}
-        >
-          <input
-            ref={nameRef}
-            className="focus:outline-none field-sizing-content border border-transparent"
-            type="text"
-            placeholder="Name"
-            value={uncommitedName}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={commitName}
-            onKeyDown={(e) => e.key === "Enter" && commitName()}
-          />
-        </label>
+          type="text"
+          placeholder="Name"
+          value={uncommitedName}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={commitName}
+          onKeyDown={(e) => e.key === "Enter" && commitName()}
+        />
       )}
       {name != null && (
-        <span className="text-gray-400">
-          <Equals size={12} weight="bold" />
-        </span>
+        <Equals size={12} weight="bold" className="text-gray-400" />
       )}
       <div
-        className="flex items-center gap-2 data-[shadow]:saturate-0"
-        data-shadow={shadow || undefined}
-      >
-        <div
-          className={`flex flex-row border border-gray-300 rounded-md px-2 py-1 items-center focus-within:outline focus-within:outline-blue-500 focus-within:border-blue-500 h-10 ${expressionAnimation} data-[empty]:border-dashed data-[empty]:focus-within:border-solid data-[empty]:hover:border-solid data-[empty]:min-w-10`}
-          data-empty={tokenTypes.length === 0 || undefined}
-          onMouseMove={(e) => {
-            setIsHovered(
-              e.target === e.currentTarget ||
-                cursorRef.current?.contains(e.target),
-            );
-          }}
-          onMouseLeave={(e) => {
-            if (!e.target.contains(document.activeElement)) {
-              setIsHovered(false);
-            }
-          }}
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) {
-              e.preventDefault();
-              e.stopPropagation();
-              cursorRef.current?.focus();
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowLeft") {
-              if (!e.target.selectionStart) {
-                const index = parseInt(
-                  e.target.closest("[data-token-index]")?.dataset?.tokenIndex,
-                );
-                if (index > 0) {
-                  if (focusToken(bindingId, index - 1)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                } else if (cursorRef.current?.contains(e.target)) {
-                  focusToken(bindingId, tokenTypes.length - 1);
+        className={`flex items-center ${expressionAnimation} ${name == null ? "col-span-3" : ""}`}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") {
+            if (!e.target.selectionStart) {
+              const index = parseInt(
+                e.target.closest("[data-token-index]")?.dataset?.tokenIndex,
+              );
+              if (index > 0) {
+                if (focusToken(bindingId, index - 1)) {
                   e.preventDefault();
                   e.stopPropagation();
                 }
+              } else if (cursorRef.current?.contains(e.target)) {
+                focusToken(bindingId, tokenTypes.length - 1);
+                e.preventDefault();
+                e.stopPropagation();
               }
             }
-            if (e.key === "ArrowRight") {
-              if (
-                e.target.selectionEnd === undefined ||
-                e.target.selectionEnd === e.target.value.length
-              ) {
-                const index = parseInt(
-                  e.target.closest("[data-token-index]")?.dataset?.tokenIndex,
-                );
+          }
+          if (e.key === "ArrowRight") {
+            if (
+              e.target.selectionEnd === undefined ||
+              e.target.selectionEnd === e.target.value.length
+            ) {
+              const index = parseInt(
+                e.target.closest("[data-token-index]")?.dataset?.tokenIndex,
+              );
 
-                if (index < tokenTypes.length - 1) {
-                  if (focusToken(bindingId, index + 1)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                } else if (index === tokenTypes.length - 1) {
-                  cursorRef.current?.focus();
+              if (index < tokenTypes.length - 1) {
+                if (focusToken(bindingId, index + 1)) {
                   e.preventDefault();
                   e.stopPropagation();
                 }
+              } else if (index === tokenTypes.length - 1) {
+                cursorRef.current?.focus();
+                e.preventDefault();
+                e.stopPropagation();
               }
             }
-          }}
-          onFocus={() => setIsHovered(true)}
-          onBlur={() => setIsHovered(false)}
-          onAnimationEnd={() => setExpressionAnimation("")}
-        >
-          <div className="flex flex-row empty:hidden gap-[2px]">
-            {tokenTypes.map((type, tokenIndex) => (
-              <Token
-                key={tokenIndex}
-                ref={(ref) => setTokenRef(bindingId, tokenIndex, ref)}
-                type={type}
-                bindingId={bindingId}
-                tokenIndex={tokenIndex}
-                deleting={trimming && tokenIndex === tokenTypes.length - 1}
-              />
-            ))}
-          </div>
+          }
+        }}
+        onAnimationEnd={() => setExpressionAnimation("")}
+      >
+        <div className="flex gap-1 w-full">
+          {tokenTypes.map((type, tokenIndex) => (
+            <Token
+              key={tokenIndex}
+              ref={(ref) => setTokenRef(bindingId, tokenIndex, ref)}
+              type={type}
+              bindingId={bindingId}
+              tokenIndex={tokenIndex}
+              deleting={trimming && tokenIndex === tokenTypes.length - 1}
+            />
+          ))}
           <Cursor
             ref={cursorRef}
             bindingId={bindingId}
-            hovering={isHovered}
             placeholder="Write expression..."
             onBackspace={invokeTrim}
             onMistake={() => {
@@ -190,21 +159,20 @@ const Binding = forwardRef(({ bindingId, shadow }, forwardingRef) => {
             }}
           />
         </div>
-        <div className="flex gap-2">
-          {debug && !shadow && tokenTypes.length > 0 && (
-            <span
-              className="text-gray-500 inline-flex items-center gap-1 text-xs whitespace-nowrap"
-              title={type.error}
-            >
-              {stringifyType(type)}
-            </span>
-          )}
-          {!shadow && tokenTypes.length > 0 && (
-            <EvalViewer bindingId={bindingId} />
-          )}
-        </div>
       </div>
-    </>
+
+      <div className="flex items-center gap-2">
+        {tokenTypes.length > 0 && <EvalViewer bindingId={bindingId} />}
+        {debug && tokenTypes.length > 0 && (
+          <span
+            className="text-purple-600 truncate text-sm ml-auto"
+            title={type.error}
+          >
+            {stringifyType(type)}
+          </span>
+        )}
+      </div>
+    </div>
   );
 });
 

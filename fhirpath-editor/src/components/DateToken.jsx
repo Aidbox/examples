@@ -7,14 +7,11 @@ const DateToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
     updateToken: state.updateToken,
   }));
 
-  const empty = !token.value;
-
   return (
     <input
       ref={ref}
       data-testid="date-token"
-      className="focus:bg-gray-100 not-data-[empty]:focus:outline-none hover:outline hover:outline-gray-300 px-1 py-0.5 rounded w-[10ch] text-purple-800 tabular-nums data-empty:outline data-empty:not-hover:outline-dashed data-empty:outline-gray-300 placeholder:text-gray-400"
-      data-empty={empty || undefined}
+      className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 w-[10ch]"
       placeholder="YYYY-MM-DD"
       type="date"
       value={token.value}

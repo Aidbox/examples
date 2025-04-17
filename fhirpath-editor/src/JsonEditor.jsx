@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { EditorState } from "@codemirror/state";
 import { basicSetup } from "codemirror";
 import { json } from "@codemirror/lang-json";
@@ -9,12 +9,13 @@ export function JsonEditor({ value, onChange }) {
   const editorRef = React.useRef(null);
   const viewRef = React.useRef(null);
   const userEditRef = React.useRef(false);
+  const initialValue = useRef(JSON.stringify(value, null, 2));
 
   useEffect(() => {
     if (!editorRef.current) return;
 
     const startState = EditorState.create({
-      doc: JSON.stringify(value, null, 2),
+      doc: initialValue.current,
       extensions: [
         basicSetup,
         json(),
@@ -24,7 +25,9 @@ export function JsonEditor({ value, onChange }) {
             try {
               const jsonValue = JSON.parse(update.state.doc.toString());
               onChange(jsonValue);
-            } catch {}
+            } catch {
+              // Handle JSON parse error if needed
+            }
           }
         }),
         keymap.of([indentWithTab]),
@@ -44,7 +47,7 @@ export function JsonEditor({ value, onChange }) {
     return () => {
       viewRef.current.destroy();
     };
-  }, []);
+  }, [onChange]);
 
   useEffect(() => {
     if (!viewRef.current) return;
@@ -67,12 +70,12 @@ export function JsonEditor({ value, onChange }) {
         },
       });
     }
-  }, [value, viewRef.current]);
+  }, [value]);
 
   return (
     <div
       ref={editorRef}
-      className="w-full text-xs flex-1 overflow-auto h-full"
+      className="w-full text-sm flex-1 overflow-auto h-full"
     />
   );
 }

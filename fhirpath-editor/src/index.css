@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "animate.css";
 
+html {
+  font-size: 14px;
+}
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   appearance: none;

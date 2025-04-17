@@ -2,7 +2,6 @@ import { createContext, useContext } from "react";
 import { createStore, useStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
-  canMoveBinding,
   evaluateExpression,
   findCompatibleBindings,
   generateBindingId,
@@ -384,8 +383,10 @@ export const createProgramStore = (
           state.program.bindings.splice(index, 1);
           state.bindingsIndex = buildIndex(state.program.bindings);
           const prevIndex = Math.max(0, index - 1);
-          const focusId = state.program.bindings[prevIndex].id;
-          delay(get().focusBinding.bind(null, focusId));
+          const focusId = state.program.bindings[prevIndex]?.id;
+          if (focusId) {
+            delay(get().focusBinding.bind(null, focusId));
+          }
         }),
 
       renameBinding: (id, name) =>
@@ -395,6 +396,7 @@ export const createProgramStore = (
 
           if (
             changed &&
+            name.length &&
             !state.program.bindings.some((b) => b.name === name) &&
             !externalBindings.some((b) => b.name === name)
           ) {

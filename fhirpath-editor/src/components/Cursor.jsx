@@ -12,7 +12,6 @@ import {
 import {
   ArrowLineRight,
   ArrowRight,
-  Backspace,
   BracketsSquare,
   Calendar,
   Clock,
@@ -20,8 +19,9 @@ import {
   Flag,
   Function,
   Hash,
-  Info,
   Lightning,
+  Plus,
+  PlusCircle,
   PuzzlePiece,
   Quotes,
   Scales,
@@ -54,12 +54,12 @@ const labels = {
 };
 
 const Cursor = forwardRef(
-  ({ bindingId, hovering, placeholder, onBackspace, onMistake }, ref) => {
+  ({ bindingId, placeholder, onBackspace, onMistake }, ref) => {
     const precedingBindings = useProgramContext((state) =>
       state.getPrecedingBindings(bindingId),
     );
 
-    const { addToken, empty, suggestNextToken } = useProgramContext(
+    const { empty, addToken, suggestNextToken } = useProgramContext(
       (state) => ({
         empty: !state.getBindingExpression(bindingId).length,
         addToken: state.addToken,
@@ -205,11 +205,10 @@ const Cursor = forwardRef(
       }
     };
 
-    const visible = hovering || isOpen;
     const finished = nextTokens.length === 0;
 
     const { refs, floatingStyles, context } = useFloating({
-      placement: "right-start",
+      placement: "bottom-start",
       strategy: "absolute",
       whileElementsMounted: autoUpdate,
       open: isOpen,
@@ -243,37 +242,30 @@ const Cursor = forwardRef(
       useInteractions([listNav]);
 
     return (
-      <div
-        className="relative flex items-center"
+      <label
+        className={`relative flex items-center flex-1 cursor-pointer group/cursor`}
         ref={(ref) => {
           containerRef.current = ref;
-          refs.setReference(ref && ref.parentElement);
+          refs.setReference(ref);
         }}
       >
-        {(visible || (placeholder && empty)) && !search && !isOpen && (
+        {!isOpen && (
           <div
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
               inputRef.current?.focus();
             }}
-            className="flex items-center gap-2 text-gray-400 hover:text-blue-500 cursor-pointer min-w-6 justify-center"
+            className={`text-gray-600 cursor-pointer py-0.5 px-0.5 grid place-items-center rounded border border-gray-300 bg-white ${!empty ? "opacity-50 group-hover/cursor:opacity-100" : ""}`}
             data-icon={!placeholder || undefined}
           >
-            {placeholder && empty && (
-              <div className="text-sm">{placeholder}</div>
-            )}
-            {nextTokens.length > 0 ? (
-              <ArrowRight weight="bold" size={16} />
-            ) : (
-              <ArrowLineRight weight="bold" size={16} />
-            )}
+            <Plus size={12} />
           </div>
         )}
         <input
           autoComplete="off"
           ref={inputRef}
-          className="focus:outline-none field-sizing-content data-[visible]:min-w-5 indent-0.5 data-[visible]:ml-1"
+          className="focus:outline-none text-slate-600 w-0 data-[visible]:w-auto data-[visible]:field-sizing-content data-[visible]:min-w-5"
           data-visible={isOpen || undefined}
           type="text"
           value={search}
@@ -316,14 +308,14 @@ const Cursor = forwardRef(
             >
               {Object.entries(groupedTokens).map(([group, tokens]) => (
                 <Fragment key={group}>
-                  <div className="text-xs font-semibold text-gray-500 px-3 not-first:pt-3 pb-1 col-span-2">
+                  <div className="font-semibold text-gray-500 px-3 not-first:pt-3 pb-1 col-span-2">
                     {group}
                   </div>
                   {tokens.map((token) => (
                     <button
                       key={token.type + (token.value || "")}
                       {...getItemProps({
-                        className: `text-sm w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_auto] items-center gap-2 cursor-pointer active:bg-gray-200 ${
+                        className: `w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_auto] items-center gap-2 cursor-pointer ${
                           token.index === activeIndex ? "bg-gray-100" : ""
                         }`,
                         tabIndex: "-1",
@@ -375,7 +367,7 @@ const Cursor = forwardRef(
                           className="text-yellow-500"
                         />
                       ) : debug && token.debug ? (
-                        <span className="text-gray-500 text-xs whitespace-nowrap pl-2 truncate">
+                        <span className="text-gray-500 whitespace-nowrap pl-2 truncate">
                           {token.debug}
                         </span>
                       ) : null}
@@ -385,28 +377,14 @@ const Cursor = forwardRef(
               ))}
 
               {nextTokens.length > 0 && filteredTokens.length === 0 && (
-                <div className="text-xs text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-2 mt-1 first:mt-0">
+                <div className="text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-2 mt-1 first:mt-0">
                   <Empty size={16} /> No matching tokens found
-                </div>
-              )}
-
-              {search === "" && (
-                <div className="text-xs text-gray-500 flex flex-wrap items-center gap-1 pr-3 py-2 mt-1 first:mt-0 pl-8 relative">
-                  <Info size={16} className="shrink-0 absolute left-3 top-2" />{" "}
-                  Double press{" "}
-                  <Backspace
-                    size={16}
-                    weight="fill"
-                    className="text-gray-400 shrink-0"
-                  />{" "}
-                  <span>backspace to remove</span>{" "}
-                  {empty ? "the binding" : "the last token"}
                 </div>
               )}
             </div>
           </FloatingPortal>
         )}
-      </div>
+      </label>
     );
   },
 );

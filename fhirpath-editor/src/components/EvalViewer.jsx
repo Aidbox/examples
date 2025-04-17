@@ -23,14 +23,13 @@ function format(value) {
   if (value === null || value === undefined) {
     return (
       <>
-        <Empty size={14} weight="regular" className="mr-1" /> empty result
+        <Empty /> empty
       </>
     );
   } else if (value instanceof Error) {
     return (
       <>
-        <Warning size={14} weight="regular" className="mr-1" /> Evaluation
-        failed
+        <Warning /> error
       </>
     );
   } else if (Array.isArray(value)) {
@@ -38,7 +37,7 @@ function format(value) {
       `${value.slice(0, 3).map(format).join(", ")}${value.length > 3 ? ", ..." : ""}`
     ) : (
       <>
-        <Empty size={14} weight="regular" className="mr-1" /> empty result
+        <Empty /> empty
       </>
     );
   }
@@ -96,8 +95,8 @@ const EvalViewer = ({ bindingId }) => {
       <button
         ref={refs.setReference}
         {...getReferenceProps()}
-        className="flex items-center cursor-pointer rounded px-2 py-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200 data-[error]:text-red-500 data-[error]:hover:text-red-700 text-xs font-mono whitespace-nowrap group"
-        data-error={value instanceof Error || undefined}
+        className="cursor-pointer rounded px-1.5 py-0.5 text-gray-500 data-[error]:text-red-500 data-[error]:font-mono flex items-center gap-1 text-sm truncate"
+        // data-error={value instanceof Error || undefined}
       >
         {format(value)}
       </button>
@@ -109,7 +108,7 @@ const EvalViewer = ({ bindingId }) => {
             style={floatingStyles}
             aria-labelledby={headingId}
             {...getFloatingProps()}
-            className=""
+            className="max-w-96"
           >
             <FloatingArrow
               ref={arrowRef}
@@ -130,7 +129,7 @@ const EvalViewer = ({ bindingId }) => {
                 punctuation: "text-gray-400",
                 // noQuotesForStringValues: true,
                 label: "font-normal mr-2 text-gray-600",
-                stringValue: "text-orange-800",
+                stringValue: "text-orange-800 break-all",
                 collapsedContent:
                   "px-1 after:content-['...'] font-normal text-gray-600 font-sans",
               }}
