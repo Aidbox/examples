@@ -217,7 +217,11 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
       >
         {tokenIndex > 0 ? "." : ""}
         {token.value}
-        <BracketsRound size={16} className="mt-[0.0825rem] ml-0.5" />
+        <BracketsRound
+          size={16}
+          weight="bold"
+          className="mt-[0.0825rem] ml-0.5"
+        />
       </button>
       {isOpen && (
         <FloatingPortal>

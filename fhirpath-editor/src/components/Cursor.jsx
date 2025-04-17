@@ -51,15 +51,27 @@ const labels = {
   index: "Index",
 };
 
+function lookup(text, term) {
+  return text?.toLowerCase().includes(term.replace(".", "").toLowerCase());
+}
+
 const Cursor = forwardRef(
   ({ bindingId, placeholder, onBackspace, onMistake }, ref) => {
-    const { empty, addToken, suggestNextToken, getQuestionnaireItems } =
-      useProgramContext((state) => ({
-        empty: !state.getBindingExpression(bindingId).length,
-        addToken: state.addToken,
-        suggestNextToken: state.suggestNextToken,
-        getQuestionnaireItems: state.getQuestionnaireItems,
-      }));
+    const {
+      bindingIndex,
+      empty,
+      addToken,
+      addBinding,
+      suggestNextToken,
+      getQuestionnaireItems,
+    } = useProgramContext((state) => ({
+      bindingIndex: state.bindingsIndex[bindingId],
+      empty: !state.getBindingExpression(bindingId).length,
+      addToken: state.addToken,
+      addBinding: state.addBinding,
+      suggestNextToken: state.suggestNextToken,
+      getQuestionnaireItems: state.getQuestionnaireItems,
+    }));
 
     const nextTokens = suggestNextToken(bindingId);
     const items = getQuestionnaireItems();
@@ -84,14 +96,11 @@ const Cursor = forwardRef(
 
     const filteredTokens = nextTokens.filter((token) => {
       return (
-        token.value?.toLowerCase().includes(search.toLowerCase()) ||
-        token.type?.toLowerCase().includes(search.toLowerCase()) ||
+        lookup(token.value, search) ||
+        lookup(token.type, search) ||
         (token.type === "operator" &&
-          operatorNames[token.value]
-            ?.toLowerCase()
-            .includes(search.toLowerCase())) ||
-        (token.type === "answer" &&
-          items[token.value]?.text.toLowerCase().includes(search.toLowerCase()))
+          lookup(operatorNames[token.value], search)) ||
+        (token.type === "answer" && lookup(items[token.value]?.text, search))
       );
     });
 
@@ -114,7 +123,7 @@ const Cursor = forwardRef(
 
       const stringToken = nextTokens.find(({ type }) => type === "string");
       if (stringToken) {
-        if (search.match(/^["'].+/)) {
+        if (search.match(/^["']/)) {
           upsertToken({
             ...stringToken,
             value: search.substring(1),
@@ -189,7 +198,9 @@ const Cursor = forwardRef(
       switch (e.key) {
         case "Enter":
           e.preventDefault();
-          if (filteredTokens[activeIndex]) {
+          if (e.shiftKey) {
+            addBinding({ name: "var1" }, bindingIndex + 1);
+          } else if (filteredTokens[activeIndex]) {
             handleAddToken(filteredTokens[activeIndex]);
           }
           break;

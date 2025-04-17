@@ -18,8 +18,36 @@ export function App() {
   const [program, setProgram] = useLocalStorageState(
     "fhirpath-editor/program",
     {
-      bindings: [],
-      expression: [],
+      bindings: [
+        {
+          name: "var1",
+          expression: [
+            { type: "answer", value: "iGM-r-zT" },
+            { type: "field", value: "value" },
+          ],
+          id: generateBindingId(),
+        },
+        {
+          name: "var2",
+          expression: [
+            { type: "answer", value: "e_NKgvHO" },
+            { type: "field", value: "value" },
+            {
+              type: "function",
+              value: "power",
+              args: [
+                { bindings: [], expression: [{ type: "number", value: "2" }] },
+              ],
+            },
+          ],
+          id: generateBindingId(),
+        },
+      ],
+      expression: [
+        { type: "variable", value: "var1" },
+        { type: "operator", value: "/" },
+        { type: "variable", value: "var2" },
+      ],
     },
   );
 
