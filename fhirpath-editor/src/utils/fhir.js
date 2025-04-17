@@ -6,6 +6,7 @@ import {
   DecimalType,
   extendType,
   IntegerType,
+  QuantityType,
   SingleType,
   StringType,
   TimeType,
@@ -253,6 +254,10 @@ export function getFields(type, fhirSchema) {
   if (type && type.type === SingleType.type) {
     single = true;
     type = unwrapSingle(type);
+  }
+
+  if (type.type === QuantityType.type) {
+    type = FhirType(["Quantity"]);
   }
 
   if (type) {

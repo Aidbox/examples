@@ -11,8 +11,9 @@ import {
 import { delay } from "@utils/misc.js";
 import { useShallow } from "zustand/react/shallow";
 import { pick } from "./misc";
-import { StringType } from "@utils/type.js";
-import { indexFhirSchemas } from "@utils/fhir.js";
+import { matchTypePattern, StringType } from "@utils/type.js";
+import { FhirType, indexFhirSchemas } from "@utils/fhir.js";
+import { getItems } from "@utils/questionnaire.js";
 
 const emptyProgram = { bindings: [], expression: [] };
 
@@ -32,6 +33,12 @@ export const createProgramStore = (
     ? indexFhirSchemas(rawFhirSchema)
     : rawFhirSchema;
 
+  const questionnaireItems = externalBindings.reduce((acc, binding) => {
+    if (matchTypePattern(FhirType(["Questionnaire"]), binding.type))
+      Object.assign(acc, getItems(binding.value));
+    return acc;
+  }, {});
+
   return createStore(
     immer((set, get) => ({
       program: emptyProgram,
@@ -44,6 +51,8 @@ export const createProgramStore = (
       getContextType: () => contextType,
 
       getFhirSchema: () => fhirSchema,
+
+      getQuestionnaireItems: () => questionnaireItems,
 
       getBindingExpression: (id) =>
         id
@@ -58,6 +67,7 @@ export const createProgramStore = (
         return [...externalBindings, ...get().program.bindings.slice(0, index)];
       },
 
+      // todo: rename to getBindingType
       getBindingExpressionType: (id, upToIndex) => {
         let expression = get().getBindingExpression(id);
 
@@ -77,6 +87,7 @@ export const createProgramStore = (
 
         return getExpressionType(
           expression,
+          get().getQuestionnaireItems(),
           get().getPrecedingBindings(id),
           contextType,
           fhirSchema,
@@ -143,16 +154,14 @@ export const createProgramStore = (
         }
       },
 
-      suggestNextToken: (id) => {
-        const expression = get().getBindingExpression(id);
-        const precedingBindings = get().getPrecedingBindings(id);
-        return suggestNextToken(
-          expression,
-          precedingBindings,
+      suggestNextToken: (id) =>
+        suggestNextToken(
+          get().getBindingExpression(id),
+          get().getQuestionnaireItems(),
+          get().getPrecedingBindings(id),
           contextType,
           fhirSchema,
-        );
-      },
+        ),
 
       getCompatibleBindings: (id, upToIndex) => {
         let expression = get().getBindingExpression(id) || [];
@@ -160,6 +169,7 @@ export const createProgramStore = (
 
         return findCompatibleBindings(
           expression,
+          get().getQuestionnaireItems(),
           get().getPrecedingBindings(id),
           contextType,
           fhirSchema,

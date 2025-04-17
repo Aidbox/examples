@@ -201,9 +201,9 @@ export const functionMetadata = [
   ),
 
   // Section 5.3: Subsetting
-  fn("single", Generic("T"), [], ({ T }) => T),
-  fn("first", Generic("T"), [], ({ T }) => T),
-  fn("last", Generic("T"), [], ({ T }) => T),
+  fn("single", Generic("T"), [], ({ T }) => SingleType(T)),
+  fn("first", Generic("T"), [], ({ T }) => SingleType(T)),
+  fn("last", Generic("T"), [], ({ T }) => SingleType(T)),
   fn("tail", Generic("T"), [], ({ T }) => T),
   fn("skip", Generic("T"), [{ name: "num", type: IntegerType }], ({ T }) => T),
   fn("take", Generic("T"), [{ name: "num", type: IntegerType }], ({ T }) => T),
@@ -221,17 +221,14 @@ export const functionMetadata = [
   ),
 
   // Section 5.4: Combining
-  fn(
-    "union",
-    Generic("T"),
-    [{ name: "other", type: Generic("T") }],
-    ({ T }) => T,
+  fn("union", Generic("T"), [{ name: "other", type: Generic("T") }], ({ T }) =>
+    unwrapSingle(T),
   ),
   fn(
     "combine",
     Generic("T"),
     [{ name: "other", type: Generic("T") }],
-    ({ T }) => T,
+    ({ T }) => unwrapSingle(T),
   ),
 
   // Section 5.5: Conversion

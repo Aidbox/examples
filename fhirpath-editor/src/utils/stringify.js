@@ -101,6 +101,9 @@ const stringifyVariableToken = (token) => `%${token.value}`;
 const stringifyFieldToken = (token, index) =>
   `${index === 0 ? "" : "."}${token.value}`;
 
+const stringifyAnswerToken = (token, index) =>
+  `${index === 0 ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
+
 const stringifyFunctionToken = (token, index) => {
   const args = token.args
     ? token.args.map((arg) => stringifyProgram(arg)).join(", ")
@@ -122,6 +125,7 @@ const tokenStringifiers = {
   variable: stringifyVariableToken,
   field: stringifyFieldToken,
   function: stringifyFunctionToken,
+  answer: stringifyAnswerToken,
 };
 
 export const stringifyExpression = (expression) => {

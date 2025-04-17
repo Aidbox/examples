@@ -10,8 +10,6 @@ import {
   useListNavigation,
 } from "@floating-ui/react";
 import {
-  ArrowLineRight,
-  ArrowRight,
   BracketsSquare,
   Calendar,
   Clock,
@@ -21,12 +19,12 @@ import {
   Hash,
   Lightning,
   Plus,
-  PlusCircle,
   PuzzlePiece,
   Quotes,
   Scales,
   Shapes,
   Tag,
+  Textbox,
   Timer,
 } from "@phosphor-icons/react";
 import React, {
@@ -55,19 +53,16 @@ const labels = {
 
 const Cursor = forwardRef(
   ({ bindingId, placeholder, onBackspace, onMistake }, ref) => {
-    const precedingBindings = useProgramContext((state) =>
-      state.getPrecedingBindings(bindingId),
-    );
-
-    const { empty, addToken, suggestNextToken } = useProgramContext(
-      (state) => ({
+    const { empty, addToken, suggestNextToken, getQuestionnaireItems } =
+      useProgramContext((state) => ({
         empty: !state.getBindingExpression(bindingId).length,
         addToken: state.addToken,
         suggestNextToken: state.suggestNextToken,
-      }),
-    );
+        getQuestionnaireItems: state.getQuestionnaireItems,
+      }));
 
     const nextTokens = suggestNextToken(bindingId);
+    const items = getQuestionnaireItems();
 
     const containerRef = useRef(null);
     const dropdownRef = useRef(null);
@@ -94,84 +89,90 @@ const Cursor = forwardRef(
         (token.type === "operator" &&
           operatorNames[token.value]
             ?.toLowerCase()
-            .includes(search.toLowerCase()))
+            .includes(search.toLowerCase())) ||
+        (token.type === "answer" &&
+          items[token.value]?.text.toLowerCase().includes(search.toLowerCase()))
       );
     });
 
-    if (filteredTokens.length === 0) {
-      const variable = nextTokens.find(({ type }) => type === "variable");
+    function upsertToken(token) {
+      const index = filteredTokens.findIndex(({ type }) => type === token.type);
+      if (index === -1) {
+        filteredTokens.splice(0, 0, token);
+      } else {
+        filteredTokens[index] = token;
+      }
+    }
 
-      if (variable) {
-        if (precedingBindings.find((binding) => binding.name === search)) {
-          filteredTokens.push({ ...variable, value: search, shortcut: true });
+    if (search) {
+      const numberToken = nextTokens.find(({ type }) => type === "number");
+      if (numberToken) {
+        if (search.match(/^-?\d+$/) || search.match(/^-?\d*\.\d+$/)) {
+          upsertToken({ ...numberToken, value: search, shortcut: true });
         }
       }
 
-      const number = nextTokens.find(({ type }) => type === "number");
-      if (number) {
-        // Integer pattern
-        if (search.match(/^-?\d+$/)) {
-          filteredTokens.push({ ...number, value: search, shortcut: true });
-        }
-        // Decimal pattern
-        else if (search.match(/^-?\d*\.\d+$/)) {
-          filteredTokens.push({ ...number, value: search, shortcut: true });
-        }
-      }
-
-      const index = nextTokens.find(({ type }) => type === "index");
-      if (index) {
-        if (search.match(/^\[(\d+\]?)?$/)) {
-          filteredTokens.push({
-            ...index,
-            value: search.replace(/[^0-9]/g, ""),
+      const stringToken = nextTokens.find(({ type }) => type === "string");
+      if (stringToken) {
+        if (search.match(/^["'].+/)) {
+          upsertToken({
+            ...stringToken,
+            value: search.substring(1),
             shortcut: true,
           });
         }
       }
 
-      const string = nextTokens.find(({ type }) => type === "string");
-      if (string) {
-        filteredTokens.push({ ...string, value: search, shortcut: true });
+      const booleanToken = nextTokens.find(({ type }) => type === "boolean");
+      if (booleanToken) {
+        const likeFalse = "false".includes(search);
+        const likeTrue = "true".includes(search);
+        if (likeFalse || likeTrue) {
+          upsertToken({
+            ...booleanToken,
+            value: likeFalse ? "false" : "true",
+            shortcut: true,
+          });
+        }
+      }
+
+      const indexToken = nextTokens.find(({ type }) => type === "index");
+      if (indexToken) {
+        if (search.match(/^\[(\d+\]?)?$/)) {
+          upsertToken({
+            ...indexToken,
+            value: search.replace(/[^0-9]/g, ""),
+            shortcut: true,
+          });
+        }
       }
     }
 
-    const groupedTokens = filteredTokens.reduce((acc, token, index) => {
-      const group =
-        token.type === "number" ||
-        token.type === "string" ||
-        token.type === "boolean" ||
-        token.type === "date" ||
-        token.type === "datetime" ||
-        token.type === "time" ||
-        token.type === "quantity" ||
-        token.type === "type"
-          ? "Literals"
-          : token.type === "variable"
-            ? "Named expressions"
-            : token.type === "operator"
-              ? "Operators"
-              : token.type === "function"
-                ? "Functions"
-                : token.type === "field"
-                  ? "Fields"
-                  : token.type === "index"
-                    ? "Indexes"
-                    : "Other";
+    const groupedTokens = filteredTokens.reduce(
+      (acc, token, index) => {
+        // prettier-ignore
+        const group =
+          // token.shortcut ? "Quick actions" :
+          token.type === "variable" ? "Named expressions" :
+          token.type === "operator" ? "Operators" :
+          token.type === "function" ? "Functions" :
+          token.type === "field" ? "Fields" :
+          token.type === "index" ? "Indexes" :
+          token.type === "answer" ? "Questionnaire" : "Literals";
 
-      if (!acc[group]) {
-        acc[group] = [];
-      }
+        if (!acc[group]) {
+          acc[group] = [];
+        }
 
-      acc[group].push({ ...token, index });
-      return acc;
-    }, {});
+        acc[group].push({ ...token, index });
+        return acc;
+      },
+      { Literals: [] },
+    );
 
-    const handleAddToken = (token) => {
-      let blur = !token.value;
-      addToken(bindingId, token, blur);
-      hideDropdown(blur);
-    };
+    if (groupedTokens["Literals"].length === 0) {
+      delete groupedTokens["Literals"];
+    }
 
     const hideDropdown = (blur = true) => {
       setSearch("");
@@ -241,6 +242,13 @@ const Cursor = forwardRef(
     const { getReferenceProps, getFloatingProps, getItemProps } =
       useInteractions([listNav]);
 
+    const handleAddToken = (token) => {
+      let blur = !token.value;
+      addToken(bindingId, token, blur);
+      hideDropdown(blur);
+      refs.floating.current.scroll(0, 0);
+    };
+
     return (
       <label
         className={`relative flex items-center flex-1 cursor-pointer group/cursor`}
@@ -297,7 +305,7 @@ const Cursor = forwardRef(
         {isOpen && (
           <FloatingPortal>
             <div
-              className="bg-white border border-gray-300 rounded-md shadow-lg min-w-52 max-w-72 empty:hidden py-2 overflow-y-auto focus:outline-none"
+              className="bg-white border border-gray-300 rounded-md shadow-lg min-w-72 max-w-92 empty:hidden overflow-y-auto focus:outline-none"
               style={floatingStyles}
               ref={(ref) => {
                 dropdownRef.current = ref;
@@ -308,7 +316,7 @@ const Cursor = forwardRef(
             >
               {Object.entries(groupedTokens).map(([group, tokens]) => (
                 <Fragment key={group}>
-                  <div className="font-semibold text-gray-500 px-3 not-first:pt-3 pb-1 col-span-2">
+                  <div className="text-sm font-semibold text-gray-500 px-3 py-3 pb-1 truncate sticky top-0 bg-white">
                     {group}
                   </div>
                   {tokens.map((token) => (
@@ -350,6 +358,8 @@ const Cursor = forwardRef(
                         <Shapes size={16} className="text-gray-500" />
                       ) : token.type === "function" ? (
                         <Function size={16} className="text-gray-500" />
+                      ) : token.type === "answer" ? (
+                        <Textbox size={16} className="text-gray-500" />
                       ) : token.type === "operator" ? (
                         <OperatorIcon name={token.value} />
                       ) : null}
@@ -359,15 +369,23 @@ const Cursor = forwardRef(
                         ? token.value
                         : token.type === "operator"
                           ? operatorNames[token.value]
-                          : labels[token.type]}
+                          : token.type === "answer"
+                            ? items[token.value]?.text || token.value
+                            : labels[token.type]}
                       {token.shortcut ? (
                         <Lightning
                           size={14}
                           weight="fill"
                           className="text-yellow-500"
                         />
+                      ) : token.type === "answer" ? (
+                        items[token.value] && (
+                          <div className="text-sm text-gray-500 truncate flex-1 text-right">
+                            {token.value}
+                          </div>
+                        )
                       ) : debug && token.debug ? (
-                        <span className="text-gray-500 whitespace-nowrap pl-2 truncate">
+                        <span className="text-sm text-gray-500 truncate flex-1 text-right">
                           {token.debug}
                         </span>
                       ) : null}

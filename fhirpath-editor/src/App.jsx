@@ -9,6 +9,9 @@ import { ProgramProvider } from "@components/ProgramProvider.jsx";
 import ContextEditor from "./ContextEditor.jsx";
 import { useLocalStorageState } from "./utils/react.js";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { generateBindingId } from "@utils/expression.js";
+import q from "./vital-signs.json";
+import qr from "./vital-signs-response.json";
 
 export function App() {
   const { data: fhirSchema, loading, error } = useJsonFetch("schema.json");
@@ -23,37 +26,21 @@ export function App() {
   const [context, setContext] = useLocalStorageState(
     "fhirpath-editor/context",
     {
-      value: {
-        resourceType: "QuestionnaireResponse",
-        id: "health-check",
-        status: "active",
-        title: "Health Check Questionnaire",
-        item: [
-          {
-            linkId: "weight",
-            text: "Weight",
-            type: "decimal",
-            answer: {
-              valueDecimal: 100,
-            },
-          },
-          {
-            linkId: "height",
-            text: "Height",
-            type: "decimal",
-            answer: {
-              valueDecimal: 180,
-            },
-          },
-        ],
-      },
       type: FhirType(["QuestionnaireResponse"]),
+      value: qr,
     },
   );
 
   const [externalBindings, setExternalBindings] = useLocalStorageState(
     "fhirpath-editor/externalBindings",
-    [],
+    [
+      {
+        name: "questionnaire",
+        id: generateBindingId(),
+        type: FhirType(["Questionnaire"]),
+        value: q,
+      },
+    ],
   );
 
   if (loading) {

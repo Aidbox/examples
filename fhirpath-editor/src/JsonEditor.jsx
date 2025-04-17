@@ -9,13 +9,15 @@ export function JsonEditor({ value, onChange }) {
   const editorRef = React.useRef(null);
   const viewRef = React.useRef(null);
   const userEditRef = React.useRef(false);
-  const initialValue = useRef(JSON.stringify(value, null, 2));
+  const valueRef = useRef(JSON.stringify(value, null, 2));
+  const onChangeRef = useRef(null);
+  onChangeRef.current = onChange;
 
   useEffect(() => {
     if (!editorRef.current) return;
 
     const startState = EditorState.create({
-      doc: initialValue.current,
+      doc: valueRef.current,
       extensions: [
         basicSetup,
         json(),
@@ -24,7 +26,7 @@ export function JsonEditor({ value, onChange }) {
             userEditRef.current = true;
             try {
               const jsonValue = JSON.parse(update.state.doc.toString());
-              onChange(jsonValue);
+              onChangeRef.current?.(jsonValue);
             } catch {
               // Handle JSON parse error if needed
             }
@@ -47,7 +49,7 @@ export function JsonEditor({ value, onChange }) {
     return () => {
       viewRef.current.destroy();
     };
-  }, [onChange]);
+  }, []);
 
   useEffect(() => {
     if (!viewRef.current) return;

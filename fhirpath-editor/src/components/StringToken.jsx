@@ -10,7 +10,7 @@ const StringToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   return (
     <label
       data-testid="string-token"
-      className="flex items-center px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600"
+      className="flex items-center px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 min-w-8 justify-center"
     >
       <span className="select-none">"</span>
       <input

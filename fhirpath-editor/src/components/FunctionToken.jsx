@@ -39,6 +39,7 @@ const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
     updateArg,
     contextType,
     getBindingExpressionType,
+    getBindingValue,
     getFhirSchema,
   } = useProgramContext((state) => ({
     arg: state.getArg(bindingId, tokenIndex, argIndex),
@@ -46,6 +47,7 @@ const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
     deleteArg: state.deleteArg,
     contextType: state.getContextType(),
     getBindingExpressionType: state.getBindingExpressionType,
+    getBindingValue: state.getBindingValue,
     getFhirSchema: state.getFhirSchema,
   }));
 
@@ -59,8 +61,9 @@ const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
         id: binding.id,
         name: binding.name,
         type: getBindingExpressionType(binding.id),
+        value: binding.value || getBindingValue(binding.id),
       })),
-    [precedingBindings, getBindingExpressionType],
+    [precedingBindings, getBindingExpressionType, getBindingValue],
   );
 
   return (
@@ -307,7 +310,7 @@ const FunctionToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
                 (filteredFunctions.length > 0 ? (
                   Object.entries(groupedFunctions).map(([group, functions]) => (
                     <Fragment key={group}>
-                      <div className="font-semibold text-gray-500 px-3 py-3 pb-1">
+                      <div className="text-sm font-semibold text-gray-500 px-3 py-3 pb-1 truncate sticky top-0 bg-white">
                         {group}
                       </div>
                       {functions.map(({ name, index }) => (

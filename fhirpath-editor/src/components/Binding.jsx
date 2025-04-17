@@ -14,24 +14,29 @@ const Binding = forwardRef(({ bindingId }, forwardingRef) => {
   const nameRef = React.useRef(null);
   const debug = useDebug();
 
-  const { name, trimBinding, renameBinding, setTokenRef, focusToken } =
-    useProgramContext((state) => {
-      return {
-        name: state.getBindingName(bindingId),
-        trimBinding: state.trimBinding,
-        renameBinding: state.renameBinding,
-        setTokenRef: state.setTokenRef,
-        focusToken: state.focusToken,
-      };
-    });
+  const {
+    name,
+    trimBinding,
+    renameBinding,
+    setTokenRef,
+    focusToken,
+    getBindingExpressionType,
+  } = useProgramContext((state) => {
+    return {
+      name: state.getBindingName(bindingId),
+      trimBinding: state.trimBinding,
+      renameBinding: state.renameBinding,
+      setTokenRef: state.setTokenRef,
+      focusToken: state.focusToken,
+      getBindingExpressionType: state.getBindingExpressionType,
+    };
+  });
 
   const tokenTypes = useProgramContext((state) =>
     state.getBindingExpression(bindingId).map((t) => t.type),
   );
 
-  const type = useProgramContext((state) =>
-    state.getBindingExpressionType(bindingId),
-  );
+  const type = getBindingExpressionType(bindingId);
 
   useImperativeHandle(forwardingRef, () => {
     return {
@@ -68,16 +73,14 @@ const Binding = forwardRef(({ bindingId }, forwardingRef) => {
   );
 
   return (
-    <div className="grid grid-cols-subgrid col-span-5 items-center hover:bg-gray-50 py-1 pr-0.5 my-0.5 rounded">
-      <BindingMenu bindingId={bindingId} />
-
+    <>
       {name != null && (
         <input
           ref={nameRef}
           className={`justify-self-start focus:outline-none field-sizing-content rounded px-1.5 py-0.5 bg-green-50 border border-slate-300 text-green-800 placeholder:text-green-100 ${nameAnimation}
           ${
             trimming && tokenTypes.length === 0
-              ? "bg-red-500 border-red-500 **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none rounded"
+              ? "!bg-red-500 !border-red-500 !text-white"
               : ""
           }`}
           onAnimationEnd={() => setNameAnimation("")}
@@ -163,16 +166,16 @@ const Binding = forwardRef(({ bindingId }, forwardingRef) => {
 
       <div className="flex items-center gap-2">
         {tokenTypes.length > 0 && <EvalViewer bindingId={bindingId} />}
-        {debug && tokenTypes.length > 0 && (
-          <span
-            className="text-purple-600 truncate text-sm ml-auto"
-            title={type.error}
-          >
+      </div>
+
+      {debug && tokenTypes.length > 0 && (
+        <div className="flex items-center gap-2">
+          <span className="text-purple-600 truncate text-sm" title={type.error}>
             {stringifyType(type)}
           </span>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 });
 

@@ -24,11 +24,12 @@ import {
   wrapSingle,
 } from "./type.js";
 import { distinct, pick } from "./misc.js";
-import { getFields } from "./fhir.js";
+import { FhirType, getFields } from "./fhir.js";
 import "./function.js";
 import { functionMetadata, suggestFunctionsForInputType } from "./function.js";
 import { stringifyProgram, stringifyType } from "@utils/stringify.js";
 import fhirpath from "fhirpath";
+import r4 from "fhirpath/fhir-context/r4";
 
 export const evaluateExpression = (
   expression,
@@ -53,6 +54,7 @@ export const evaluateExpression = (
           structuredClone(binding.value),
         ]),
       ),
+      r4,
     );
   } catch (e) {
     console.debug("Error evaluating binding:", code);
@@ -82,6 +84,7 @@ function isChainingExpression(expression) {
     if (
       expression[0].type === "variable" ||
       expression[0].type === "field" ||
+      expression[0].type === "answer" ||
       expression[0].type === "function"
     ) {
       if (
@@ -91,6 +94,7 @@ function isChainingExpression(expression) {
             (token) =>
               token.type === "field" ||
               token.type === "index" ||
+              token.type === "answer" ||
               token.type === "function",
           )
       ) {
@@ -111,6 +115,7 @@ function isOperatorExpression(expression) {
 // Calculate the result type of expression
 export const getExpressionType = (
   expression,
+  questionnaireItems,
   bindings,
   contextType,
   fhirSchema,
@@ -140,6 +145,7 @@ export const getExpressionType = (
       // Otherwise, calculate the result type of its expression
       return getExpressionType(
         binding.expression,
+        questionnaireItems,
         bindings,
         contextType,
         fhirSchema,
@@ -157,38 +163,27 @@ export const getExpressionType = (
     while (tokens.length > 0 && currentType?.type !== InvalidType.type) {
       const token = tokens.shift();
 
-      if (first) {
-        // we are at the first token
-        switch (token.type) {
-          case "variable": {
-            const binding = bindings.find((b) => b.name === token.value);
-            currentType = !binding
-              ? InvalidType("Unknown variable")
-              : binding.type ||
-                getExpressionType(
-                  binding.expression,
-                  bindings,
-                  contextType,
-                  fhirSchema,
-                );
-            first = false;
-            continue; // skip the rest of the loop
-          }
-          case "field":
-          case "function":
-            first = false;
-            break; // handle the token as a regular token
-          default:
-            return InvalidType("Unexpected first token");
+      if (token.type === "variable") {
+        if (!first) {
+          return InvalidType(`Unexpected token "variable"`);
         }
-      }
-
-      // Skip index tokens - they don't change the type
-      if (token.type === "index") {
+        const binding = bindings.find((b) => b.name === token.value);
+        currentType = !binding
+          ? InvalidType(`Unknown variable "${token.value}"`)
+          : binding.type ||
+            getExpressionType(
+              binding.expression,
+              questionnaireItems,
+              bindings,
+              contextType,
+              fhirSchema,
+            );
+      } else if (token.type === "index") {
+        // Skip index tokens - they don't change the type
         currentType = wrapSingle(currentType);
       } else if (token.type === "function") {
         const meta = functionMetadata.find((f) => f.name === token.value);
-        if (!meta) return InvalidType("Unknown function");
+        if (!meta) return InvalidType(`Unknown function "${token.value}"`);
 
         let bindings = matchTypePattern(meta.input, currentType);
         if (!bindings) return InvalidType("Input type mismatch");
@@ -212,6 +207,7 @@ export const getExpressionType = (
 
           const programType = getExpressionType(
             program.expression,
+            questionnaireItems,
             program.bindings,
             suggestedType?.type === LambdaType.type
               ? suggestedType.contextType
@@ -250,12 +246,35 @@ export const getExpressionType = (
           args: result,
           ...bindings,
         });
-      } else {
+      } else if (token.type === "field") {
         const availableFields = getFields(currentType, fhirSchema);
         currentType =
           availableFields[token.value] ||
-          InvalidType(`Unknown field ${token.value}`);
+          InvalidType(`Unknown field "${token.value}"`);
+      } else if (token.type === "answer") {
+        if (
+          !matchTypePattern(FhirType(["QuestionnaireResponse"]), currentType)
+        ) {
+          return InvalidType(`Answer token cannot be used in this context`);
+        }
+
+        const single = currentType.type === SingleType.type;
+
+        currentType =
+          questionnaireItems[token.value]?.type ||
+          getFields(
+            FhirType(["QuestionnaireResponse", "item", "answer"]),
+            fhirSchema,
+          ).value;
+
+        if (!single) {
+          currentType = unwrapSingle(currentType);
+        }
+      } else {
+        return InvalidType(`Unknown token type "${token.type}"`);
       }
+
+      first = false;
     }
 
     return currentType;
@@ -267,12 +286,14 @@ export const getExpressionType = (
 
     const leftType = getExpressionType(
       [left],
+      questionnaireItems,
       bindings,
       contextType,
       fhirSchema,
     );
     const rightType = getExpressionType(
       [right],
+      questionnaireItems,
       bindings,
       contextType,
       fhirSchema,
@@ -292,6 +313,7 @@ export const getExpressionType = (
 
 export const findCompatibleBindings = (
   expression,
+  questionnaireItems,
   bindings,
   contextType,
   fhirSchema,
@@ -306,6 +328,7 @@ export const findCompatibleBindings = (
     const [left, operator] = expression;
     const leftType = getExpressionType(
       [left],
+      questionnaireItems,
       bindings,
       contextType,
       fhirSchema,
@@ -319,6 +342,7 @@ export const findCompatibleBindings = (
         binding.type ||
         getExpressionType(
           binding.expression,
+          questionnaireItems,
           bindings,
           contextType,
           fhirSchema,
@@ -330,23 +354,6 @@ export const findCompatibleBindings = (
   }
 
   return bindings;
-};
-
-export const findCompatibleOperators = (
-  expression,
-  bindings,
-  contextType,
-  fhirSchema,
-) => {
-  if (expression.length !== 1) return [];
-
-  const leftType = getExpressionType(
-    [expression[0]],
-    bindings,
-    contextType,
-    fhirSchema,
-  );
-  return suggestOperatorsForLeftType(leftType);
 };
 
 const typeName2tokenType = {
@@ -364,6 +371,7 @@ const typeName2tokenType = {
 // Suggest next tokens based on current expression
 export const suggestNextToken = (
   expression,
+  questionnaireItems,
   bindings,
   contextType,
   fhirSchema,
@@ -372,6 +380,14 @@ export const suggestNextToken = (
 
   // if the expression is empty, suggest all primitive types and variable
   if (expression.length === 0) {
+    if (matchTypePattern(FhirType(["QuestionnaireResponse"]), contextType)) {
+      result.push(
+        ...Object.keys(questionnaireItems).map((linkId) => ({
+          type: "answer",
+          value: linkId,
+        })),
+      );
+    }
     result.push(
       { type: "number" },
       { type: "string" },
@@ -388,6 +404,7 @@ export const suggestNextToken = (
           binding.type ||
             getExpressionType(
               binding.expression,
+              questionnaireItems,
               bindings,
               contextType,
               fhirSchema,
@@ -402,6 +419,7 @@ export const suggestNextToken = (
 
     const leftType = getExpressionType(
       [expression[0]],
+      questionnaireItems,
       bindings,
       contextType,
       fhirSchema,
@@ -419,6 +437,7 @@ export const suggestNextToken = (
       ).map((type) => ({ type })),
       ...findCompatibleBindings(
         expression,
+        questionnaireItems,
         bindings,
         contextType,
         fhirSchema,
@@ -429,6 +448,7 @@ export const suggestNextToken = (
           binding.type ||
             getExpressionType(
               binding.expression,
+              questionnaireItems,
               bindings,
               contextType,
               fhirSchema,
@@ -445,6 +465,7 @@ export const suggestNextToken = (
   ) {
     const firstTokenType = getExpressionType(
       [expression[0]],
+      questionnaireItems,
       bindings,
       contextType,
       fhirSchema,
@@ -462,7 +483,13 @@ export const suggestNextToken = (
 
   if (isChainingExpression(expression) || expression.length === 0) {
     const type = expression.length
-      ? getExpressionType(expression, bindings, contextType, fhirSchema)
+      ? getExpressionType(
+          expression,
+          questionnaireItems,
+          bindings,
+          contextType,
+          fhirSchema,
+        )
       : contextType;
 
     if (type.type !== SingleType.type) {

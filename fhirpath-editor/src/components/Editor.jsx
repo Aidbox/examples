@@ -22,9 +22,11 @@ function Editor({ className = "", title }) {
 
   return (
     <div
-      className={`grid grid-cols-[min-content_min-content_min-content_auto_auto] gap-x-1 w-full ${className}`}
+      className={`grid gap-x-1 w-full ${debug ? "grid-cols-[0.75rem_min-content_1rem_auto_auto_auto]" : "grid-cols-[0.75rem_min-content_1rem_auto_auto]"} ${className}`}
     >
-      <div className="col-span-5 font-medium text-gray-600 flex items-center gap-2 py-2">
+      <div
+        className={`font-medium text-gray-600 flex items-center gap-2 py-2 ${debug ? "col-span-6" : "col-span-5"}`}
+      >
         Named Expressions
         <button
           className="cursor-pointer rounded-full p-0.5 border"
@@ -36,30 +38,48 @@ function Editor({ className = "", title }) {
       </div>
 
       {bindingIds.map((bindingId) => (
-        <Binding
+        <div
           key={bindingId}
-          ref={(ref) => setBindingRef(bindingId, ref)}
-          bindingId={bindingId}
-        />
+          className={`grid grid-cols-subgrid items-center hover:bg-gray-50 py-1 pr-0.5 my-0.5 rounded ${debug ? "col-span-6" : "col-span-5"}`}
+        >
+          <BindingMenu bindingId={bindingId} />
+
+          <Binding
+            ref={(ref) => setBindingRef(bindingId, ref)}
+            bindingId={bindingId}
+          />
+        </div>
       ))}
 
       {!bindingIds.length && (
-        <div className="col-span-5 text-gray-500 border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2">
-          Press the + button to add a named expression.
+        <>
+          <span></span>
+          <div
+            className={`text-gray-500 border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2 ${debug ? "col-span-6" : "col-span-5"}`}
+          >
+            Press the + button to add a named expression.
+          </div>
+        </>
+      )}
+
+      <div
+        className={`font-medium text-gray-600 flex items-center gap-2 py-2 ${debug ? "col-span-5" : "col-span-6"}`}
+      >
+        {title || "Main Expression"}
+      </div>
+
+      {debug && (
+        <div className="font-bold text-purple-600 truncate text-sm self-center">
+          <span>{stringifyType(contextType)}</span>
         </div>
       )}
 
-      <div className="col-span-5 font-medium text-gray-600 flex items-center gap-2 py-2">
-        {title || "Main Expression"}
-
-        {debug && (
-          <div className="font-normal text-purple-600 truncate text-sm ml-auto">
-            <span>Context type: {stringifyType(contextType)}</span>
-          </div>
-        )}
+      <div
+        className={`grid grid-cols-subgrid items-center ${debug ? "col-span-6" : "col-span-5"}`}
+      >
+        <span></span>
+        <Binding ref={(ref) => setBindingRef(null, ref)} bindingId={null} />
       </div>
-
-      <Binding ref={(ref) => setBindingRef(null, ref)} bindingId={null} />
     </div>
   );
 }

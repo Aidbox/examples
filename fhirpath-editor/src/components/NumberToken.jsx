@@ -11,8 +11,7 @@ const NumberToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
     <input
       ref={ref}
       data-testid="number-token"
-      className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 field-sizing-content"
-      placeholder="0"
+      className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 field-sizing-content min-w-8 text-center"
       type="text"
       pattern="-?[0-9]*\.?[0-9]*"
       inputMode="decimal"

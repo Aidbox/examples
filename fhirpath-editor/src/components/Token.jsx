@@ -12,7 +12,7 @@ import QuantityToken from "./QuantityToken.jsx";
 import TypeToken from "./TypeToken.jsx";
 import IndexToken from "./IndexToken.jsx";
 import FunctionToken from "./FunctionToken.jsx";
-import { X } from "@phosphor-icons/react";
+import AnswerToken from "@components/AnswerToken.jsx";
 
 const getTokenComponent = (type) => {
   switch (type) {
@@ -42,6 +42,8 @@ const getTokenComponent = (type) => {
       return FieldToken;
     case "function":
       return FunctionToken;
+    case "answer":
+      return AnswerToken;
     default:
       throw new Error(`Unknown token type: ${type}`);
   }
@@ -55,7 +57,7 @@ const Token = React.forwardRef(({ type, deleting, ...props }, ref) => {
       data-token-index={props.tokenIndex}
       className={`flex items-stretch ${
         deleting
-          ? "bg-red-500 group **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none **:!bg-transparent rounded"
+          ? "bg-red-500 rounded group **:!text-white **:placeholder:!text-white **:!outline-none **:!border-none **:!bg-transparent"
           : ""
       }`}
     >

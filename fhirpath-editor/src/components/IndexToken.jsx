@@ -8,7 +8,7 @@ const IndexToken = React.forwardRef(({ bindingId, tokenIndex }, ref) => {
   }));
 
   return (
-    <label className="flex items-center px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 gap-[0.125rem]">
+    <label className="flex items-center px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 gap-[0.125rem] min-w-8 justify-center">
       <span className="select-none">[</span>
       <input
         ref={ref}
