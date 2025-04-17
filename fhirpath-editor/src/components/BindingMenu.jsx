@@ -44,7 +44,7 @@ const BindingMenu = ({ bindingId }) => {
           ref={ref}
           {...mergeProps({
             className:
-              "flex items-center justify-center cursor-pointer rounded py-1 text-gray-400 focus:outline-blue-500 data-[dragging]:cursor-grabbing data-[dragging]:bg-gray-200",
+              "flex items-center justify-center rounded text-gray-400 focus:outline-none self-stretch w-fit cursor-pointer hover:bg-gray-200",
           })}
         >
           <DotsThreeVertical size={16} weight="bold" />

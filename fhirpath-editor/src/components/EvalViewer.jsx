@@ -114,7 +114,7 @@ const EvalViewer = ({ bindingId }) => {
         <button
           ref={refs.setReference}
           {...getReferenceProps()}
-          className="cursor-pointer rounded px-1.5 py-0.5 text-gray-500 data-[error]:text-red-500 data-[error]:font-mono flex items-center gap-1 text-sm truncate"
+          className="cursor-pointer focus:outline-none rounded px-1.5 py-0.5 text-gray-500 data-[error]:text-red-500 data-[error]:font-mono flex items-center gap-1 text-sm truncate"
           // data-error={value instanceof Error || undefined}
         >
           <ArrowRight size={12} />

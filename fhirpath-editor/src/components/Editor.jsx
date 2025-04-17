@@ -22,19 +22,12 @@ function Editor({ className = "", title }) {
 
   return (
     <div
-      className={`grid gap-x-1 w-full ${debug ? "grid-cols-[0.75rem_min-content_1rem_auto_auto_auto]" : "grid-cols-[0.75rem_min-content_1rem_auto_auto]"} ${className}`}
+      className={`grid gap-x-1 w-full ${debug ? "grid-cols-[1.25rem_minmax(0,_min-content)_1rem_auto_auto_auto]" : "grid-cols-[1.25rem_minmax(0,_min-content)_1rem_auto_auto]"} ${className}`}
     >
       <div
         className={`font-medium text-gray-600 flex items-center gap-2 py-2 ${debug ? "col-span-6" : "col-span-5"}`}
       >
         Named Expressions
-        <button
-          className="cursor-pointer rounded-full p-0.5 border"
-          onClick={() => addBinding({ name: "var1" })}
-          aria-label="add binding"
-        >
-          <Plus size={10} weight="bold" />
-        </button>
       </div>
 
       {bindingIds.map((bindingId) => (
@@ -51,19 +44,19 @@ function Editor({ className = "", title }) {
         </div>
       ))}
 
-      {!bindingIds.length && (
-        <>
-          <span></span>
-          <div
-            className={`text-gray-500 border border-dashed border-gray-300 rounded-md h-11 flex items-center justify-center px-2 ${debug ? "col-span-6" : "col-span-5"}`}
-          >
-            Press the + button to add a named expression.
-          </div>
-        </>
-      )}
+      <div
+        className={`flex items-center min-h-8 col-start-2 ${debug ? "col-span-6" : "col-span-5"}`}
+      >
+        <button
+          className="text-gray-600 cursor-pointer py-0.5 px-0.5 grid place-items-center rounded border border-gray-300 bg-white"
+          onClick={() => addBinding({ name: "var1" })}
+        >
+          <Plus size={12} />
+        </button>
+      </div>
 
       <div
-        className={`font-medium text-gray-600 flex items-center gap-2 py-2 ${debug ? "col-span-5" : "col-span-6"}`}
+        className={`font-medium text-gray-600 flex items-center gap-2 py-2 ${debug ? "col-span-6" : "col-span-5"}`}
       >
         {title || "Main Expression"}
       </div>
@@ -75,7 +68,7 @@ function Editor({ className = "", title }) {
       )}
 
       <div
-        className={`grid grid-cols-subgrid items-center ${debug ? "col-span-6" : "col-span-5"}`}
+        className={`grid grid-cols-subgrid items-center h-8 ${debug ? "col-span-6" : "col-span-5"}`}
       >
         <span></span>
         <Binding ref={(ref) => setBindingRef(null, ref)} bindingId={null} />

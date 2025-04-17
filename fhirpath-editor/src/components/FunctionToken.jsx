@@ -67,23 +67,19 @@ const Argument = ({ bindingId, tokenIndex, argIndex, suggestedType }) => {
   );
 
   return (
-    <>
-      <ProgramProvider
-        program={arg}
-        onProgramChange={(arg) =>
-          updateArg(bindingId, tokenIndex, argIndex, arg)
-        }
-        contextType={
-          suggestedType?.type === LambdaType.type
-            ? suggestedType.contextType
-            : contextType
-        }
-        externalBindings={externalizedBindings}
-        fhirSchema={getFhirSchema()}
-      >
-        <Editor className="px-4 pt-3 pb-5" title="Argument expression" />
-      </ProgramProvider>
-    </>
+    <ProgramProvider
+      program={arg}
+      onProgramChange={(arg) => updateArg(bindingId, tokenIndex, argIndex, arg)}
+      contextType={
+        suggestedType?.type === LambdaType.type
+          ? suggestedType.contextType
+          : contextType
+      }
+      externalBindings={externalizedBindings}
+      fhirSchema={getFhirSchema()}
+    >
+      <Editor className="px-4 pt-3 pb-5" title="Argument expression" />
+    </ProgramProvider>
   );
 };
 
