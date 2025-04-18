@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import Editor from "@components/Editor";
 import { FhirType } from "@utils/fhir";
 import { useJsonFetch } from "@utils/react";
 
-import { stringifyProgram } from "@utils/stringify.js";
 import Code from "@components/Code.jsx";
 import { ProgramProvider } from "@components/ProgramProvider.jsx";
 import ContextEditor from "./ContextEditor.jsx";
@@ -15,6 +14,7 @@ import qr from "./vital-signs-response.json";
 
 export function App() {
   const { data: fhirSchema, loading, error } = useJsonFetch("schema.json");
+  const [fhirPath, setFhirPath] = useState("");
   const [program, setProgram] = useLocalStorageState(
     "fhirpath-editor/program",
     {
@@ -101,6 +101,7 @@ export function App() {
             <ProgramProvider
               program={program}
               onProgramChange={setProgram}
+              onFhirPathChange={setFhirPath}
               contextType={context.type}
               contextValue={context.value}
               externalBindings={externalBindings}
@@ -121,7 +122,7 @@ export function App() {
               </h2>
               <Code
                 className="text-sm p-4 border-t border-gray-200 w-full flex-1 overflow-auto"
-                value={stringifyProgram(program)}
+                value={fhirPath}
               />
             </Panel>
             <PanelResizeHandle>

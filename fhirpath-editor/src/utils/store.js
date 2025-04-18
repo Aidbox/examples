@@ -143,6 +143,7 @@ export const createProgramStore = (
 
           return evaluateExpression(
             expression,
+            get().getQuestionnaireItems(),
             get()
               .program.bindings.slice(0, index)
               .filter((binding) => deps.includes(binding.id)),

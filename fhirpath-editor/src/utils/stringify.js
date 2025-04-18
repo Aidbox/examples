@@ -98,15 +98,26 @@ const stringifyOperatorToken = (token) => {
 
 const stringifyVariableToken = (token) => `%${token.value}`;
 
-const stringifyFieldToken = (token, first) =>
+const stringifyFieldToken = (token, { first }) =>
   `${first ? "" : "."}${token.value}`;
 
-const stringifyAnswerToken = (token, first) =>
-  `${first ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
+const stringifyAnswerToken = (token, { first, questionnaireItems }) => {
+  const base = `${first ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
 
-const stringifyFunctionToken = (token, first) => {
+  switch (questionnaireItems[token.value]?.item.type) {
+    case "choice":
+    case "open-choice":
+      return `${base}.ordinal()`;
+    case "quantity":
+      return `${base}.value`;
+    default:
+      return base;
+  }
+};
+
+const stringifyFunctionToken = (token, { first, ...context }) => {
   const args = token.args
-    ? token.args.map((arg) => stringifyProgram(arg)).join(", ")
+    ? token.args.map((arg) => stringifyProgram(arg, context)).join(", ")
     : "";
   return `${first ? "" : "."}${token.value}(${args})`;
 };
@@ -128,36 +139,36 @@ const tokenStringifiers = {
   answer: stringifyAnswerToken,
 };
 
-export const stringifyExpression = (expression) => {
+export const stringifyExpression = (expression, context) => {
   let result = "";
 
   for (let i = 0; i < expression.length; i++) {
     const token = expression[i];
     const stringifier = tokenStringifiers[token.type];
     if (stringifier) {
-      result += stringifier(
-        token,
-        i === 0 || expression[i - 1].type === "operator",
-      );
+      result += stringifier(token, {
+        ...context,
+        first: i === 0 || expression[i - 1].type === "operator",
+      });
     }
   }
   return result.trim();
 };
 
-export const stringifyBinding = (binding) => {
+export const stringifyBinding = (binding, context) => {
   return `defineVariable('${binding.name}'${
     binding.expression.length > 0
-      ? `, ${stringifyExpression(binding.expression)}`
+      ? `, ${stringifyExpression(binding.expression, context)}`
       : ""
   })`;
 };
 
-export const stringifyProgram = (program) => {
-  let result = stringifyExpression(program.expression);
+export const stringifyProgram = (program, context) => {
+  let result = stringifyExpression(program.expression, context);
 
   if (program.bindings.length > 0) {
     result = `${program.bindings
-      .map(stringifyBinding)
+      .map((binding) => stringifyBinding(binding, context))
       .join(".\n")}.\nselect(${result})`;
   }
 

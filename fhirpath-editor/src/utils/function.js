@@ -18,6 +18,7 @@ import {
   TimeType,
   TypeType,
   unwrapSingle,
+  wrapSingle,
 } from "./type";
 import { primitiveTypeMap } from "@utils/fhir.js";
 
@@ -436,25 +437,25 @@ export const functionMetadata = [
     "sum",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType]),
+    ({ input }) => wrapSingle(input),
   ),
   fn(
     "min",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType]),
+    ({ input }) => wrapSingle(input),
   ),
   fn(
     "max",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType]),
+    ({ input }) => wrapSingle(input),
   ),
   fn(
     "avg",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ChoiceType([DecimalType, IntegerType, QuantityType]),
+    ({ input }) => wrapSingle(input),
   ),
 ];
 

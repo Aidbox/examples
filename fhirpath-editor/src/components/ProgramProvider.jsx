@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { createProgramStore, ProgramContext } from "@utils/store.js";
+import { stringifyProgram } from "@utils/stringify.js";
 
 export function ProgramProvider({
   program,
   onProgramChange,
+  onFhirPathChange,
   contextType,
   contextValue,
   externalBindings,
@@ -27,7 +29,15 @@ export function ProgramProvider({
     if (store) {
       return store.subscribe((curState, prevState) => {
         if (curState.program !== prevState.program) {
-          onProgramChange(curState.program);
+          const { program, getQuestionnaireItems } = curState;
+          onProgramChange(program);
+          if (onFhirPathChange) {
+            onFhirPathChange(
+              stringifyProgram(program, {
+                questionnaireItems: getQuestionnaireItems(),
+              }),
+            );
+          }
         }
       });
     }

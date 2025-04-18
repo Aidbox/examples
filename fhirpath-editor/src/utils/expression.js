@@ -34,16 +34,22 @@ import r4 from "fhirpath/fhir-context/r4";
 
 export const evaluateExpression = (
   expression,
+  questionnaireItems,
   bindings,
   contextValue,
   externalBindings,
 ) => {
   if (isEmptyProgram({ bindings, expression })) return null;
 
-  const code = stringifyProgram({
-    bindings,
-    expression,
-  });
+  const code = stringifyProgram(
+    {
+      bindings,
+      expression,
+    },
+    {
+      questionnaireItems,
+    },
+  );
 
   try {
     return fhirpath.evaluate(

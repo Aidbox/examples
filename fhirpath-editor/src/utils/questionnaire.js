@@ -5,7 +5,7 @@ import {
   PrimitiveStringType,
   PrimitiveUriType,
 } from "@utils/fhir.js";
-import { ChoiceType, QuantityType, SingleType } from "@utils/type.js";
+import { SingleType } from "@utils/type.js";
 
 function getReferenceType(item) {
   const resourceType = item.extension.find(
@@ -42,11 +42,11 @@ export function getItems(questionnaire) {
         item.type === "string" ? PrimitiveStringType :
         item.type === "text" ? PrimitiveStringType :
         item.type === "url" ? PrimitiveUriType :
-        item.type === "choice" ? FhirType(['Coding']) :
-        item.type === "open-choice" ? ChoiceType([FhirType(['Coding']), PrimitiveStringType]) :
+        item.type === "choice" ? PrimitiveDecimalType :
+        item.type === "open-choice" ? PrimitiveDecimalType :
         item.type === "attachment" ? FhirType(['Attachment']) :
         item.type === "reference" ? getReferenceType(item) :
-        item.type === "quantity" ? QuantityType : undefined;
+        item.type === "quantity" ? PrimitiveDecimalType : undefined;
 
       if (item.repeats) {
         single = false;
@@ -59,6 +59,7 @@ export function getItems(questionnaire) {
       index[item.linkId] = {
         text: item.text,
         type: type,
+        item,
       };
     }
 

@@ -201,9 +201,9 @@ export function matchTypePattern(
   }
 
   // Choice handling — try each branch
-  if (actual?.type === ChoiceType.type) {
-    for (const option of actual.options) {
-      const b = matchTypePattern(pattern, option, newBindings, undefined);
+  if (pattern.type === ChoiceType.type) {
+    for (const option of pattern.options) {
+      const b = matchTypePattern(option, actual, newBindings, pattern);
       if (b) return b;
     }
     return null;
