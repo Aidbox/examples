@@ -42,7 +42,7 @@ export interface IProgramStore {
   bindingsIndex: Record<string, number>;
   tokenRefs: Record<string, Array<HTMLElement | null>>;
 
-  getContextType: () => IContext["type"];
+  getContext: () => IContext;
   getFhirSchema: () => IFhirRegistry;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string | null) => IToken[];
@@ -99,8 +99,7 @@ export interface IProgramStore {
 }
 
 export const createProgramStore = (
-  contextValue: IContext["value"],
-  contextType: IContext["type"],
+  context: IContext,
   externalBindings: IExternalBinding[],
   rawFhirSchema: IFhirSchema[] | IFhirRegistry,
 ): StoreApi<IProgramStore> => {
@@ -122,7 +121,7 @@ export const createProgramStore = (
       bindingsIndex: {},
       tokenRefs: {},
 
-      getContextType: () => contextType,
+      getContext: () => context,
 
       getFhirSchema: () => fhirSchema,
 
@@ -157,13 +156,13 @@ export const createProgramStore = (
         }
 
         if (upToIndex != null) expression = expression.slice(0, upToIndex);
-        if (upToIndex != null && !expression.length) return contextType;
+        if (upToIndex != null && !expression.length) return context.type;
 
         return getExpressionType(
           expression,
           get().getQuestionnaireItems(),
           get().getPrecedingBindings(id),
-          contextType,
+          context.type,
           fhirSchema,
         );
       },
@@ -225,7 +224,7 @@ export const createProgramStore = (
             get()
               .program.bindings.slice(0, index)
               .filter((binding) => deps.includes(binding.id)),
-            contextValue,
+            context.value,
             externalBindings,
           );
         } catch (error) {
@@ -238,7 +237,7 @@ export const createProgramStore = (
           get().getBindingExpression(id),
           get().getQuestionnaireItems(),
           get().getPrecedingBindings(id),
-          contextType,
+          context.type,
           fhirSchema,
         ),
 
@@ -251,7 +250,7 @@ export const createProgramStore = (
           get().getBindingExpression(id),
           get().getQuestionnaireItems(),
           get().getPrecedingBindings(id),
-          contextType,
+          context.type,
           fhirSchema,
         ),
 

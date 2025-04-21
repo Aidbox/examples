@@ -24,7 +24,7 @@ function Editor({
     state.program.bindings.map((b) => b.id),
   );
 
-  const contextType = useProgramContext((state) => state.getContextType());
+  const context = useProgramContext((state) => state.getContext());
 
   return (
     <div
@@ -69,7 +69,7 @@ function Editor({
 
       {debug && (
         <div className="text-purple-600 truncate text-sm self-center">
-          <span>{stringifyType(contextType)}</span>
+          <span>{stringifyType(context.type)}</span>
         </div>
       )}
 

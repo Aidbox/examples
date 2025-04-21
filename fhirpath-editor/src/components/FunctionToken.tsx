@@ -57,7 +57,7 @@ const Argument = ({
   const {
     arg,
     updateArg,
-    contextType,
+    context,
     getBindingExpressionType,
     getBindingValue,
     getFhirSchema,
@@ -65,7 +65,7 @@ const Argument = ({
     arg: state.getArg(bindingId, tokenIndex, argIndex),
     updateArg: state.updateArg,
     deleteArg: state.deleteArg,
-    contextType: state.getContextType(),
+    context: state.getContext(),
     getBindingExpressionType: state.getBindingExpressionType,
     getBindingValue: state.getBindingValue,
     getFhirSchema: state.getFhirSchema,
@@ -95,18 +95,24 @@ const Argument = ({
     [updateArg, bindingId, tokenIndex, argIndex],
   );
 
+  const argContext = useMemo(
+    () => ({
+      value: contextValue,
+      type:
+        suggestedType?.type === TypeName.Lambda
+          ? suggestedType.contextType
+          : context.type,
+    }),
+    [contextValue, suggestedType, context],
+  );
+
   return (
     <ProgramProvider
       program={arg}
       onProgramChange={onProgramChange}
-      contextType={
-        suggestedType?.type === TypeName.Lambda
-          ? suggestedType.contextType
-          : contextType
-      }
+      context={argContext}
       externalBindings={externalizedBindings}
       fhirSchema={getFhirSchema()}
-      contextValue={contextValue}
     >
       <Editor className="px-4 pt-3 pb-5" title="Argument expression" />
     </ProgramProvider>

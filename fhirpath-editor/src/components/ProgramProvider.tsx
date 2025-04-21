@@ -5,7 +5,7 @@ import {
   ProgramContext,
 } from "@/utils/store";
 import { stringifyProgram } from "@/utils/stringify";
-import { IExternalBinding, IProgram, IType } from "@/types/internal";
+import { IContext, IExternalBinding, IProgram } from "@/types/internal";
 import { IFhirRegistry, IFhirSchema } from "@/utils/fhir.ts";
 import { StoreApi } from "zustand/index";
 
@@ -13,8 +13,7 @@ interface IProgramProviderProps {
   program: IProgram;
   onProgramChange: (program: IProgram) => void;
   onFhirPathChange?: (fhirPath: string) => void;
-  contextType: IType;
-  contextValue: any;
+  context: IContext;
   externalBindings: IExternalBinding[];
   fhirSchema: IFhirSchema[] | IFhirRegistry;
   children: ReactNode;
@@ -24,8 +23,7 @@ export function ProgramProvider({
   program,
   onProgramChange,
   onFhirPathChange,
-  contextType,
-  contextValue,
+  context,
   externalBindings,
   fhirSchema,
   children,
@@ -33,15 +31,8 @@ export function ProgramProvider({
   const [store, setStore] = useState<StoreApi<IProgramStore> | null>(null);
 
   useEffect(() => {
-    setStore(
-      createProgramStore(
-        contextValue,
-        contextType,
-        externalBindings,
-        fhirSchema,
-      ),
-    );
-  }, [contextType, externalBindings, fhirSchema, contextValue]);
+    setStore(createProgramStore(context, externalBindings, fhirSchema));
+  }, [context, externalBindings, fhirSchema]);
 
   useEffect(() => {
     if (store) {

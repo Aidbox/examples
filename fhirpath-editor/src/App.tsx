@@ -114,8 +114,7 @@ export function App() {
               program={program}
               onProgramChange={setProgram}
               onFhirPathChange={setFhirPath}
-              contextType={context.type}
-              contextValue={context.value}
+              context={context}
               externalBindings={externalBindings}
               fhirSchema={fhirSchema}
             >
