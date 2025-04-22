@@ -58,7 +58,7 @@ const Argument = ({
     arg,
     updateArg,
     context,
-    getBindingExpressionType,
+    getBindingType,
     getBindingValue,
     getFhirSchema,
   } = useProgramContext((state) => ({
@@ -66,26 +66,26 @@ const Argument = ({
     updateArg: state.updateArg,
     deleteArg: state.deleteArg,
     context: state.getContext(),
-    getBindingExpressionType: state.getBindingExpressionType,
+    getBindingType: state.getBindingType,
     getBindingValue: state.getBindingValue,
     getFhirSchema: state.getFhirSchema,
   }));
 
-  const precedingBindings = useProgramContext((state) =>
-    state.getPrecedingBindings(bindingId),
+  const bindableBindings = useProgramContext((state) =>
+    state.getBindableBindings(bindingId),
   );
 
   const externalizedBindings = useMemo(
     () =>
-      precedingBindings.map((binding) => ({
+      bindableBindings.map((binding) => ({
         id: binding.id,
         name: binding.name,
-        type: getBindingExpressionType(binding.id),
+        type: getBindingType(binding.id),
         value: isExternalBinding(binding)
           ? binding.value
           : getBindingValue(binding.id),
       })),
-    [precedingBindings, getBindingExpressionType, getBindingValue],
+    [bindableBindings, getBindingType, getBindingValue],
   );
 
   const onProgramChange = useCallback(
@@ -138,7 +138,7 @@ const FunctionToken = React.forwardRef<HTMLElement, ITokenComponentProps>(
     );
 
     const precedingExpressionType = useProgramContext((state) =>
-      state.getBindingExpressionType(bindingId, tokenIndex),
+      state.getExpressionType(bindingId, tokenIndex),
     );
 
     const meta = functionMetadata.find((f) => f.name === token.value);

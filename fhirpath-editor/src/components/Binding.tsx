@@ -25,7 +25,10 @@ const Binding = forwardRef<IBindingRef, IBindingProps>(
       renameBinding,
       setTokenRef,
       focusToken,
-      getBindingExpressionType,
+      getBindingType,
+      getDependantBindingIds,
+      getDependingBindings,
+      getBindableBindings,
     } = useProgramContext((state) => {
       return {
         name: bindingId && state.getBindingName(bindingId),
@@ -33,7 +36,10 @@ const Binding = forwardRef<IBindingRef, IBindingProps>(
         renameBinding: state.renameBinding,
         setTokenRef: state.setTokenRef,
         focusToken: state.focusToken,
-        getBindingExpressionType: state.getBindingExpressionType,
+        getBindingType: state.getBindingType,
+        getDependantBindingIds: state.getDependantBindingIds,
+        getDependingBindings: state.getDependingBindings,
+        getBindableBindings: state.getBindableBindings,
       };
     });
 
@@ -41,7 +47,7 @@ const Binding = forwardRef<IBindingRef, IBindingProps>(
       state.getBindingExpression(bindingId).map((t) => t.type),
     );
 
-    const type = getBindingExpressionType(bindingId);
+    const type = getBindingType(bindingId);
 
     useImperativeHandle(forwardingRef, () => {
       return {
@@ -179,7 +185,22 @@ const Binding = forwardRef<IBindingRef, IBindingProps>(
         </div>
 
         {debug && tokenTypes.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-start gap-2">
+            <div className="text-purple-600 truncate text-sm">
+              dependants: {getDependantBindingIds(bindingId).join(", ")}
+            </div>
+            <div className="text-purple-600 truncate text-sm">
+              dependencies:{" "}
+              {getDependingBindings(bindingId)
+                .map((b) => b.name)
+                .join(", ")}
+            </div>
+            <div className="text-purple-600 truncate text-sm">
+              bindables:{" "}
+              {getBindableBindings(bindingId)
+                .map((b) => b.name)
+                .join(", ")}
+            </div>
             <span
               className="text-purple-600 truncate text-sm"
               title={type.type === TypeName.Invalid ? type.error : ""}

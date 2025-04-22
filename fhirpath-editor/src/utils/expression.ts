@@ -25,7 +25,7 @@ import {
   unwrapSingle,
   wrapSingle,
 } from "./type";
-import { assertDefined, distinct, never } from "./misc";
+import { assertDefined, distinct, indexBy, never } from "./misc";
 import { FhirType, getFields, IFhirRegistry } from "./fhir";
 import "./function.ts";
 import { functionMetadata, suggestFunctionsForInputType } from "./function";
@@ -163,7 +163,7 @@ function buildOperatorTree(tokens: IToken[]): IToken[] | OperatorTreeLeaf {
 export const getExpressionType = (
   expression: IToken[],
   questionnaireItems: QuestionnaireItemRegistry,
-  bindings: IBinding[],
+  bindingTypes: Record<string, IType>,
   contextType: IContext["type"],
   fhirSchema: IFhirRegistry,
 ) => {
@@ -232,18 +232,7 @@ export const getExpressionType = (
             currentType = TypeType(token.value); // Return the actual type value
             continue;
           case TokenType.variable: {
-            const binding = bindings.find((b) => b.name === token.value);
-            currentType = !binding
-              ? InvalidType("Unknown variable")
-              : isExternalBinding(binding)
-                ? binding.type
-                : getExpressionType(
-                    binding.expression,
-                    questionnaireItems,
-                    bindings,
-                    contextType,
-                    fhirSchema,
-                  );
+            currentType = bindingTypes[token.value];
             continue;
           }
         }
@@ -279,7 +268,7 @@ export const getExpressionType = (
           const programType = getExpressionType(
             program.expression,
             questionnaireItems,
-            program.bindings,
+            bindingTypes, // todo: merge types of program.bindings
             suggestedType?.type === TypeName.Lambda
               ? suggestedType.contextType
               : contextType,
@@ -455,7 +444,8 @@ function toTokens(
   type: TokenType,
   contextExpressionType: IType,
   questionnaireItems: QuestionnaireItemRegistry,
-  bindings: IBinding[],
+  bindableBindings: IBinding[],
+  bindingTypes: Record<string, IType>,
   contextType: IContext["type"],
   fhirSchema: IFhirRegistry,
 ): ISuggestedToken[] {
@@ -481,7 +471,7 @@ function toTokens(
     case TokenType.field: {
       return Object.entries(getFields(contextExpressionType, fhirSchema)).map(
         ([field, type]) => ({
-          type,
+          type: TokenType.field,
           value: field,
           debug: stringifyType(type),
         }),
@@ -497,20 +487,10 @@ function toTokens(
         : [];
     }
     case TokenType.variable: {
-      return bindings.map((binding) => ({
+      return bindableBindings.map((binding) => ({
         type,
         value: binding.name,
-        debug: stringifyType(
-          isExternalBinding(binding)
-            ? binding.type
-            : getExpressionType(
-                binding.expression,
-                questionnaireItems,
-                bindings,
-                contextType,
-                fhirSchema,
-              ),
-        ),
+        debug: stringifyType(bindingTypes[binding.name]),
       }));
     }
     case TokenType.function: {
@@ -549,7 +529,8 @@ function toTokens(
 export function suggestNextTokens(
   expression: IToken[],
   questionnaireItems: QuestionnaireItemRegistry,
-  bindings: IBinding[],
+  bindableBindings: IBinding[],
+  bindingTypes: Record<string, IType>,
   contextType: IContext["type"],
   fhirSchema: IFhirRegistry,
 ): ISuggestedToken[] {
@@ -561,7 +542,7 @@ export function suggestNextTokens(
       ? getExpressionType(
           contextExpression,
           questionnaireItems,
-          bindings,
+          bindingTypes,
           contextType,
           fhirSchema,
         )
@@ -581,7 +562,8 @@ export function suggestNextTokens(
       type,
       contextExpressionType,
       questionnaireItems,
-      bindings,
+      bindableBindings,
+      bindingTypes,
       contextType,
       fhirSchema,
     ),
@@ -592,7 +574,8 @@ export function suggestTokensAt<T extends IToken>(
   index: number,
   expression: IToken[],
   questionnaireItems: QuestionnaireItemRegistry,
-  bindings: IBinding[],
+  bindableBindings: IBinding[],
+  bindingTypes: Record<string, IType>,
   contextType: IContext["type"],
   fhirSchema: IFhirRegistry,
 ): ISuggestedToken<T>[] {
@@ -607,7 +590,7 @@ export function suggestTokensAt<T extends IToken>(
       ? getExpressionType(
           contextExpression,
           questionnaireItems,
-          bindings,
+          bindingTypes,
           contextType,
           fhirSchema,
         )
@@ -618,7 +601,8 @@ export function suggestTokensAt<T extends IToken>(
       token.type,
       contextExpressionType,
       questionnaireItems,
-      bindings,
+      bindableBindings,
+      bindingTypes,
       contextType,
       fhirSchema,
     ) as ISuggestedToken<T>[];
@@ -638,4 +622,114 @@ export function isExternalBinding(
   binding: IBinding,
 ): binding is IExternalBinding {
   return "type" in binding && "value" in binding && !("expression" in binding);
+}
+
+function extractReferencedBindingNames(expression: IToken[]): string[] {
+  return expression.flatMap((token) => {
+    if (token.type === TokenType.variable) {
+      return [token.value];
+    } else if (token.type === TokenType.function) {
+      return token.args.flatMap((arg) => {
+        if (!arg) return [];
+
+        const shadowedNames = arg.bindings.map((b) => b.name);
+        const references = [
+          ...extractReferencedBindingNames(arg.expression),
+          ...arg.bindings.flatMap((binding) =>
+            extractReferencedBindingNames(binding.expression),
+          ),
+        ];
+        return references.filter((name) => !shadowedNames.includes(name));
+      });
+    } else {
+      return [];
+    }
+  });
+}
+
+export function extractReferencedBindings(
+  expression: IToken[],
+  bindings: ILocalBinding[],
+): Set<string> {
+  const names = distinct(extractReferencedBindingNames(expression));
+  const index = indexBy(bindings, "name");
+  return new Set(names.map((name) => index[name]?.id).filter(Boolean));
+}
+
+export function getTransitiveDependencies(
+  graph: Record<string, Set<string>>,
+  id: string,
+): Set<string> {
+  const visited = new Set<string>();
+  const stack = [id];
+
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    const deps = graph[current];
+
+    if (!deps) continue;
+
+    for (const dep of deps) {
+      if (!visited.has(dep)) {
+        visited.add(dep);
+        stack.push(dep);
+      }
+    }
+  }
+
+  return visited;
+}
+
+export function getTransitiveDependents(
+  graph: Record<string, Set<string>>,
+  id: string,
+): Set<string> {
+  const result = new Set<string>();
+
+  const hasPathTo = (
+    from: string,
+    target: string,
+    visited = new Set<string>(),
+  ): boolean => {
+    if (from === target) return true;
+    if (visited.has(from)) return false;
+
+    visited.add(from);
+    for (const neighbor of graph[from] || []) {
+      if (hasPathTo(neighbor, target, visited)) return true;
+    }
+
+    return false;
+  };
+
+  for (const candidate of Object.keys(graph)) {
+    if (candidate !== id && hasPathTo(candidate, id)) {
+      result.add(candidate);
+    }
+  }
+
+  return result;
+}
+
+export function walkDependencyGraph(
+  graph: Record<string, Set<string>>,
+  f: (nodeId: string) => void,
+) {
+  const visited = new Set<string>();
+
+  function visit(node: string) {
+    if (visited.has(node)) return;
+    visited.add(node);
+
+    const deps = graph[node] || new Set();
+    for (const dep of deps) {
+      visit(dep);
+    }
+
+    f(node);
+  }
+
+  for (const node of Object.keys(graph)) {
+    visit(node);
+  }
 }

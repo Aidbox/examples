@@ -375,7 +375,10 @@ function fieldSchemaToType(
   return elementAsFhirElement.scalar && single ? wrapSingle(result) : result;
 }
 
-export function getFields(type: IType, registry: IFhirRegistry) {
+export function getFields(
+  type: IType,
+  registry: IFhirRegistry,
+): Record<string, IType> {
   let single = false;
   if (type && type.type === TypeName.Single) {
     single = true;
