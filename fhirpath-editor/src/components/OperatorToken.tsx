@@ -43,9 +43,14 @@ const OperatorToken = React.forwardRef<HTMLElement, ITokenComponentProps>(
             {...mergeProps({
               className:
                 "cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-blue-50 border border-slate-300 text-blue-800 min-w-8 flex items-center justify-center",
+              // "cursor-pointer focus:outline-none px-0.5 py-0.5 rounded bg-blue-50 border border-slate-300 text-blue-800 min-w-6 flex items-center justify-center self-center",
             })}
           >
-            <OperatorIcon name={token.value} compact={false} />
+            <OperatorIcon
+              name={token.value}
+              compact={false}
+              // className="leading-[1.3065] text-sm"
+            />
           </button>
         )}
         renderItem={(token) => (

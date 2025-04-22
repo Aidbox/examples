@@ -18,39 +18,44 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react";
+import { FhirValue } from "@/types/internal.ts";
 
-function format(value: any): ReactNode {
-  if (value === null || value === undefined) {
-    return (
-      <>
-        <Empty /> empty
-      </>
-    );
-  } else if (value instanceof Error) {
+function format(value: FhirValue): ReactNode {
+  if (value.error) {
     return (
       <>
         <Warning /> error
       </>
     );
-  } else if (Array.isArray(value)) {
-    return value.length ? (
-      `${value.slice(0, 3).map(format).join(", ")}${value.length > 3 ? ", ..." : ""}`
+  } else if (value.value == null) {
+    return (
+      <>
+        <Empty /> empty
+      </>
+    );
+  } else if (Array.isArray(value.value)) {
+    return value.value.length ? (
+      `${value.value
+        .slice(0, 3)
+        .map((x) => (typeof x !== "object" ? x : "{...}"))
+        .join(", ")}${value.value.length > 3 ? ", ..." : ""}`
     ) : (
       <>
         <Empty /> empty
       </>
     );
   }
-  if (typeof value === "object") {
-    if (Object.keys(value).length === 0) return "{}";
-    if (value.resourceType) return `${value.resourceType}`;
+  if (typeof value.value === "object") {
+    if (Object.keys(value.value).length === 0) return "{}";
+    if (value.value.resourceType) return `${value.value.resourceType}`;
     return "{...}";
   }
-  return String(value);
+  return String(value.value);
 }
 
 const EvalViewer = ({ bindingId }: { bindingId: string | null }) => {
-  const { getBindingValue } = useProgramContext((state) => ({
+  const { name, getBindingValue } = useProgramContext((state) => ({
+    name: bindingId && state.getBindingName(bindingId),
     getBindingValue: state.getBindingValue,
   }));
 
@@ -131,19 +136,30 @@ const EvalViewer = ({ bindingId }: { bindingId: string | null }) => {
                 right: "calc(100% - 2px)",
               }}
             />
-            <JsonView
-              data={value instanceof Error ? value.message : value}
-              style={{
-                container:
-                  "bg-white rounded-md border border-gray-300 shadow-lg overflow-auto text-xs p-2 bg-gray-50 font-mono",
-                punctuation: "text-gray-400",
-                // noQuotesForStringValues: true,
-                label: "font-normal mr-2 text-gray-600",
-                stringValue: "text-orange-800 break-all",
-                collapsedContent:
-                  "px-1 after:content-['...'] font-normal text-gray-600 font-sans",
-              }}
-            />
+            {value.error ? (
+              <div className="bg-white rounded-md border border-gray-300 shadow-lg overflow-auto text-sm p-2 bg-gray-50 text-red-500 flex items-center gap-1">
+                <Warning className="shrink-0" />
+                <div className="truncate">
+                  {!value.origin || value.origin === name
+                    ? value.error.message
+                    : `One of the bindings (${value.origin}) has an error`}
+                </div>
+              </div>
+            ) : (
+              <JsonView
+                data={value.value}
+                style={{
+                  container:
+                    "bg-white rounded-md border border-gray-300 shadow-lg overflow-auto text-xs p-2 bg-gray-50 font-mono",
+                  punctuation: "text-gray-400",
+                  // noQuotesForStringValues: true,
+                  label: "font-normal mr-2 text-gray-600",
+                  stringValue: "text-orange-800 break-all",
+                  collapsedContent:
+                    "px-1 after:content-['...'] font-normal text-gray-600 font-sans",
+                }}
+              />
+            )}
           </div>
         </FloatingPortal>
       )}

@@ -29,7 +29,7 @@ import {
   Function,
 } from "@phosphor-icons/react";
 import { useProgramContext } from "@/utils/store";
-import { isEmptyProgram, isExternalBinding } from "@/utils/expression";
+import { isEmptyProgram } from "@/utils/expression";
 import { ProgramProvider } from "@/components/ProgramProvider";
 import {
   IFunctionMetadata,
@@ -81,9 +81,7 @@ const Argument = ({
         id: binding.id,
         name: binding.name,
         type: getBindingType(binding.id),
-        value: isExternalBinding(binding)
-          ? binding.value
-          : getBindingValue(binding.id),
+        value: getBindingValue(binding.id),
       })),
     [bindableBindings, getBindingType, getBindingValue],
   );

@@ -90,6 +90,7 @@ const stringifyVariableToken = (token: IVariableToken) => `%${token.value}`;
 interface IStringifyContext {
   first?: boolean;
   questionnaireItems: QuestionnaireItemRegistry;
+  bindingsOrder: Record<string, number>;
 }
 
 const stringifyFieldToken = (
@@ -184,6 +185,10 @@ export const stringifyProgram = (
 
   if (program.bindings.length > 0) {
     result = `${program.bindings
+      .slice(0)
+      .sort((a, b) => {
+        return context.bindingsOrder[a.id] - context.bindingsOrder[b.id];
+      })
       .map((binding) => stringifyBinding(binding, context))
       .join(".\n")}.\nselect(${result})`;
   }

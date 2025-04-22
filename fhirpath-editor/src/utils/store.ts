@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import {
-  evaluateExpression,
+  getExpressionValue,
   extractReferencedBindings,
   generateBindingId,
   getExpressionType,
@@ -23,6 +23,7 @@ import {
 } from "@/utils/fhir";
 import { getItems, QuestionnaireItemRegistry } from "@/utils/questionnaire";
 import {
+  FhirValue,
   IBinding,
   IBindingRef,
   IContext,
@@ -49,21 +50,24 @@ export interface IProgramStore {
   tokenRefs: Record<string, Array<HTMLElement | null>>;
   bindingDependencies: Record<string, Set<string>>;
   bindingTypes: Record<string, IType>;
+  bindingValues: Record<string, FhirValue>;
 
   getContext: () => IContext;
   getFhirSchema: () => IFhirRegistry;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string | null) => IToken[];
   getBindingName: (id: string) => string;
-  getPrecedingBindings: (id: string | null) => IBinding[];
   getExpressionType: (id: string | null, upToIndex?: number) => IType;
   getBindingType: (id: string | null) => IType;
+  getBindingValue: (id: string | null) => FhirValue;
   updateBindingType: (...ids: Array<string | null>) => void;
+  updateBindingValue: (...ids: Array<string | null>) => void;
   getBindableBindings: (id: string | null) => IBinding[];
   getDependingBindings: (id: string | null) => ILocalBinding[];
   getDependantBindingIds: (id: string | null) => Array<string | null>;
   getBindingTypes: () => Record<string, IType>;
-  getBindingValue: (id: string | null) => any;
+  getBindingValues: () => Record<string, FhirValue>;
+  getBindingsOrder: () => Record<string, number>;
   suggestNextTokens: (id: string | null) => ISuggestedToken[];
   suggestTokensAt: <T extends IToken = IToken>(
     id: string | null,
@@ -108,18 +112,33 @@ export interface IProgramStore {
   focusBinding: (id: string | null) => boolean;
 }
 
+function ensureFhirValue<T extends { value: FhirValue }>(
+  value: T & { value: any },
+): T {
+  return {
+    ...value,
+    value:
+      value.value instanceof FhirValue
+        ? value.value
+        : new FhirValue(value.value),
+  };
+}
+
 export const createProgramStore = (
-  context: IContext,
-  externalBindings: IExternalBinding[],
-  rawFhirSchema: IFhirSchema[] | IFhirRegistry,
+  _context: IContext,
+  _externalBindings: IExternalBinding[],
+  _fhirSchema: IFhirSchema[] | IFhirRegistry,
 ): StoreApi<IProgramStore> => {
-  const fhirSchema = Array.isArray(rawFhirSchema)
-    ? indexFhirSchemas(rawFhirSchema)
-    : rawFhirSchema;
+  const context = ensureFhirValue(_context);
+  const externalBindings = _externalBindings.map(ensureFhirValue);
+
+  const fhirSchema = Array.isArray(_fhirSchema)
+    ? indexFhirSchemas(_fhirSchema)
+    : _fhirSchema;
 
   const questionnaireItems = externalBindings.reduce((acc, binding) => {
     if (matchTypePattern(FhirType(["Questionnaire"]), binding.type))
-      Object.assign(acc, getItems(binding.value));
+      Object.assign(acc, getItems(binding.value.value));
     return acc;
   }, {} as QuestionnaireItemRegistry);
 
@@ -132,9 +151,8 @@ export const createProgramStore = (
         } else {
           _set((state) => {
             currentDraft = state;
-            const result = updater(state);
+            updater(state);
             currentDraft = undefined;
-            return result;
           });
         }
       };
@@ -154,6 +172,7 @@ export const createProgramStore = (
         tokenRefs: {},
         bindingDependencies: {},
         bindingTypes: {},
+        bindingValues: {},
 
         getContext: () => context,
 
@@ -168,14 +187,6 @@ export const createProgramStore = (
 
         getBindingName: (id) =>
           get().program.bindings[get().bindingsIndex[id]].name,
-
-        getPrecedingBindings: (id) => {
-          const index = get().bindingsIndex[`${id}`];
-          return [
-            ...externalBindings,
-            ...get().program.bindings.slice(0, index),
-          ];
-        },
 
         getBindableBindings: (id) => {
           const {
@@ -247,6 +258,25 @@ export const createProgramStore = (
           }
         },
 
+        getBindingValue: (id) => {
+          if (id === null) {
+            return get().bindingValues[""];
+          } else {
+            const index = get().bindingsIndex[`${id}`];
+            if (index != null) {
+              const binding = get().program.bindings[index];
+              return get().bindingValues[binding.name];
+            } else {
+              const externalBinding = externalBindings.find((b) => b.id === id);
+              if (externalBinding) {
+                return externalBinding.value;
+              } else {
+                throw new Error(`Binding ${id} not found`);
+              }
+            }
+          }
+        },
+
         updateBindingType: (...ids) =>
           set((state) => {
             const seen = new Set<string | null>();
@@ -285,25 +315,61 @@ export const createProgramStore = (
             }
           }),
 
+        updateBindingValue: (...ids) =>
+          set((state) => {
+            const seen = new Set<string | null>();
+            const target = [];
+            for (const id of ids) {
+              if (seen.has(id)) continue;
+              seen.add(id);
+              target.push(id);
+
+              for (const dependant of get().getDependantBindingIds(id)) {
+                if (seen.has(dependant)) continue;
+                seen.add(dependant);
+                target.push(dependant);
+              }
+            }
+
+            for (const id of target) {
+              if (id) {
+                const binding = state.program.bindings[state.bindingsIndex[id]];
+                state.bindingValues[binding.name] = getExpressionValue(
+                  binding.name,
+                  binding.expression,
+                  get().getBindingValues(),
+                  get().getQuestionnaireItems(),
+                  context.value,
+                );
+              } else {
+                state.bindingValues[""] = getExpressionValue(
+                  null,
+                  state.program.expression,
+                  get().getBindingValues(),
+                  get().getQuestionnaireItems(),
+                  context.value,
+                );
+              }
+            }
+          }),
+
         getBindingTypes: () => ({
           ...Object.fromEntries(externalBindings.map((b) => [b.name, b.type])),
           ...get().bindingTypes,
         }),
 
-        getBindingValue: (id) => {
-          try {
-            const expression = get().getBindingExpression(id);
+        getBindingValues: () => ({
+          ...Object.fromEntries(externalBindings.map((b) => [b.name, b.value])),
+          ...get().bindingValues,
+        }),
 
-            return evaluateExpression(
-              expression,
-              get().getQuestionnaireItems(),
-              get().getDependingBindings(id),
-              context.value,
-              externalBindings,
-            );
-          } catch (error) {
-            return error;
-          }
+        getBindingsOrder: () => {
+          const order: Record<string, number> = {};
+          let i = 0;
+          walkDependencyGraph(get().bindingDependencies, (id) => {
+            order[id || ""] = i++;
+          });
+          return order;
         },
 
         suggestNextTokens: (id) =>
@@ -376,6 +442,7 @@ export const createProgramStore = (
               extractReferencedBindings(expression, state.program.bindings),
             );
             state.updateBindingType(id);
+            state.updateBindingValue(id);
           }),
 
         addToken: (id, token, focus = true) =>
@@ -391,6 +458,7 @@ export const createProgramStore = (
               extractReferencedBindings(expression, state.program.bindings),
             );
             state.updateBindingType(id);
+            state.updateBindingValue(id);
             if (focus) {
               delay(get().focusToken.bind(null, id, expression.length - 1));
             }
@@ -408,6 +476,7 @@ export const createProgramStore = (
               extractReferencedBindings(expression, state.program.bindings),
             );
             state.updateBindingType(id);
+            state.updateBindingValue(id);
           }),
 
         setTokenRef: (id, index, ref) =>
@@ -464,6 +533,7 @@ export const createProgramStore = (
               extractReferencedBindings(expression, state.program.bindings),
             );
             state.updateBindingType(id);
+            state.updateBindingValue(id);
           }),
 
         deleteArg: (id, tokenIndex, argIndex) =>
@@ -486,6 +556,7 @@ export const createProgramStore = (
               extractReferencedBindings(expression, state.program.bindings),
             );
             state.updateBindingType(id);
+            state.updateBindingValue(id);
           }),
 
         trimBinding: (id) => {
@@ -529,6 +600,14 @@ export const createProgramStore = (
                   context.type,
                   fhirSchema,
                 );
+
+                state.bindingValues[binding.name] = getExpressionValue(
+                  binding.name,
+                  binding.expression,
+                  get().getBindingValues(),
+                  get().getQuestionnaireItems(),
+                  context.value,
+                );
               } else {
                 state.bindingTypes[""] = getExpressionType(
                   state.program.expression,
@@ -536,6 +615,14 @@ export const createProgramStore = (
                   get().getBindingTypes(),
                   context.type,
                   fhirSchema,
+                );
+
+                state.bindingValues[""] = getExpressionValue(
+                  null,
+                  state.program.expression,
+                  get().getBindingValues(),
+                  get().getQuestionnaireItems(),
+                  context.value,
                 );
               }
             });
@@ -591,6 +678,7 @@ export const createProgramStore = (
               ),
             );
             state.updateBindingType(binding.id);
+            state.updateBindingValue(binding.id);
 
             if (focus) {
               delay(get().focusBinding.bind(null, binding.id));
@@ -621,6 +709,7 @@ export const createProgramStore = (
               dependencies.delete(id),
             );
             state.updateBindingType(...dependants);
+            state.updateBindingValue(...dependants);
             if (focusId) {
               delay(get().focusBinding.bind(null, focusId));
             }

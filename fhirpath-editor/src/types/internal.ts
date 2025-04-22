@@ -126,7 +126,7 @@ export interface IExternalBinding {
   id: string;
   name: string;
   type: IType;
-  value: any;
+  value: FhirValue;
 }
 
 export type IBinding = ILocalBinding | IExternalBinding;
@@ -138,7 +138,7 @@ export interface IProgram {
 
 export interface IContext {
   type: IType;
-  value: any;
+  value: FhirValue;
 }
 
 export enum TypeName {
@@ -460,4 +460,12 @@ export interface ITokenComponentProps {
 export interface IBindingRef {
   focus: () => void;
   width: string | undefined;
+}
+
+export class FhirValue {
+  constructor(
+    public value: any,
+    public origin: string | null = null,
+    public error: { message: string } | null = null,
+  ) {}
 }

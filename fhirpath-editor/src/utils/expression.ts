@@ -29,10 +29,11 @@ import { assertDefined, distinct, indexBy, never } from "./misc";
 import { FhirType, getFields, IFhirRegistry } from "./fhir";
 import "./function.ts";
 import { functionMetadata, suggestFunctionsForInputType } from "./function";
-import { stringifyProgram, stringifyType } from "@/utils/stringify";
+import { stringifyExpression, stringifyType } from "@/utils/stringify";
 import fhirpath from "fhirpath";
 import r4 from "fhirpath/fhir-context/r4";
 import {
+  FhirValue,
   IBinding,
   IContext,
   IExternalBinding,
@@ -49,41 +50,55 @@ import { QuestionnaireItemRegistry } from "@/utils/questionnaire";
 
 const now = new Date();
 
-export const evaluateExpression = (
-  expression: IToken[],
-  questionnaireItems: QuestionnaireItemRegistry,
-  bindings: ILocalBinding[],
-  contextValue: IContext["value"],
-  externalBindings: IExternalBinding[],
-) => {
-  if (isEmptyProgram({ bindings, expression })) return null;
+function hasMessage(e: any): e is { message: string } {
+  return typeof e.message === "string";
+}
 
-  const code = stringifyProgram(
-    {
-      bindings,
-      expression,
-    },
-    {
-      questionnaireItems,
-    },
-  );
+export const getExpressionValue = (
+  name: string | null,
+  expression: IToken[],
+  bindingValues: Record<string, FhirValue>,
+  questionnaireItems: QuestionnaireItemRegistry,
+  contextValue: IContext["value"],
+): FhirValue => {
+  const code = stringifyExpression(expression, {
+    questionnaireItems,
+    bindingsOrder: {},
+  });
 
   try {
-    return fhirpath.evaluate(
-      structuredClone(contextValue),
+    const value = fhirpath.evaluate(
+      contextValue.value,
       code,
-      Object.fromEntries(
-        externalBindings.map((binding) => [
-          binding.name,
-          structuredClone(binding.value),
-        ]),
+      new Proxy(
+        {},
+        {
+          has(_, prop) {
+            return prop in bindingValues;
+          },
+          get(_, prop) {
+            const value = bindingValues[prop as string];
+            if (value.error) throw value;
+            return value.value;
+          },
+        },
       ),
       r4,
     );
+
+    return new FhirValue(value, name);
   } catch (e) {
-    console.debug("Error evaluating binding:", code);
-    console.debug(e);
-    throw e;
+    console.log("Error evaluating binding:", code);
+    console.log(e);
+    if (e instanceof FhirValue) {
+      return e;
+    } else {
+      return new FhirValue(
+        null,
+        name,
+        hasMessage(e) ? e : { message: (e as object).toString() },
+      );
+    }
   }
 };
 

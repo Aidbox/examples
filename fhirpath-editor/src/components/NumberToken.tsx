@@ -13,7 +13,7 @@ const NumberToken = React.forwardRef<HTMLElement, ITokenComponentProps>(
       <input
         ref={ref as React.Ref<HTMLInputElement>}
         data-testid="number-token"
-        className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 field-sizing-content min-w-8 text-center"
+        className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 field-sizing-content min-w-7 text-center"
         type="text"
         pattern="-?[0-9]*\.?[0-9]*"
         inputMode="decimal"

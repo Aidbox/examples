@@ -12,6 +12,7 @@ import q from "./vital-signs.json";
 import qr from "./vital-signs-response.json";
 import { FhirType, IFhirSchema } from "@/utils/fhir.ts";
 import {
+  FhirValue,
   IContext,
   IExternalBinding,
   IProgram,
@@ -68,7 +69,7 @@ export function App() {
     "fhirpath-editor/context",
     {
       type: FhirType(["QuestionnaireResponse"]),
-      value: qr,
+      value: new FhirValue(qr),
     },
   );
 
@@ -79,7 +80,7 @@ export function App() {
       name: "questionnaire",
       id: generateBindingId(),
       type: FhirType(["Questionnaire"]),
-      value: q,
+      value: new FhirValue(q),
     },
   ]);
 

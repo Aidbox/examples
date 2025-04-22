@@ -33,11 +33,13 @@ const operatorIcons: Partial<Record<OperatorName, Icon>> = {
 const OperatorIcon = ({
   name,
   compact = true,
+  className,
 }: {
   name: OperatorName;
   compact?: boolean;
+  className?: string;
 }) => (
-  <span className="text-center">
+  <span className={`text-center ${className || ""}`}>
     {operatorIcons[name] ? (
       createElement(operatorIcons[name], {
         size: 16,

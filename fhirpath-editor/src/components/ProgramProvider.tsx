@@ -38,12 +38,13 @@ export function ProgramProvider({
     if (store) {
       return store.subscribe((curState, prevState) => {
         if (curState.program !== prevState.program) {
-          const { program, getQuestionnaireItems } = curState;
+          const { program, getQuestionnaireItems, getBindingsOrder } = curState;
           onProgramChange(program);
           if (onFhirPathChange) {
             onFhirPathChange(
               stringifyProgram(program, {
                 questionnaireItems: getQuestionnaireItems(),
+                bindingsOrder: getBindingsOrder(),
               }),
             );
           }

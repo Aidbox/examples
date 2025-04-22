@@ -58,7 +58,7 @@ const VariableToken = React.forwardRef<HTMLElement, ITokenComponentProps>(
           <button
             ref={mergeRefs(forwardedRef as React.Ref<HTMLButtonElement>, ref)}
             {...mergeProps({
-              className: `cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-green-50 border border-slate-300 text-green-800`,
+              className: `cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-green-50 border border-slate-300 text-green-800 min-w-7`,
             })}
           >
             {token.value}
