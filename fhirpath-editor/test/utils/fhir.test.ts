@@ -23,6 +23,7 @@ describe("FHIRPath conversion", () => {
     type: { type: "String" },
     value: null,
     questionnaireItems: {},
+    bindingsOrder: {},
   };
 
   it("should convert number token", () => {

@@ -6,7 +6,7 @@ import { stringifyType } from "@/utils/stringify";
 import { NullType } from "@/utils/type";
 import { JsonEditor } from "./JsonEditor";
 import { FhirType } from "@/utils/fhir.ts";
-import { IContext, IExternalBinding } from "@/types/internal.ts";
+import { FhirValue, IContext, IExternalBinding } from "@/types/internal.ts";
 
 function detectFhirType(value: any) {
   if (Array.isArray(value)) {
@@ -64,9 +64,9 @@ export default function ContextEditor({
       id: generateBindingId(),
       name: `external${externalBindings.length + 1}`,
       type: SingleType(FhirType(["Patient"])),
-      value: {
+      value: new FhirValue({
         resourceType: "Patient",
-      },
+      }),
     };
 
     setExternalBindings([...externalBindings, newBinding]);
@@ -121,9 +121,9 @@ export default function ContextEditor({
   const onChange = useCallback(
     (newValue: any) => {
       if (activeBinding != null) {
-        updateBindingValue(activeBinding.id, newValue);
+        updateBindingValue(activeBinding.id, new FhirValue(newValue));
       } else {
-        updateContextValue(newValue);
+        updateContextValue(new FhirValue(newValue));
       }
     },
     [activeBinding, updateBindingValue, updateContextValue],
@@ -205,7 +205,7 @@ export default function ContextEditor({
 
       <JsonEditor
         key={activeBinding?.id || "context"}
-        value={activeBinding?.value || context.value}
+        value={activeBinding?.value.value || context.value.value}
         onChange={onChange}
       />
     </div>

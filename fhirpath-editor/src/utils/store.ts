@@ -112,15 +112,15 @@ export interface IProgramStore {
   focusBinding: (id: string | null) => boolean;
 }
 
-function ensureFhirValue<T extends { value: FhirValue }>(
-  value: T & { value: any },
+export function ensureFhirValue<T extends { value: FhirValue }>(
+  container: T & { value: FhirValue | any },
 ): T {
   return {
-    ...value,
+    ...container,
     value:
-      value.value instanceof FhirValue
-        ? value.value
-        : new FhirValue(value.value),
+      container.value instanceof FhirValue
+        ? container.value
+        : new FhirValue(container.value),
   };
 }
 

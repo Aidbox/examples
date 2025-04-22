@@ -18,6 +18,7 @@ import {
   IProgram,
   TokenType,
 } from "@/types/internal.ts";
+import { ensureFhirValue } from "@/utils/store.ts";
 
 export function App() {
   const {
@@ -71,18 +72,25 @@ export function App() {
       type: FhirType(["QuestionnaireResponse"]),
       value: new FhirValue(qr),
     },
+    ensureFhirValue,
+    (context) => ({ ...context, value: context.value.value }),
   );
 
   const [externalBindings, setExternalBindings] = useLocalStorageState<
     IExternalBinding[]
-  >("fhirpath-editor/externalBindings", [
-    {
-      name: "questionnaire",
-      id: generateBindingId(),
-      type: FhirType(["Questionnaire"]),
-      value: new FhirValue(q),
-    },
-  ]);
+  >(
+    "fhirpath-editor/externalBindings",
+    [
+      {
+        name: "questionnaire",
+        id: generateBindingId(),
+        type: FhirType(["Questionnaire"]),
+        value: new FhirValue(q),
+      },
+    ],
+    (bindings) => bindings.map(ensureFhirValue),
+    (bindings) => bindings.map((b) => ({ ...b, value: b.value.value })),
+  );
 
   if (loading) {
     return (
