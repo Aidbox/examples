@@ -1,95 +1,33 @@
-import { useState } from "react";
-import Editor from "@/components/Editor.tsx";
-import { useJsonFetch } from "@/utils/react";
+import { Editor, FhirSchema } from "../lib/index";
 
-import Code from "@/components/Code";
-import { ProgramProvider } from "@/components/ProgramProvider";
-import ContextEditor from "./ContextEditor";
-import { useLocalStorageState } from "@/utils/react";
+import Code from "./components/Code";
+import ContextEditor from "./components/ContextEditor";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { generateBindingId } from "@/utils/expression";
 import q from "./vital-signs.json";
 import qr from "./vital-signs-response.json";
-import { FhirType, IFhirSchema } from "@/utils/fhir.ts";
-import {
-  FhirValue,
-  IContext,
-  IExternalBinding,
-  IProgram,
-  TokenType,
-} from "@/types/internal.ts";
-import { ensureFhirValue } from "@/utils/store.ts";
+import { useDebug, useJsonFetch, useLocalStorageState } from "./utils/react";
 
 export function App() {
+  const debug = useDebug();
+
   const {
     data: fhirSchema,
     loading,
     error,
-  } = useJsonFetch<IFhirSchema[]>("schema.json");
-  const [fhirPath, setFhirPath] = useState("");
-  const [program, setProgram] = useLocalStorageState<IProgram>(
-    "fhirpath-editor/program",
-    {
-      bindings: [
-        {
-          name: "var1",
-          expression: [
-            { type: TokenType.answer, value: "iGM-r-zT" },
-            { type: TokenType.field, value: "value" },
-          ],
-          id: generateBindingId(),
-        },
-        {
-          name: "var2",
-          expression: [
-            { type: TokenType.answer, value: "e_NKgvHO" },
-            { type: TokenType.field, value: "value" },
-            {
-              type: TokenType.function,
-              value: "power",
-              args: [
-                {
-                  bindings: [],
-                  expression: [{ type: TokenType.number, value: "2" }],
-                },
-              ],
-            },
-          ],
-          id: generateBindingId(),
-        },
-      ],
-      expression: [
-        { type: TokenType.variable, value: "var1" },
-        { type: TokenType.operator, value: "/" },
-        { type: TokenType.variable, value: "var2" },
-      ],
-    },
+  } = useJsonFetch<FhirSchema[]>("schema.json");
+
+  const [value, setValue] = useLocalStorageState(
+    "fhirpath-editor/value",
+    "/* #b */ (1 + 2) * /* #a */ 3",
   );
 
-  const [context, setContext] = useLocalStorageState<IContext>(
-    "fhirpath-editor/context",
-    {
-      type: FhirType(["QuestionnaireResponse"]),
-      value: new FhirValue(qr),
-    },
-    ensureFhirValue,
-    (context) => ({ ...context, value: context.value.value }),
-  );
+  const [data, setData] = useLocalStorageState("fhirpath-editor/data", qr);
 
-  const [externalBindings, setExternalBindings] = useLocalStorageState<
-    IExternalBinding[]
-  >(
-    "fhirpath-editor/externalBindings",
-    [
-      {
-        name: "questionnaire",
-        id: generateBindingId(),
-        type: FhirType(["Questionnaire"]),
-        value: new FhirValue(q),
-      },
-    ],
-    (bindings) => bindings.map(ensureFhirValue),
-    (bindings) => bindings.map((b) => ({ ...b, value: b.value.value })),
+  const [variable, setVariables] = useLocalStorageState<Record<string, any>>(
+    "fhirpath-editor/variables",
+    {
+      questionnaire: q,
+    },
   );
 
   if (loading) {
@@ -119,16 +57,14 @@ export function App() {
       <PanelGroup direction="horizontal" autoSaveId="fhirpath-editor/1">
         <Panel className="flex flex-col">
           <div className="p-8 flex-1 overflow-auto">
-            <ProgramProvider
-              program={program}
-              onProgramChange={setProgram}
-              onFhirPathChange={setFhirPath}
-              context={context}
-              externalBindings={externalBindings}
-              fhirSchema={fhirSchema}
-            >
-              <Editor />
-            </ProgramProvider>
+            <Editor
+              defaultValue={value}
+              onChange={setValue}
+              data={data}
+              variables={variable}
+              schema={fhirSchema}
+              debug={debug}
+            />
           </div>
         </Panel>
         <PanelResizeHandle>
@@ -142,7 +78,7 @@ export function App() {
               </h2>
               <Code
                 className="text-sm p-4 border-t border-gray-200 w-full flex-1 overflow-auto"
-                value={fhirPath}
+                value={value}
               />
             </Panel>
             <PanelResizeHandle>
@@ -153,10 +89,10 @@ export function App() {
                 External Bindings
               </h2>
               <ContextEditor
-                context={context}
-                setContext={setContext}
-                externalBindings={externalBindings}
-                setExternalBindings={setExternalBindings}
+                context={data}
+                setContext={setData}
+                externalBindings={variable}
+                setExternalBindings={setVariables}
               />
             </Panel>
           </PanelGroup>

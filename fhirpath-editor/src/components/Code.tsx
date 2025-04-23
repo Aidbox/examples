@@ -2,8 +2,8 @@ import { highlightCode, tagHighlighter, tags } from "@lezer/highlight";
 import { parser } from "lezer-fhirpath";
 
 function highlightFhirPath(code: string) {
-  let result = document.createElement("pre");
-  let style = document.createElement("style");
+  const result = document.createElement("pre");
+  const style = document.createElement("style");
 
   style.innerHTML = `
     .tok-string { color: #a11; }
@@ -17,6 +17,7 @@ function highlightFhirPath(code: string) {
     .tok-punctuation { color: #555; } /* Brackets, parens, commas */
     .tok-typeName { color: #192b8c; } /* Type specifiers like Patient */
     .tok-invalid { color: red; text-decoration: underline; } /* For errors */
+    .tok-comment { color: #999; }
   `;
 
   result.appendChild(style);
@@ -24,7 +25,7 @@ function highlightFhirPath(code: string) {
   function emit(text: string, classes: string) {
     let node: Node = document.createTextNode(text);
     if (classes) {
-      let span = document.createElement("span");
+      const span = document.createElement("span");
       span.appendChild(node);
       span.className = classes;
       node = span;
@@ -49,6 +50,7 @@ function highlightFhirPath(code: string) {
       { tag: tags.function(tags.variableName), class: "tok-functionName" },
       { tag: tags.function(tags.attributeName), class: "tok-propertyName" },
       { tag: tags.constant(tags.variableName), class: "tok-constantName" },
+      { tag: tags.comment, class: "tok-comment" },
     ]),
     emit,
     emitBreak,

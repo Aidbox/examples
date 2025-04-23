@@ -1,131 +1,11 @@
-import React, { useCallback, Ref, RefCallback } from "react";
-
-export function useFlashState<T>(initialValue: T, delay = 300) {
-  const [value, setValue] = React.useState(initialValue);
-  const timer = React.useRef<ReturnType<typeof setTimeout>>();
-
-  const setFlashState = (newValue: T) => {
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
-
-    setValue(newValue);
-
-    if (newValue !== initialValue) {
-      timer.current = setTimeout(() => {
-        setValue(initialValue);
-      }, delay);
-    }
-  };
-
-  return [value, setFlashState] as const;
-}
-
-export function useDoubleInvoke(fn: () => void, delay = 300) {
-  const [invoking, setInvoking] = useFlashState(false, delay);
-
-  const invoke = React.useCallback(() => {
-    if (invoking) {
-      setInvoking(false);
-      fn();
-    } else {
-      setInvoking(true);
-    }
-  }, [fn, invoking, setInvoking]);
-
-  return [invoking, invoke] as const;
-}
-
-export function useCommitableState<T>(
-  original: T,
-  onCommit: (value: T) => void,
-  onFail: () => void,
-) {
-  const [value, setValue] = React.useState(original);
-  const timer = React.useRef<ReturnType<typeof setTimeout>>();
-  const originalRef = React.useRef(original);
-
-  React.useEffect(() => {
-    originalRef.current = original;
-  }, [original]);
-
-  const commitValue = () => {
-    onCommit(value);
-
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
-
-    timer.current = setTimeout(() => {
-      if (value !== originalRef.current) {
-        setValue(originalRef.current);
-        onFail();
-      }
-    }, 0);
-  };
-
-  return [value, setValue, commitValue] as const;
-}
-
-export function mergeRefs<T>(
-  ...inputRefs: Array<Ref<T> | undefined | null | false>
-): RefCallback<T> | Ref<T> | null {
-  const filteredInputRefs = inputRefs.filter(Boolean) as Ref<T>[];
-
-  if (filteredInputRefs.length <= 1) {
-    const firstRef = filteredInputRefs[0];
-    return firstRef || null;
-  }
-
-  return function mergedRefs(ref: T | null) {
-    for (const inputRef of filteredInputRefs) {
-      if (typeof inputRef === "function") {
-        inputRef(ref);
-      } else if (inputRef && "current" in inputRef) {
-        (inputRef as React.MutableRefObject<T | null>).current = ref;
-      }
-    }
-  };
-}
-
-export function useOnMount(fn: () => void) {
-  React.useEffect(() => {
-    fn();
-  }, [fn]);
-}
-
-export function useSearchParams() {
-  const parseSearchParams = (search: string) => {
-    return Object.fromEntries(new URLSearchParams(search.slice(1)).entries());
-  };
-
-  const [searchParams, setSearchParams] = React.useState(
-    parseSearchParams(window.location.search),
-  );
-
-  // subscribe to search params
-  React.useEffect(() => {
-    const listener = () => {
-      setSearchParams(parseSearchParams(window.location.search));
-    };
-    window.addEventListener("popstate", listener);
-    return () => window.removeEventListener("popstate", listener);
-  }, []);
-
-  return searchParams;
-}
-
-export function useDebug() {
-  const { debug } = useSearchParams();
-  return !!debug;
-}
+import { useCallback, useEffect, useState } from "react";
 
 export function useJsonFetch<T>(url: string): {
   loading: boolean;
   data: T | undefined;
   error: string | undefined;
 } {
-  const [state, setState] = React.useState<{
+  const [state, setState] = useState<{
     loading: boolean;
     data: T | undefined;
     error: string | undefined;
@@ -135,7 +15,7 @@ export function useJsonFetch<T>(url: string): {
     error: undefined,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       setState((prev) => ({ ...prev, loading: true, error: undefined }));
 
@@ -171,12 +51,10 @@ export function useJsonFetch<T>(url: string): {
 export function useLocalStorageState<T>(
   key: string,
   initialValue: T,
-  hydrate: (value: any) => T = (value) => value,
-  dehydrate: (value: T) => any = (value) => value,
 ): [T, (value: ((value: T) => T) | T) => void] {
   // State to store our value
   // Pass initial state function to useState so logic is only executed once
-  const [storedValue, setStoredValue] = React.useState(() => {
+  const [storedValue, setStoredValue] = useState(() => {
     if (typeof window === "undefined") {
       return initialValue;
     }
@@ -185,7 +63,7 @@ export function useLocalStorageState<T>(
       // Get from local storage by key
       const item = window.localStorage.getItem(key);
       // Parse stored json or if none return initialValue
-      return item ? hydrate(JSON.parse(item) as T) : initialValue;
+      return item ? (JSON.parse(item) as T) : initialValue;
     } catch (error) {
       // If error also return initialValue
       console.error(`Error reading localStorage key "${key}":`, error);
@@ -203,10 +81,7 @@ export function useLocalStorageState<T>(
             value instanceof Function ? value(storedValue) : value;
 
           if (typeof window !== "undefined") {
-            window.localStorage.setItem(
-              key,
-              JSON.stringify(dehydrate(valueToStore)),
-            );
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
           }
 
           return valueToStore;
@@ -219,4 +94,30 @@ export function useLocalStorageState<T>(
   );
 
   return [storedValue, setValue] as const;
+}
+
+export function useSearchParams() {
+  const parseSearchParams = (search: string) => {
+    return Object.fromEntries(new URLSearchParams(search.slice(1)).entries());
+  };
+
+  const [searchParams, setSearchParams] = useState(
+    parseSearchParams(window.location.search),
+  );
+
+  // subscribe to search params
+  useEffect(() => {
+    const listener = () => {
+      setSearchParams(parseSearchParams(window.location.search));
+    };
+    window.addEventListener("popstate", listener);
+    return () => window.removeEventListener("popstate", listener);
+  }, []);
+
+  return searchParams;
+}
+
+export function useDebug() {
+  const { debug } = useSearchParams();
+  return !!debug;
 }
