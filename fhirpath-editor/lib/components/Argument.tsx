@@ -3,6 +3,7 @@ import { useProgramContext } from "../utils/store";
 import { useCallback, useMemo } from "react";
 import { ProgramProvider } from "./ProgramProvider";
 import Program from "./Program";
+import css from "./Argument.module.css";
 
 type ArgumentProps = {
   bindingId: string;
@@ -80,7 +81,7 @@ export const Argument = ({
       fhirSchema={getFhirSchema()}
       debug={debug}
     >
-      <Program className="px-4 pt-3 pb-5" title="Argument expression" />
+      <Program className={css.program} title="Argument expression" />
     </ProgramProvider>
   );
 };

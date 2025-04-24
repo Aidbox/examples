@@ -190,6 +190,8 @@ function transformNode(node: LezerNode): IProgram {
             return [{ type: TokenType.string, value: unescapeString(value) }];
           case "Number":
             return [{ type: TokenType.number, value: value }];
+          case "Date":
+            return [{ type: TokenType.date, value: value.replace(/^@/, "") }];
           case "Datetime":
             return [
               { type: TokenType.datetime, value: value.replace(/^@/, "") },
@@ -266,13 +268,8 @@ function transformNode(node: LezerNode): IProgram {
       }
 
       case "IndexerExpression": {
-        if (children[1].type !== "Literal") {
-          throw new Error("Expected Literal for indexer expression");
-        }
-        return [
-          ...walk(children[0]),
-          { type: TokenType.index, value: children[1].value },
-        ];
+        const value = children[1]?.type === "Literal" ? children[1].value : "";
+        return [...walk(children[0]), { type: TokenType.index, value }];
       }
 
       case "Identifier":

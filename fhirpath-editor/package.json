@@ -3,13 +3,25 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/index.css"
+  },
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b ./tsconfig.lib.json && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@codemirror/commands": "^6.8.1",
     "@codemirror/lang-json": "^6.0.1",
     "@codemirror/state": "^6.5.2",
@@ -18,32 +30,36 @@
     "@lezer/highlight": "^1.2.1",
     "@lhncbc/ucum-lhc": "^7.1.2",
     "@phosphor-icons/react": "^2.1.7",
-    "@tailwindcss/vite": "^4.0.17",
-    "animate.css": "^4.1.1",
     "codemirror": "^6.0.1",
     "fhirpath": "^4.0.0",
     "immer": "^10.1.1",
-    "lezer-fhirpath": "^0.5.0",
+    "lezer-fhirpath": "^0.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-json-view-lite": "^2.4.1",
-    "react-resizable-panels": "^2.1.7",
-    "tailwindcss": "^4.0.17",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
+    "@tailwindcss/postcss": "^4.1.4",
     "@types/node": "^22.14.1",
     "@types/react": "^18.3.20",
     "@types/react-dom": "^18.3.6",
     "@vitejs/plugin-react": "^4.4.1",
+    "animate.css": "^4.1.1",
+    "classnames": "^2.5.1",
     "eslint": "^9.25.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.0.0",
+    "postcss": "^8.5.3",
     "prettier": "^3.5.3",
+    "react-resizable-panels": "^2.1.7",
+    "tailwindcss": "^4.1.4",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.31.0",
-    "vite": "^6.3.2"
+    "vite": "^6.3.2",
+    "vite-css-modules": "^1.8.5",
+    "vite-plugin-dts": "^4.5.3"
   }
 }

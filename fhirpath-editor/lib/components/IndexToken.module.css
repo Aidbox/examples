@@ -1,0 +1,17 @@
+.wrapper {
+    composes: button from "./Token.module.css";
+    gap: 0.125rem !important;
+
+    & > span {
+        user-select: none;
+    }
+
+    & > input {
+        field-sizing: content;
+        text-align: center;
+
+        &:focus {
+            outline: none;
+        }
+    }
+}

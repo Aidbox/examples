@@ -1,0 +1,26 @@
+diff --git a/node_modules/vite-css-modules/dist/index.cjs b/node_modules/vite-css-modules/dist/index.cjs
+index 073099a..8147043 100755
+--- a/node_modules/vite-css-modules/dist/index.cjs
++++ b/node_modules/vite-css-modules/dist/index.cjs
+@@ -709,7 +709,7 @@ const cssModules = (config, patchConfig) => {
+           const fileExists = await promises.access(filePath).then(() => true, () => false);
+           if (fileExists) {
+             await promises.writeFile(
+-              `${id}.d.ts`,
++              `${filePath}.d.ts`,
+               generateTypes(exports, allowArbitraryNamedExports)
+             );
+           }
+diff --git a/node_modules/vite-css-modules/dist/index.mjs b/node_modules/vite-css-modules/dist/index.mjs
+index b0c03ca..ca160a2 100755
+--- a/node_modules/vite-css-modules/dist/index.mjs
++++ b/node_modules/vite-css-modules/dist/index.mjs
+@@ -707,7 +707,7 @@ const cssModules = (config, patchConfig) => {
+           const fileExists = await access(filePath).then(() => true, () => false);
+           if (fileExists) {
+             await writeFile(
+-              `${id}.d.ts`,
++              `${filePath}.d.ts`,
+               generateTypes(exports, allowArbitraryNamedExports)
+             );
+           }

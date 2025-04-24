@@ -1,6 +1,7 @@
 import { forwardRef, Ref } from "react";
 import { useProgramContext } from "../utils/store";
 import { IDateTimeToken, TokenComponentProps } from "../types/internal";
+import { input } from "./DateTimeToken.module.css";
 
 const DateTimeToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
@@ -12,7 +13,7 @@ const DateTimeToken = forwardRef<HTMLElement, TokenComponentProps>(
     return (
       <input
         ref={ref as Ref<HTMLInputElement>}
-        className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 w-[16ch]"
+        className={input}
         placeholder="YYYY-MM-DDThh:mm:ss"
         type="datetime-local"
         value={token.value}

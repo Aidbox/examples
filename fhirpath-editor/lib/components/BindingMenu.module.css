@@ -1,0 +1,18 @@
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    color: #9ca3af;
+    align-self: stretch;
+    width: fit-content;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #e5e7eb;
+    }
+
+    &:focus {
+        outline: none;
+    }
+}

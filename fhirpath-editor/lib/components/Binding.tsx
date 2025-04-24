@@ -5,9 +5,11 @@ import { useCommitableState, useDoubleInvoke } from "../utils/react";
 import { Equals } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store";
 import { delay } from "../utils/misc";
-import EvalViewer from "./EvalViewer";
+import ValueViewer from "./ValueViewer.tsx";
 import { BindingRef, TypeName } from "../types/internal";
 import { stringifyType } from "../utils/type";
+import css from "./Binding.module.css";
+import clx from "classnames";
 
 type BindingProps = {
   bindingId: string;
@@ -74,7 +76,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
       name || "",
       (name) => bindingId && name && renameBinding(bindingId, name),
       () => {
-        setNameAnimation("animate__animated animate__shakeX animate__faster");
+        setNameAnimation(css.animate);
         delay(() => {
           if (nameRef.current) {
             nameRef.current.focus();
@@ -89,12 +91,11 @@ const Binding = forwardRef<BindingRef, BindingProps>(
         {name && (
           <input
             ref={nameRef}
-            className={`justify-self-start focus:outline-none field-sizing-content rounded px-1.5 py-0.5 bg-green-50 border border-slate-300 text-green-800 placeholder:text-green-100 ${nameAnimation}
-          ${
-            trimming && tokenTypes.length === 0
-              ? "!bg-red-500 !border-red-500 !text-white"
-              : ""
-          }`}
+            className={clx(
+              css.name,
+              nameAnimation,
+              trimming && tokenTypes.length === 0 && css.deleting,
+            )}
             onAnimationEnd={() => setNameAnimation("")}
             type="text"
             placeholder="Name"
@@ -104,9 +105,13 @@ const Binding = forwardRef<BindingRef, BindingProps>(
             onKeyDown={(e) => e.key === "Enter" && commitName()}
           />
         )}
-        {name && <Equals size={12} weight="bold" className="text-gray-400" />}
+        {name && <Equals size={12} weight="bold" className={css.equals} />}
         <div
-          className={`flex items-center ${expressionAnimation} ${!name ? "col-span-3" : ""}`}
+          className={clx(
+            css.expression,
+            expressionAnimation,
+            !name && css.nameless,
+          )}
           onKeyDown={(e) => {
             const targetAsInput = e.target as HTMLInputElement;
             const targetAsElement = e.target as HTMLElement;
@@ -154,54 +159,50 @@ const Binding = forwardRef<BindingRef, BindingProps>(
           }}
           onAnimationEnd={() => setExpressionAnimation("")}
         >
-          <div className="flex gap-1 w-full">
-            {tokenTypes.map((type, tokenIndex) => (
-              <Token
-                key={tokenIndex}
-                ref={(ref) => setTokenRef(bindingId, tokenIndex, ref)}
-                type={type}
-                bindingId={bindingId}
-                tokenIndex={tokenIndex}
-                deleting={trimming && tokenIndex === tokenTypes.length - 1}
-              />
-            ))}
-            <Cursor
-              ref={cursorRef}
+          {tokenTypes.map((type, tokenIndex) => (
+            <Token
+              key={tokenIndex}
+              ref={(ref) => setTokenRef(bindingId, tokenIndex, ref)}
+              type={type}
               bindingId={bindingId}
-              placeholder="Write expression..."
-              onBackspace={invokeTrim}
-              onMistake={() => {
-                setExpressionAnimation(
-                  "animate__animated animate__shakeX animate__faster",
-                );
-              }}
+              tokenIndex={tokenIndex}
+              deleting={trimming && tokenIndex === tokenTypes.length - 1}
             />
-          </div>
+          ))}
+          <Cursor
+            ref={cursorRef}
+            bindingId={bindingId}
+            placeholder="Write expression..."
+            onBackspace={invokeTrim}
+            onMistake={() => {
+              setExpressionAnimation(css.animate);
+            }}
+          />
         </div>
 
-        <div className="flex items-center gap-2">
-          {tokenTypes.length > 0 && <EvalViewer bindingId={bindingId} />}
+        <div className={css.hbox}>
+          {tokenTypes.length > 0 && <ValueViewer bindingId={bindingId} />}
         </div>
 
         {debug && tokenTypes.length > 0 && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-purple-600 truncate text-sm">
+          <div className={css.vbox}>
+            <div className={css.debug}>
               dependants: {getDependantBindingIds(bindingId).join(", ")}
             </div>
-            <div className="text-purple-600 truncate text-sm">
+            <div className={css.debug}>
               dependencies:{" "}
               {getDependingBindings(bindingId)
                 .map((b) => b.name)
                 .join(", ")}
             </div>
-            <div className="text-purple-600 truncate text-sm">
+            <div className={css.debug}>
               bindables:{" "}
               {getBindableBindings(bindingId)
                 .map((b) => b.name)
                 .join(", ")}
             </div>
             <span
-              className="text-purple-600 truncate text-sm"
+              className={css.debug}
               title={type.type === TypeName.Invalid ? type.error : ""}
             >
               {stringifyType(type)}

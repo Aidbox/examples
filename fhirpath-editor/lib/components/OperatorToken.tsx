@@ -6,6 +6,8 @@ import OperatorIcon from "./OperatorIcon";
 import Dropdown from "./Dropdown";
 import { mergeRefs } from "../utils/react";
 import { IOperatorToken, TokenComponentProps } from "../types/internal";
+import { button } from "./OperatorToken.module.css";
+import { icon, primary } from "./Dropdown.module.css";
 
 const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
@@ -40,23 +42,15 @@ const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({
-              className:
-                "cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-blue-50 border border-slate-300 text-blue-800 min-w-8 flex items-center justify-center",
-              // "cursor-pointer focus:outline-none px-0.5 py-0.5 rounded bg-blue-50 border border-slate-300 text-blue-800 min-w-6 flex items-center justify-center self-center",
-            })}
+            {...mergeProps({ className: button })}
           >
-            <OperatorIcon
-              name={token.value}
-              compact={false}
-              // className="leading-[1.3065] text-sm"
-            />
+            <OperatorIcon name={token.value} compact={false} />
           </button>
         )}
         renderItem={(token) => (
           <>
-            <OperatorIcon name={token.value} />
-            <span>{operatorNames[token.value]}</span>
+            <OperatorIcon name={token.value} className={icon} />
+            <span className={primary}>{operatorNames[token.value]}</span>
           </>
         )}
       />

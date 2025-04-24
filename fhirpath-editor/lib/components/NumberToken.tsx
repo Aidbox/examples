@@ -1,6 +1,7 @@
 import { forwardRef, Ref } from "react";
 import { useProgramContext } from "../utils/store";
 import { INumberToken, TokenComponentProps } from "../types/internal";
+import { input } from "./NumberToken.module.css";
 
 const NumberToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
@@ -12,7 +13,7 @@ const NumberToken = forwardRef<HTMLElement, TokenComponentProps>(
     return (
       <input
         ref={ref as Ref<HTMLInputElement>}
-        className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 field-sizing-content min-w-7 text-center"
+        className={input}
         type="text"
         pattern="-?[0-9]*\.?[0-9]*"
         inputMode="decimal"

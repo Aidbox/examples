@@ -5,6 +5,8 @@ import { Shapes } from "@phosphor-icons/react";
 
 import Dropdown from "./Dropdown";
 import { IFieldToken, TokenComponentProps } from "../types/internal";
+import { button } from "./Token.module.css";
+import { icon, primary, secondary } from "./Dropdown.module.css";
 
 const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
@@ -32,9 +34,7 @@ const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({
-              className: `cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600`,
-            })}
+            {...mergeProps({ className: button })}
           >
             {isLeadingToken ? "" : "."}
             {token.value}
@@ -42,13 +42,9 @@ const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
         )}
         renderItem={(token) => (
           <>
-            <Shapes size={16} className="text-gray-500 flex-shrink-0" />
-            <span className="truncate">{token.value}</span>
-            {debug && (
-              <span className="text-sm text-gray-500 truncate flex-1 text-right">
-                {token.debug}
-              </span>
-            )}
+            <Shapes size={16} className={icon} />
+            <span className={primary}>{token.value}</span>
+            {debug && <span className={secondary}>{token.debug}</span>}
           </>
         )}
       />

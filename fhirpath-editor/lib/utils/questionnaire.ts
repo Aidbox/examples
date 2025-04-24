@@ -78,6 +78,6 @@ export function getItems(questionnaire: {
     }
   }
 
-  questionnaire.item.forEach((item) => walk(item, true));
+  questionnaire?.item?.forEach((item) => walk(item, true));
   return index;
 }

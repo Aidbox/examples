@@ -22,6 +22,8 @@ import {
   Type,
 } from "../types/internal";
 import { unparseTypeToken } from "../utils/fhirpath";
+import { button } from "./Token.module.css";
+import { icon, primary } from "./Dropdown.module.css";
 
 const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
@@ -91,17 +93,15 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({
-              className: `cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600`,
-            })}
+            {...mergeProps({ className: button })}
           >
             {unparseTypeToken(token)}
           </button>
         )}
         renderItem={(type) => (
           <>
-            <Tag size={16} className="text-gray-500 shrink-0" />
-            <span className="truncate">
+            <Tag size={16} className={icon} />
+            <span className={primary}>
               {unparseTypeToken({ type: TokenType.type, value: type })}
             </span>
           </>

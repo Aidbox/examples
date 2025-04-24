@@ -27,7 +27,7 @@ jobs:
       - name: Build
         run: |
           cd fhirpath-editor
-          npm run build -- --base=/examples/fhirpath-editor
+          BUILD_TARGET=app npm run build -- --base=/examples/fhirpath-editor
 
       - name: Prepare for deployment
         run: |

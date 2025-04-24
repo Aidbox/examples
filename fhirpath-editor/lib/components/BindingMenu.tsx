@@ -7,6 +7,8 @@ import {
 import { ReactNode } from "react";
 import { useProgramContext } from "../utils/store";
 import Dropdown from "./Dropdown";
+import { icon } from "./Dropdown.module.css";
+import { button } from "./BindingMenu.module.css";
 
 type BindingMenuProps = {
   bindingId: string;
@@ -23,18 +25,18 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
 
   const items = [
     bindingId && {
-      icon: <Trash size={16} className="text-gray-500" />,
+      icon: <Trash size={16} className={icon} />,
       text: "Delete",
       onClick: () => deleteBinding(bindingId),
     },
     bindingId && {
-      icon: <Copy size={16} className="text-gray-500" />,
+      icon: <Copy size={16} className={icon} />,
       text: "Duplicate",
       onClick: () => duplicateBinding(bindingId),
     },
     !bindingId &&
       !empty && {
-        icon: <PuzzlePiece size={16} className="text-gray-500" />,
+        icon: <PuzzlePiece size={16} className={icon} />,
         text: "As named expression",
         onClick: () => nameExpression(),
       },
@@ -48,13 +50,7 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
     <Dropdown
       items={items}
       renderReference={(mergeProps, ref) => (
-        <button
-          ref={ref}
-          {...mergeProps({
-            className:
-              "flex items-center justify-center rounded text-gray-400 focus:outline-none self-stretch w-fit cursor-pointer hover:bg-gray-200",
-          })}
-        >
+        <button ref={ref} {...mergeProps({ className: button })}>
           <DotsThreeVertical size={16} weight="bold" />
         </button>
       )}

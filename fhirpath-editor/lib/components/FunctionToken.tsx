@@ -4,6 +4,7 @@ import {
   autoUpdate,
   flip,
   FloatingArrow,
+  FloatingOverlay,
   FloatingPortal,
   offset,
   shift,
@@ -36,6 +37,9 @@ import {
 } from "../types/internal";
 import { assertDefined } from "../utils/misc";
 import { Argument } from "./Argument";
+import tokenCss from "./Token.module.css";
+import dropdownCss from "./Dropdown.module.css";
+import css from "./FunctionToken.module.css";
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
@@ -168,33 +172,29 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
           ref={mergedRefs}
           {...getReferenceProps()}
           data-open={isOpen || undefined}
-          className="cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 flex items-center"
+          className={tokenCss.button}
         >
           {isLeadingToken ? "" : "."}
           {token.value}
-          <BracketsRound
-            size={16}
-            weight="bold"
-            className="mt-[0.0825rem] ml-0.5"
-          />
+          <BracketsRound size={16} weight="bold" />
         </button>
         {isOpen && (
           <FloatingPortal>
-            <div className="fixed inset-0 bg-black/30" />
+            <FloatingOverlay className={dropdownCss.backdrop} lockScroll />
             <div
               ref={refs.setFloating}
               style={floatingStyles}
-              className="bg-gray-50 rounded-md shadow-lg min-w-72 flex flex-col overflow-hidden"
+              className={css.dropdown}
               {...getFloatingProps()}
             >
               <FloatingArrow ref={arrowRef} context={context} fill="red" />
-              <div className="flex items-center py-2 px-2 gap-2">
+              <div className={css.header}>
                 {selectingName ? (
                   <input
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full px-2 py-1 focus:outline-none"
+                    className={css.search}
                     placeholder="Search..."
                     autoFocus
                     onKeyDown={(e) => {
@@ -210,21 +210,21 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                 ) : (
                   <>
                     <button
-                      className="flex items-center justify-between gap-1 cursor-pointer rounded px-2 py-1 flex-1"
+                      className={css.name}
                       onClick={() => setSelectingName(true)}
                     >
                       {meta.name} <CaretDown />
                     </button>
 
                     {meta.args.length > 0 && (
-                      <span className="text-gray-500 mt-0.5">Arguments</span>
+                      <span className={css.label}>arguments</span>
                     )}
 
-                    <div className="empty:hidden flex gap-[1px]">
+                    <div className={css.args}>
                       {meta.args.map((arg, argIndex) => (
                         <button
                           key={argIndex}
-                          className="relative cursor-pointer box-border first:rounded-l last:rounded-r px-2 py-1 data-[selected]:bg-gray-200 outline data-[optional]:outline-dashed outline-gray-300"
+                          className={css.arg}
                           data-selected={
                             argIndex === selectedArgIndex || undefined
                           }
@@ -233,24 +233,9 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                         >
                           {meta.args[argIndex].name}
                           {argIndex === selectedArgIndex && (
-                            <svg
-                              viewBox="0 0 12 12"
-                              width="12"
-                              className="absolute left-1/2 -translate-x-1/2 pointer-events-auto top-full mt-[0.5px]"
-                            >
-                              <path
-                                d="M1 8H11"
-                                stroke="white"
-                                strokeWidth="1px"
-                              />
-
-                              <path
-                                d="M1 8L6 2L11 8"
-                                stroke="currentColor"
-                                strokeWidth="1px"
-                                fill="white"
-                                className="text-gray-200"
-                              />
+                            <svg viewBox="0 0 12 12" className={css.arrow}>
+                              <path d="M1 8H11" />
+                              <path d="M1 8L6 2L11 8" />
                             </svg>
                           )}
                         </button>
@@ -259,7 +244,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                   </>
                 )}
               </div>
-              <div className="overflow-auto flex-1 border-t border-gray-200 empty:hidden bg-white">
+              <div className={css.body}>
                 {!selectingName &&
                   selectedArgIndex != null &&
                   meta.args[selectedArgIndex] !== undefined && (
@@ -275,29 +260,28 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                   (filteredFunctions.length > 0 ? (
                     Object.entries(groupedOptions).map(([group, options]) => (
                       <Fragment key={group}>
-                        <div className="text-sm font-semibold text-gray-500 px-3 py-3 pb-1 truncate sticky top-0 bg-white">
-                          {group}
-                        </div>
+                        <div className={dropdownCss.group}>{group}</div>
                         {options.map(({ meta, index }) => (
                           <button
                             key={meta.name}
                             ref={(node) => (listRef.current[index] = node)}
+                            data-active={activeIndex === index || undefined}
                             {...getItemProps({
-                              className: `focus:outline-none w-full px-3 py-2 text-left flex items-center gap-2 cursor-pointer last:rounded-b-md ${
-                                activeIndex === index ? "bg-gray-100" : ""
-                              }`,
+                              className: dropdownCss.option,
                               tabIndex: activeIndex === index ? 0 : -1,
                               onClick: () => handleSelectName(meta),
                             })}
                           >
-                            <Function size={16} className="text-gray-500" />
-                            {meta.name}
+                            <Function size={16} className={dropdownCss.icon} />
+                            <span className={dropdownCss.primary}>
+                              {meta.name}
+                            </span>
                           </button>
                         ))}
                       </Fragment>
                     ))
                   ) : (
-                    <div className="text-gray-500 flex items-center gap-1 whitespace-nowrap px-3 py-3">
+                    <div className={dropdownCss.empty}>
                       <Empty size={16} /> Nothing found
                     </div>
                   ))}

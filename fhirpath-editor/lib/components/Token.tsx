@@ -14,6 +14,8 @@ import IndexToken from "./IndexToken";
 import FunctionToken from "./FunctionToken";
 import AnswerToken from "./AnswerToken";
 import { TokenComponentProps, TokenType } from "../types/internal";
+import css from "./Token.module.css";
+import clx from "classnames";
 
 const getTokenComponent = (
   type: TokenType,
@@ -66,11 +68,7 @@ const Token = forwardRef<HTMLElement, TokenProps>(
     return (
       <div
         data-token-index={props.tokenIndex}
-        className={`flex items-stretch ${
-          deleting
-            ? "bg-red-500 rounded group **:!text-white **:placeholder:!text-white **:!outline-none **:!border-transparent **:!bg-transparent"
-            : ""
-        }`}
+        className={clx(css.container, deleting && css.deleting)}
       >
         <TokenComponent ref={ref} {...props} />
       </div>

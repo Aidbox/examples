@@ -1,0 +1,7 @@
+.input {
+    composes: button from "./Token.module.css";
+
+    &::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+}

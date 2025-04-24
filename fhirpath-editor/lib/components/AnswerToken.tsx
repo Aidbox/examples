@@ -4,6 +4,8 @@ import { Textbox } from "@phosphor-icons/react";
 import Dropdown from "./Dropdown";
 import { mergeRefs } from "../utils/react";
 import { IAnswerToken } from "../types/internal";
+import { icon, primary, secondary } from "./Dropdown.module.css";
+import css from "./AnswerToken.module.css";
 
 type AnswerTokenProps = {
   bindingId: string;
@@ -46,31 +48,23 @@ const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({
-              className: `cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 flex items-center gap-1`,
-            })}
+            {...mergeProps({ className: css.button })}
           >
-            <Textbox className="opacity-50" />
-            <span className="max-w-42 truncate">
-              {questionnaireItems[token.value]?.text || token.value}
-            </span>
+            <Textbox className={icon} />
+            <span>{questionnaireItems[token.value]?.text || token.value}</span>
           </button>
         )}
         renderItem={(token) => (
           <>
-            <Textbox size={16} className="text-gray-500 shrink-0" />
-            <span className="truncate">
+            <Textbox size={16} className={css.icon} />
+            <span className={primary}>
               {questionnaireItems[token.value]?.text || token.value}{" "}
             </span>
             {debug ? (
-              <span className="text-sm text-gray-500 truncate flex-1 text-right">
-                {token.debug}
-              </span>
+              <span className={secondary}>{token.debug}</span>
             ) : (
               questionnaireItems[token.value] && (
-                <div className="text-sm text-gray-500 truncate flex-1 text-right">
-                  {token.value}
-                </div>
+                <div className={secondary}>{token.value}</div>
               )
             )}
           </>

@@ -1,6 +1,5 @@
 import { ReactNode, useRef, useState } from "react";
 import { JsonView } from "react-json-view-lite";
-import "react-json-view-lite/dist/index.css";
 import { ArrowRight, Empty, Warning } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store";
 import {
@@ -19,6 +18,8 @@ import {
   useRole,
 } from "@floating-ui/react";
 import { FhirValue } from "../types/internal";
+import css from "./ValueViewer.module.css";
+import jsonViewCss from "./JsonView.module.css";
 
 function format(value: FhirValue): ReactNode {
   if (value.error) {
@@ -57,7 +58,7 @@ type EvalViewerProps = {
   bindingId: string;
 };
 
-const EvalViewer = ({ bindingId }: EvalViewerProps) => {
+const ValueViewer = ({ bindingId }: EvalViewerProps) => {
   const { name, getBindingValue } = useProgramContext((state) => ({
     name: bindingId && state.getBindingName(bindingId),
     getBindingValue: state.getBindingValue,
@@ -112,11 +113,9 @@ const EvalViewer = ({ bindingId }: EvalViewerProps) => {
       <button
         ref={refs.setReference}
         {...getReferenceProps()}
-        className="cursor-pointer focus:outline-none rounded px-1.5 py-0.5 text-gray-500 data-[error]:text-red-500 data-[error]:font-mono flex items-center gap-1 text-sm truncate"
-        // data-error={value instanceof Error || undefined}
+        className={css.button}
       >
         <ArrowRight size={12} />
-
         {format(value)}
       </button>
 
@@ -127,23 +126,20 @@ const EvalViewer = ({ bindingId }: EvalViewerProps) => {
             style={floatingStyles}
             aria-labelledby={headingId}
             {...getFloatingProps()}
-            className="max-w-96"
+            className={css.popover}
           >
             <FloatingArrow
               ref={arrowRef}
               context={context}
-              className="fill-white [&>path:first-of-type]:stroke-gray-300 [&>path:last-of-type]:stroke-white"
+              className={css.arrow}
               strokeWidth={1}
               height={6}
               width={10}
-              style={{
-                right: "calc(100% - 2px)",
-              }}
             />
             {value.error ? (
-              <div className="bg-white rounded-md border border-gray-300 shadow-lg overflow-auto text-sm p-2 bg-gray-50 text-red-500 flex items-center gap-1">
-                <Warning className="shrink-0" />
-                <div className="truncate">
+              <div className={css.error}>
+                <Warning />
+                <div>
                   {!value.origin || value.origin === name
                     ? value.error.message
                     : `One of the bindings (${value.origin}) has an error`}
@@ -153,14 +149,11 @@ const EvalViewer = ({ bindingId }: EvalViewerProps) => {
               <JsonView
                 data={value.value}
                 style={{
-                  container:
-                    "bg-white rounded-md border border-gray-300 shadow-lg overflow-auto text-xs p-2 bg-gray-50 font-mono",
-                  punctuation: "text-gray-400",
-                  // noQuotesForStringValues: true,
-                  label: "font-normal mr-2 text-gray-600",
-                  stringValue: "text-orange-800 break-all",
-                  collapsedContent:
-                    "px-1 after:content-['...'] font-normal text-gray-600 font-sans",
+                  container: jsonViewCss.container,
+                  punctuation: jsonViewCss.punctuation,
+                  label: jsonViewCss.label,
+                  stringValue: jsonViewCss.stringValue,
+                  collapsedContent: jsonViewCss.collapsedContent,
                 }}
               />
             )}
@@ -171,4 +164,4 @@ const EvalViewer = ({ bindingId }: EvalViewerProps) => {
   );
 };
 
-export default EvalViewer;
+export default ValueViewer;

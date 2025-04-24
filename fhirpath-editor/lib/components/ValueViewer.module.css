@@ -1,0 +1,58 @@
+.button {
+    /*cursor-pointer focus:outline-none rounded px-1.5 py-0.5 text-gray-500 flex items-center gap-1 text-sm truncate*/
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.arrow {
+    margin-right: -1px;
+    fill: #fff;
+
+    & > path:first-of-type {
+        stroke: #d1d5db;
+    }
+
+    & > path:last-of-type {
+        stroke: #fff;
+    }
+}
+
+.error {
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    overflow: auto;
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    & > svg {
+        flex-shrink: 0;
+    }
+
+    & > div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.popover {
+    max-width: 24rem;
+}
