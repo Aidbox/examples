@@ -1,54 +1,93 @@
-# React + TypeScript + Vite
+# FHIRPath Editor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React component library for editing and evaluating FHIRPath expressions with real-time feedback.
 
-Currently, two official plugins are available:
+## Online Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Try the interactive demo at [https://aidbox.github.io/examples/fhirpath-editor/](https://aidbox.github.io/examples/fhirpath-editor/)
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+npm install fhirpath-editor
+# or
+yarn add fhirpath-editor
+```
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
+## Usage
+
+The library provides an `Editor` component for working with FHIRPath expressions:
+
+```tsx
+import { Editor } from "fhirpath-editor";
+
+function MyFhirPathEditor() {
+  // FHIRPath expression to evaluate
+  const value = "(1 + 2) * 3";
+  const handleChange = (newValue) =>
+    console.log("Expression changed:", newValue);
+
+  // Simple FHIR resource to evaluate FHIRPath against
+  const data = {
+    resourceType: "Patient",
+    id: "example",
+    name: [
+      {
+        family: "Smith",
+        given: ["John"],
+      },
+    ],
+    birthDate: "1970-01-01",
+  };
+
+  // Simple external variables available to FHIRPath expressions
+  const variables = {
+    questionnaire: {
+      resourceType: "Questionnaire",
+      id: "simple-example",
+      status: "active",
+      item: [
+        {
+          linkId: "1",
+          text: "Simple Question",
+          type: "string",
+        },
+      ],
     },
-  },
-})
+  };
+
+  // FHIR schema can be loaded from https://aidbox.github.io/examples/fhirpath-editor/schema.json
+  const fhirSchema = []; // Replace with actual schema data
+
+  return (
+    <Editor
+      defaultValue={value}
+      onChange={handleChange}
+      data={data}
+      variables={variables}
+      schema={fhirSchema}
+    />
+  );
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Props
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Prop           | Type                    | Required | Description                                   |
+| -------------- | ----------------------- | -------- | --------------------------------------------- |
+| `defaultValue` | string                  | Yes      | Initial FHIRPath expression                   |
+| `onChange`     | (value: string) => void | No       | Callback for expression changes               |
+| `data`         | any                     | Yes      | The context data to evaluate FHIRPath against |
+| `variables`    | Record<string, any>     | No       | External bindings available to expressions    |
+| `schema`       | FhirSchema[]            | Yes      | FHIR schema definitions for validation        |
+| `debug`        | boolean                 | No       | Enable debug mode                             |
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Features
+
+- Low-code environment for developing and testing FHIRPath expressions
+- Interactive visual editor with instant feedback
+- Real-time evaluation against FHIR resources
+- Support for external variable bindings
+- Schema-based validation with autocomplete suggestions
+- Syntax highlighting and error detection
+- Reduces development time for complex FHIRPath queries
