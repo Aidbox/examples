@@ -11,7 +11,7 @@ import {
   IProgram,
 } from "../types/internal";
 import { StoreApi } from "zustand/index";
-import { unparse } from "../utils/fhirpath";
+import { unparseProgram } from "../utils/fhirpath";
 
 type ProgramProviderProps = {
   program: IProgram;
@@ -44,13 +44,13 @@ export function ProgramProvider({
     if (store) {
       return store.subscribe((curState, prevState) => {
         if (curState.program !== prevState.program) {
-          const { program, getQuestionnaireItems } = curState;
+          const { program, getQuestionnaireItems, getBindingsOrder } = curState;
           onProgramChange?.(program);
           if (onFhirPathChange) {
             onFhirPathChange(
-              unparse(program.expression, {
+              unparseProgram(program, {
                 questionnaireItems: getQuestionnaireItems(),
-                bindings: program.bindings,
+                bindingsOrder: getBindingsOrder(),
               }),
             );
           }

@@ -73,7 +73,7 @@ function Program({ className = "", title = "Main Expression" }: ProgramProps) {
       <div
         className={`grid grid-cols-subgrid items-center h-8 ${debug ? "col-span-6" : "col-span-5"}`}
       >
-        <span></span>
+        <BindingMenu bindingId="" />
         <Binding ref={(ref) => setBindingRef("", ref)} bindingId={""} />
       </div>
     </div>

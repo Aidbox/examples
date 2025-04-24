@@ -57,6 +57,7 @@ export interface IProgramStore {
   getExpressionType: (id: string, upToIndex?: number) => Type;
   getBindingType: (id: string) => Type;
   getBindingValue: (id: string) => FhirValue;
+  getBindingsOrder: () => Record<string, number>;
   updateBindingType: (...ids: Array<string>) => void;
   updateBindingValue: (...ids: Array<string>) => void;
   getBindableBindings: (id: string) => Binding[];
@@ -251,6 +252,15 @@ export const createProgramStore = (
               }
             }
           }
+        },
+
+        getBindingsOrder: () => {
+          const order: Record<string, number> = {};
+          let i = 0;
+          walkDependencyGraph(get().bindingDependencies, (id) => {
+            order[id || ""] = i++;
+          });
+          return order;
         },
 
         updateBindingType: (...ids) =>
@@ -474,7 +484,9 @@ export const createProgramStore = (
 
             if (argIndex >= token.args.length) {
               token.args.push(
-                ...Array(argIndex - token.args.length + 1).fill(emptyProgram),
+                ...Array(argIndex - token.args.length + 1).fill(
+                  structuredClone(emptyProgram),
+                ),
               );
             }
             const origin = token.args[argIndex];

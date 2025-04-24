@@ -31,7 +31,6 @@ import {
   standardTypeMap,
   typePrimitiveMap,
 } from "./type";
-import { assertDefined } from "./misc.ts";
 
 function buildNode(cursor: TreeCursor, input: string): LezerNode | null {
   const type = cursor.node.type.name;
@@ -47,7 +46,8 @@ function buildNode(cursor: TreeCursor, input: string): LezerNode | null {
     type === "." ||
     type === "%" ||
     type === "⚠" ||
-    type === "LineComment"
+    type === "LineComment" ||
+    type === "BlockComment"
   ) {
     return null;
   }
@@ -56,21 +56,11 @@ function buildNode(cursor: TreeCursor, input: string): LezerNode | null {
 
   // Process children
   if (cursor.firstChild()) {
-    let comment: string;
-
     do {
       const child = buildNode(cursor, input);
 
       if (child) {
-        if (child.type === "BlockComment") {
-          comment = child.value.replace(/\/\*\s*(.*?)\s*\*\//, "$1");
-        } else {
-          if (comment) {
-            child.comment = comment;
-            comment = undefined;
-          }
-          children.push(child);
-        }
+        children.push(child);
       }
     } while (cursor.nextSibling());
     cursor.parent();
@@ -155,20 +145,11 @@ function hasHigherPrecedence(a: LezerNode, b: LezerNode) {
   );
 }
 
-function unparseBindingName(name) {
-  return "#" + name;
-}
-
-function parseBindingName(text) {
-  const [, name] = (text || "").match(/^#(.+)$/) || [];
-  return name || null;
-}
-
-function transformNode(node: LezerNode, level = 0): IProgram {
+function transformNode(node: LezerNode): IProgram {
   const bindings: LocalBinding[] = [];
   let varCounter = 0;
 
-  function declare({
+  function define({
     name,
     expression,
   }: {
@@ -199,35 +180,25 @@ function transformNode(node: LezerNode, level = 0): IProgram {
 
       case "Literal": {
         const { type, value, children: parts } = children[0];
-        let expression: Token;
 
         switch (type) {
           case "Boolean":
-            expression = [
+            return [
               { type: TokenType.boolean, value: value as "true" | "false" },
             ];
-            break;
           case "String":
-            expression = [
-              { type: TokenType.string, value: unescapeString(value) },
-            ];
-            break;
+            return [{ type: TokenType.string, value: unescapeString(value) }];
           case "Number":
-            expression = [{ type: TokenType.number, value: value }];
-            break;
+            return [{ type: TokenType.number, value: value }];
           case "Datetime":
-            expression = [
+            return [
               { type: TokenType.datetime, value: value.replace(/^@/, "") },
             ];
-            break;
           case "Time":
-            expression = [
-              { type: TokenType.time, value: value.replace(/^@T/, "") },
-            ];
-            break;
+            return [{ type: TokenType.time, value: value.replace(/^@T/, "") }];
           case "Quantity": {
             const unit = parts[1].children[0];
-            expression = [
+            return [
               {
                 type: TokenType.quantity,
                 value: {
@@ -239,19 +210,10 @@ function transformNode(node: LezerNode, level = 0): IProgram {
                 },
               },
             ];
-            break;
           }
           // todo: support empty literal
           default:
             throw new Error(`Unknown literal type: ${type}`);
-        }
-
-        assertDefined(expression);
-        const name = parseBindingName(node.comment);
-        if (name) {
-          return declare({ expression, name });
-        } else {
-          return expression;
         }
       }
 
@@ -259,13 +221,13 @@ function transformNode(node: LezerNode, level = 0): IProgram {
         const [operator, operand] = children;
 
         if (operator.value === "+") {
-          return walk(operand, true);
+          return walk(operand);
         } else {
           if (operand.type === "Literal") {
             operand.children[0].value = "-" + operand.children[0].value;
-            return walk(operand, true);
+            return walk(operand);
           } else {
-            return walk(makeAdditiveFromPolarity(operator, operand), true);
+            return walk(makeAdditiveFromPolarity(operator, operand));
           }
         }
       }
@@ -282,22 +244,17 @@ function transformNode(node: LezerNode, level = 0): IProgram {
       case "ImpliesExpression": {
         const [leftNode, { value: operator }, rightNode] = children;
 
-        let leftExpression = walk(leftNode, true);
-        const leftName =
-          parseBindingName(leftNode.comment) || parseBindingName(node.comment);
-        if (hasHigherPrecedence(node, leftNode) || leftName) {
-          leftExpression = declare({
+        let leftExpression = walk(leftNode);
+        if (hasHigherPrecedence(node, leftNode)) {
+          leftExpression = define({
             expression: leftExpression,
-            name: leftName,
           });
         }
 
-        let rightExpression = walk(rightNode, true);
-        const rightName = parseBindingName(rightNode.comment);
-        if (hasHigherPrecedence(node, rightNode) || rightName) {
-          rightExpression = declare({
+        let rightExpression = walk(rightNode);
+        if (hasHigherPrecedence(node, rightNode)) {
+          rightExpression = define({
             expression: rightExpression,
-            name: rightName,
           });
         }
 
@@ -353,20 +310,31 @@ function transformNode(node: LezerNode, level = 0): IProgram {
 
       case "InvocationExpression": {
         const [parent, target] = children;
-        const expression = [...walk(parent), ...walk(target)];
-        const name = first ? parseBindingName(node.comment) : null;
-        return name ? declare({ expression, name }) : expression;
+        return [...walk(parent), ...walk(target, first)];
       }
 
       case "Function": {
         const [{ value: name }, params] = children;
         const { children: args } = params || { children: [] };
 
+        if (name === "defineVariable") {
+          const [name, expression] = args;
+          define({
+            expression: walk(expression),
+            name: unescapeString(name.value),
+          });
+          return [];
+        }
+
+        if (name === "select" && first) {
+          return walk(args[0]);
+        }
+
         return [
           {
             type: TokenType.function,
             value: unescapeIdentifier(name),
-            args: args.map((arg) => transformNode(arg, level + 1)),
+            args: args.map((arg) => transformNode(arg)),
           },
         ];
       }
@@ -381,7 +349,7 @@ function transformNode(node: LezerNode, level = 0): IProgram {
 
   return {
     bindings: bindings,
-    expression: walk(node),
+    expression: walk(node, true),
   };
 }
 
@@ -432,17 +400,8 @@ const unparseOperatorToken = (token: IOperatorToken) => {
   return ` ${token.value} `;
 };
 
-const unparseVariableToken = (
-  token: IVariableToken,
-  context: UnparseContext,
-) => {
-  const expression = context.bindings.find(
-    (b) => b.name === token.value,
-  )?.expression;
-
-  return expression
-    ? `/* ${unparseBindingName(token.value)} */ (${unparse(expression, context)})`
-    : `%${token.value}`;
+const unparseVariableToken = (token: IVariableToken) => {
+  return `%${token.value}`;
 };
 
 const unparseFieldToken = (token: IFieldToken, { first }: UnparseContext) =>
@@ -471,14 +430,7 @@ const unparseFunctionToken = (
 ) => {
   const args = token.args
     ? token.args
-        .map((arg) =>
-          arg
-            ? unparse(arg.expression, {
-                ...context,
-                bindings: arg.bindings,
-              })
-            : "{}",
-        )
+        .map((arg) => (arg ? unparseProgram(arg, context) : "{}")) // todo: pass inner bindingsOrder
         .join(", ")
     : "";
   return `${first ? "" : "."}${token.value}(${args})`;
@@ -501,7 +453,10 @@ const tokenUnparsers = {
   [TokenType.answer]: unparseAnswerToken,
 } as const;
 
-export const unparse = (expression: Token[], context: UnparseContext) => {
+export const unparseExpression = (
+  expression: Token[],
+  context: UnparseContext,
+) => {
   let result = "";
 
   for (let i = 0; i < expression.length; i++) {
@@ -518,4 +473,31 @@ export const unparse = (expression: Token[], context: UnparseContext) => {
     }
   }
   return result.trim();
+};
+
+export const unparseBinding = (
+  binding: LocalBinding,
+  context: UnparseContext,
+) => {
+  return `defineVariable('${binding.name}'${
+    binding.expression.length > 0
+      ? `, ${unparseExpression(binding.expression, context)}`
+      : ""
+  })`;
+};
+
+export const unparseProgram = (program: IProgram, context: UnparseContext) => {
+  let result = unparseExpression(program.expression, context);
+
+  if (program.bindings.length > 0) {
+    result = `${program.bindings
+      .slice(0)
+      .sort((a, b) => {
+        return context.bindingsOrder[a.id] - context.bindingsOrder[b.id];
+      })
+      .map((binding) => unparseBinding(binding, context))
+      .join(".\n")}.\nselect(${result})`;
+  }
+
+  return result;
 };

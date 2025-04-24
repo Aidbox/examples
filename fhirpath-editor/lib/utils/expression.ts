@@ -50,7 +50,7 @@ import {
   Type,
   TypeName,
 } from "../types/internal";
-import { unparse } from "./fhirpath";
+import { unparseExpression } from "./fhirpath";
 
 const now = new Date();
 
@@ -65,9 +65,9 @@ export const getExpressionValue = (
   questionnaireItems: QuestionnaireItemRegistry,
   contextValue: Context["value"],
 ): FhirValue => {
-  const code = unparse(expression, {
+  const code = unparseExpression(expression, {
     questionnaireItems,
-    bindings: [],
+    bindingsOrder: {},
   });
 
   try {

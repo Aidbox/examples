@@ -619,7 +619,7 @@ export type QuestionnaireItemRegistry = {
 export type UnparseContext = {
   first?: boolean;
   questionnaireItems: QuestionnaireItemRegistry;
-  bindings: LocalBinding[];
+  bindingsOrder: Record<LocalBinding["id"], number>;
 };
 
 export type LezerNode = {
