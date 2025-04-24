@@ -6,6 +6,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import q from "./vital-signs.json";
 import qr from "./vital-signs-response.json";
 import { useDebug, useJsonFetch, useLocalStorageState } from "./utils/react";
+import { useState } from "react";
 
 export function App() {
   const debug = useDebug();
@@ -18,7 +19,7 @@ export function App() {
 
   const [value, setValue] = useLocalStorageState(
     "fhirpath-editor/value",
-    "/* #b */ (1 + 2) * /* #a */ 3",
+    "3 * (1 + 2) / 4",
   );
 
   const [data, setData] = useLocalStorageState("fhirpath-editor/data", qr);

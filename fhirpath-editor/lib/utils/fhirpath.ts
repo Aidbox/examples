@@ -32,25 +32,9 @@ import {
   typePrimitiveMap,
 } from "./type";
 
-function buildNode(cursor: TreeCursor, input: string): LezerNode | null {
+function buildNode(cursor: TreeCursor, input: string): LezerNode {
   const type = cursor.node.type.name;
   const value = input.slice(cursor.from, cursor.to);
-
-  // Skip certain token types
-  if (
-    type === "(" ||
-    type === ")" ||
-    type === "[" ||
-    type === "]" ||
-    type === "," ||
-    type === "." ||
-    type === "%" ||
-    type === "⚠" ||
-    type === "LineComment" ||
-    type === "BlockComment"
-  ) {
-    return null;
-  }
 
   const children: LezerNode[] = [];
 
@@ -59,9 +43,30 @@ function buildNode(cursor: TreeCursor, input: string): LezerNode | null {
     do {
       const child = buildNode(cursor, input);
 
-      if (child) {
-        children.push(child);
+      if (child.type === "BlockComment") {
+        const last = children[children.length - 1];
+        if (last) {
+          last.comment = child.value;
+        }
       }
+
+      // Skip certain token types
+      if (
+        child.type === "(" ||
+        child.type === ")" ||
+        child.type === "[" ||
+        child.type === "]" ||
+        child.type === "," ||
+        child.type === "." ||
+        child.type === "%" ||
+        child.type === "⚠" ||
+        child.type === "LineComment" ||
+        child.type === "BlockComment"
+      ) {
+        continue;
+      }
+
+      children.push(child);
     } while (cursor.nextSibling());
     cursor.parent();
   }
@@ -145,6 +150,25 @@ function hasHigherPrecedence(a: LezerNode, b: LezerNode) {
   );
 }
 
+function extractLinkId(node: LezerNode): string | undefined {
+  if (node?.type === "Function" && node?.children?.[0]?.value === "where") {
+    const equality = node?.children?.[1]?.children[0];
+    const right = equality?.children?.[2];
+    const string = right?.children?.[0]?.value;
+    return string ? unescapeString(string) : undefined;
+  }
+
+  for (const child of node?.children || []) {
+    const res = extractLinkId(child);
+    if (res) {
+      return res;
+    }
+  }
+  return undefined;
+}
+
+const ANSWER_TOKEN_MARKER = "/* ~answer */";
+
 function transformNode(node: LezerNode): IProgram {
   const bindings: LocalBinding[] = [];
   let varCounter = 0;
@@ -171,7 +195,7 @@ function transformNode(node: LezerNode): IProgram {
 
   function walk(node: LezerNode, first = false): Token[] {
     if (!node) return [];
-    const { type, value, children } = node;
+    const { type, value, children, comment } = node;
 
     switch (type) {
       case "Document": {
@@ -306,6 +330,12 @@ function transformNode(node: LezerNode): IProgram {
       }
 
       case "InvocationExpression": {
+        if (comment === ANSWER_TOKEN_MARKER) {
+          const linkId = extractLinkId(node);
+          if (linkId) {
+            return [{ type: TokenType.answer, value: linkId }];
+          }
+        }
         const [parent, target] = children;
         return [...walk(parent), ...walk(target, first)];
       }
@@ -408,17 +438,19 @@ const unparseAnswerToken = (
   token: IAnswerToken,
   { first, questionnaireItems }: UnparseContext,
 ) => {
-  const base = `${first ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
+  let base = `${first ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
 
   switch (questionnaireItems[token.value]?.item.type) {
     case "choice":
     case "open-choice":
-      return `${base}.ordinal()`;
+      base = `${base}.ordinal()`;
+      break;
     case "quantity":
-      return `${base}.value`;
-    default:
-      return base;
+      base = `${base}.value`;
+      break;
   }
+
+  return `(${base} ${ANSWER_TOKEN_MARKER})`;
 };
 
 const unparseFunctionToken = (
