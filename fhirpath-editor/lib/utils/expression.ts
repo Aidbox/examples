@@ -30,12 +30,10 @@ import { assertDefined, distinct, indexBy, never } from "./misc";
 import { getFields } from "./fhir";
 import "./function.ts";
 import { functionMetadata, suggestFunctionsForInputType } from "./function";
-import fhirpath from "fhirpath";
-import r4 from "fhirpath/fhir-context/r4";
+import fhirpath, { Model } from "fhirpath";
 import {
   Binding,
   Context,
-  ExternalBinding,
   FhirRegistry,
   FhirValue,
   IOperatorToken,
@@ -64,6 +62,7 @@ export const getExpressionValue = (
   bindingValues: Record<string, FhirValue>,
   questionnaireItems: QuestionnaireItemRegistry,
   contextValue: Context["value"],
+  model: Model,
 ): FhirValue => {
   const code = unparseExpression(expression, {
     questionnaireItems,
@@ -87,7 +86,7 @@ export const getExpressionValue = (
           },
         },
       ),
-      r4,
+      model,
     );
 
     return new FhirValue(value, name);
@@ -630,19 +629,6 @@ export function suggestTokensAt<T extends Token>(
   }
 
   return [];
-}
-
-// Type guards
-export function isLocalBinding(binding: Binding): binding is LocalBinding {
-  return (
-    "expression" in binding && !("type" in binding) && !("value" in binding)
-  );
-}
-
-export function isExternalBinding(
-  binding: Binding,
-): binding is ExternalBinding {
-  return "type" in binding && "value" in binding && !("expression" in binding);
 }
 
 function extractReferencedBindingNames(expression: Token[]): string[] {

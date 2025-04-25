@@ -27,6 +27,7 @@ export const Argument = ({
     getBindingType,
     getBindingValue,
     getFhirSchema,
+    model,
     debug,
   } = useProgramContext((state) => ({
     arg: state.getArg(bindingId, tokenIndex, argIndex),
@@ -36,6 +37,7 @@ export const Argument = ({
     getBindingType: state.getBindingType,
     getBindingValue: state.getBindingValue,
     getFhirSchema: state.getFhirSchema,
+    model: state.getModel(),
     debug: state.getDebug(),
   }));
 
@@ -79,6 +81,7 @@ export const Argument = ({
       context={argContext}
       externalBindings={externalizedBindings}
       fhirSchema={getFhirSchema()}
+      model={model}
       debug={debug}
     >
       <Program className={css.program} title="Argument expression" />

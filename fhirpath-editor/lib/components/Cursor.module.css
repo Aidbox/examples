@@ -1,56 +1,56 @@
 .wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex: 1;
-    cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  cursor: pointer;
 
-    &:hover {
-        .faded {
-            opacity: 1;
-        }
+  &:hover {
+    .faded {
+      opacity: 1;
     }
+  }
 }
 
 .button {
-    color: #475569;
-    cursor: pointer;
-    padding: 0.125rem;
-    display: grid;
-    place-items: center;
-    border-radius: 0.25rem;
-    border: 1px solid #d1d5db;
-    background-color: white;
+  color: #475569;
+  cursor: pointer;
+  padding: 0.125rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
 
-    &.faded {
-        opacity: 0.5;
-    }
+  &.faded {
+    opacity: 0.5;
+  }
 }
 
 .search {
-    color: #475569;
-    width: 0;
+  color: #475569;
+  width: 0;
 
-    &:focus {
-        outline: none;
-    }
+  &:focus {
+    outline: none;
+  }
 
-    &[data-visible] {
-        width: auto;
-        min-width: 1.25rem;
-        field-sizing: content;
-    }
+  &[data-visible] {
+    width: auto;
+    min-width: 1.25rem;
+    field-sizing: content;
+  }
 }
 
 .dropdown {
-    composes: container from "./Dropdown.module.css";
-    border: 1px solid #d1d5db;
+  composes: container from "./Dropdown.module.css";
+  border: 1px solid #d1d5db;
 }
 
 .incompatible {
-    opacity: 50%;
+  opacity: 50%;
 }
 
 .shortcut {
-    color: #eab308;
+  color: #eab308;
 }

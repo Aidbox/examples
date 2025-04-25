@@ -6,7 +6,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import q from "./vital-signs.json";
 import qr from "./vital-signs-response.json";
 import { useDebug, useJsonFetch, useLocalStorageState } from "./utils/react";
-import { useState } from "react";
+import r4 from "fhirpath/fhir-context/r4";
 
 export function App() {
   const debug = useDebug();
@@ -64,6 +64,7 @@ export function App() {
               data={data}
               variables={variable}
               schema={fhirSchema}
+              model={r4}
               debug={debug}
             />
           </div>

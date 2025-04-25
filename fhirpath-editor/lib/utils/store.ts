@@ -33,6 +33,7 @@ import {
 } from "../types/internal";
 import { castDraft, enableMapSet, WritableDraft } from "immer";
 import type { ExtractState } from "zustand/vanilla";
+import { Model } from "fhirpath";
 
 enableMapSet();
 
@@ -50,6 +51,7 @@ export interface IProgramStore {
 
   getContext: () => Context;
   getFhirSchema: () => FhirRegistry;
+  getModel: () => Model;
   getDebug: () => boolean;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string) => Token[];
@@ -109,6 +111,7 @@ export const createProgramStore = (
   context: Context,
   externalBindings: ExternalBinding[],
   fhirSchema: FhirRegistry,
+  model: Model,
   debug: boolean,
 ): StoreApi<IProgramStore> => {
   const questionnaireItems = externalBindings.reduce((acc, binding) => {
@@ -326,6 +329,7 @@ export const createProgramStore = (
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
                   context.value,
+                  model,
                 );
               } else {
                 state.bindingValues[""] = getExpressionValue(
@@ -334,6 +338,7 @@ export const createProgramStore = (
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
                   context.value,
+                  model,
                 );
               }
             }
@@ -579,6 +584,7 @@ export const createProgramStore = (
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
                   context.value,
+                  model,
                 );
               } else {
                 state.bindingTypes[""] = getExpressionType(
@@ -595,6 +601,7 @@ export const createProgramStore = (
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
                   context.value,
+                  model,
                 );
               }
             });

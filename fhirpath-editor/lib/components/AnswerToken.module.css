@@ -1,14 +1,14 @@
 .button {
-    composes: button from "./Token.module.css";
+  composes: button from "./Token.module.css";
 
-    & > span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: 10.5rem;
-    }
+  & > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 10.5rem;
+  }
 }
 
 .icon {
-    opacity: 50%;
+  opacity: 50%;
 }

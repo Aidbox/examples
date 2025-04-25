@@ -12,6 +12,7 @@ import {
 } from "../types/internal";
 import { StoreApi } from "zustand/index";
 import { unparseProgram } from "../utils/fhirpath";
+import { Model } from "fhirpath";
 
 type ProgramProviderProps = {
   program: IProgram;
@@ -20,6 +21,7 @@ type ProgramProviderProps = {
   context: Context;
   externalBindings: ExternalBinding[];
   fhirSchema: FhirRegistry;
+  model: Model;
   debug: boolean;
   children: ReactNode;
 };
@@ -31,14 +33,17 @@ export function ProgramProvider({
   context,
   externalBindings,
   fhirSchema,
+  model,
   debug,
   children,
 }: ProgramProviderProps) {
   const [store, setStore] = useState<StoreApi<IProgramStore> | null>(null);
 
   useEffect(() => {
-    setStore(createProgramStore(context, externalBindings, fhirSchema, debug));
-  }, [context, externalBindings, fhirSchema, debug]);
+    setStore(
+      createProgramStore(context, externalBindings, fhirSchema, model, debug),
+    );
+  }, [context, externalBindings, fhirSchema, model, debug]);
 
   useEffect(() => {
     if (store) {

@@ -17,7 +17,7 @@ import { createElement } from "react";
 
 import { OperatorName } from "../types/internal";
 import clx from "classnames";
-import { wrapper, letter } from "./OperatorIcon.module.css";
+import { letter, wrapper } from "./OperatorIcon.module.css";
 
 const operatorIcons: Partial<Record<OperatorName, Icon>> = {
   "+": Plus,

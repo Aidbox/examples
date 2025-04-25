@@ -1,6 +1,6 @@
 {
   "name": "fhirpath-editor",
-  "version": "0.2.0",
+  "version": "0.3.2",
   "type": "module",
   "repository": {
     "type": "git",
@@ -19,22 +19,17 @@
     "./style.css": "./dist/index.css"
   },
   "scripts": {
-    "postinstall": "patch-package",
+    "prepare": "patch-package",
+    "prepublishOnly": "npm run build",
     "dev": "vite",
     "build": "tsc -b ./tsconfig.lib.json && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "peerDependencies": {
-    "@codemirror/commands": "^6.8.1",
-    "@codemirror/lang-json": "^6.0.1",
-    "@codemirror/state": "^6.5.2",
-    "@codemirror/view": "^6.36.5",
     "@floating-ui/react": "^0.27.6",
-    "@lezer/highlight": "^1.2.1",
     "@lhncbc/ucum-lhc": "^7.1.2",
     "@phosphor-icons/react": "^2.1.7",
-    "codemirror": "^6.0.1",
     "fhirpath": "^4.0.0",
     "immer": "^10.1.1",
     "lezer-fhirpath": "^0.6.0",
@@ -44,7 +39,12 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/lang-json": "^6.0.1",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.36.5",
     "@eslint/js": "^9.25.1",
+    "@lezer/highlight": "^1.2.1",
     "@tailwindcss/postcss": "^4.1.4",
     "@types/node": "^22.14.1",
     "@types/react": "^18.3.20",
@@ -52,6 +52,7 @@
     "@vitejs/plugin-react": "^4.4.1",
     "animate.css": "^4.1.1",
     "classnames": "^2.5.1",
+    "codemirror": "^6.0.1",
     "eslint": "^9.25.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { parse } from "./utils/fhirpath";
+import { Model } from "fhirpath";
 import { detectValueType } from "./utils/value";
 import {
   Context,
@@ -19,6 +20,7 @@ export interface IEditorProps {
   data: any;
   variables?: Record<string, any>;
   schema: FhirSchema[];
+  model: Model;
   debug?: boolean;
 }
 
@@ -28,6 +30,7 @@ function Editor({
   data,
   variables,
   schema,
+  model,
   debug,
 }: IEditorProps) {
   const [program, setProgram] = useState<IProgram>(() => parse(defaultValue));
@@ -65,6 +68,7 @@ function Editor({
       context={context}
       externalBindings={externalBindings}
       fhirSchema={fhirSchema}
+      model={model}
       debug={!!debug}
     >
       <Program />

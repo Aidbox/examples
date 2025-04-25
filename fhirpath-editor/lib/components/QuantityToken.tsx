@@ -5,7 +5,7 @@ import { upperFirst } from "../utils/misc";
 import Dropdown from "./Dropdown";
 import { IQuantityToken, TokenComponentProps } from "../types/internal";
 import { primary, secondary } from "./Dropdown.module.css";
-import { wrapper, button } from "./QuantityToken.module.css";
+import { button, wrapper } from "./QuantityToken.module.css";
 
 UcumLhcUtils.getInstance();
 

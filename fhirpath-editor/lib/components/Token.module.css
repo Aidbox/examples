@@ -1,51 +1,50 @@
 .container {
-    display: flex;
-    align-items: stretch;
+  display: flex;
+  align-items: stretch;
 
-    &.deleting {
-        background: #ef4444;
-        border-radius: 0.25rem;
+  &.deleting {
+    background: #ef4444;
+    border-radius: 0.25rem;
 
-        * {
-            color: white !important;
-            outline: none !important;
-            border-color: transparent !important;
-            background-color: transparent !important;
+    * {
+      color: white !important;
+      outline: none !important;
+      border-color: transparent !important;
+      background-color: transparent !important;
 
-            &::placeholder {
-                color: white !important;
-            }
-        }
+      &::placeholder {
+        color: white !important;
+      }
     }
+  }
 
-    *:focus {
-        outline: none;
-    }
+  *:focus {
+    outline: none;
+  }
 
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        appearance: none;
-    }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    appearance: none;
+  }
 }
 
-
 .button {
-    cursor: pointer;
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-    background-color: #f8fafc;
-    border: 1px solid #d1d5db;
-    color: #475569;
-    min-width: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    justify-content: center;
+  cursor: pointer;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  background-color: #f8fafc;
+  border: 1px solid #d1d5db;
+  color: #475569;
+  min-width: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: center;
 
-    /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 min-w-8 flex items-center gap-1 justify-center */
-    /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 */
-    /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-blue-50  border border-slate-300 text-blue-800  min-w-8 flex items-center justify-center */
-    /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600*/
-    /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 field-sizing-content min-w-7 text-center */
-    /*                                   px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600         flex items-center gap-1 */
+  /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 min-w-8 flex items-center gap-1 justify-center */
+  /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 */
+  /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-blue-50  border border-slate-300 text-blue-800  min-w-8 flex items-center justify-center */
+  /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600*/
+  /* cursor-pointer focus:outline-none px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600 field-sizing-content min-w-7 text-center */
+  /*                                   px-1 py-0.5 rounded bg-slate-50 border border-slate-300 text-slate-600         flex items-center gap-1 */
 }

@@ -20,6 +20,7 @@ The library provides an `Editor` component for working with FHIRPath expressions
 
 ```tsx
 import { Editor } from "fhirpath-editor";
+import r4 from "fhirpath/fhir-context/r4";
 
 function MyFhirPathEditor() {
   // FHIRPath expression to evaluate
@@ -66,6 +67,7 @@ function MyFhirPathEditor() {
       data={data}
       variables={variables}
       schema={fhirSchema}
+      model={r4}
     />
   );
 }
@@ -74,12 +76,13 @@ function MyFhirPathEditor() {
 ## Props
 
 | Prop           | Type                    | Required | Description                                   |
-| -------------- | ----------------------- | -------- | --------------------------------------------- |
+|----------------|-------------------------|----------|-----------------------------------------------|
 | `defaultValue` | string                  | Yes      | Initial FHIRPath expression                   |
 | `onChange`     | (value: string) => void | No       | Callback for expression changes               |
 | `data`         | any                     | Yes      | The context data to evaluate FHIRPath against |
 | `variables`    | Record<string, any>     | No       | External bindings available to expressions    |
 | `schema`       | FhirSchema[]            | Yes      | FHIR schema definitions for validation        |
+| `model`        | Model                   | Yes      | FHIR version model data                       |
 | `debug`        | boolean                 | No       | Enable debug mode                             |
 
 ## Features
