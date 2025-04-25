@@ -1,6 +1,7 @@
 import { JSX as JSX_2 } from 'react/jsx-runtime';
+import { Model } from 'fhirpath';
 
-export declare function Editor({ defaultValue, onChange, data, variables, schema, debug, }: IEditorProps): JSX_2.Element;
+export declare function Editor({ defaultValue, onChange, data, variables, schema, model, debug, }: IEditorProps): JSX_2.Element;
 
 declare type FhirElement = {
     array?: boolean;
@@ -36,6 +37,7 @@ declare interface IEditorProps {
     data: any;
     variables?: Record<string, any>;
     schema: FhirSchema[];
+    model: Model;
     debug?: boolean;
 }
 
