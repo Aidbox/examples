@@ -13,6 +13,7 @@ import {
 import Program from "./components/Program";
 import { ProgramProvider } from "./components/ProgramProvider";
 import { generateBindingId } from "./utils/expression";
+import { DeepPartial, Style, StyleProvider } from "./style.tsx";
 
 export interface IEditorProps {
   defaultValue?: string;
@@ -23,6 +24,7 @@ export interface IEditorProps {
   model: Model;
   debug?: boolean;
   portalRoot?: string;
+  style?: DeepPartial<Style>;
 }
 
 function Editor({
@@ -34,6 +36,7 @@ function Editor({
   model,
   debug,
   portalRoot,
+  style,
 }: IEditorProps) {
   const [program, setProgram] = useState<IProgram>(() =>
     parse(defaultValue || ""),
@@ -65,19 +68,21 @@ function Editor({
   }, [data]);
 
   return (
-    <ProgramProvider
-      program={program}
-      onProgramChange={setProgram}
-      onFhirPathChange={onChange}
-      context={context}
-      externalBindings={externalBindings}
-      fhirSchema={fhirSchema}
-      model={model}
-      debug={!!debug}
-      portalRoot={portalRoot}
-    >
-      <Program />
-    </ProgramProvider>
+    <StyleProvider style={style}>
+      <ProgramProvider
+        program={program}
+        onProgramChange={setProgram}
+        onFhirPathChange={onChange}
+        context={context}
+        externalBindings={externalBindings}
+        fhirSchema={fhirSchema}
+        model={model}
+        debug={!!debug}
+        portalRoot={portalRoot}
+      >
+        <Program />
+      </ProgramProvider>
+    </StyleProvider>
   );
 }
 

@@ -5,10 +5,9 @@
   grid-template-columns: 1.25rem minmax(min-content, min-content) 1rem auto auto;
 
   &.extended {
-    grid-template-columns: 1.25rem minmax(
-        min-content,
-        min-content
-      ) 1rem auto auto auto;
+    grid-template-columns:
+      1.25rem minmax(min-content, min-content)
+      1rem auto auto auto;
   }
 }
 

@@ -7,14 +7,14 @@ import {
 import { ReactNode } from "react";
 import { useProgramContext } from "../utils/store";
 import Dropdown from "./Dropdown";
-import { icon } from "./Dropdown.module.css";
-import { button } from "./BindingMenu.module.css";
+import { useStyle } from "../style";
 
 type BindingMenuProps = {
   bindingId: string;
 };
 
 const BindingMenu = ({ bindingId }: BindingMenuProps) => {
+  const style = useStyle();
   const { empty, nameExpression, deleteBinding, duplicateBinding } =
     useProgramContext((state) => ({
       empty: !state.getBindingExpression(bindingId).length,
@@ -25,18 +25,18 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
 
   const items = [
     bindingId && {
-      icon: <Trash size={16} className={icon} />,
+      icon: <Trash size={16} className={style.dropdown.icon} />,
       text: "Delete",
       onClick: () => deleteBinding(bindingId),
     },
     bindingId && {
-      icon: <Copy size={16} className={icon} />,
+      icon: <Copy size={16} className={style.dropdown.icon} />,
       text: "Duplicate",
       onClick: () => duplicateBinding(bindingId),
     },
     !bindingId &&
       !empty && {
-        icon: <PuzzlePiece size={16} className={icon} />,
+        icon: <PuzzlePiece size={16} className={style.dropdown.icon} />,
         text: "As named expression",
         onClick: () => nameExpression(),
       },
@@ -50,7 +50,10 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
     <Dropdown
       items={items}
       renderReference={(mergeProps, ref) => (
-        <button ref={ref} {...mergeProps({ className: button })}>
+        <button
+          ref={ref}
+          {...mergeProps({ className: style.binding.menu.button })}
+        >
           <DotsThreeVertical size={16} weight="bold" />
         </button>
       )}

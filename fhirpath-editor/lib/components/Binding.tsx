@@ -8,7 +8,7 @@ import { delay } from "../utils/misc";
 import ValueViewer from "./ValueViewer.tsx";
 import { BindingRef, TypeName } from "../types/internal";
 import { stringifyType } from "../utils/type";
-import css from "./Binding.module.css";
+import { useStyle } from "../style";
 import clx from "classnames";
 
 type BindingProps = {
@@ -17,6 +17,7 @@ type BindingProps = {
 
 const Binding = forwardRef<BindingRef, BindingProps>(
   ({ bindingId }, forwardingRef) => {
+    const style = useStyle();
     const cursorRef = useRef<CursorRef | null>(null);
     const nameRef = useRef<HTMLInputElement | null>(null);
 
@@ -76,7 +77,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
       name || "",
       (name) => bindingId && name && renameBinding(bindingId, name),
       () => {
-        setNameAnimation(css.animate);
+        setNameAnimation(style.binding.animate);
         delay(() => {
           if (nameRef.current) {
             nameRef.current.focus();
@@ -92,9 +93,9 @@ const Binding = forwardRef<BindingRef, BindingProps>(
           <input
             ref={nameRef}
             className={clx(
-              css.name,
+              style.binding.name,
               nameAnimation,
-              trimming && tokenTypes.length === 0 && css.deleting,
+              trimming && tokenTypes.length === 0 && style.binding.deleting,
             )}
             onAnimationEnd={() => setNameAnimation("")}
             type="text"
@@ -105,12 +106,14 @@ const Binding = forwardRef<BindingRef, BindingProps>(
             onKeyDown={(e) => e.key === "Enter" && commitName()}
           />
         )}
-        {name && <Equals size={12} weight="bold" className={css.equals} />}
+        {name && (
+          <Equals size={12} weight="bold" className={style.binding.equals} />
+        )}
         <div
           className={clx(
-            css.expression,
+            style.binding.expression,
             expressionAnimation,
-            !name && css.nameless,
+            !name && style.binding.nameless,
           )}
           onKeyDown={(e) => {
             const targetAsInput = e.target as HTMLInputElement;
@@ -175,34 +178,34 @@ const Binding = forwardRef<BindingRef, BindingProps>(
             placeholder="Write expression..."
             onBackspace={invokeTrim}
             onMistake={() => {
-              setExpressionAnimation(css.animate);
+              setExpressionAnimation(style.binding.animate);
             }}
           />
         </div>
 
-        <div className={css.hbox}>
+        <div className={style.binding.hbox}>
           {tokenTypes.length > 0 && <ValueViewer bindingId={bindingId} />}
         </div>
 
         {debug && tokenTypes.length > 0 && (
-          <div className={css.vbox}>
-            <div className={css.debug}>
+          <div className={style.binding.vbox}>
+            <div className={style.binding.debug}>
               dependants: {getDependantBindingIds(bindingId).join(", ")}
             </div>
-            <div className={css.debug}>
+            <div className={style.binding.debug}>
               dependencies:{" "}
               {getDependingBindings(bindingId)
                 .map((b) => b.name)
                 .join(", ")}
             </div>
-            <div className={css.debug}>
+            <div className={style.binding.debug}>
               bindables:{" "}
               {getBindableBindings(bindingId)
                 .map((b) => b.name)
                 .join(", ")}
             </div>
             <span
-              className={css.debug}
+              className={style.binding.debug}
               title={type.type === TypeName.Invalid ? type.error : ""}
             >
               {stringifyType(type)}

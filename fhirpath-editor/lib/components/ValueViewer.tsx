@@ -18,8 +18,7 @@ import {
   useRole,
 } from "@floating-ui/react";
 import { FhirValue } from "../types/internal";
-import css from "./ValueViewer.module.css";
-import jsonViewCss from "./JsonView.module.css";
+import { useStyle } from "../style";
 
 function format(value: FhirValue): ReactNode {
   if (value.error) {
@@ -59,6 +58,7 @@ type EvalViewerProps = {
 };
 
 const ValueViewer = ({ bindingId }: EvalViewerProps) => {
+  const style = useStyle();
   const { name, getBindingValue, portalRoot } = useProgramContext((state) => ({
     name: bindingId && state.getBindingName(bindingId),
     getBindingValue: state.getBindingValue,
@@ -114,7 +114,7 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
       <button
         ref={refs.setReference}
         {...getReferenceProps()}
-        className={css.button}
+        className={style.binding.value.button}
       >
         <ArrowRight size={12} />
         {format(value)}
@@ -127,18 +127,18 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
             style={floatingStyles}
             aria-labelledby={headingId}
             {...getFloatingProps()}
-            className={css.popover}
+            className={style.binding.value.popover}
           >
             <FloatingArrow
               ref={arrowRef}
               context={context}
-              className={css.arrow}
+              className={style.binding.value.arrow}
               strokeWidth={1}
               height={6}
               width={10}
             />
             {value.error ? (
-              <div className={css.error}>
+              <div className={style.binding.value.error}>
                 <Warning />
                 <div>
                   {!value.origin || value.origin === name
@@ -150,11 +150,11 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
               <JsonView
                 data={value.value}
                 style={{
-                  container: jsonViewCss.container,
-                  punctuation: jsonViewCss.punctuation,
-                  label: jsonViewCss.label,
-                  stringValue: jsonViewCss.stringValue,
-                  collapsedContent: jsonViewCss.collapsedContent,
+                  container: style.binding.value.json.container,
+                  punctuation: style.binding.value.json.punctuation,
+                  label: style.binding.value.json.label,
+                  stringValue: style.binding.value.json.stringValue,
+                  collapsedContent: style.binding.value.json.collapsedContent,
                 }}
               />
             )}

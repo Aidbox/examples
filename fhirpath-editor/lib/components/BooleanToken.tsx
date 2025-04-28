@@ -2,10 +2,11 @@ import { forwardRef, Ref } from "react";
 import { useProgramContext } from "../utils/store";
 import { CheckSquare, Square } from "@phosphor-icons/react";
 import { IBooleanToken, TokenComponentProps } from "../types/internal";
-import { checkbox } from "./Boolean.module.css";
+import { useStyle } from "../style";
 
 const BooleanToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
+    const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as IBooleanToken,
       updateToken: state.updateToken,
@@ -14,7 +15,10 @@ const BooleanToken = forwardRef<HTMLElement, TokenComponentProps>(
     const isChecked = token.value === "true";
 
     return (
-      <label ref={ref as Ref<HTMLLabelElement>} className={checkbox}>
+      <label
+        ref={ref as Ref<HTMLLabelElement>}
+        className={style.token.boolean.checkbox}
+      >
         <input
           type="checkbox"
           checked={isChecked}

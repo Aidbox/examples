@@ -4,8 +4,7 @@ import { UcumLhcUtils, UnitTables } from "@lhncbc/ucum-lhc";
 import { upperFirst } from "../utils/misc";
 import Dropdown from "./Dropdown";
 import { IQuantityToken, TokenComponentProps } from "../types/internal";
-import { primary, secondary } from "./Dropdown.module.css";
-import { button, wrapper } from "./QuantityToken.module.css";
+import { useStyle } from "../style";
 
 UcumLhcUtils.getInstance();
 
@@ -27,13 +26,14 @@ const units = [
 
 const QuantityToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
+    const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as IQuantityToken,
       updateToken: state.updateToken,
     }));
 
     return (
-      <div className={wrapper}>
+      <div className={style.token.quantity.wrapper}>
         <input
           ref={forwardedRef as Ref<HTMLInputElement>}
           placeholder="0"
@@ -62,15 +62,18 @@ const QuantityToken = forwardRef<HTMLElement, TokenComponentProps>(
             })
           }
           renderReference={(mergeProps, ref) => (
-            <button ref={ref} {...mergeProps({ className: button })}>
+            <button
+              ref={ref}
+              {...mergeProps({ className: style.token.quantity.button })}
+            >
               {token.value.unit || ""}
             </button>
           )}
           renderItem={(unit) => (
             <>
               <span />
-              <span className={primary}>{unit.value}</span>
-              <div className={secondary}>{unit.name}</div>
+              <span className={style.dropdown.primary}>{unit.value}</span>
+              <div className={style.dropdown.secondary}>{unit.name}</div>
             </>
           )}
         />

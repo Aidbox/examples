@@ -37,12 +37,11 @@ import {
 } from "../types/internal";
 import { assertDefined } from "../utils/misc";
 import { Argument } from "./Argument";
-import tokenCss from "./Token.module.css";
-import dropdownCss from "./Dropdown.module.css";
-import css from "./FunctionToken.module.css";
+import { useStyle } from "../style";
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
+    const style = useStyle();
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [_selectingName, setSelectingName] = useState(false);
@@ -172,7 +171,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
           ref={mergedRefs}
           {...getReferenceProps()}
           data-open={isOpen || undefined}
-          className={tokenCss.button}
+          className={style.token.button}
         >
           {isLeadingToken ? "" : "."}
           {token.value}
@@ -180,21 +179,21 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
         </button>
         {isOpen && (
           <FloatingPortal id={portalRoot}>
-            <FloatingOverlay className={dropdownCss.backdrop} lockScroll />
+            <FloatingOverlay className={style.dropdown.backdrop} lockScroll />
             <div
               ref={refs.setFloating}
               style={floatingStyles}
-              className={css.dropdown}
+              className={style.token.function.dropdown}
               {...getFloatingProps()}
             >
               <FloatingArrow ref={arrowRef} context={context} fill="red" />
-              <div className={css.header}>
+              <div className={style.token.function.header}>
                 {selectingName ? (
                   <input
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className={css.search}
+                    className={style.token.function.search}
                     placeholder="Search..."
                     autoFocus
                     onKeyDown={(e) => {
@@ -210,21 +209,23 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                 ) : (
                   <>
                     <button
-                      className={css.name}
+                      className={style.token.function.name}
                       onClick={() => setSelectingName(true)}
                     >
                       {meta.name} <CaretDown />
                     </button>
 
                     {meta.args.length > 0 && (
-                      <span className={css.label}>arguments</span>
+                      <span className={style.token.function.label}>
+                        arguments
+                      </span>
                     )}
 
-                    <div className={css.args}>
+                    <div className={style.token.function.args}>
                       {meta.args.map((arg, argIndex) => (
                         <button
                           key={argIndex}
-                          className={css.arg}
+                          className={style.token.function.arg}
                           data-selected={
                             argIndex === selectedArgIndex || undefined
                           }
@@ -233,7 +234,10 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                         >
                           {meta.args[argIndex].name}
                           {argIndex === selectedArgIndex && (
-                            <svg viewBox="0 0 12 12" className={css.arrow}>
+                            <svg
+                              viewBox="0 0 12 12"
+                              className={style.token.function.arrow}
+                            >
                               <path d="M1 8H11" />
                               <path d="M1 8L6 2L11 8" />
                             </svg>
@@ -244,7 +248,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                   </>
                 )}
               </div>
-              <div className={css.body}>
+              <div className={style.token.function.body}>
                 {!selectingName &&
                   selectedArgIndex != null &&
                   meta.args[selectedArgIndex] !== undefined && (
@@ -260,20 +264,23 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                   (filteredFunctions.length > 0 ? (
                     Object.entries(groupedOptions).map(([group, options]) => (
                       <Fragment key={group}>
-                        <div className={dropdownCss.group}>{group}</div>
+                        <div className={style.dropdown.group}>{group}</div>
                         {options.map(({ meta, index }) => (
                           <button
                             key={meta.name}
                             ref={(node) => (listRef.current[index] = node)}
                             data-active={activeIndex === index || undefined}
                             {...getItemProps({
-                              className: dropdownCss.option,
+                              className: style.dropdown.option,
                               tabIndex: activeIndex === index ? 0 : -1,
                               onClick: () => handleSelectName(meta),
                             })}
                           >
-                            <Function size={16} className={dropdownCss.icon} />
-                            <span className={dropdownCss.primary}>
+                            <Function
+                              size={16}
+                              className={style.dropdown.icon}
+                            />
+                            <span className={style.dropdown.primary}>
                               {meta.name}
                             </span>
                           </button>
@@ -281,7 +288,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                       </Fragment>
                     ))
                   ) : (
-                    <div className={dropdownCss.empty}>
+                    <div className={style.dropdown.empty}>
                       <Empty size={16} /> Nothing found
                     </div>
                   ))}

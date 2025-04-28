@@ -5,9 +5,7 @@ import { Plus } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store";
 import { stringifyType } from "../utils/type";
 import clx from "classnames";
-import css from "./Program.module.css";
-import cursorCss from "./Cursor.module.css";
-import bindingCss from "./Binding.module.css";
+import { useStyle } from "../style";
 
 type ProgramProps = {
   className?: string;
@@ -15,6 +13,7 @@ type ProgramProps = {
 };
 
 function Program({ className = "", title = "Main Expression" }: ProgramProps) {
+  const style = useStyle();
   const { addBinding, setBindingRef, debug } = useProgramContext((state) => ({
     addBinding: state.addBinding,
     setBindingRef: state.setBindingRef,
@@ -28,11 +27,17 @@ function Program({ className = "", title = "Main Expression" }: ProgramProps) {
   const context = useProgramContext((state) => state.getContext());
 
   return (
-    <div className={clx(css.container, debug && css.extended, className)}>
-      <div className={css.title}>Named Expressions</div>
+    <div
+      className={clx(
+        style.program.container,
+        debug && style.program.extended,
+        className,
+      )}
+    >
+      <div className={style.program.title}>Named Expressions</div>
 
       {bindingIds.map((bindingId) => (
-        <div key={bindingId} className={css.binding}>
+        <div key={bindingId} className={style.program.binding}>
           <BindingMenu bindingId={bindingId} />
 
           <Binding
@@ -42,24 +47,24 @@ function Program({ className = "", title = "Main Expression" }: ProgramProps) {
         </div>
       ))}
 
-      <div className={css.define}>
+      <div className={style.program.define}>
         <button
-          className={cursorCss.button}
+          className={style.binding.cursor.button}
           onClick={() => addBinding({ name: "var1" })}
         >
           <Plus size={12} />
         </button>
       </div>
 
-      <div className={css.title}>{title}</div>
+      <div className={style.program.title}>{title}</div>
 
       {debug && (
-        <div className={bindingCss.debug}>
+        <div className={style.binding.debug}>
           <span>{stringifyType(context.type)}</span>
         </div>
       )}
 
-      <div className={css.binding}>
+      <div className={style.program.binding}>
         <BindingMenu bindingId="" />
         <Binding ref={(ref) => setBindingRef("", ref)} bindingId={""} />
       </div>

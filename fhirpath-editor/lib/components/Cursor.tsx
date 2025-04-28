@@ -49,9 +49,8 @@ import {
   TokenType,
 } from "../types/internal";
 import { omit } from "../utils/misc";
-import dropdownCss from "./Dropdown.module.css";
+import { useStyle } from "../style";
 import clx from "classnames";
-import css from "./Cursor.module.css";
 
 const labels = {
   number: "Number",
@@ -99,6 +98,7 @@ function getText(token: Token, items: QuestionnaireItemRegistry) {
 
 const Cursor = forwardRef<CursorRef, CursorProps>(
   ({ bindingId, placeholder, onBackspace, onMistake }, ref) => {
+    const style = useStyle();
     const {
       bindingIndex,
       empty,
@@ -320,7 +320,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
 
     return (
       <label
-        className={css.wrapper}
+        className={style.binding.cursor.wrapper}
         ref={(ref) => {
           containerRef.current = ref;
           refs.setReference(ref);
@@ -333,7 +333,10 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
               e.stopPropagation();
               inputRef.current?.focus();
             }}
-            className={clx(css.button, !empty && css.faded)}
+            className={clx(
+              style.binding.cursor.button,
+              !empty && style.binding.cursor.faded,
+            )}
             data-icon={!placeholder || undefined}
           >
             <Plus size={12} />
@@ -342,7 +345,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
         <input
           autoComplete="off"
           ref={inputRef}
-          className={css.search}
+          className={style.binding.cursor.search}
           data-visible={isOpen || undefined}
           type="text"
           value={search}
@@ -374,7 +377,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
         {isOpen && (
           <FloatingPortal id={portalRoot}>
             <div
-              className={css.dropdown}
+              className={style.binding.cursor.dropdown}
               style={floatingStyles}
               ref={(ref) => {
                 dropdownRef.current = ref;
@@ -384,7 +387,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
             >
               {Object.entries(groupedTokens).map(([group, tokens]) => (
                 <Fragment key={group}>
-                  <div className={dropdownCss.group}>{group}</div>
+                  <div className={style.dropdown.group}>{group}</div>
                   {tokens.map((token) => (
                     <button
                       tabIndex={-1}
@@ -392,8 +395,8 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                         if (token.index) listRef.current[token.index] = node;
                       }}
                       className={clx(
-                        dropdownCss.option,
-                        token.incompatible && css.incompatible,
+                        style.dropdown.option,
+                        token.incompatible && style.binding.cursor.incompatible,
                       )}
                       data-active={token.index === activeIndex ? "" : undefined}
                       key={token.type + (token.value || "")}
@@ -405,34 +408,37 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                       })}
                     >
                       {token.type === TokenType.string ? (
-                        <Quotes size={16} className={dropdownCss.icon} />
+                        <Quotes size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.number ? (
-                        <Hash size={16} className={dropdownCss.icon} />
+                        <Hash size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.variable ? (
-                        <PuzzlePiece size={16} className={dropdownCss.icon} />
+                        <PuzzlePiece
+                          size={16}
+                          className={style.dropdown.icon}
+                        />
                       ) : token.type === TokenType.boolean ? (
-                        <Flag size={16} className={dropdownCss.icon} />
+                        <Flag size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.date ? (
-                        <Calendar size={16} className={dropdownCss.icon} />
+                        <Calendar size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.datetime ? (
-                        <Clock size={16} className={dropdownCss.icon} />
+                        <Clock size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.time ? (
-                        <Timer size={16} className={dropdownCss.icon} />
+                        <Timer size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.quantity ? (
-                        <Scales size={16} className={dropdownCss.icon} />
+                        <Scales size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.type ? (
-                        <Tag size={16} className={dropdownCss.icon} />
+                        <Tag size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.index ? (
                         <BracketsSquare
                           size={16}
-                          className={dropdownCss.icon}
+                          className={style.dropdown.icon}
                         />
                       ) : token.type === TokenType.field ? (
-                        <Shapes size={16} className={dropdownCss.icon} />
+                        <Shapes size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.function ? (
-                        <Function size={16} className={dropdownCss.icon} />
+                        <Function size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.answer ? (
-                        <Textbox size={16} className={dropdownCss.icon} />
+                        <Textbox size={16} className={style.dropdown.icon} />
                       ) : token.type === TokenType.operator ? (
                         <OperatorIcon name={token.value} />
                       ) : null}
@@ -441,10 +447,10 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                         <Lightning
                           size={14}
                           weight="fill"
-                          className={css.shortcut}
+                          className={style.binding.cursor.shortcut}
                         />
                       ) : debug && token.debug ? (
-                        <span className={dropdownCss.secondary}>
+                        <span className={style.dropdown.secondary}>
                           {token.debug}
                         </span>
                       ) : null}
@@ -454,7 +460,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
               ))}
 
               {nextTokens.length > 0 && filteredTokens.length === 0 && (
-                <div className={dropdownCss.empty}>
+                <div className={style.dropdown.empty}>
                   <Empty size={16} /> No matching tokens found
                 </div>
               )}

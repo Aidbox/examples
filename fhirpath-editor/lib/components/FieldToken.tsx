@@ -5,11 +5,11 @@ import { Shapes } from "@phosphor-icons/react";
 
 import Dropdown from "./Dropdown";
 import { IFieldToken, TokenComponentProps } from "../types/internal";
-import { button } from "./Token.module.css";
-import { icon, primary, secondary } from "./Dropdown.module.css";
+import { useStyle } from "../style";
 
 const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
+    const style = useStyle();
     const { token, isLeadingToken, updateToken, suggestTokensAt, debug } =
       useProgramContext((state) => ({
         token: state.getToken(bindingId, tokenIndex) as IFieldToken,
@@ -34,7 +34,7 @@ const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({ className: button })}
+            {...mergeProps({ className: style.token.button })}
           >
             {isLeadingToken ? "" : "."}
             {token.value}
@@ -42,9 +42,11 @@ const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
         )}
         renderItem={(token) => (
           <>
-            <Shapes size={16} className={icon} />
-            <span className={primary}>{token.value}</span>
-            {debug && <span className={secondary}>{token.debug}</span>}
+            <Shapes size={16} className={style.dropdown.icon} />
+            <span className={style.dropdown.primary}>{token.value}</span>
+            {debug && (
+              <span className={style.dropdown.secondary}>{token.debug}</span>
+            )}
           </>
         )}
       />

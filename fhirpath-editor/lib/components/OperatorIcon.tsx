@@ -17,7 +17,7 @@ import { createElement } from "react";
 
 import { OperatorName } from "../types/internal";
 import clx from "classnames";
-import { letter, wrapper } from "./OperatorIcon.module.css";
+import { useStyle } from "../style";
 
 const operatorIcons: Partial<Record<OperatorName, Icon>> = {
   "+": Plus,
@@ -43,22 +43,25 @@ const OperatorIcon = ({
   name,
   compact = true,
   className,
-}: OperatorIconProps) => (
-  <span className={clx(wrapper, className)}>
-    {operatorIcons[name] ? (
-      createElement(operatorIcons[name], {
-        size: 16,
-      })
-    ) : compact ? (
-      !name.match(/[a-z]/) ? (
-        <span className={letter}>{name}</span>
+}: OperatorIconProps) => {
+  const style = useStyle();
+  return (
+    <span className={clx(style.token.operator.icon.wrapper, className)}>
+      {operatorIcons[name] ? (
+        createElement(operatorIcons[name], {
+          size: 16,
+        })
+      ) : compact ? (
+        !name.match(/[a-z]/) ? (
+          <span className={style.token.operator.icon.letter}>{name}</span>
+        ) : (
+          <Calculator size={16} />
+        )
       ) : (
-        <Calculator size={16} />
-      )
-    ) : (
-      name
-    )}
-  </span>
-);
+        name
+      )}
+    </span>
+  );
+};
 
 export default OperatorIcon;

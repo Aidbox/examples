@@ -14,7 +14,7 @@ import IndexToken from "./IndexToken";
 import FunctionToken from "./FunctionToken";
 import AnswerToken from "./AnswerToken";
 import { TokenComponentProps, TokenType } from "../types/internal";
-import css from "./Token.module.css";
+import { useStyle } from "../style";
 import clx from "classnames";
 
 const getTokenComponent = (
@@ -63,12 +63,13 @@ type TokenProps = {
 
 const Token = forwardRef<HTMLElement, TokenProps>(
   ({ type, deleting, ...props }, ref) => {
+    const style = useStyle();
     const TokenComponent = getTokenComponent(type);
 
     return (
       <div
         data-token-index={props.tokenIndex}
-        className={clx(css.container, deleting && css.deleting)}
+        className={clx(style.token.container, deleting && style.token.deleting)}
       >
         <TokenComponent ref={ref} {...props} />
       </div>

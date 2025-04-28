@@ -4,8 +4,7 @@ import { Textbox } from "@phosphor-icons/react";
 import Dropdown from "./Dropdown";
 import { mergeRefs } from "../utils/react";
 import { IAnswerToken } from "../types/internal";
-import { icon, primary, secondary } from "./Dropdown.module.css";
-import css from "./AnswerToken.module.css";
+import { useStyle } from "../style";
 
 type AnswerTokenProps = {
   bindingId: string;
@@ -14,6 +13,7 @@ type AnswerTokenProps = {
 
 const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
+    const style = useStyle();
     const {
       token,
       updateToken,
@@ -48,23 +48,23 @@ const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({ className: css.button })}
+            {...mergeProps({ className: style.token.answer.button })}
           >
-            <Textbox className={icon} />
+            <Textbox className={style.dropdown.icon} />
             <span>{questionnaireItems[token.value]?.text || token.value}</span>
           </button>
         )}
         renderItem={(token) => (
           <>
-            <Textbox size={16} className={css.icon} />
-            <span className={primary}>
+            <Textbox size={16} className={style.token.answer.icon} />
+            <span className={style.dropdown.primary}>
               {questionnaireItems[token.value]?.text || token.value}{" "}
             </span>
             {debug ? (
-              <span className={secondary}>{token.debug}</span>
+              <span className={style.dropdown.secondary}>{token.debug}</span>
             ) : (
               questionnaireItems[token.value] && (
-                <div className={secondary}>{token.value}</div>
+                <div className={style.dropdown.secondary}>{token.value}</div>
               )
             )}
           </>

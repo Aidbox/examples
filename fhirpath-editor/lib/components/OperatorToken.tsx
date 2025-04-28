@@ -6,11 +6,11 @@ import OperatorIcon from "./OperatorIcon";
 import Dropdown from "./Dropdown";
 import { mergeRefs } from "../utils/react";
 import { IOperatorToken, TokenComponentProps } from "../types/internal";
-import { button } from "./OperatorToken.module.css";
-import { icon, primary } from "./Dropdown.module.css";
+import { useStyle } from "../style";
 
 const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
+    const style = useStyle();
     const { token, updateToken, suggestTokensAt } = useProgramContext(
       (state) => ({
         token: state.getToken(bindingId, tokenIndex) as IOperatorToken,
@@ -42,15 +42,17 @@ const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({ className: button })}
+            {...mergeProps({ className: style.token.operator.button })}
           >
             <OperatorIcon name={token.value} compact={false} />
           </button>
         )}
         renderItem={(token) => (
           <>
-            <OperatorIcon name={token.value} className={icon} />
-            <span className={primary}>{operatorNames[token.value]}</span>
+            <OperatorIcon name={token.value} className={style.dropdown.icon} />
+            <span className={style.dropdown.primary}>
+              {operatorNames[token.value]}
+            </span>
           </>
         )}
       />

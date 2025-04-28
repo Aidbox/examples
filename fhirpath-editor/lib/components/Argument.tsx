@@ -3,7 +3,7 @@ import { useProgramContext } from "../utils/store";
 import { useCallback, useMemo } from "react";
 import { ProgramProvider } from "./ProgramProvider";
 import Program from "./Program";
-import css from "./Argument.module.css";
+import { useStyle } from "../style";
 
 type ArgumentProps = {
   bindingId: string;
@@ -20,6 +20,7 @@ export const Argument = ({
   suggestedType,
   contextValue,
 }: ArgumentProps) => {
+  const style = useStyle();
   const {
     arg,
     updateArg,
@@ -87,7 +88,10 @@ export const Argument = ({
       debug={debug}
       portalRoot={portalRoot}
     >
-      <Program className={css.program} title="Argument expression" />
+      <Program
+        className={style.token.function.argument.program}
+        title="Argument expression"
+      />
     </ProgramProvider>
   );
 };

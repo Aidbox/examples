@@ -22,11 +22,11 @@ import {
   Type,
 } from "../types/internal";
 import { unparseTypeToken } from "../utils/fhirpath";
-import { button } from "./Token.module.css";
-import { icon, primary } from "./Dropdown.module.css";
+import { useStyle } from "../style";
 
 const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
+    const style = useStyle();
     const { token, updateToken, getFhirSchema } = useProgramContext(
       (state) => ({
         token: state.getToken(bindingId, tokenIndex) as ITypeToken,
@@ -93,15 +93,15 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({ className: button })}
+            {...mergeProps({ className: style.token.button })}
           >
             {unparseTypeToken(token)}
           </button>
         )}
         renderItem={(type) => (
           <>
-            <Tag size={16} className={icon} />
-            <span className={primary}>
+            <Tag size={16} className={style.dropdown.icon} />
+            <span className={style.dropdown.primary}>
               {unparseTypeToken({ type: TokenType.type, value: type })}
             </span>
           </>

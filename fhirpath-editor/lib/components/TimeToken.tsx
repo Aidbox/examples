@@ -1,10 +1,11 @@
 import { forwardRef, Ref } from "react";
 import { useProgramContext } from "../utils/store";
 import { ITimeToken, TokenComponentProps } from "../types/internal";
-import { input } from "./TimeToken.module.css";
+import { useStyle } from "../style";
 
 const TimeToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
+    const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as ITimeToken,
       updateToken: state.updateToken,
@@ -13,7 +14,7 @@ const TimeToken = forwardRef<HTMLElement, TokenComponentProps>(
     return (
       <input
         ref={ref as Ref<HTMLInputElement>}
-        className={input}
+        className={style.token.time.input}
         placeholder="hh:mm:ss"
         type="time"
         value={token.value}

@@ -16,7 +16,7 @@ import {
   useListNavigation,
 } from "@floating-ui/react";
 import { Empty } from "@phosphor-icons/react";
-import css from "./Dropdown.module.css";
+import { useStyle } from "../style";
 import { useProgramContext } from "../utils/store.ts";
 
 function Dropdown<T>({
@@ -41,6 +41,7 @@ function Dropdown<T>({
   ) => ReactNode;
   renderItem?: (item: T, created: boolean) => ReactNode;
 }) {
+  const style = useStyle();
   const portalRoot = useProgramContext((state) => state.getPortalRoot());
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -141,7 +142,7 @@ function Dropdown<T>({
       {reference}
       {isOpen && (
         <FloatingPortal id={portalRoot}>
-          <FloatingOverlay className={css.backdrop} lockScroll />
+          <FloatingOverlay className={style.dropdown.backdrop} lockScroll />
           <div style={floatingStyles}>
             <FloatingArrow
               ref={arrowRef}
@@ -154,11 +155,11 @@ function Dropdown<T>({
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className={css.container}
+            className={style.dropdown.container}
             {...getFloatingProps()}
           >
             {searchFn && (
-              <div className={css.search}>
+              <div className={style.dropdown.search}>
                 <input
                   type="text"
                   value={searchText}
@@ -174,7 +175,7 @@ function Dropdown<T>({
                 ref={(node) => {
                   listRef.current[0] = node;
                 }}
-                className={css.option}
+                className={style.dropdown.option}
                 data-active={activeIndex === 0 || undefined}
                 {...getItemProps({
                   onClick: () => handleSelect(createdItem, true),
@@ -188,14 +189,16 @@ function Dropdown<T>({
               ([group, items]) =>
                 items.length > 0 && (
                   <Fragment key={group}>
-                    {group && <div className={css.group}>{group}</div>}
+                    {group && (
+                      <div className={style.dropdown.group}>{group}</div>
+                    )}
                     {items.map(({ item, index }) => (
                       <button
                         key={keyFn ? keyFn(item) : index}
                         ref={(node) => {
                           listRef.current[index] = node;
                         }}
-                        className={css.option}
+                        className={style.dropdown.option}
                         tabIndex={activeIndex === index ? 0 : -1}
                         data-active={activeIndex === index || undefined}
                         {...getItemProps({
@@ -210,7 +213,7 @@ function Dropdown<T>({
             )}
 
             {!createdItem && filteredItems.length === 0 && (
-              <div className={css.empty}>
+              <div className={style.dropdown.empty}>
                 <Empty size={16} /> Nothing found
               </div>
             )}

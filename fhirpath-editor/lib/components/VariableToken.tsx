@@ -8,11 +8,11 @@ import {
   TokenComponentProps,
   TokenType,
 } from "../types/internal";
-import { button } from "./Token.module.css";
-import { icon, primary, secondary } from "./Dropdown.module.css";
+import { useStyle } from "../style";
 
 const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
+    const style = useStyle();
     const {
       bindingIndex,
       token,
@@ -59,7 +59,7 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
-            {...mergeProps({ className: button })}
+            {...mergeProps({ className: style.token.button })}
           >
             {token.value}
           </button>
@@ -67,14 +67,18 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
         renderItem={(token, created) =>
           created ? (
             <>
-              <Plus size={16} className={icon} />
-              <span className={primary}>New named expression</span>
+              <Plus size={16} className={style.dropdown.icon} />
+              <span className={style.dropdown.primary}>
+                New named expression
+              </span>
             </>
           ) : (
             <>
-              <PuzzlePiece size={16} className={icon} />
-              <span className={primary}>{token.value}</span>
-              {debug && <span className={secondary}>{token.debug}</span>}
+              <PuzzlePiece size={16} className={style.dropdown.icon} />
+              <span className={style.dropdown.primary}>{token.value}</span>
+              {debug && (
+                <span className={style.dropdown.secondary}>{token.debug}</span>
+              )}
             </>
           )
         }
