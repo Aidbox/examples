@@ -5,7 +5,7 @@ declare type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>;
 } : T;
 
-export declare function Editor({ defaultValue, onChange, data, variables, schema, model, debug, portalRoot, style, }: IEditorProps): JSX_2.Element;
+export declare function Editor({ defaultValue, onChange, data, variables, schema, model, debug, portalRoot, style, text, }: IEditorProps): JSX_2.Element;
 
 declare type FhirElement = {
     array?: boolean;
@@ -45,6 +45,7 @@ declare interface IEditorProps {
     debug?: boolean;
     portalRoot?: string;
     style?: DeepPartial<Style>;
+    text?: DeepPartial<Text_2>;
 }
 
 declare type Style = typeof style;
@@ -161,5 +162,74 @@ export declare const style: {
         button: string;
     };
 };
+
+export declare const text: {
+    binding: {
+        name: {
+            placeholder: string;
+        };
+        menu: {
+            delete: string;
+            duplicate: string;
+            asNamedExpression: string;
+        };
+    };
+    dropdown: {
+        search: {
+            placeholder: string;
+        };
+        empty: {
+            nothingFound: string;
+        };
+    };
+    program: {
+        title: {
+            namedExpressions: string;
+            mainExpression: string;
+            argumentExpression: string;
+        };
+    };
+    token: {
+        answer: {
+            newExpression: string;
+        };
+        function: {
+            search: {
+                placeholder: string;
+            };
+            label: {
+                arguments: string;
+            };
+        };
+        type: {
+            groups: {
+                literalTypes: string;
+                fhirPrimitiveTypes: string;
+                fhirComplexTypes: string;
+                fhirResourceTypes: string;
+            };
+        };
+        labels: {
+            number: string;
+            string: string;
+            boolean: string;
+            date: string;
+            datetime: string;
+            time: string;
+            quantity: string;
+            type: string;
+            index: string;
+        };
+    };
+    value: {
+        error: {
+            message: string;
+            empty: string;
+            bindingError: string;
+        };
+    };
+};
+
+declare type Text_2 = typeof text;
 
 export { }
