@@ -23,6 +23,7 @@ type ProgramProviderProps = {
   fhirSchema: FhirRegistry;
   model: Model;
   debug: boolean;
+  portalRoot?: string;
   children: ReactNode;
 };
 
@@ -35,15 +36,23 @@ export function ProgramProvider({
   fhirSchema,
   model,
   debug,
+  portalRoot,
   children,
 }: ProgramProviderProps) {
   const [store, setStore] = useState<StoreApi<IProgramStore> | null>(null);
 
   useEffect(() => {
     setStore(
-      createProgramStore(context, externalBindings, fhirSchema, model, debug),
+      createProgramStore(
+        context,
+        externalBindings,
+        fhirSchema,
+        model,
+        debug,
+        portalRoot,
+      ),
     );
-  }, [context, externalBindings, fhirSchema, model, debug]);
+  }, [context, externalBindings, fhirSchema, model, debug, portalRoot]);
 
   useEffect(() => {
     if (store) {

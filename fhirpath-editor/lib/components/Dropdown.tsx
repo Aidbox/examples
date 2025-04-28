@@ -17,6 +17,7 @@ import {
 } from "@floating-ui/react";
 import { Empty } from "@phosphor-icons/react";
 import css from "./Dropdown.module.css";
+import { useProgramContext } from "../utils/store.ts";
 
 function Dropdown<T>({
   items,
@@ -40,6 +41,7 @@ function Dropdown<T>({
   ) => ReactNode;
   renderItem?: (item: T, created: boolean) => ReactNode;
 }) {
+  const portalRoot = useProgramContext((state) => state.getPortalRoot());
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -138,7 +140,7 @@ function Dropdown<T>({
     <>
       {reference}
       {isOpen && (
-        <FloatingPortal>
+        <FloatingPortal id={portalRoot}>
           <FloatingOverlay className={css.backdrop} lockScroll />
           <div style={floatingStyles}>
             <FloatingArrow

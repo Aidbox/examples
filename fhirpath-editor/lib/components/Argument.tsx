@@ -29,6 +29,7 @@ export const Argument = ({
     getFhirSchema,
     model,
     debug,
+    portalRoot,
   } = useProgramContext((state) => ({
     arg: state.getArg(bindingId, tokenIndex, argIndex),
     updateArg: state.updateArg,
@@ -39,6 +40,7 @@ export const Argument = ({
     getFhirSchema: state.getFhirSchema,
     model: state.getModel(),
     debug: state.getDebug(),
+    portalRoot: state.getPortalRoot(),
   }));
 
   const bindableBindings = useProgramContext((state) =>
@@ -83,6 +85,7 @@ export const Argument = ({
       fhirSchema={getFhirSchema()}
       model={model}
       debug={debug}
+      portalRoot={portalRoot}
     >
       <Program className={css.program} title="Argument expression" />
     </ProgramProvider>

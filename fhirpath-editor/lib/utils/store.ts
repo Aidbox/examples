@@ -53,6 +53,7 @@ export interface IProgramStore {
   getFhirSchema: () => FhirRegistry;
   getModel: () => Model;
   getDebug: () => boolean;
+  getPortalRoot: () => string;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string) => Token[];
   getBindingName: (id: string) => string;
@@ -113,6 +114,7 @@ export const createProgramStore = (
   fhirSchema: FhirRegistry,
   model: Model,
   debug: boolean,
+  portalRoot: string | undefined,
 ): StoreApi<IProgramStore> => {
   const questionnaireItems = externalBindings.reduce((acc, binding) => {
     if (matchTypePattern(ComplexType(["Questionnaire"]), binding.type))
@@ -159,6 +161,8 @@ export const createProgramStore = (
         getQuestionnaireItems: () => questionnaireItems,
 
         getDebug: () => debug,
+
+        getPortalRoot: () => portalRoot,
 
         getBindingExpression: (id) =>
           id

@@ -15,13 +15,14 @@ import { ProgramProvider } from "./components/ProgramProvider";
 import { generateBindingId } from "./utils/expression";
 
 export interface IEditorProps {
-  defaultValue: string;
+  defaultValue?: string;
   onChange?: (value: string) => void;
   data: any;
   variables?: Record<string, any>;
   schema: FhirSchema[];
   model: Model;
   debug?: boolean;
+  portalRoot?: string;
 }
 
 function Editor({
@@ -32,8 +33,11 @@ function Editor({
   schema,
   model,
   debug,
+  portalRoot,
 }: IEditorProps) {
-  const [program, setProgram] = useState<IProgram>(() => parse(defaultValue));
+  const [program, setProgram] = useState<IProgram>(() =>
+    parse(defaultValue || ""),
+  );
 
   const externalBindings = useMemo((): ExternalBinding[] => {
     return Object.entries(variables || {}).map(([name, value]) => ({
@@ -70,6 +74,7 @@ function Editor({
       fhirSchema={fhirSchema}
       model={model}
       debug={!!debug}
+      portalRoot={portalRoot}
     >
       <Program />
     </ProgramProvider>

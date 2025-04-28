@@ -51,13 +51,13 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
     const listRef = useRef<Array<HTMLButtonElement | null>>([]);
     const arrowRef = useRef(null);
 
-    const { token, isLeadingToken, updateToken } = useProgramContext(
-      (state) => ({
+    const { token, isLeadingToken, updateToken, portalRoot } =
+      useProgramContext((state) => ({
         token: state.getToken(bindingId, tokenIndex) as IFunctionToken,
         isLeadingToken: state.isLeadingToken(bindingId, tokenIndex),
         updateToken: state.updateToken,
-      }),
-    );
+        portalRoot: state.getPortalRoot(),
+      }));
 
     const precedingExpressionType = useProgramContext((state) =>
       state.getExpressionType(bindingId, tokenIndex),
@@ -179,7 +179,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
           <BracketsRound size={16} weight="bold" />
         </button>
         {isOpen && (
-          <FloatingPortal>
+          <FloatingPortal id={portalRoot}>
             <FloatingOverlay className={dropdownCss.backdrop} lockScroll />
             <div
               ref={refs.setFloating}

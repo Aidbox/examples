@@ -77,7 +77,7 @@ function MyFhirPathEditor() {
 
 | Prop           | Type                    | Required | Description                                   |
 |----------------|-------------------------|----------|-----------------------------------------------|
-| `defaultValue` | string                  | Yes      | Initial FHIRPath expression                   |
+| `defaultValue` | string                  | No       | Initial FHIRPath expression                   |
 | `onChange`     | (value: string) => void | No       | Callback for expression changes               |
 | `data`         | any                     | Yes      | The context data to evaluate FHIRPath against |
 | `variables`    | Record<string, any>     | No       | External bindings available to expressions    |

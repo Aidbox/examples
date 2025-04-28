@@ -107,6 +107,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       suggestNextTokens,
       getQuestionnaireItems,
       debug,
+      portalRoot,
     } = useProgramContext((state) => ({
       bindingIndex: state.bindingsIndex[`${bindingId}`],
       empty: !state.getBindingExpression(bindingId).length,
@@ -115,6 +116,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       suggestNextTokens: state.suggestNextTokens,
       getQuestionnaireItems: state.getQuestionnaireItems,
       debug: state.getDebug(),
+      portalRoot: state.getPortalRoot(),
     }));
 
     const nextTokens = suggestNextTokens(bindingId) || [];
@@ -370,7 +372,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
           }}
         />
         {isOpen && (
-          <FloatingPortal>
+          <FloatingPortal id={portalRoot}>
             <div
               className={css.dropdown}
               style={floatingStyles}

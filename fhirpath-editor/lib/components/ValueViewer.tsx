@@ -59,9 +59,10 @@ type EvalViewerProps = {
 };
 
 const ValueViewer = ({ bindingId }: EvalViewerProps) => {
-  const { name, getBindingValue } = useProgramContext((state) => ({
+  const { name, getBindingValue, portalRoot } = useProgramContext((state) => ({
     name: bindingId && state.getBindingName(bindingId),
     getBindingValue: state.getBindingValue,
+    portalRoot: state.getPortalRoot(),
   }));
 
   const value = getBindingValue(bindingId);
@@ -120,7 +121,7 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
       </button>
 
       {isOpen && (
-        <FloatingPortal>
+        <FloatingPortal id={portalRoot}>
           <div
             ref={refs.setFloating}
             style={floatingStyles}
