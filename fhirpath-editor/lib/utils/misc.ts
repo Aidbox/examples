@@ -1,3 +1,5 @@
+import { DeepPartial } from "../types/internal.ts";
+
 export const distinct = <T>(array: T[]): T[] => Array.from(new Set(array));
 
 export const delay = (f: () => void): ReturnType<typeof setTimeout> =>
@@ -74,4 +76,39 @@ export function indexBy<T, K extends keyof T>(
     },
     {} as Record<string, T>,
   );
+}
+
+function isObject(item: unknown): item is Record<string, unknown> {
+  return Boolean(item && typeof item === "object" && !Array.isArray(item));
+}
+
+export function deepMerge<T extends Record<string, unknown>>(
+  target: T,
+  source: DeepPartial<T>,
+): T {
+  const output = { ...target };
+
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach((key) => {
+      const sourceValue = source[key as keyof typeof source];
+      const targetValue = target[key as keyof typeof target];
+
+      if (isObject(sourceValue)) {
+        if (!(key in target)) {
+          output[key as keyof T] = sourceValue as T[keyof T];
+        } else if (isObject(targetValue)) {
+          output[key as keyof T] = deepMerge(
+            targetValue as Record<string, unknown>,
+            sourceValue as DeepPartial<Record<string, unknown>>,
+          ) as T[keyof T];
+        } else {
+          output[key as keyof T] = sourceValue as T[keyof T];
+        }
+      } else if (sourceValue !== undefined) {
+        output[key as keyof T] = sourceValue as T[keyof T];
+      }
+    });
+  }
+
+  return output;
 }

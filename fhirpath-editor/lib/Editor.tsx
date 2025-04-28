@@ -4,6 +4,7 @@ import { Model } from "fhirpath";
 import { detectValueType } from "./utils/value";
 import {
   Context,
+  DeepPartial,
   ExternalBinding,
   FhirRegistry,
   FhirSchema,
@@ -13,7 +14,8 @@ import {
 import Program from "./components/Program";
 import { ProgramProvider } from "./components/ProgramProvider";
 import { generateBindingId } from "./utils/expression";
-import { DeepPartial, Style, StyleProvider } from "./style.tsx";
+import { Style, StyleProvider } from "./style";
+import { Text, TextProvider } from "./text";
 
 export interface IEditorProps {
   defaultValue?: string;
@@ -25,6 +27,7 @@ export interface IEditorProps {
   debug?: boolean;
   portalRoot?: string;
   style?: DeepPartial<Style>;
+  text?: DeepPartial<Text>;
 }
 
 function Editor({
@@ -37,6 +40,7 @@ function Editor({
   debug,
   portalRoot,
   style,
+  text,
 }: IEditorProps) {
   const [program, setProgram] = useState<IProgram>(() =>
     parse(defaultValue || ""),
@@ -69,19 +73,21 @@ function Editor({
 
   return (
     <StyleProvider style={style}>
-      <ProgramProvider
-        program={program}
-        onProgramChange={setProgram}
-        onFhirPathChange={onChange}
-        context={context}
-        externalBindings={externalBindings}
-        fhirSchema={fhirSchema}
-        model={model}
-        debug={!!debug}
-        portalRoot={portalRoot}
-      >
-        <Program />
-      </ProgramProvider>
+      <TextProvider text={text}>
+        <ProgramProvider
+          program={program}
+          onProgramChange={setProgram}
+          onFhirPathChange={onChange}
+          context={context}
+          externalBindings={externalBindings}
+          fhirSchema={fhirSchema}
+          model={model}
+          debug={!!debug}
+          portalRoot={portalRoot}
+        >
+          <Program />
+        </ProgramProvider>
+      </TextProvider>
     </StyleProvider>
   );
 }

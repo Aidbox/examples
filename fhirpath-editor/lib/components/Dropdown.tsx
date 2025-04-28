@@ -17,6 +17,7 @@ import {
 } from "@floating-ui/react";
 import { Empty } from "@phosphor-icons/react";
 import { useStyle } from "../style";
+import { useText } from "../text";
 import { useProgramContext } from "../utils/store.ts";
 
 function Dropdown<T>({
@@ -42,6 +43,7 @@ function Dropdown<T>({
   renderItem?: (item: T, created: boolean) => ReactNode;
 }) {
   const style = useStyle();
+  const text = useText();
   const portalRoot = useProgramContext((state) => state.getPortalRoot());
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -164,7 +166,7 @@ function Dropdown<T>({
                   type="text"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search..."
+                  placeholder={text.dropdown.search.placeholder}
                   autoFocus
                 />
               </div>
@@ -214,7 +216,7 @@ function Dropdown<T>({
 
             {!createdItem && filteredItems.length === 0 && (
               <div className={style.dropdown.empty}>
-                <Empty size={16} /> Nothing found
+                <Empty size={16} /> {text.dropdown.empty.nothingFound}
               </div>
             )}
           </div>

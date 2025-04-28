@@ -23,10 +23,12 @@ import {
 } from "../types/internal";
 import { unparseTypeToken } from "../utils/fhirpath";
 import { useStyle } from "../style";
+import { useText } from "../text";
 
 const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
     const style = useStyle();
+    const text = useText();
     const { token, updateToken, getFhirSchema } = useProgramContext(
       (state) => ({
         token: state.getToken(bindingId, tokenIndex) as ITypeToken,
@@ -38,7 +40,7 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
     const fhirSchema = getFhirSchema();
     const typesGroups: Record<string, Type[]> = useMemo(
       () => ({
-        "Literal Types": [
+        [text.token.type.groups.literalTypes]: [
           IntegerType,
           DecimalType,
           StringType,
@@ -47,8 +49,10 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
           DateTimeType,
           TimeType,
         ],
-        "FHIR Primitive Types": [...Object.values(primitiveTypeMap)],
-        "FHIR Complex Types": distinct(
+        [text.token.type.groups.fhirPrimitiveTypes]: [
+          ...Object.values(primitiveTypeMap),
+        ],
+        [text.token.type.groups.fhirComplexTypes]: distinct(
           Object.values(fhirSchema)
             .filter(
               (schema) =>
@@ -59,7 +63,7 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
         )
           .sort()
           .map((id) => ComplexType([id])),
-        "FHIR Resource Types": distinct(
+        [text.token.type.groups.fhirResourceTypes]: distinct(
           Object.values(fhirSchema)
             .filter(
               (schema) =>
@@ -71,7 +75,7 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
           .sort()
           .map((id) => ComplexType([id])),
       }),
-      [fhirSchema],
+      [fhirSchema, text.token.type.groups],
     );
 
     const items = Object.entries(typesGroups).flatMap(([, values]) => values);

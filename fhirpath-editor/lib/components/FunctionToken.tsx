@@ -38,10 +38,12 @@ import {
 import { assertDefined } from "../utils/misc";
 import { Argument } from "./Argument";
 import { useStyle } from "../style";
+import { useText } from "../text";
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
     const style = useStyle();
+    const text = useText();
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [_selectingName, setSelectingName] = useState(false);
@@ -194,7 +196,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className={style.token.function.search}
-                    placeholder="Search..."
+                    placeholder={text.token.function.search.placeholder}
                     autoFocus
                     onKeyDown={(e) => {
                       if (
@@ -217,7 +219,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
 
                     {meta.args.length > 0 && (
                       <span className={style.token.function.label}>
-                        arguments
+                        {text.token.function.label.arguments}
                       </span>
                     )}
 
@@ -289,7 +291,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                     ))
                   ) : (
                     <div className={style.dropdown.empty}>
-                      <Empty size={16} /> Nothing found
+                      <Empty size={16} /> {text.dropdown.empty.nothingFound}
                     </div>
                   ))}
               </div>

@@ -50,19 +50,8 @@ import {
 } from "../types/internal";
 import { omit } from "../utils/misc";
 import { useStyle } from "../style";
+import { useText } from "../text";
 import clx from "classnames";
-
-const labels = {
-  number: "Number",
-  string: "String",
-  boolean: "Boolean",
-  date: "Date",
-  datetime: "Date and time",
-  time: "Time",
-  quantity: "Quantity",
-  type: "Type",
-  index: "Index",
-};
 
 function lookup(text: string | undefined, term: string): boolean {
   return !!text?.toLowerCase().includes(term.replace(".", "").toLowerCase());
@@ -70,7 +59,6 @@ function lookup(text: string | undefined, term: string): boolean {
 
 type CursorProps = {
   bindingId: string;
-  placeholder?: string;
   onBackspace: () => void;
   onMistake: () => void;
 };
@@ -80,7 +68,11 @@ export type CursorRef = {
   contains: (element: Element) => boolean;
 };
 
-function getText(token: Token, items: QuestionnaireItemRegistry) {
+function getText(
+  token: Token,
+  items: QuestionnaireItemRegistry,
+  text: ReturnType<typeof useText>,
+) {
   if (
     token.type === TokenType.field ||
     token.type === TokenType.function ||
@@ -92,13 +84,14 @@ function getText(token: Token, items: QuestionnaireItemRegistry) {
   } else if (token.type === TokenType.answer) {
     return items[token.value]?.text || token.value;
   } else {
-    return labels[token.type];
+    return text.token.labels[token.type];
   }
 }
 
 const Cursor = forwardRef<CursorRef, CursorProps>(
-  ({ bindingId, placeholder, onBackspace, onMistake }, ref) => {
+  ({ bindingId, onBackspace, onMistake }, ref) => {
     const style = useStyle();
+    const text = useText();
     const {
       bindingIndex,
       empty,
@@ -337,7 +330,6 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
               style.binding.cursor.button,
               !empty && style.binding.cursor.faded,
             )}
-            data-icon={!placeholder || undefined}
           >
             <Plus size={12} />
           </div>
@@ -442,7 +434,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                       ) : token.type === TokenType.operator ? (
                         <OperatorIcon name={token.value} />
                       ) : null}
-                      {getText(token, items)}
+                      {getText(token, items, text)}
                       {token.shortcut ? (
                         <Lightning
                           size={14}
@@ -461,7 +453,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
 
               {nextTokens.length > 0 && filteredTokens.length === 0 && (
                 <div className={style.dropdown.empty}>
-                  <Empty size={16} /> No matching tokens found
+                  <Empty size={16} /> {text.dropdown.empty.nothingFound}
                 </div>
               )}
             </div>

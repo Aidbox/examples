@@ -644,3 +644,9 @@ export type QuestionnaireItem = {
   item?: QuestionnaireItem[];
   extension?: { url: string; valueCode?: string }[];
 };
+
+export type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;

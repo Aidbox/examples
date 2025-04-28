@@ -6,14 +6,16 @@ import { useProgramContext } from "../utils/store";
 import { stringifyType } from "../utils/type";
 import clx from "classnames";
 import { useStyle } from "../style";
+import { useText } from "../text";
 
 type ProgramProps = {
   className?: string;
   title?: ReactNode;
 };
 
-function Program({ className = "", title = "Main Expression" }: ProgramProps) {
+function Program({ className = "", title }: ProgramProps) {
   const style = useStyle();
+  const text = useText();
   const { addBinding, setBindingRef, debug } = useProgramContext((state) => ({
     addBinding: state.addBinding,
     setBindingRef: state.setBindingRef,
@@ -34,7 +36,9 @@ function Program({ className = "", title = "Main Expression" }: ProgramProps) {
         className,
       )}
     >
-      <div className={style.program.title}>Named Expressions</div>
+      <div className={style.program.title}>
+        {text.program.title.namedExpressions}
+      </div>
 
       {bindingIds.map((bindingId) => (
         <div key={bindingId} className={style.program.binding}>
@@ -56,7 +60,9 @@ function Program({ className = "", title = "Main Expression" }: ProgramProps) {
         </button>
       </div>
 
-      <div className={style.program.title}>{title}</div>
+      <div className={style.program.title}>
+        {title || text.program.title.mainExpression}
+      </div>
 
       {debug && (
         <div className={style.binding.debug}>

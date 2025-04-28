@@ -19,18 +19,19 @@ import {
 } from "@floating-ui/react";
 import { FhirValue } from "../types/internal";
 import { useStyle } from "../style";
+import { useText } from "../text";
 
-function format(value: FhirValue): ReactNode {
+function format(value: FhirValue, text: ReturnType<typeof useText>): ReactNode {
   if (value.error) {
     return (
       <>
-        <Warning /> error
+        <Warning /> {text.value.error.message}
       </>
     );
   } else if (value.value == null) {
     return (
       <>
-        <Empty /> empty
+        <Empty /> {text.value.error.empty}
       </>
     );
   } else if (Array.isArray(value.value)) {
@@ -41,7 +42,7 @@ function format(value: FhirValue): ReactNode {
         .join(", ")}${value.value.length > 3 ? ", ..." : ""}`
     ) : (
       <>
-        <Empty /> empty
+        <Empty /> {text.value.error.empty}
       </>
     );
   }
@@ -59,6 +60,7 @@ type EvalViewerProps = {
 
 const ValueViewer = ({ bindingId }: EvalViewerProps) => {
   const style = useStyle();
+  const text = useText();
   const { name, getBindingValue, portalRoot } = useProgramContext((state) => ({
     name: bindingId && state.getBindingName(bindingId),
     getBindingValue: state.getBindingValue,
@@ -117,7 +119,7 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
         className={style.binding.value.button}
       >
         <ArrowRight size={12} />
-        {format(value)}
+        {format(value, text)}
       </button>
 
       {isOpen && (
@@ -143,7 +145,10 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
                 <div>
                   {!value.origin || value.origin === name
                     ? value.error.message
-                    : `One of the bindings (${value.origin}) has an error`}
+                    : text.value.error.bindingError.replace(
+                        "{origin}",
+                        value.origin,
+                      )}
                 </div>
               </div>
             ) : (

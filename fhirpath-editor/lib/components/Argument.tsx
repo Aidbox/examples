@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { ProgramProvider } from "./ProgramProvider";
 import Program from "./Program";
 import { useStyle } from "../style";
+import { useText } from "../text";
 
 type ArgumentProps = {
   bindingId: string;
@@ -21,6 +22,7 @@ export const Argument = ({
   contextValue,
 }: ArgumentProps) => {
   const style = useStyle();
+  const text = useText();
   const {
     arg,
     updateArg,
@@ -90,7 +92,7 @@ export const Argument = ({
     >
       <Program
         className={style.token.function.argument.program}
-        title="Argument expression"
+        title={text.program.title.argumentExpression}
       />
     </ProgramProvider>
   );

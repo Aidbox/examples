@@ -9,6 +9,7 @@ import ValueViewer from "./ValueViewer.tsx";
 import { BindingRef, TypeName } from "../types/internal";
 import { stringifyType } from "../utils/type";
 import { useStyle } from "../style";
+import { useText } from "../text";
 import clx from "classnames";
 
 type BindingProps = {
@@ -18,6 +19,7 @@ type BindingProps = {
 const Binding = forwardRef<BindingRef, BindingProps>(
   ({ bindingId }, forwardingRef) => {
     const style = useStyle();
+    const text = useText();
     const cursorRef = useRef<CursorRef | null>(null);
     const nameRef = useRef<HTMLInputElement | null>(null);
 
@@ -99,7 +101,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
             )}
             onAnimationEnd={() => setNameAnimation("")}
             type="text"
-            placeholder="Name"
+            placeholder={text.binding.name.placeholder}
             value={uncommitedName}
             onChange={(e) => setName(e.target.value)}
             onBlur={commitName}
@@ -175,7 +177,6 @@ const Binding = forwardRef<BindingRef, BindingProps>(
           <Cursor
             ref={cursorRef}
             bindingId={bindingId}
-            placeholder="Write expression..."
             onBackspace={invokeTrim}
             onMistake={() => {
               setExpressionAnimation(style.binding.animate);

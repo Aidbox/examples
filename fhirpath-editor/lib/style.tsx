@@ -1,3 +1,6 @@
+import { createContext, ReactNode, useContext, useMemo } from "react";
+import { deepMerge } from "./utils/misc.ts";
+import { DeepPartial } from "./types/internal.ts";
 import answerToken from "./components/AnswerToken.module.css";
 import argument from "./components/Argument.module.css";
 import binding from "./components/Binding.module.css";
@@ -19,49 +22,6 @@ import stringToken from "./components/StringToken.module.css";
 import timeToken from "./components/TimeToken.module.css";
 import token from "./components/Token.module.css";
 import valueViewer from "./components/ValueViewer.module.css";
-import { createContext, ReactNode, useContext, useMemo } from "react";
-
-// Recursive type for deeply partial objects
-export type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>;
-    }
-  : T;
-
-function isObject(item: unknown): item is Record<string, unknown> {
-  return Boolean(item && typeof item === "object" && !Array.isArray(item));
-}
-
-function deepMerge<T extends Record<string, unknown>>(
-  target: T,
-  source: DeepPartial<T>,
-): T {
-  const output = { ...target };
-
-  if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach((key) => {
-      const sourceValue = source[key as keyof typeof source];
-      const targetValue = target[key as keyof typeof target];
-
-      if (isObject(sourceValue)) {
-        if (!(key in target)) {
-          output[key as keyof T] = sourceValue as T[keyof T];
-        } else if (isObject(targetValue)) {
-          output[key as keyof T] = deepMerge(
-            targetValue as Record<string, unknown>,
-            sourceValue as DeepPartial<Record<string, unknown>>,
-          ) as T[keyof T];
-        } else {
-          output[key as keyof T] = sourceValue as T[keyof T];
-        }
-      } else if (sourceValue !== undefined) {
-        output[key as keyof T] = sourceValue as T[keyof T];
-      }
-    });
-  }
-
-  return output;
-}
 
 export const style = {
   binding: {

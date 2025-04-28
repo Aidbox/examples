@@ -9,10 +9,12 @@ import {
   TokenType,
 } from "../types/internal";
 import { useStyle } from "../style";
+import { useText } from "../text";
 
 const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
     const style = useStyle();
+    const text = useText();
     const {
       bindingIndex,
       token,
@@ -69,7 +71,7 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
             <>
               <Plus size={16} className={style.dropdown.icon} />
               <span className={style.dropdown.primary}>
-                New named expression
+                {text.token.answer.newExpression}
               </span>
             </>
           ) : (
