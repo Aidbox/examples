@@ -227,8 +227,8 @@ function Dropdown<T>({
                             }}
                           >
                             {expandedGroups.has(group)
-                              ? "Show less"
-                              : "Show more"}
+                              ? text.dropdown.group.showLess
+                              : text.dropdown.group.showLess}
                             <CaretDown
                               size={16}
                               style={{

@@ -25,6 +25,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
 
     const {
       name,
+      empty,
       trimBinding,
       renameBinding,
       setTokenRef,
@@ -37,6 +38,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
     } = useProgramContext((state) => {
       return {
         name: bindingId && state.getBindingName(bindingId),
+        empty: !state.getBindingExpression(bindingId).length,
         trimBinding: state.trimBinding,
         renameBinding: state.renameBinding,
         setTokenRef: state.setTokenRef,
@@ -181,6 +183,9 @@ const Binding = forwardRef<BindingRef, BindingProps>(
             onMistake={() => {
               setExpressionAnimation(style.binding.animate);
             }}
+            placeholder={
+              !bindingId && empty ? "Add your formula here..." : undefined
+            }
           />
         </div>
 

@@ -14,6 +14,10 @@ export const text = {
     },
   },
   dropdown: {
+    group: {
+      showMore: "Show more",
+      showLess: "Show less",
+    },
     search: {
       placeholder: "Search...",
     },

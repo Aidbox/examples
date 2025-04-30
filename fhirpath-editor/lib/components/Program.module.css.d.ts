@@ -12,6 +12,7 @@ const title: string;
 const define: string;
 const binding: string;
 const main: string;
+const empty: string;
 
 export {
 	container,
@@ -19,7 +20,8 @@ export {
 	title,
 	define,
 	binding,
-	main
+	main,
+	empty
 };
 
 export default {
@@ -28,5 +30,6 @@ export default {
 	title,
 	define,
 	binding,
-	main
+	main,
+	empty
 };

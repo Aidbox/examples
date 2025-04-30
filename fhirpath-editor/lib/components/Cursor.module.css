@@ -27,6 +27,11 @@
   }
 }
 
+.placeholder {
+  color: #9ca3af;
+  margin-left: 0.5rem;
+}
+
 .search {
   color: #475569;
   width: 0;

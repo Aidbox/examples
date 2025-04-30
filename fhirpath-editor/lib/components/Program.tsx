@@ -16,11 +16,14 @@ type ProgramProps = {
 function Program({ className = "", title }: ProgramProps) {
   const style = useStyle();
   const text = useText();
-  const { addBinding, setBindingRef, debug } = useProgramContext((state) => ({
-    addBinding: state.addBinding,
-    setBindingRef: state.setBindingRef,
-    debug: state.getDebug(),
-  }));
+  const { addBinding, setBindingRef, debug, empty } = useProgramContext(
+    (state) => ({
+      addBinding: state.addBinding,
+      setBindingRef: state.setBindingRef,
+      debug: state.getDebug(),
+      empty: !state.program.expression.length,
+    }),
+  );
 
   const bindingIds = useProgramContext((state) =>
     state.program.bindings.map((b) => b.id),
@@ -57,7 +60,7 @@ function Program({ className = "", title }: ProgramProps) {
         </button>
       </div>
 
-      <div className={style.program.main}>
+      <div className={clx(style.program.main, empty && style.program.empty)}>
         <div className={style.program.title}>
           {title || text.program.title.mainExpression}
         </div>

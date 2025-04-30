@@ -66,6 +66,7 @@ function lookup(text: string | undefined, term: string): boolean {
 
 type CursorProps = {
   bindingId: string;
+  placeholder?: string;
   onBackspace: () => void;
   onMistake: () => void;
 };
@@ -96,7 +97,7 @@ function getText(
 }
 
 const Cursor = forwardRef<CursorRef, CursorProps>(
-  ({ bindingId, onBackspace, onMistake }, ref) => {
+  ({ bindingId, placeholder, onBackspace, onMistake }, ref) => {
     const style = useStyle();
     const text = useText();
     const {
@@ -346,19 +347,24 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
         }}
       >
         {!isOpen && (
-          <div
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              inputRef.current?.focus();
-            }}
-            className={clx(
-              style.binding.cursor.button,
-              !empty && style.binding.cursor.faded,
-            )}
-          >
-            <Plus size={12} />
-          </div>
+          <>
+            <div
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                inputRef.current?.focus();
+              }}
+              className={clx(
+                style.binding.cursor.button,
+                !empty && style.binding.cursor.faded,
+              )}
+            >
+              <Plus size={12} />
+            </div>
+            <span className={style.binding.cursor.placeholder}>
+              {placeholder}
+            </span>
+          </>
         )}
         <input
           autoComplete="off"

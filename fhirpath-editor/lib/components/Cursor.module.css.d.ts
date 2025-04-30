@@ -9,6 +9,7 @@
 const wrapper: string;
 const faded: string;
 const button: string;
+const placeholder: string;
 const search: string;
 const incompatible: string;
 const shortcut: string;
@@ -18,6 +19,7 @@ export {
 	wrapper,
 	faded,
 	button,
+	placeholder,
 	search,
 	incompatible,
 	shortcut,
@@ -28,6 +30,7 @@ export default {
 	wrapper,
 	faded,
 	button,
+	placeholder,
 	search,
 	incompatible,
 	shortcut,

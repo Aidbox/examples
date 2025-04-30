@@ -72,3 +72,7 @@
   margin-top: 1rem;
   border-radius: 1rem;
 }
+
+.empty {
+  background-color: #f9fafb;
+}
