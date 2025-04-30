@@ -54,6 +54,7 @@ export declare const style: {
     binding: {
         menu: {
             button: string;
+            icon: string;
         };
         cursor: {
             wrapper: string;
@@ -73,6 +74,8 @@ export declare const style: {
                 collapsedContent: string;
             };
             button: string;
+            equals: string;
+            empty: string;
             arrow: string;
             error: string;
             popover: string;
@@ -93,6 +96,7 @@ export declare const style: {
         secondary: string;
         primary: string;
         group: string;
+        toggle: string;
         empty: string;
         search: string;
         container: string;
@@ -103,8 +107,9 @@ export declare const style: {
         container: string;
         extended: string;
         title: string;
-        binding: string;
         define: string;
+        binding: string;
+        main: string;
     };
     token: {
         answer: {
@@ -183,10 +188,22 @@ export declare const text: {
         };
     };
     program: {
+        define: string;
         title: {
             namedExpressions: string;
             mainExpression: string;
             argumentExpression: string;
+        };
+    };
+    cursor: {
+        groups: {
+            namedExpressions: string;
+            operators: string;
+            functions: string;
+            fields: string;
+            indexes: string;
+            questionnaire: string;
+            literals: string;
         };
     };
     token: {
