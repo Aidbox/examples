@@ -60,6 +60,7 @@ export declare const style: {
             wrapper: string;
             faded: string;
             button: string;
+            placeholder: string;
             search: string;
             incompatible: string;
             shortcut: string;
@@ -110,6 +111,7 @@ export declare const style: {
         define: string;
         binding: string;
         main: string;
+        empty: string;
     };
     token: {
         answer: {
@@ -180,6 +182,10 @@ export declare const text: {
         };
     };
     dropdown: {
+        group: {
+            showMore: string;
+            showLess: string;
+        };
         search: {
             placeholder: string;
         };
