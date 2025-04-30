@@ -76,7 +76,9 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
             </>
           ) : (
             <>
-              <PuzzlePiece size={16} className={style.dropdown.icon} />
+              <span className={style.dropdown.icon}>
+                <PuzzlePiece size={14} />
+              </span>
               <span className={style.dropdown.primary}>{token.value}</span>
               {debug && (
                 <span className={style.dropdown.secondary}>{token.debug}</span>
@@ -86,7 +88,7 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
         }
       />
     );
-  },
+  }
 );
 
 export default VariableToken;

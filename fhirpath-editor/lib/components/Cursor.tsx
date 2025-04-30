@@ -12,6 +12,7 @@ import {
 import {
   BracketsSquare,
   Calendar,
+  CaretDown,
   Clock,
   Empty,
   Flag,
@@ -28,6 +29,7 @@ import {
   Timer,
 } from "@phosphor-icons/react";
 import {
+  CSSProperties,
   forwardRef,
   Fragment,
   KeyboardEvent,
@@ -48,10 +50,15 @@ import {
   Token,
   TokenType,
 } from "../types/internal";
-import { omit } from "../utils/misc";
+import { colors, memoize, omit } from "../utils/misc";
 import { useStyle } from "../style";
 import { useText } from "../text";
 import clx from "classnames";
+
+let colorIndex = 0;
+const color = memoize(() => colors[colorIndex++ % colors.length]) as (
+  group: string,
+) => string;
 
 function lookup(text: string | undefined, term: string): boolean {
   return !!text?.toLowerCase().includes(term.replace(".", "").toLowerCase());
@@ -122,6 +129,9 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [activeIndex, setActiveIndex] = useState(0);
+    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+      new Set(),
+    );
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -207,12 +217,12 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
         // prettier-ignore
         const group =
           // token.shortcut ? "Quick actions" :
-          token.type === TokenType.variable ? "Named expressions" :
-          token.type === TokenType.operator ? "Operators" :
-          token.type === TokenType.function ? "Functions" :
-          token.type === TokenType.field ? "Fields" :
-          token.type === TokenType.index ? "Indexes" :
-          token.type === TokenType.answer ? "Questionnaire" : "Literals";
+          token.type === TokenType.variable ? text.cursor.groups.namedExpressions :
+          token.type === TokenType.operator ? text.cursor.groups.operators :
+          token.type === TokenType.function ? text.cursor.groups.functions :
+          token.type === TokenType.field ? text.cursor.groups.fields :
+          token.type === TokenType.index ? text.cursor.groups.indexes :
+          token.type === TokenType.answer ? text.cursor.groups.questionnaire : text.cursor.groups.literals
 
         if (!acc[group]) {
           acc[group] = [];
@@ -221,7 +231,11 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
         acc[group].push({ ...token, index });
         return acc;
       },
-      { Literals: [] } as Record<string, SuggestedToken[]>,
+      {
+        [text.cursor.groups.questionnaire]: [],
+        [text.cursor.groups.namedExpressions]: [],
+        [text.cursor.groups.literals]: [],
+      } as Record<string, SuggestedToken[]>,
     );
 
     if (groupedTokens["Literals"].length === 0) {
@@ -311,6 +325,18 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       refs.floating.current?.scroll(0, 0);
     };
 
+    const toggleGroup = (group: string) => {
+      setExpandedGroups((prev) => {
+        const next = new Set(prev);
+        if (next.has(group)) {
+          next.delete(group);
+        } else {
+          next.add(group);
+        }
+        return next;
+      });
+    };
+
     return (
       <label
         className={style.binding.cursor.wrapper}
@@ -377,79 +403,113 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
               }}
               {...getFloatingProps()}
             >
-              {Object.entries(groupedTokens).map(([group, tokens]) => (
-                <Fragment key={group}>
-                  <div className={style.dropdown.group}>{group}</div>
-                  {tokens.map((token) => (
-                    <button
-                      tabIndex={-1}
-                      ref={(node) => {
-                        if (token.index) listRef.current[token.index] = node;
-                      }}
-                      className={clx(
-                        style.dropdown.option,
-                        token.incompatible && style.binding.cursor.incompatible,
-                      )}
-                      data-active={token.index === activeIndex ? "" : undefined}
-                      key={token.type + (token.value || "")}
-                      {...getItemProps({
-                        onClick: () => {
-                          inputRef.current?.focus();
-                          handleAddToken(token);
-                        },
-                      })}
-                    >
-                      {token.type === TokenType.string ? (
-                        <Quotes size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.number ? (
-                        <Hash size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.variable ? (
-                        <PuzzlePiece
-                          size={16}
-                          className={style.dropdown.icon}
-                        />
-                      ) : token.type === TokenType.boolean ? (
-                        <Flag size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.date ? (
-                        <Calendar size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.datetime ? (
-                        <Clock size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.time ? (
-                        <Timer size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.quantity ? (
-                        <Scales size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.type ? (
-                        <Tag size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.index ? (
-                        <BracketsSquare
-                          size={16}
-                          className={style.dropdown.icon}
-                        />
-                      ) : token.type === TokenType.field ? (
-                        <Shapes size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.function ? (
-                        <Function size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.answer ? (
-                        <Textbox size={16} className={style.dropdown.icon} />
-                      ) : token.type === TokenType.operator ? (
-                        <OperatorIcon name={token.value} />
-                      ) : null}
-                      {getText(token, items, text)}
-                      {token.shortcut ? (
-                        <Lightning
-                          size={14}
-                          weight="fill"
-                          className={style.binding.cursor.shortcut}
-                        />
-                      ) : debug && token.debug ? (
-                        <span className={style.dropdown.secondary}>
-                          {token.debug}
-                        </span>
-                      ) : null}
-                    </button>
-                  ))}
-                </Fragment>
-              ))}
+              {Object.entries(groupedTokens).map(
+                ([group, tokens]) =>
+                  tokens.length > 0 && (
+                    <Fragment key={group}>
+                      <div className={style.dropdown.group}>
+                        <span>{group}</span>
+                        {tokens.length > 5 && (
+                          <button
+                            className={style.dropdown.toggle}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              toggleGroup(group);
+                            }}
+                          >
+                            {expandedGroups.has(group)
+                              ? "Show less"
+                              : "Show more"}
+                            <CaretDown
+                              size={16}
+                              style={{
+                                transform: expandedGroups.has(group)
+                                  ? "rotate(180deg)"
+                                  : "none",
+                                transition: "transform 0.2s",
+                              }}
+                            />
+                          </button>
+                        )}
+                      </div>
+                      {tokens
+                        .slice(0, expandedGroups.has(group) ? undefined : 5)
+                        .map((token) => (
+                          <button
+                            tabIndex={-1}
+                            ref={(node) => {
+                              if (token.index)
+                                listRef.current[token.index] = node;
+                            }}
+                            style={
+                              {
+                                "--group-color": color(group),
+                              } as CSSProperties
+                            }
+                            className={clx(
+                              style.dropdown.option,
+                              token.incompatible &&
+                                style.binding.cursor.incompatible,
+                            )}
+                            data-active={
+                              token.index === activeIndex ? "" : undefined
+                            }
+                            key={token.type + (token.value || "")}
+                            {...getItemProps({
+                              onClick: () => {
+                                inputRef.current?.focus();
+                                handleAddToken(token);
+                              },
+                            })}
+                          >
+                            <span className={style.dropdown.icon}>
+                              {token.type === TokenType.string ? (
+                                <Quotes size={14} />
+                              ) : token.type === TokenType.number ? (
+                                <Hash size={14} />
+                              ) : token.type === TokenType.variable ? (
+                                <PuzzlePiece size={14} />
+                              ) : token.type === TokenType.boolean ? (
+                                <Flag size={14} />
+                              ) : token.type === TokenType.date ? (
+                                <Calendar size={14} />
+                              ) : token.type === TokenType.datetime ? (
+                                <Clock size={14} />
+                              ) : token.type === TokenType.time ? (
+                                <Timer size={14} />
+                              ) : token.type === TokenType.quantity ? (
+                                <Scales size={14} />
+                              ) : token.type === TokenType.type ? (
+                                <Tag size={14} />
+                              ) : token.type === TokenType.index ? (
+                                <BracketsSquare size={14} />
+                              ) : token.type === TokenType.field ? (
+                                <Shapes size={14} />
+                              ) : token.type === TokenType.function ? (
+                                <Function size={14} />
+                              ) : token.type === TokenType.answer ? (
+                                <Textbox size={14} />
+                              ) : token.type === TokenType.operator ? (
+                                <OperatorIcon name={token.value} size={14} />
+                              ) : null}
+                            </span>
+                            {getText(token, items, text)}
+                            {token.shortcut ? (
+                              <Lightning
+                                size={14}
+                                weight="fill"
+                                className={style.binding.cursor.shortcut}
+                              />
+                            ) : debug && token.debug ? (
+                              <span className={style.dropdown.secondary}>
+                                {token.debug}
+                              </span>
+                            ) : null}
+                          </button>
+                        ))}
+                    </Fragment>
+                  ),
+              )}
 
               {nextTokens.length > 0 && filteredTokens.length === 0 && (
                 <div className={style.dropdown.empty}>

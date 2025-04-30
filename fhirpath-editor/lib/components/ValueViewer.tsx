@@ -18,10 +18,14 @@ import {
   useRole,
 } from "@floating-ui/react";
 import { FhirValue } from "../types/internal";
-import { useStyle } from "../style";
+import { Style, useStyle } from "../style";
 import { useText } from "../text";
 
-function format(value: FhirValue, text: ReturnType<typeof useText>): ReactNode {
+function format(
+  value: FhirValue,
+  style: Style,
+  text: ReturnType<typeof useText>,
+): ReactNode {
   if (value.error) {
     return (
       <>
@@ -30,9 +34,9 @@ function format(value: FhirValue, text: ReturnType<typeof useText>): ReactNode {
     );
   } else if (value.value == null) {
     return (
-      <>
+      <span className={style.binding.value.empty}>
         <Empty /> {text.value.error.empty}
-      </>
+      </span>
     );
   } else if (Array.isArray(value.value)) {
     return value.value.length ? (
@@ -41,9 +45,9 @@ function format(value: FhirValue, text: ReturnType<typeof useText>): ReactNode {
         .map((x) => (typeof x !== "object" ? x : "{...}"))
         .join(", ")}${value.value.length > 3 ? ", ..." : ""}`
     ) : (
-      <>
+      <span className={style.binding.value.empty}>
         <Empty /> {text.value.error.empty}
-      </>
+      </span>
     );
   }
   if (typeof value.value === "object") {
@@ -118,8 +122,8 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
         {...getReferenceProps()}
         className={style.binding.value.button}
       >
-        <ArrowRight size={12} />
-        {format(value, text)}
+        <ArrowRight size={12} className={style.binding.value.equals} />
+        {format(value, style, text)}
       </button>
 
       {isOpen && (

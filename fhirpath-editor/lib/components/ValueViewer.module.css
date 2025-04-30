@@ -17,6 +17,15 @@
   }
 }
 
+.equals {
+  color: #d1d5db;
+}
+
+.empty {
+  color: #d1d5db;
+  display: contents;
+}
+
 .arrow {
   margin-right: -1px;
   fill: #fff;
@@ -31,6 +40,7 @@
 }
 
 .error {
+  background: #fff;
   border-radius: 0.375rem;
   border: 1px solid #d1d5db;
   box-shadow:

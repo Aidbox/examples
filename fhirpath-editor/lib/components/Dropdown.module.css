@@ -1,12 +1,23 @@
 .icon {
-  color: #6b7280;
+  color: #fff;
   flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 0.125rem;
+  background: var(--group-color);
+  aspect-ratio: 1;
+  width: 1.25rem;
+  height: 1.25rem;
+  overflow: hidden;
 }
 
 .secondary {
   color: #6b7280;
   font-size: 0.875rem;
   text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .primary {
@@ -17,7 +28,7 @@
 
 .group {
   position: sticky;
-  padding: 0.75rem 0.75rem 0.25rem;
+  padding: 0.75rem 0.75rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 600;
@@ -28,6 +39,23 @@
   background-color: #ffffff;
   top: 0;
   z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle {
+  text-transform: lowercase;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: normal;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  &:hover {
+    background-color: #f3f4f6;
+  }
 }
 
 .empty {
@@ -88,13 +116,14 @@
 .option {
   /*focus:outline-none w-full px-3 py-2 text-left grid grid-cols-[1rem_1fr_auto] items-center gap-2 cursor-pointer last:rounded-b data-[active]:bg-gray-100*/
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 1rem;
   text-align: left;
   display: grid;
-  grid-template-columns: 1rem 1fr auto;
+  grid-template-columns: 1.25rem minmax(min-content, 1fr) auto;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  --group-color: #388e3c;
 
   &:last-child {
     border-radius: 0 0 0.375rem 0.375rem;

@@ -53,7 +53,7 @@ export interface IProgramStore {
   getFhirSchema: () => FhirRegistry;
   getModel: () => Model;
   getDebug: () => boolean;
-  getPortalRoot: () => string;
+  getPortalRoot: () => string | undefined;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string) => Token[];
   getBindingName: (id: string) => string;
@@ -158,6 +158,8 @@ export const createProgramStore = (
 
         getFhirSchema: () => fhirSchema,
 
+        getModel: () => model,
+
         getQuestionnaireItems: () => questionnaireItems,
 
         getDebug: () => debug,
@@ -207,7 +209,7 @@ export const createProgramStore = (
         getDependantBindingIds: (id) => {
           return Array.from(
             getTransitiveDependents(get().bindingDependencies, id),
-          ).map((id) => id || null);
+          ).map((id) => id);
         },
 
         getExpressionType: (id, upToIndex) => {
@@ -751,7 +753,7 @@ export const createProgramStore = (
           ref?.focus();
           return ref != null;
         },
-      } as IProgramStore;
+      } satisfies IProgramStore;
     }),
   ) as StoreApi<IProgramStore>;
 };

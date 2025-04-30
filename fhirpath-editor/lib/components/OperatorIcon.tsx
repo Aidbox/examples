@@ -1,5 +1,5 @@
 import {
-  Calculator,
+  Command,
   Divide,
   Equals,
   GreaterThan,
@@ -35,12 +35,14 @@ const operatorIcons: Partial<Record<OperatorName, Icon>> = {
 
 type OperatorIconProps = {
   name: OperatorName;
+  size?: number;
   compact?: boolean;
   className?: string;
 };
 
 const OperatorIcon = ({
   name,
+  size = 16,
   compact = true,
   className,
 }: OperatorIconProps) => {
@@ -48,14 +50,12 @@ const OperatorIcon = ({
   return (
     <span className={clx(style.token.operator.icon.wrapper, className)}>
       {operatorIcons[name] ? (
-        createElement(operatorIcons[name], {
-          size: 16,
-        })
+        createElement(operatorIcons[name], { size })
       ) : compact ? (
         !name.match(/[a-z]/) ? (
           <span className={style.token.operator.icon.letter}>{name}</span>
         ) : (
-          <Calculator size={16} />
+          <Command size={size} />
         )
       ) : (
         name

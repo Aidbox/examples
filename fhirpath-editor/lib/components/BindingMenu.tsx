@@ -27,18 +27,18 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
 
   const items = [
     bindingId && {
-      icon: <Trash size={16} className={style.dropdown.icon} />,
+      icon: <Trash size={16} className={style.binding.menu.icon} />,
       text: text.binding.menu.delete,
       onClick: () => deleteBinding(bindingId),
     },
     bindingId && {
-      icon: <Copy size={16} className={style.dropdown.icon} />,
+      icon: <Copy size={16} className={style.binding.menu.icon} />,
       text: text.binding.menu.duplicate,
       onClick: () => duplicateBinding(bindingId),
     },
     !bindingId &&
       !empty && {
-        icon: <PuzzlePiece size={16} className={style.dropdown.icon} />,
+        icon: <PuzzlePiece size={16} className={style.binding.menu.icon} />,
         text: text.binding.menu.asNamedExpression,
         onClick: () => nameExpression(),
       },

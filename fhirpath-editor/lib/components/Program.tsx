@@ -52,27 +52,27 @@ function Program({ className = "", title }: ProgramProps) {
       ))}
 
       <div className={style.program.define}>
-        <button
-          className={style.binding.cursor.button}
-          onClick={() => addBinding({ name: "var1" })}
-        >
-          <Plus size={12} />
+        <button onClick={() => addBinding({ name: "var1" })}>
+          <Plus size={14} /> {text.program.define}
         </button>
       </div>
 
-      <div className={style.program.title}>
-        {title || text.program.title.mainExpression}
-      </div>
-
-      {debug && (
-        <div className={style.binding.debug}>
-          <span>{stringifyType(context.type)}</span>
+      <div className={style.program.main}>
+        <div className={style.program.title}>
+          {title || text.program.title.mainExpression}
         </div>
-      )}
 
-      <div className={style.program.binding}>
-        <BindingMenu bindingId="" />
-        <Binding ref={(ref) => setBindingRef("", ref)} bindingId={""} />
+        {debug && (
+          <div className={style.binding.debug}>
+            <span>{stringifyType(context.type)}</span>
+          </div>
+        )}
+
+        <div className={style.program.binding}>
+          {/*<BindingMenu bindingId="" />*/}
+          <span></span>
+          <Binding ref={(ref) => setBindingRef("", ref)} bindingId={""} />
+        </div>
       </div>
     </div>
   );

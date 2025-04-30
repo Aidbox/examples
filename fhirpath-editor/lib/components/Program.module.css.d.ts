@@ -9,21 +9,24 @@
 const container: string;
 const extended: string;
 const title: string;
-const binding: string;
 const define: string;
+const binding: string;
+const main: string;
 
 export {
 	container,
 	extended,
 	title,
+	define,
 	binding,
-	define
+	main
 };
 
 export default {
 	container,
 	extended,
 	title,
+	define,
 	binding,
-	define
+	main
 };

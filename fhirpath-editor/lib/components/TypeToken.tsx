@@ -104,7 +104,9 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
         )}
         renderItem={(type) => (
           <>
-            <Tag size={16} className={style.dropdown.icon} />
+            <span className={style.dropdown.icon}>
+              <Tag size={14} />
+            </span>
             <span className={style.dropdown.primary}>
               {unparseTypeToken({ type: TokenType.type, value: type })}
             </span>

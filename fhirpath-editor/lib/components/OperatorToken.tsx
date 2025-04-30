@@ -7,6 +7,10 @@ import Dropdown from "./Dropdown";
 import { mergeRefs } from "../utils/react";
 import { IOperatorToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
+import { colors, memoize } from "../utils/misc.ts";
+
+let colorIndex = 0;
+const color = memoize(() => colors[colorIndex++ % colors.length]);
 
 const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
@@ -35,6 +39,7 @@ const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
             operatorGroups[groupName].includes(token.value),
           ) || ""
         }
+        colorFn={color}
         keyFn={(token) => token.value}
         onClick={(token) =>
           updateToken(bindingId, tokenIndex, { value: token.value })
@@ -49,7 +54,9 @@ const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
         )}
         renderItem={(token) => (
           <>
-            <OperatorIcon name={token.value} className={style.dropdown.icon} />
+            <span className={style.dropdown.icon}>
+              <OperatorIcon name={token.value} size={14} />
+            </span>
             <span className={style.dropdown.primary}>
               {operatorNames[token.value]}
             </span>

@@ -1,4 +1,4 @@
-import { forwardRef, Fragment, useRef, useState } from "react";
+import { CSSProperties, forwardRef, Fragment, useRef, useState } from "react";
 import {
   arrow,
   autoUpdate,
@@ -35,10 +35,15 @@ import {
   IFunctionToken,
   TokenComponentProps,
 } from "../types/internal";
-import { assertDefined } from "../utils/misc";
+import { assertDefined, colors, memoize } from "../utils/misc";
 import { Argument } from "./Argument";
 import { useStyle } from "../style";
 import { useText } from "../text";
+
+let colorIndex = 0;
+const color = memoize(() => colors[colorIndex++ % colors.length]) as (
+  group: string,
+) => string;
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
@@ -48,7 +53,9 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
     const [search, setSearch] = useState("");
     const [_selectingName, setSelectingName] = useState(false);
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
+    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+      new Set(),
+    );
     const listRef = useRef<Array<HTMLButtonElement | null>>([]);
     const arrowRef = useRef(null);
 
@@ -167,6 +174,18 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
       });
     }
 
+    const toggleGroup = (group: string) => {
+      setExpandedGroups((prev) => {
+        const next = new Set(prev);
+        if (next.has(group)) {
+          next.delete(group);
+        } else {
+          next.add(group);
+        }
+        return next;
+      });
+    };
+
     return (
       <>
         <button
@@ -266,27 +285,57 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                   (filteredFunctions.length > 0 ? (
                     Object.entries(groupedOptions).map(([group, options]) => (
                       <Fragment key={group}>
-                        <div className={style.dropdown.group}>{group}</div>
-                        {options.map(({ meta, index }) => (
-                          <button
-                            key={meta.name}
-                            ref={(node) => (listRef.current[index] = node)}
-                            data-active={activeIndex === index || undefined}
-                            {...getItemProps({
-                              className: style.dropdown.option,
-                              tabIndex: activeIndex === index ? 0 : -1,
-                              onClick: () => handleSelectName(meta),
-                            })}
-                          >
-                            <Function
-                              size={16}
-                              className={style.dropdown.icon}
-                            />
-                            <span className={style.dropdown.primary}>
-                              {meta.name}
-                            </span>
-                          </button>
-                        ))}
+                        <div className={style.dropdown.group}>
+                          <span>{group}</span>
+                          {options.length > 5 && (
+                            <button
+                              className={style.dropdown.toggle}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                toggleGroup(group);
+                              }}
+                            >
+                              {expandedGroups.has(group)
+                                ? "Show less"
+                                : "Show more"}
+                              <CaretDown
+                                size={16}
+                                style={{
+                                  transform: expandedGroups.has(group)
+                                    ? "rotate(180deg)"
+                                    : "none",
+                                  transition: "transform 0.2s",
+                                }}
+                              />
+                            </button>
+                          )}
+                        </div>
+                        {options
+                          .slice(0, expandedGroups.has(group) ? undefined : 5)
+                          .map(({ meta, index }) => (
+                            <button
+                              key={meta.name}
+                              ref={(node) => (listRef.current[index] = node)}
+                              style={
+                                {
+                                  "--group-color": color(group),
+                                } as CSSProperties
+                              }
+                              data-active={activeIndex === index || undefined}
+                              {...getItemProps({
+                                className: style.dropdown.option,
+                                tabIndex: activeIndex === index ? 0 : -1,
+                                onClick: () => handleSelectName(meta),
+                              })}
+                            >
+                              <span className={style.dropdown.icon}>
+                                <Function size={14} />
+                              </span>
+                              <span className={style.dropdown.primary}>
+                                {meta.name}
+                              </span>
+                            </button>
+                          ))}
                       </Fragment>
                     ))
                   ) : (

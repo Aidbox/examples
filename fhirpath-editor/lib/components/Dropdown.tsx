@@ -1,4 +1,12 @@
-import { Fragment, HTMLProps, ReactNode, Ref, useRef, useState } from "react";
+import {
+  CSSProperties,
+  Fragment,
+  HTMLProps,
+  ReactNode,
+  Ref,
+  useRef,
+  useState,
+} from "react";
 import {
   arrow,
   autoUpdate,
@@ -15,7 +23,7 @@ import {
   useInteractions,
   useListNavigation,
 } from "@floating-ui/react";
-import { Empty } from "@phosphor-icons/react";
+import { Empty, CaretDown } from "@phosphor-icons/react";
 import { useStyle } from "../style";
 import { useText } from "../text";
 import { useProgramContext } from "../utils/store.ts";
@@ -24,6 +32,7 @@ function Dropdown<T>({
   items,
   searchFn,
   groupFn,
+  colorFn,
   keyFn,
   createFn,
   onClick,
@@ -33,6 +42,7 @@ function Dropdown<T>({
   items: T[];
   searchFn?: (item: T, searchText: string) => boolean;
   groupFn?: (item: T) => string;
+  colorFn?: (group: string) => string;
   keyFn?: (item: T) => string | number;
   createFn?: (searchText: string) => T | undefined;
   onClick: (item: T, created: boolean) => void;
@@ -48,6 +58,7 @@ function Dropdown<T>({
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const listRef = useRef<Array<HTMLButtonElement | null>>([]);
   const arrowRef = useRef(null);
 
@@ -139,6 +150,18 @@ function Dropdown<T>({
     onClick(item, created);
   };
 
+  const toggleGroup = (group: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) {
+        next.delete(group);
+      } else {
+        next.add(group);
+      }
+      return next;
+    });
+  };
+
   return (
     <>
       {reference}
@@ -187,32 +210,61 @@ function Dropdown<T>({
               </button>
             )}
 
-            {Object.entries(groupedOptions).map(
-              ([group, items]) =>
+            {Object.entries(groupedOptions).map(([group, items]) => {
+              const color = colorFn?.(group);
+              return (
                 items.length > 0 && (
                   <Fragment key={group}>
                     {group && (
-                      <div className={style.dropdown.group}>{group}</div>
+                      <div className={style.dropdown.group}>
+                        <span>{group}</span>
+                        {items.length > 5 && (
+                          <button
+                            className={style.dropdown.toggle}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              toggleGroup(group);
+                            }}
+                          >
+                            {expandedGroups.has(group)
+                              ? "Show less"
+                              : "Show more"}
+                            <CaretDown
+                              size={16}
+                              style={{
+                                transform: expandedGroups.has(group)
+                                  ? "rotate(180deg)"
+                                  : "none",
+                                transition: "transform 0.2s",
+                              }}
+                            />
+                          </button>
+                        )}
+                      </div>
                     )}
-                    {items.map(({ item, index }) => (
-                      <button
-                        key={keyFn ? keyFn(item) : index}
-                        ref={(node) => {
-                          listRef.current[index] = node;
-                        }}
-                        className={style.dropdown.option}
-                        tabIndex={activeIndex === index ? 0 : -1}
-                        data-active={activeIndex === index || undefined}
-                        {...getItemProps({
-                          onClick: () => handleSelect(item, false),
-                        })}
-                      >
-                        {renderItem ? renderItem(item, false) : item + ""}
-                      </button>
-                    ))}
+                    {items
+                      .slice(0, expandedGroups.has(group) ? undefined : 5)
+                      .map(({ item, index }) => (
+                        <button
+                          key={keyFn ? keyFn(item) : index}
+                          ref={(node) => {
+                            listRef.current[index] = node;
+                          }}
+                          style={{ "--group-color": color } as CSSProperties}
+                          className={style.dropdown.option}
+                          tabIndex={activeIndex === index ? 0 : -1}
+                          data-active={activeIndex === index || undefined}
+                          {...getItemProps({
+                            onClick: () => handleSelect(item, false),
+                          })}
+                        >
+                          {renderItem ? renderItem(item, false) : item + ""}
+                        </button>
+                      ))}
                   </Fragment>
-                ),
-            )}
+                )
+              );
+            })}
 
             {!createdItem && filteredItems.length === 0 && (
               <div className={style.dropdown.empty}>

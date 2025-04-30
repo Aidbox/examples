@@ -7,11 +7,14 @@
  */
 
 const button: string;
+const icon: string;
 
 export {
-	button
+	button,
+	icon
 };
 
 export default {
-	button
+	button,
+	icon
 };

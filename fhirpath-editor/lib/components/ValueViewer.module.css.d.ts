@@ -7,12 +7,16 @@
  */
 
 const button: string;
+const equals: string;
+const empty: string;
 const arrow: string;
 const error: string;
 const popover: string;
 
 export {
 	button,
+	equals,
+	empty,
 	arrow,
 	error,
 	popover
@@ -20,6 +24,8 @@ export {
 
 export default {
 	button,
+	equals,
+	empty,
 	arrow,
 	error,
 	popover

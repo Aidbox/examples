@@ -50,13 +50,15 @@ const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
             {...mergeProps({ className: style.token.answer.button })}
           >
-            <Textbox className={style.dropdown.icon} />
+            <Textbox />
             <span>{questionnaireItems[token.value]?.text || token.value}</span>
           </button>
         )}
         renderItem={(token) => (
           <>
-            <Textbox size={16} className={style.token.answer.icon} />
+            <span className={style.dropdown.icon}>
+              <Textbox size={14} />
+            </span>
             <span className={style.dropdown.primary}>
               {questionnaireItems[token.value]?.text || token.value}{" "}
             </span>
@@ -71,7 +73,7 @@ const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
         )}
       />
     );
-  },
+  }
 );
 
 export default AnswerToken;

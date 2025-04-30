@@ -1,10 +1,11 @@
 import { forwardRef, Ref } from "react";
 import { useProgramContext } from "../utils/store";
 import { UcumLhcUtils, UnitTables } from "@lhncbc/ucum-lhc";
-import { upperFirst } from "../utils/misc";
+import { colors, memoize, upperFirst } from "../utils/misc";
 import Dropdown from "./Dropdown";
 import { IQuantityToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
+import { Scales } from "@phosphor-icons/react";
 
 UcumLhcUtils.getInstance();
 
@@ -23,6 +24,9 @@ const units = [
     name: unit.name_,
   })),
 ];
+
+let colorIndex = 0;
+const color = memoize(() => colors[colorIndex++ % colors.length]);
 
 const QuantityToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
@@ -55,6 +59,7 @@ const QuantityToken = forwardRef<HTMLElement, TokenComponentProps>(
             unit.name.toLowerCase().includes(term.toLowerCase())
           }
           groupFn={(unit) => upperFirst(unit.group)}
+          colorFn={color}
           keyFn={(unit) => unit.value}
           onClick={(unit) =>
             updateToken<IQuantityToken>(bindingId, tokenIndex, (token) => {
@@ -71,7 +76,9 @@ const QuantityToken = forwardRef<HTMLElement, TokenComponentProps>(
           )}
           renderItem={(unit) => (
             <>
-              <span />
+              <span className={style.dropdown.icon}>
+                <Scales size={14} />
+              </span>
               <span className={style.dropdown.primary}>{unit.value}</span>
               <div className={style.dropdown.secondary}>{unit.name}</div>
             </>

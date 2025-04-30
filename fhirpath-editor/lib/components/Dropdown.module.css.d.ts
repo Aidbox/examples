@@ -10,6 +10,7 @@ const icon: string;
 const secondary: string;
 const primary: string;
 const group: string;
+const toggle: string;
 const empty: string;
 const search: string;
 const container: string;
@@ -21,6 +22,7 @@ export {
 	secondary,
 	primary,
 	group,
+	toggle,
 	empty,
 	search,
 	container,
@@ -33,6 +35,7 @@ export default {
 	secondary,
 	primary,
 	group,
+	toggle,
 	empty,
 	search,
 	container,

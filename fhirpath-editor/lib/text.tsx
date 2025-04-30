@@ -22,10 +22,22 @@ export const text = {
     },
   },
   program: {
+    define: "Add expression",
     title: {
-      namedExpressions: "Named Expressions",
-      mainExpression: "Main Expression",
+      namedExpressions: "Named expressions",
+      mainExpression: "Final expression",
       argumentExpression: "Argument expression",
+    },
+  },
+  cursor: {
+    groups: {
+      namedExpressions: "Named expressions",
+      operators: "Operators",
+      functions: "Functions",
+      fields: "Fields",
+      indexes: "Indexes",
+      questionnaire: "Questionnaire",
+      literals: "Literals",
     },
   },
   token: {
@@ -37,15 +49,15 @@ export const text = {
         placeholder: "Search...",
       },
       label: {
-        arguments: "arguments",
+        arguments: "Arguments",
       },
     },
     type: {
       groups: {
-        literalTypes: "Literal Types",
-        fhirPrimitiveTypes: "FHIR Primitive Types",
-        fhirComplexTypes: "FHIR Complex Types",
-        fhirResourceTypes: "FHIR Resource Types",
+        literalTypes: "Literal types",
+        fhirPrimitiveTypes: "FHIR primitive types",
+        fhirComplexTypes: "FHIR complex types",
+        fhirResourceTypes: "FHIR resource types",
       },
     },
     labels: {

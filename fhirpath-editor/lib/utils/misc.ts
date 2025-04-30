@@ -112,3 +112,32 @@ export function deepMerge<T extends Record<string, unknown>>(
 
   return output;
 }
+
+export function memoize<Args extends unknown[], Result>(
+  fn: (...args: Args) => Result,
+): (...args: Args) => Result {
+  const cache = new Map<string, Result>();
+  return (...args: Args) => {
+    const key = JSON.stringify(args);
+    const cached = cache.get(key);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+export const colors = [
+  "#d32f2f", // strong red
+  "#1976d2", // vivid blue
+  "#388e3c", // deep green
+  "#f57c00", // strong orange
+  "#7b1fa2", // deep purple
+  "#00796b", // teal
+  "#c2185b", // raspberry pink
+  "#5d4037", // dark brown
+  "#303f9f", // indigo
+  "#0097a7", // cyan-blue
+];

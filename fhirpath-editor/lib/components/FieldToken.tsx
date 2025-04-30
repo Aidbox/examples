@@ -42,7 +42,9 @@ const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
         )}
         renderItem={(token) => (
           <>
-            <Shapes size={16} className={style.dropdown.icon} />
+            <span className={style.dropdown.icon}>
+              <Shapes size={14} />
+            </span>
             <span className={style.dropdown.primary}>{token.value}</span>
             {debug && (
               <span className={style.dropdown.secondary}>{token.debug}</span>

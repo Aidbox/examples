@@ -78,6 +78,7 @@
 .label {
   color: #6b7280;
   margin-left: auto;
+  text-transform: lowercase;
 }
 
 .name {
