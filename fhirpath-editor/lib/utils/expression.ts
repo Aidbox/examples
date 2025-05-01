@@ -327,9 +327,14 @@ export const getExpressionType = (
           InvalidType(`Unknown field "${token.value}"`);
       } else if (token.type === TokenType.answer) {
         if (
-          !matchTypePattern(ComplexType(["QuestionnaireResponse"]), currentType)
+          !matchTypePattern(
+            ComplexType(["QuestionnaireResponse"]),
+            bindingTypes["resource"],
+          )
         ) {
-          return InvalidType(`Answer token cannot be used in this context`);
+          return InvalidType(
+            `Answer token cannot be used when resource is not QuestionnaireResponse`,
+          );
         }
 
         const single = currentType.type === TypeName.Single;
@@ -460,7 +465,6 @@ function toTokens(
   questionnaireItems: QuestionnaireItemRegistry,
   bindableBindings: Binding[],
   bindingTypes: Partial<Record<string, Type>>,
-  contextType: Context["type"],
   fhirSchema: FhirRegistry,
 ): SuggestedToken[] {
   switch (type) {
@@ -494,7 +498,7 @@ function toTokens(
     case TokenType.answer: {
       return matchTypePattern(
         ComplexType(["QuestionnaireResponse"]),
-        contextType,
+        bindingTypes["resource"],
       )
         ? Object.keys(questionnaireItems).map((linkId) => ({
             type,
@@ -584,7 +588,6 @@ export function suggestNextTokens(
       questionnaireItems,
       bindableBindings,
       bindingTypes,
-      contextType,
       fhirSchema,
     ),
   );
@@ -623,7 +626,6 @@ export function suggestTokensAt<T extends Token>(
       questionnaireItems,
       bindableBindings,
       bindingTypes,
-      contextType,
       fhirSchema,
     ) as SuggestedToken<T>[];
   }

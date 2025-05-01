@@ -151,6 +151,7 @@ function hasHigherPrecedence(a: LezerNode, b: LezerNode) {
 }
 
 function extractLinkId(node: LezerNode): string | undefined {
+  // todo: make sure the the node actually looks like what we generate for answer tokens
   if (node?.type === "Function" && node?.children?.[0]?.value === "where") {
     const equality = node?.children?.[1]?.children[0];
     const right = equality?.children?.[2];
@@ -436,9 +437,9 @@ const unparseFieldToken = (token: IFieldToken, { first }: UnparseContext) =>
 
 const unparseAnswerToken = (
   token: IAnswerToken,
-  { first, questionnaireItems }: UnparseContext,
+  { questionnaireItems }: UnparseContext,
 ) => {
-  let base = `${first ? "" : "."}repeat(item).where(linkId = '${token.value}').answer.value`;
+  let base = `%resource.repeat(item).where(linkId = '${token.value}').answer.value`;
 
   switch (questionnaireItems[token.value]?.item.type) {
     case "choice":

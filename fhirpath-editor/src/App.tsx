@@ -18,16 +18,20 @@ export function App() {
   } = useJsonFetch<FhirSchema[]>("schema.json");
 
   const [value, setValue] = useLocalStorageState(
-    "fhirpath-editor/value",
+    "fhirpath-editor/value/1",
     "3 * (1 + 2) / 4",
   );
 
-  const [data, setData] = useLocalStorageState("fhirpath-editor/data", qr);
+  const [data, setData] = useLocalStorageState(
+    "fhirpath-editor/data/1",
+    qr.item[0],
+  );
 
   const [variable, setVariables] = useLocalStorageState<Record<string, any>>(
-    "fhirpath-editor/variables",
+    "fhirpath-editor/variables/1",
     {
       questionnaire: q,
+      resource: qr,
     },
   );
 
