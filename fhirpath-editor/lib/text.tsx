@@ -35,13 +35,13 @@ export const text = {
   },
   cursor: {
     groups: {
-      namedExpressions: "Named expressions",
-      operators: "Operators",
-      functions: "Functions",
-      fields: "Fields",
-      indexes: "Indexes",
-      questionnaire: "Questionnaire",
-      literals: "Literals",
+      variable: "Named expressions",
+      operator: "Operators",
+      function: "Functions",
+      field: "Fields",
+      index: "Indexes",
+      answer: "Questionnaire",
+      literal: "Literals",
     },
   },
   token: {

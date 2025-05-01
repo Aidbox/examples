@@ -13,6 +13,7 @@ const placeholder: string;
 const search: string;
 const incompatible: string;
 const shortcut: string;
+const icon: string;
 const dropdown: string;
 
 export {
@@ -23,6 +24,7 @@ export {
 	search,
 	incompatible,
 	shortcut,
+	icon,
 	dropdown
 };
 
@@ -34,5 +36,6 @@ export default {
 	search,
 	incompatible,
 	shortcut,
+	icon,
 	dropdown
 };

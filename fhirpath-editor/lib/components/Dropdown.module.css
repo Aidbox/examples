@@ -3,12 +3,14 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  border-radius: 0.125rem;
+  border-radius: 0.25rem;
   background: var(--group-color);
   aspect-ratio: 1;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   overflow: hidden;
+  align-self: start;
+  margin-top: 0.1rem;
 }
 
 .secondary {
@@ -21,9 +23,9 @@
 }
 
 .primary {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /*overflow: hidden;*/
+  /*text-overflow: ellipsis;*/
+  /*white-space: nowrap;*/
 }
 
 .group {
@@ -73,7 +75,7 @@
   padding: 0.5rem;
   border-bottom-width: 1px;
   border-color: #e5e7eb;
-  background-color: #ffffff;
+  background-color: #f9fafb;
 
   & > input {
     padding: 0.25rem 0.5rem;
@@ -96,9 +98,10 @@
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  min-width: 18rem;
-  max-width: 23rem;
+  min-width: 25rem;
+  max-width: 30rem;
   position: relative;
+  z-index: 10;
 
   &:empty {
     display: none;
@@ -111,6 +114,7 @@
 
 .backdrop {
   background-color: rgba(0, 0, 0, 0.3);
+  z-index: 10;
 }
 
 .option {
@@ -119,7 +123,7 @@
   padding: 0.5rem 1rem;
   text-align: left;
   display: grid;
-  grid-template-columns: 1.25rem minmax(min-content, 1fr) auto;
+  grid-template-columns: 1.5rem minmax(min-content, 1fr) auto;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
@@ -139,5 +143,19 @@
 
   &:focus {
     outline: none;
+  }
+}
+
+.arrow {
+  margin-right: -1px;
+  fill: #fff;
+  z-index: 10;
+
+  & > path:first-of-type {
+    stroke: #d1d5db;
+  }
+
+  & > path:last-of-type {
+    stroke: #fff;
   }
 }

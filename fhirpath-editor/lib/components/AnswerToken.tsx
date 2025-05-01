@@ -5,6 +5,7 @@ import Dropdown from "./Dropdown";
 import { mergeRefs } from "../utils/react";
 import { IAnswerToken } from "../types/internal";
 import { useStyle } from "../style";
+import { colors } from "../utils/misc.ts";
 
 type AnswerTokenProps = {
   bindingId: string;
@@ -45,6 +46,7 @@ const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
         onClick={(token) => {
           updateToken(bindingId, tokenIndex, { value: token.value });
         }}
+        colorFn={() => colors.answer}
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
@@ -73,7 +75,7 @@ const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
         )}
       />
     );
-  }
+  },
 );
 
 export default AnswerToken;

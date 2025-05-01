@@ -10,6 +10,7 @@ import {
 } from "../types/internal";
 import { useStyle } from "../style";
 import { useText } from "../text";
+import { colors } from "../utils/misc.ts";
 
 const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
@@ -58,6 +59,7 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
           }
           updateToken(bindingId, tokenIndex, { value: token.value });
         }}
+        colorFn={() => colors.variable}
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
@@ -88,7 +90,7 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
         }
       />
     );
-  }
+  },
 );
 
 export default VariableToken;

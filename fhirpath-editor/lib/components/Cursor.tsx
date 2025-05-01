@@ -48,17 +48,13 @@ import {
   QuestionnaireItemRegistry,
   SuggestedToken,
   Token,
+  TokenGroup,
   TokenType,
 } from "../types/internal";
-import { colors, memoize, omit } from "../utils/misc";
+import { colors, omit, scrollIntoView, weights } from "../utils/misc";
 import { useStyle } from "../style";
 import { useText } from "../text";
 import clx from "classnames";
-
-let colorIndex = 0;
-const color = memoize(() => colors[colorIndex++ % colors.length]) as (
-  group: string,
-) => string;
 
 function lookup(text: string | undefined, term: string): boolean {
   return !!text?.toLowerCase().includes(term.replace(".", "").toLowerCase());
@@ -77,7 +73,7 @@ export type CursorRef = {
 };
 
 function getText(
-  token: Token,
+  token: SuggestedToken,
   items: QuestionnaireItemRegistry,
   text: ReturnType<typeof useText>,
 ) {
@@ -213,34 +209,40 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       }
     }
 
-    const groupedTokens = filteredTokens.reduce(
-      (acc, token, index) => {
-        // prettier-ignore
-        const group =
-          // token.shortcut ? "Quick actions" :
-          token.type === TokenType.variable ? text.cursor.groups.namedExpressions :
-          token.type === TokenType.operator ? text.cursor.groups.operators :
-          token.type === TokenType.function ? text.cursor.groups.functions :
-          token.type === TokenType.field ? text.cursor.groups.fields :
-          token.type === TokenType.index ? text.cursor.groups.indexes :
-          token.type === TokenType.answer ? text.cursor.groups.questionnaire : text.cursor.groups.literals
+    function getGroup(token: SuggestedToken) {
+      // prettier-ignore
+      return (
+        token.type === TokenType.variable ? TokenGroup.variable :
+        token.type === TokenType.operator ? TokenGroup.operator :
+        token.type === TokenType.function ? TokenGroup.function :
+        token.type === TokenType.field ? TokenGroup.field :
+        token.type === TokenType.index ? TokenGroup.index:
+        token.type === TokenType.answer ? TokenGroup.answer : TokenGroup.literal);
+    }
 
-        if (!acc[group]) {
-          acc[group] = [];
-        }
+    const groupedTokens = filteredTokens
+      .sort(
+        (a, b) =>
+          (weights[getGroup(a)] ?? Infinity) -
+            (weights[getGroup(b)] ?? Infinity) ||
+          (a.incompatible ? 1 : 0) - (b.incompatible ? 1 : 0),
+      )
+      .reduce(
+        (acc, token, index) => {
+          const group = getGroup(token);
 
-        acc[group].push({ ...token, index });
-        return acc;
-      },
-      {
-        [text.cursor.groups.questionnaire]: [],
-        [text.cursor.groups.namedExpressions]: [],
-        [text.cursor.groups.literals]: [],
-      } as Record<string, SuggestedToken[]>,
-    );
+          if (!acc[group]) {
+            acc[group] = [];
+          }
 
-    if (groupedTokens["Literals"].length === 0) {
-      delete groupedTokens["Literals"];
+          acc[group].push({ ...token, index });
+          return acc;
+        },
+        {} as Partial<Record<TokenGroup, SuggestedToken[]>>,
+      );
+
+    if (groupedTokens[TokenGroup.literal]?.length === 0) {
+      delete groupedTokens[TokenGroup.literal];
     }
 
     const hideDropdown = (blur = true) => {
@@ -289,13 +291,15 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
           mainAxis: 6,
           crossAxis: -6,
         }),
-        shift({ padding: 6 }),
+        shift({
+          padding: 24,
+        }),
         flip({ padding: 6 }),
         size({
           padding: 6,
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
-              maxHeight: `${Math.max(0, availableHeight)}px`,
+              maxHeight: `${Math.min(500, Math.max(0, availableHeight))}px`,
             });
           },
         }),
@@ -326,12 +330,22 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       refs.floating.current?.scroll(0, 0);
     };
 
-    const toggleGroup = (group: string) => {
+    const toggleGroup = (target: HTMLElement, group: string) => {
       setExpandedGroups((prev) => {
         const next = new Set(prev);
         if (next.has(group)) {
           next.delete(group);
         } else {
+          const parent = target.closest<HTMLElement>(
+            `.${style.dropdown.group}`,
+          );
+
+          if (parent) {
+            scrollIntoView(parent, {
+              behavior: "smooth",
+              block: "start",
+            });
+          }
           next.add(group);
         }
         return next;
@@ -341,6 +355,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
     return (
       <label
         className={style.binding.cursor.wrapper}
+        onMouseDown={(e) => e.preventDefault()}
         ref={(ref) => {
           containerRef.current = ref;
           refs.setReference(ref);
@@ -414,18 +429,18 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                   tokens.length > 0 && (
                     <Fragment key={group}>
                       <div className={style.dropdown.group}>
-                        <span>{group}</span>
+                        <span>{text.cursor.groups[group as TokenGroup]}</span>
                         {tokens.length > 5 && (
                           <button
                             className={style.dropdown.toggle}
                             onMouseDown={(e) => {
                               e.preventDefault();
-                              toggleGroup(group);
+                              toggleGroup(e.target as HTMLElement, group);
                             }}
                           >
                             {expandedGroups.has(group)
-                              ? "Show less"
-                              : "Show more"}
+                              ? text.dropdown.group.showLess
+                              : text.dropdown.group.showMore}
                             <CaretDown
                               size={16}
                               style={{
@@ -449,7 +464,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                             }}
                             style={
                               {
-                                "--group-color": color(group),
+                                "--group-color": colors[group as TokenGroup],
                               } as CSSProperties
                             }
                             className={clx(
@@ -499,7 +514,9 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                                 <OperatorIcon name={token.value} size={14} />
                               ) : null}
                             </span>
-                            {getText(token, items, text)}
+                            <span className={style.dropdown.primary}>
+                              {getText(token, items, text)}
+                            </span>
                             {token.shortcut ? (
                               <Lightning
                                 size={14}

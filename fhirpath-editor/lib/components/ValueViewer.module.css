@@ -11,6 +11,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  align-self: end;
 
   &:focus {
     outline: none;
@@ -50,21 +51,19 @@
   font-size: 0.875rem;
   padding: 0.5rem;
   color: #dc2626;
-  display: flex;
-  align-items: center;
   gap: 0.25rem;
 
   & > svg {
     flex-shrink: 0;
   }
-
-  & > div {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }
 
 .popover {
   max-width: 24rem;
+  z-index: 10;
+}
+
+.failure {
+  color: #f87171;
+  display: contents;
 }

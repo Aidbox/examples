@@ -10,7 +10,6 @@ const animate: string;
 const shakeX: string;
 const debug: string;
 const vbox: string;
-const hbox: string;
 const expression: string;
 const nameless: string;
 const equals: string;
@@ -22,7 +21,6 @@ export {
 	shakeX,
 	debug,
 	vbox,
-	hbox,
 	expression,
 	nameless,
 	equals,
@@ -35,7 +33,6 @@ export default {
 	shakeX,
 	debug,
 	vbox,
-	hbox,
 	expression,
 	nameless,
 	equals,

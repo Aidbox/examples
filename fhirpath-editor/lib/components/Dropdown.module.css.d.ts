@@ -16,6 +16,7 @@ const search: string;
 const container: string;
 const backdrop: string;
 const option: string;
+const arrow: string;
 
 export {
 	icon,
@@ -27,7 +28,8 @@ export {
 	search,
 	container,
 	backdrop,
-	option
+	option,
+	arrow
 };
 
 export default {
@@ -40,5 +42,6 @@ export default {
 	search,
 	container,
 	backdrop,
-	option
+	option,
+	arrow
 };

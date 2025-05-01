@@ -189,9 +189,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
           />
         </div>
 
-        <div className={style.binding.hbox}>
-          {tokenTypes.length > 0 && <ValueViewer bindingId={bindingId} />}
-        </div>
+        {tokenTypes.length > 0 && <ValueViewer bindingId={bindingId} />}
 
         {debug && tokenTypes.length > 0 && (
           <div className={style.binding.vbox}>

@@ -52,6 +52,16 @@ export type OperatorName =
   | "is"
   | "as";
 
+export enum TokenGroup {
+  literal = "literal",
+  variable = "variable",
+  index = "index",
+  function = "function",
+  operator = "operator",
+  field = "field",
+  answer = "answer",
+}
+
 export enum TokenType {
   number = "number",
   string = "string",

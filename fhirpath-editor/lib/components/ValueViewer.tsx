@@ -28,9 +28,9 @@ function format(
 ): ReactNode {
   if (value.error) {
     return (
-      <>
+      <span className={style.binding.value.failure}>
         <Warning /> {text.value.error.message}
-      </>
+      </span>
     );
   } else if (value.value == null) {
     return (
@@ -83,7 +83,9 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
       offset({
         mainAxis: 6,
       }),
-      shift(),
+      shift({
+        padding: 24,
+      }),
       flip(),
       size({
         apply({ availableHeight, elements }) {
@@ -92,7 +94,7 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
             | undefined;
           if (target) {
             Object.assign(target.style, {
-              maxHeight: `${Math.max(0, availableHeight)}px`,
+              maxHeight: `${Math.min(500, Math.max(0, availableHeight))}px`,
             });
           }
         },
@@ -128,6 +130,7 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
 
       {isOpen && (
         <FloatingPortal id={portalRoot}>
+          <div style={floatingStyles}></div>
           <div
             ref={refs.setFloating}
             style={floatingStyles}
@@ -138,14 +141,13 @@ const ValueViewer = ({ bindingId }: EvalViewerProps) => {
             <FloatingArrow
               ref={arrowRef}
               context={context}
-              className={style.binding.value.arrow}
+              className={style.dropdown.arrow}
               strokeWidth={1}
               height={6}
               width={10}
             />
             {value.error ? (
               <div className={style.binding.value.error}>
-                <Warning />
                 <div>
                   {!value.origin || value.origin === name
                     ? value.error.message

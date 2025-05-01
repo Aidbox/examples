@@ -16,6 +16,8 @@ import AnswerToken from "./AnswerToken";
 import { TokenComponentProps, TokenType } from "../types/internal";
 import { useStyle } from "../style";
 import clx from "classnames";
+import { X } from "@phosphor-icons/react";
+import { useProgramContext } from "../utils/store.ts";
 
 const getTokenComponent = (
   type: TokenType,
@@ -65,6 +67,12 @@ const Token = forwardRef<HTMLElement, TokenProps>(
   ({ type, deleting, ...props }, ref) => {
     const style = useStyle();
     const TokenComponent = getTokenComponent(type);
+    const deleteToken = useProgramContext((state) => state.deleteToken);
+    const last = useProgramContext(
+      (state) =>
+        state.getBindingExpression(props.bindingId).length - 1 ===
+        props.tokenIndex,
+    );
 
     return (
       <div
@@ -72,6 +80,17 @@ const Token = forwardRef<HTMLElement, TokenProps>(
         className={clx(style.token.container, deleting && style.token.deleting)}
       >
         <TokenComponent ref={ref} {...props} />
+
+        {last && (
+          <button
+            className={style.token.delete}
+            onClick={() => {
+              deleteToken(props.bindingId, props.tokenIndex);
+            }}
+          >
+            <X size={16} weight="bold" />
+          </button>
+        )}
       </div>
     );
   },

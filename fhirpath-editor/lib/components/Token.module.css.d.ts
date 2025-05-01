@@ -7,17 +7,19 @@
  */
 
 const container: string;
-const deleting: string;
 const button: string;
+const _delete: string;
+const deleting: string;
 
 export {
 	container,
-	deleting,
-	button
+	button,
+	deleting
 };
 
 export default {
 	container,
-	deleting,
-	button
+	button,
+	"delete": _delete,
+	deleting
 };

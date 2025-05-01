@@ -11,7 +11,7 @@ import {
   TimeType,
 } from "../utils/type";
 import { useProgramContext } from "../utils/store";
-import { distinct } from "../utils/misc";
+import { colors, distinct } from "../utils/misc";
 import { Tag } from "@phosphor-icons/react";
 import Dropdown from "./Dropdown";
 import { mergeRefs } from "../utils/react";
@@ -94,6 +94,7 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
         onClick={(type) => {
           updateToken(bindingId, tokenIndex, { value: type });
         }}
+        colorFn={() => colors.literal}
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}

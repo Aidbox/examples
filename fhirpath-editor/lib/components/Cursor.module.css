@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1;
+  /*flex: 1;*/
   cursor: pointer;
 
   &:hover {
@@ -58,4 +58,7 @@
 
 .shortcut {
   color: #eab308;
+}
+
+.icon {
 }

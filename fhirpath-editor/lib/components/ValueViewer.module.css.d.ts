@@ -12,6 +12,7 @@ const empty: string;
 const arrow: string;
 const error: string;
 const popover: string;
+const failure: string;
 
 export {
 	button,
@@ -19,7 +20,8 @@ export {
 	empty,
 	arrow,
 	error,
-	popover
+	popover,
+	failure
 };
 
 export default {
@@ -28,5 +30,6 @@ export default {
 	empty,
 	arrow,
 	error,
-	popover
+	popover,
+	failure
 };

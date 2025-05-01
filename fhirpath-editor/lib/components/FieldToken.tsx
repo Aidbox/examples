@@ -6,6 +6,7 @@ import { Shapes } from "@phosphor-icons/react";
 import Dropdown from "./Dropdown";
 import { IFieldToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
+import { colors } from "../utils/misc.ts";
 
 const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, forwardedRef) => {
@@ -31,6 +32,7 @@ const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
         onClick={(token) => {
           updateToken(bindingId, tokenIndex, { value: token.value });
         }}
+        colorFn={() => colors.field}
         renderReference={(mergeProps, ref) => (
           <button
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}

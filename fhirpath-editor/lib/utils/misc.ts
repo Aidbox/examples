@@ -113,31 +113,46 @@ export function deepMerge<T extends Record<string, unknown>>(
   return output;
 }
 
-export function memoize<Args extends unknown[], Result>(
-  fn: (...args: Args) => Result,
-): (...args: Args) => Result {
-  const cache = new Map<string, Result>();
-  return (...args: Args) => {
-    const key = JSON.stringify(args);
-    const cached = cache.get(key);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const result = fn(...args);
-    cache.set(key, result);
-    return result;
-  };
-}
+export const colors = {
+  variable: "#1976d2", // vivid blue
+  operator: "#388e3c", // deep green
+  function: "#f57c00", // strong orange
+  field: "#7b1fa2", // deep purple
+  index: "#00796b", // teal
+  answer: "#c2185b", // raspberry pink
+  literal: "#5d4037", // dark brown
+} satisfies Record<string, string>;
 
-export const colors = [
-  "#d32f2f", // strong red
-  "#1976d2", // vivid blue
-  "#388e3c", // deep green
-  "#f57c00", // strong orange
-  "#7b1fa2", // deep purple
-  "#00796b", // teal
-  "#c2185b", // raspberry pink
-  "#5d4037", // dark brown
-  "#303f9f", // indigo
-  "#0097a7", // cyan-blue
-];
+export const weights = {
+  answer: 0,
+  variable: 1,
+  literal: 2,
+  operator: 3,
+  function: 4,
+  field: 5,
+  index: 6,
+} satisfies Record<string, number>;
+
+export function scrollIntoView(
+  element: HTMLElement,
+  options: ScrollIntoViewOptions & { offset?: string },
+) {
+  delay(() => {
+    const { offset, ...rest } = options;
+
+    const pos = element.style.position;
+    const top = element.style.top;
+
+    if (offset) {
+      element.style.position = "relative";
+      element.style.top = offset;
+    }
+
+    element.scrollIntoView(rest);
+
+    if (offset) {
+      element.style.top = top;
+      element.style.position = pos;
+    }
+  });
+}

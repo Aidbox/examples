@@ -23,10 +23,11 @@ import {
   useInteractions,
   useListNavigation,
 } from "@floating-ui/react";
-import { Empty, CaretDown } from "@phosphor-icons/react";
+import { CaretDown, Empty } from "@phosphor-icons/react";
 import { useStyle } from "../style";
 import { useText } from "../text";
 import { useProgramContext } from "../utils/store.ts";
+import { scrollIntoView } from "../utils/misc.ts";
 
 function Dropdown<T>({
   items,
@@ -61,6 +62,7 @@ function Dropdown<T>({
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const listRef = useRef<Array<HTMLButtonElement | null>>([]);
   const arrowRef = useRef(null);
+  const searchRef = useRef<HTMLDivElement | null>(null);
 
   const filteredItems =
     searchFn && searchText
@@ -106,12 +108,14 @@ function Dropdown<T>({
       offset({
         mainAxis: 6,
       }),
-      shift(),
+      shift({
+        padding: 24,
+      }),
       flip(),
       size({
         apply({ availableHeight, elements }) {
           Object.assign(elements.floating.style, {
-            maxHeight: `${Math.max(0, availableHeight)}px`,
+            maxHeight: `${Math.min(500, Math.max(0, availableHeight))}px`,
           });
         },
       }),
@@ -150,12 +154,20 @@ function Dropdown<T>({
     onClick(item, created);
   };
 
-  const toggleGroup = (group: string) => {
+  const toggleGroup = (target: HTMLElement, group: string) => {
     setExpandedGroups((prev) => {
       const next = new Set(prev);
       if (next.has(group)) {
         next.delete(group);
       } else {
+        const parent = target.closest<HTMLElement>(`.${style.dropdown.group}`);
+        if (parent) {
+          scrollIntoView(parent, {
+            behavior: "smooth",
+            block: "start",
+            offset: `-${searchRef.current?.offsetHeight || 0}px`,
+          });
+        }
         next.add(group);
       }
       return next;
@@ -168,12 +180,12 @@ function Dropdown<T>({
       {isOpen && (
         <FloatingPortal id={portalRoot}>
           <FloatingOverlay className={style.dropdown.backdrop} lockScroll />
-          <div style={floatingStyles}>
+          <div className={style.dropdown.arrow} style={floatingStyles}>
             <FloatingArrow
               ref={arrowRef}
               context={context}
-              fill="white"
-              height={5}
+              strokeWidth={1}
+              height={6}
               width={10}
             />
           </div>
@@ -184,7 +196,7 @@ function Dropdown<T>({
             {...getFloatingProps()}
           >
             {searchFn && (
-              <div className={style.dropdown.search}>
+              <div className={style.dropdown.search} ref={searchRef}>
                 <input
                   type="text"
                   value={searchText}
@@ -223,12 +235,12 @@ function Dropdown<T>({
                             className={style.dropdown.toggle}
                             onMouseDown={(e) => {
                               e.preventDefault();
-                              toggleGroup(group);
+                              toggleGroup(e.target as HTMLElement, group);
                             }}
                           >
                             {expandedGroups.has(group)
                               ? text.dropdown.group.showLess
-                              : text.dropdown.group.showLess}
+                              : text.dropdown.group.showMore}
                             <CaretDown
                               size={16}
                               style={{
@@ -243,7 +255,10 @@ function Dropdown<T>({
                       </div>
                     )}
                     {items
-                      .slice(0, expandedGroups.has(group) ? undefined : 5)
+                      .slice(
+                        0,
+                        !group || expandedGroups.has(group) ? undefined : 5,
+                      )
                       .map(({ item, index }) => (
                         <button
                           key={keyFn ? keyFn(item) : index}

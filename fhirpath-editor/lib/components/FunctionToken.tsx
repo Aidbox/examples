@@ -35,15 +35,10 @@ import {
   IFunctionToken,
   TokenComponentProps,
 } from "../types/internal";
-import { assertDefined, colors, memoize } from "../utils/misc";
+import { assertDefined, colors, scrollIntoView } from "../utils/misc";
 import { Argument } from "./Argument";
 import { useStyle } from "../style";
 import { useText } from "../text";
-
-let colorIndex = 0;
-const color = memoize(() => colors[colorIndex++ % colors.length]) as (
-  group: string,
-) => string;
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
@@ -58,6 +53,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
     );
     const listRef = useRef<Array<HTMLButtonElement | null>>([]);
     const arrowRef = useRef(null);
+    const headerRef = useRef<HTMLDivElement | null>(null);
 
     const { token, isLeadingToken, updateToken, portalRoot } =
       useProgramContext((state) => ({
@@ -103,20 +99,22 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
         }
       },
       middleware: [
-        arrow({
-          element: arrowRef,
-        }),
         offset({
           mainAxis: 6,
         }),
-        shift(),
+        shift({
+          padding: 24,
+        }),
         flip(),
         size({
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
-              maxHeight: `${Math.max(0, availableHeight - 12)}px`,
+              maxHeight: `${Math.min(500, Math.max(0, availableHeight))}px`,
             });
           },
+        }),
+        arrow({
+          element: arrowRef,
         }),
       ],
     });
@@ -174,12 +172,22 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
       });
     }
 
-    const toggleGroup = (group: string) => {
+    const toggleGroup = (target: HTMLElement, group: string) => {
       setExpandedGroups((prev) => {
         const next = new Set(prev);
         if (next.has(group)) {
           next.delete(group);
         } else {
+          const parent = target.closest<HTMLElement>(
+            `.${style.dropdown.group}`,
+          );
+          if (parent) {
+            scrollIntoView(parent, {
+              behavior: "smooth",
+              block: "start",
+              offset: `-${headerRef.current?.offsetHeight || 0}px`,
+            });
+          }
           next.add(group);
         }
         return next;
@@ -201,14 +209,22 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
         {isOpen && (
           <FloatingPortal id={portalRoot}>
             <FloatingOverlay className={style.dropdown.backdrop} lockScroll />
+            <div className={style.dropdown.arrow} style={floatingStyles}>
+              <FloatingArrow
+                ref={arrowRef}
+                context={context}
+                strokeWidth={1}
+                height={6}
+                width={10}
+              />
+            </div>
             <div
               ref={refs.setFloating}
               style={floatingStyles}
               className={style.token.function.dropdown}
               {...getFloatingProps()}
             >
-              <FloatingArrow ref={arrowRef} context={context} fill="red" />
-              <div className={style.token.function.header}>
+              <div className={style.token.function.header} ref={headerRef}>
                 {selectingName ? (
                   <input
                     type="text"
@@ -292,7 +308,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                               className={style.dropdown.toggle}
                               onMouseDown={(e) => {
                                 e.preventDefault();
-                                toggleGroup(group);
+                                toggleGroup(e.target as HTMLElement, group);
                               }}
                             >
                               {expandedGroups.has(group)
@@ -318,7 +334,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                               ref={(node) => (listRef.current[index] = node)}
                               style={
                                 {
-                                  "--group-color": color(group),
+                                  "--group-color": colors.function,
                                 } as CSSProperties
                               }
                               data-active={activeIndex === index || undefined}
