@@ -18,13 +18,15 @@ yarn add fhirpath-editor
 
 The library provides an `Editor` component for working with FHIRPath expressions:
 
+### Uncontrolled Component (with defaultValue)
+
 ```tsx
 import { Editor } from "fhirpath-editor";
 import r4 from "fhirpath/fhir-context/r4";
 
 function MyFhirPathEditor() {
   // FHIRPath expression to evaluate
-  const value = "(1 + 2) * 3";
+  const defaultExpr = "(1 + 2) * 3";
   const handleChange = (newValue) =>
     console.log("Expression changed:", newValue);
 
@@ -41,31 +43,51 @@ function MyFhirPathEditor() {
     birthDate: "1970-01-01",
   };
 
-  // Simple external variables available to FHIRPath expressions
-  const variables = {
-    questionnaire: {
-      resourceType: "Questionnaire",
-      id: "simple-example",
-      status: "active",
-      item: [
-        {
-          linkId: "1",
-          text: "Simple Question",
-          type: "string",
-        },
-      ],
-    },
-  };
-
-  // FHIR schema can be loaded from https://aidbox.github.io/examples/fhirpath-editor/schema.json
   const fhirSchema = []; // Replace with actual schema data
 
   return (
     <Editor
-      defaultValue={value}
+      defaultValue={defaultExpr}
       onChange={handleChange}
       data={data}
-      variables={variables}
+      schema={fhirSchema}
+      model={r4}
+    />
+  );
+}
+```
+
+### Controlled Component (with value)
+
+```tsx
+import { Editor } from "fhirpath-editor";
+import r4 from "fhirpath/fhir-context/r4";
+import { useState } from "react";
+
+function MyFhirPathEditor() {
+  // FHIRPath expression state
+  const [expression, setExpression] = useState("(1 + 2) * 3");
+
+  // Simple FHIR resource to evaluate FHIRPath against
+  const data = {
+    resourceType: "Patient",
+    id: "example",
+    name: [
+      {
+        family: "Smith",
+        given: ["John"],
+      },
+    ],
+    birthDate: "1970-01-01",
+  };
+
+  const fhirSchema = []; // Replace with actual schema data
+
+  return (
+    <Editor
+      value={expression}
+      onChange={setExpression}
+      data={data}
       schema={fhirSchema}
       model={r4}
     />
@@ -75,15 +97,25 @@ function MyFhirPathEditor() {
 
 ## Props
 
-| Prop           | Type                    | Required | Description                                   |
-|----------------|-------------------------|----------|-----------------------------------------------|
-| `defaultValue` | string                  | No       | Initial FHIRPath expression                   |
-| `onChange`     | (value: string) => void | No       | Callback for expression changes               |
-| `data`         | any                     | Yes      | The context data to evaluate FHIRPath against |
-| `variables`    | Record<string, any>     | No       | External bindings available to expressions    |
-| `schema`       | FhirSchema[]            | Yes      | FHIR schema definitions for validation        |
-| `model`        | Model                   | Yes      | FHIR version model data                       |
-| `debug`        | boolean                 | No       | Enable debug mode                             |
+| Prop           | Type                    | Required | Description                                     |
+| -------------- | ----------------------- | -------- | ----------------------------------------------- |
+| `value`        | string                  | No       | Current FHIRPath expression (controlled mode)   |
+| `defaultValue` | string                  | No       | Initial FHIRPath expression (uncontrolled mode) |
+| `onChange`     | (value: string) => void | No       | Callback for expression changes                 |
+| `data`         | any                     | Yes      | The context data to evaluate FHIRPath against   |
+| `variables`    | Record<string, any>     | No       | External bindings available to expressions      |
+| `schema`       | FhirSchema[]            | Yes      | FHIR schema definitions for validation          |
+| `model`        | Model                   | Yes      | FHIR version model data                         |
+| `debug`        | boolean                 | No       | Enable debug mode                               |
+
+## Component Modes
+
+The Editor component supports both controlled and uncontrolled modes:
+
+- **Controlled Mode**: Provide the `value` prop and handle changes with `onChange`.
+- **Uncontrolled Mode**: Provide only the `defaultValue` prop (initial value) and optionally handle changes with `onChange`.
+
+Note: Do not provide both `value` and `defaultValue` at the same time. If both are provided, `defaultValue` will be ignored and a warning will be logged to the console.
 
 ## Features
 

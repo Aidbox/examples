@@ -59,7 +59,7 @@ export function App() {
         <Panel className="flex flex-col">
           <div className="p-8 flex-1 overflow-auto">
             <Editor
-              defaultValue={value}
+              value={value}
               onChange={setValue}
               data={data}
               variables={variable}
