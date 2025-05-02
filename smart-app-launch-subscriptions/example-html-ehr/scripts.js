@@ -39,13 +39,16 @@ const smartAllLaunchSubscriptions = (userId) => {
 
 const loginAidbox = async (username, password) => {
   try {
+    const outpatientClientId = 'ehr-outpatient'
+    const outpatientClientSecret = 'verysecret'
+
     const response = await fetch(`${AIDBOX_URL}/auth/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         grant_type: 'password',
-        client_id: 'ehr-outpatient',
-        client_secret: 'verysecret',
+        client_id: outpatientClientId,
+        client_secret: outpatientClientSecret,
         username,
         password
       })

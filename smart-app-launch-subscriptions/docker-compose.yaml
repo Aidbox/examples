@@ -5,6 +5,13 @@ volumes:
 
 services:
 
+  subscriptions_app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.subscriptions_app
+    ports:
+      - 5173:4173
+
   subscriptions:
     build:
       context: .
