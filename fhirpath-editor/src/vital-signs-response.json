@@ -1,0 +1,96 @@
+{
+  "resourceType": "QuestionnaireResponse",
+  "status": "in-progress",
+  "item": [
+    {
+      "linkId": "FjvP3KUL",
+      "text": "Temperature"
+    },
+    {
+      "linkId": "dwrzWCUq",
+      "item": [
+        {
+          "linkId": "1_PdhO_x",
+          "text": "BP sys"
+        },
+        {
+          "linkId": "33cVX3kj",
+          "text": "BP dias"
+        },
+        {
+          "linkId": "b69DHk3N",
+          "text": "Positions"
+        },
+        {
+          "linkId": "voX115RX",
+          "text": "Arm"
+        }
+      ],
+      "text": "Blood Pressure"
+    },
+    {
+      "linkId": "gFDVWC0G",
+      "item": [
+        {
+          "linkId": "5PBX92rD",
+          "text": "Heart rate"
+        }
+      ],
+      "text": "Pulse Rate"
+    },
+    {
+      "linkId": "7oQfIzIE",
+      "item": [
+        {
+          "linkId": "fV-Ovl33",
+          "text": "Resp rate"
+        }
+      ],
+      "text": "Respiratory Rate"
+    },
+    {
+      "linkId": "VruH85xu",
+      "item": [
+        {
+          "linkId": "tFW0iaca",
+          "text": "SaO2 % PulseOx"
+        }
+      ],
+      "text": "Oxygen Saturation"
+    },
+    {
+      "linkId": "iGM-r-zT",
+      "text": "Weight",
+      "answer": [
+        {
+          "valueQuantity": {
+            "value": 123,
+            "unit": "lb"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "e_NKgvHO",
+      "text": "Height",
+      "answer": [
+        {
+          "valueQuantity": {
+            "value": 60,
+            "unit": "in"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "7pkUYK3N",
+      "text": "BMI",
+      "answer": [
+        {
+          "valueDecimal": 24.019166666666667
+        }
+      ]
+    }
+  ],
+  "questionnaire": "http://forms.aidbox.io/questionnaire/vital-signs|0.1.0"
+}

@@ -1,0 +1,20 @@
+.wrapper {
+  composes: button from "./Token.module.css";
+  cursor: auto !important;
+
+  & > input {
+    field-sizing: content;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.button {
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+}
