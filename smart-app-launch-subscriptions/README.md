@@ -68,10 +68,9 @@ docker compose up
 
 Wait until all components are pulled and started. The components are accessible at:
 
-- Aidbox - http://localhost:8080  
+- Aidbox - http://localhost:8080
 - Smart App Subscriptions backend - http://localhost:9000
-- Example HTML page - http://localhost:7070
-- Example React page - http://localhost:7080
+- Example HTML page - http://localhost:7077
 
 # Step 2: Create Subscription resources in Aidbox
 
@@ -137,18 +136,21 @@ accept: application/json
 
 # Step 3: Open Launcher Pages
 
-**1. There are two examples:**
-- open `http://localhost:7070` to see example in plain HTML
-- open `http://localhost:7080` to see example in React
+**1. Open example EHR:**
+- open `http://localhost:7077` to see example in plain HTML
 
-**2. Login into account**
+**2. Login into EHR account**
 
 Use login credentials from `aidbox.json`:
 
 - Email: `house@example.com`
 - Password: `securepassword`
 
-# Step 4: Trigger EHR Encounter
+# Step 4: Launch SmartApp
+
+Click the “Launch Subscriptions” button to launch the SMART app. A popup with the Aidbox login should appear. If it doesn’t, check your browser notifications — it might be asking for permission to open the popup.
+
+# Step 5: Trigger EHR Encounter
 
 Open [API REST console](http://localhost:8080/ui/console#/rest) in Aidbox and run the following requests:
 
@@ -226,7 +228,15 @@ sequenceDiagram
     participant AppFront as Smart App<br/>(frontend)
     participant EHR2 as EHR UI<br/>(outpatient)
     Note left of EHR2: Smart App widget <br/>integrated within EHR UI
-    AppFront->>EHR2: 
+
+    PCP->>EHR2: Clicks Smart App button
+    EHR2->>AppFront: Redirect with `launch`, `iss`
+    AppFront->>Aidbox: Authorization request (SMART)
+    Aidbox-->>AppFront: Authorization code
+    AppFront->>Aidbox: Token request
+    Aidbox-->>AppFront: Access token + context
+
+    AppFront->>EHR2: App loads with patient context
     PCP->>EHR2: Log In
     activate EHR2
     EHR2-->>AppFront: Pass authentication<br/>data downstream
@@ -237,6 +247,7 @@ sequenceDiagram
     AppBack-->>AppFront: Authentication<br/>Success
     deactivate AppBack
     deactivate AppFront
+
     loop 
         AppFront->>AppFront: Waiting for<br/>Server-Sent Event
     end

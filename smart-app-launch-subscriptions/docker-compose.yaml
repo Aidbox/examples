@@ -10,7 +10,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.subscriptions_app
     ports:
-      - 5173:4173
+      - 7667:4173
 
   subscriptions:
     build:
@@ -23,22 +23,22 @@ services:
       CLIENT_ID: subscriptions
       CLIENT_SECRET: quOfCRS7ty1RMUQq
 
-  example-html:
+  example-html-ehr:
     build:
       context: .
       dockerfile: ./Dockerfile.example.html
     ports:
-      - "7070:80"
+      - "7077:80"
   
-  example-react:
-    build:
-      context: .
-      dockerfile: ./Dockerfile.example.react
-      args:
-        VITE_AIDBOX_URL: http://localhost:8080
-        VITE_SMARTAPP_SUBSCRIPTIONS_API: http://localhost:9000
-    ports:
-      - "7080:4173"
+  # example-react-ehr:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile.example.react
+  #     args:
+  #       VITE_AIDBOX_URL: http://localhost:8080
+  #       VITE_SMARTAPP_SUBSCRIPTIONS_API: http://localhost:9000
+  #   ports:
+  #     - "7080:4173"
 
   aidbox_db:
     image: healthsamurai/aidboxdb:17
