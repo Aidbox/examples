@@ -5,7 +5,7 @@ declare type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>;
 } : T;
 
-export declare function Editor({ defaultValue, onChange, data, variables, schema, model, debug, portalRoot, style, text, }: IEditorProps): JSX_2.Element;
+export declare function Editor({ value, defaultValue, onChange, data, variables, schema, model, debug, portalRoot, style, text, }: IEditorProps): JSX_2.Element;
 
 declare type FhirElement = {
     array?: boolean;
@@ -36,6 +36,7 @@ export declare type FhirSchema = {
 };
 
 declare interface IEditorProps {
+    value?: string;
     defaultValue?: string;
     onChange?: (value: string) => void;
     data: any;
@@ -64,6 +65,7 @@ export declare const style: {
             search: string;
             incompatible: string;
             shortcut: string;
+            icon: string;
             dropdown: string;
         };
         value: {
@@ -80,12 +82,12 @@ export declare const style: {
             arrow: string;
             error: string;
             popover: string;
+            failure: string;
         };
         animate: string;
         shakeX: string;
         debug: string;
         vbox: string;
-        hbox: string;
         expression: string;
         nameless: string;
         equals: string;
@@ -103,6 +105,7 @@ export declare const style: {
         container: string;
         backdrop: string;
         option: string;
+        arrow: string;
     };
     program: {
         container: string;
@@ -165,8 +168,9 @@ export declare const style: {
             input: string;
         };
         container: string;
-        deleting: string;
         button: string;
+        delete: string;
+        deleting: string;
     };
 };
 
@@ -203,13 +207,13 @@ export declare const text: {
     };
     cursor: {
         groups: {
-            namedExpressions: string;
-            operators: string;
-            functions: string;
-            fields: string;
-            indexes: string;
-            questionnaire: string;
-            literals: string;
+            variable: string;
+            operator: string;
+            function: string;
+            field: string;
+            index: string;
+            answer: string;
+            literal: string;
         };
     };
     token: {
