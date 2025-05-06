@@ -632,13 +632,21 @@ export type UnparseContext = {
   bindingsOrder: Record<LocalBinding["id"], number>;
 };
 
-export type LezerNode = {
+export type LezerTerminalNode<T = string> = {
   type: string;
-  value: string;
-  children: LezerNode[];
-  parent?: LezerNode;
+  value: T;
   comment?: string;
 };
+
+export type LezerNonTerminalNode<T = string> = {
+  type: string;
+  children: Array<LezerNode<T>>;
+  comment?: string;
+};
+
+export type LezerNode<T = string> =
+  | LezerTerminalNode<T>
+  | LezerNonTerminalNode<T>;
 
 export type OperatorTreeLeaf = {
   name: OperatorName;

@@ -1,5 +1,5 @@
 import { TreeCursor } from "@lezer/common";
-import { parser } from "lezer-fhirpath";
+import { parser, terminals } from "lezer-fhirpath";
 import {
   IAnswerToken,
   IBooleanToken,
@@ -17,6 +17,8 @@ import {
   ITypeToken,
   IVariableToken,
   LezerNode,
+  LezerNonTerminalNode,
+  LezerTerminalNode,
   LocalBinding,
   OperatorName,
   Token,
@@ -31,6 +33,35 @@ import {
   standardTypeMap,
   typePrimitiveMap,
 } from "./type";
+import { assertDefined } from "./misc.ts";
+
+function isLezerTerminalNode<T>(
+  node: LezerNode<T> | undefined,
+): node is LezerTerminalNode<T> {
+  return !!node?.type && terminals.includes(node.type);
+}
+
+function isLezerNonTerminalNode<T>(
+  node: LezerNode<T> | undefined,
+): node is LezerNonTerminalNode<T> {
+  return !!node?.type && !terminals.includes(node.type);
+}
+
+function assertNonTerminalNode<T>(
+  node: LezerNode<T> | undefined,
+): asserts node is LezerNonTerminalNode<T> {
+  if (!isLezerNonTerminalNode(node)) {
+    throw new Error(`Expected non-terminal node, but got ${node?.type}`);
+  }
+}
+
+function assertTerminalNode<T>(
+  node: LezerNode<T> | undefined,
+): asserts node is LezerTerminalNode<T> {
+  if (!isLezerTerminalNode(node)) {
+    throw new Error(`Expected terminal node, but got ${node?.type}`);
+  }
+}
 
 function buildNode(cursor: TreeCursor, input: string): LezerNode {
   const type = cursor.node.type.name;
@@ -43,7 +74,7 @@ function buildNode(cursor: TreeCursor, input: string): LezerNode {
     do {
       const child = buildNode(cursor, input);
 
-      if (child.type === "BlockComment") {
+      if (child.type === "BlockComment" && isLezerTerminalNode(child)) {
         const last = children[children.length - 1];
         if (last) {
           last.comment = child.value;
@@ -71,19 +102,9 @@ function buildNode(cursor: TreeCursor, input: string): LezerNode {
     cursor.parent();
   }
 
-  if (
-    type === "Identifier" &&
-    children.length === 1 &&
-    children[0].type === "DelimitedIdentifier"
-  ) {
-    return {
-      type: "Identifier",
-      value: children[0].value,
-      children: [],
-    };
-  }
-
-  return { type, value, children };
+  return terminals.includes(type)
+    ? ({ type, value } as LezerTerminalNode)
+    : ({ type, children } as LezerNode);
 }
 
 function unescapeString(text: string): string {
@@ -113,13 +134,11 @@ function makeAdditiveFromPolarity(
 ): LezerNode {
   const zero = {
     type: "Literal",
-    value: "0",
-    children: [{ type: "Number", value: "0", children: [] }],
+    children: [{ type: "Number", value: "0" }],
   };
 
   return {
     type: "AdditiveExpression",
-    value: `${zero.value} ${operator.value} ${operand.value}`,
     children: [zero, operator, operand],
   };
 }
@@ -146,26 +165,149 @@ function hasHigherPrecedence(a: LezerNode, b: LezerNode) {
     b &&
     precedence[a.type] !== undefined &&
     precedence[b.type] !== undefined &&
-    precedence[a.type] > precedence[b.type]
+    (precedence[a.type] || 0) > (precedence[b.type] || 0)
   );
 }
 
-function extractLinkId(node: LezerNode): string | undefined {
-  // todo: make sure the the node actually looks like what we generate for answer tokens
-  if (node?.type === "Function" && node?.children?.[0]?.value === "where") {
-    const equality = node?.children?.[1]?.children[0];
-    const right = equality?.children?.[2];
-    const string = right?.children?.[0]?.value;
-    return string ? unescapeString(string) : undefined;
-  }
+export const PLACEHOLDER = Symbol("placeholder");
+type LezerNodeTemplate = LezerNode<string | typeof PLACEHOLDER>;
 
-  for (const child of node?.children || []) {
-    const res = extractLinkId(child);
-    if (res) {
-      return res;
+const resourceTemplate: LezerNodeTemplate = {
+  type: "ExternalConstant",
+  children: [{ type: "Identifier", value: "resource" }],
+};
+
+const repeatTemplate = {
+  type: "InvocationExpression",
+  children: [
+    resourceTemplate,
+    {
+      type: "Function",
+      children: [
+        { type: "Identifier", value: "repeat" },
+        {
+          type: "ParamList",
+          children: [{ type: "Identifier", value: "item" }],
+        },
+      ],
+    },
+  ],
+};
+
+const whereArgumentTemplate: LezerNodeTemplate = {
+  type: "EqualityExpression",
+  children: [
+    { type: "Identifier", value: "linkId" },
+    { type: "=", value: "=" },
+    {
+      type: "Literal",
+      children: [
+        {
+          type: "String",
+          value: PLACEHOLDER,
+        },
+      ],
+    },
+  ],
+};
+
+const whereTemplate: LezerNodeTemplate = {
+  type: "InvocationExpression",
+  children: [
+    repeatTemplate,
+    {
+      type: "Function",
+      children: [
+        { type: "Identifier", value: "where" },
+        {
+          type: "ParamList",
+          children: [whereArgumentTemplate],
+        },
+      ],
+    },
+  ],
+};
+
+const answerTemplate: LezerNodeTemplate = {
+  type: "InvocationExpression",
+  children: [whereTemplate, { type: "Identifier", value: "answer" }],
+};
+
+const valueTemplate: LezerNodeTemplate = {
+  type: "InvocationExpression",
+  children: [answerTemplate, { type: "Identifier", value: "value" }],
+};
+
+const valueOfValueTemplate: LezerNodeTemplate = {
+  type: "InvocationExpression",
+  children: [valueTemplate, { type: "Identifier", value: "value" }],
+};
+
+const ordinalOfValueTemplate: LezerNodeTemplate = {
+  type: "InvocationExpression",
+  children: [
+    repeatTemplate,
+    {
+      type: "Function",
+      children: [
+        { type: "Identifier", value: "ordinal" },
+        {
+          type: "ParamList",
+          children: [],
+        },
+      ],
+    },
+  ],
+};
+
+export function matchNodeTemplate(
+  template: LezerNodeTemplate,
+  actual: LezerNode,
+): string | undefined {
+  let placeholder: string | undefined = undefined;
+
+  function match(
+    templateNode: LezerNodeTemplate,
+    valueNode: LezerNode,
+  ): boolean {
+    if (templateNode.type !== valueNode.type) return false;
+
+    if (isLezerTerminalNode(templateNode)) {
+      if (!isLezerTerminalNode(valueNode)) {
+        return false;
+      }
+
+      if (templateNode.value === PLACEHOLDER) {
+        placeholder = valueNode.value;
+        return true;
+      }
+
+      return templateNode.value === valueNode.value;
+    } else {
+      if (isLezerTerminalNode(valueNode)) {
+        return false;
+      }
+
+      const tChildren = templateNode.children ?? [];
+      const vChildren = valueNode.children ?? [];
+
+      if (tChildren.length !== vChildren.length) {
+        return false;
+      }
+
+      for (let i = tChildren.length - 1; i >= 0; i--) {
+        const tChild = tChildren[i];
+        const vChild = vChildren[i];
+        if (!tChild || !vChild || !match(tChild, vChild)) {
+          return false;
+        }
+      }
+
+      return true;
     }
   }
-  return undefined;
+
+  return match(template, actual) ? placeholder : undefined;
 }
 
 const ANSWER_TOKEN_MARKER = "/* ~answer */";
@@ -181,55 +323,48 @@ function transformNode(node: LezerNode): IProgram {
     name?: string;
     expression: Token[];
   }): Token[] {
-    if (expression.length === 1 && expression[0].type === TokenType.variable)
+    if (expression.length === 1 && expression[0]?.type === TokenType.variable) {
       return expression;
-    if (name && bindings.find((b) => b.name === name))
+    }
+    if (name && bindings.find((b) => b.name === name)) {
       return [{ type: TokenType.variable, value: name }];
+    }
+
     const binding: LocalBinding = {
       id: generateBindingId(),
       name: name || `var${++varCounter}`,
       expression,
     };
     bindings.push(binding);
+
     return [{ type: TokenType.variable, value: binding.name }];
   }
 
   function walk(node: LezerNode, first = false): Token[] {
-    if (!node) return [];
-    const { type, value, children, comment } = node;
+    try {
+      switch (node.type) {
+        case "Document": {
+          assertNonTerminalNode(node);
+          return (node.children[0] && walk(node.children[0], true)) || [];
+        }
 
-    switch (type) {
-      case "Document": {
-        return walk(children[0], true);
-      }
+        case "Literal": {
+          assertNonTerminalNode(node);
+          const child = node.children[0];
+          assertTerminalNode(child);
 
-      case "Literal": {
-        const { type, value, children: parts } = children[0];
+          if (child.type === "Quantity") {
+            assertNonTerminalNode(node);
 
-        switch (type) {
-          case "Boolean":
-            return [
-              { type: TokenType.boolean, value: value as "true" | "false" },
-            ];
-          case "String":
-            return [{ type: TokenType.string, value: unescapeString(value) }];
-          case "Number":
-            return [{ type: TokenType.number, value: value }];
-          case "Date":
-            return [{ type: TokenType.date, value: value.replace(/^@/, "") }];
-          case "Datetime":
-            return [
-              { type: TokenType.datetime, value: value.replace(/^@/, "") },
-            ];
-          case "Time":
-            return [{ type: TokenType.time, value: value.replace(/^@T/, "") }];
-          case "Quantity": {
-            const unit = parts[1].children[0];
+            const [value, unit] = node.children;
+            assertTerminalNode(value);
+            assertTerminalNode(unit);
+
             return [
               {
                 type: TokenType.quantity,
                 value: {
-                  value: parts[0].value,
+                  value: value.value || "0",
                   unit:
                     unit.type === "String"
                       ? unescapeString(unit.value)
@@ -237,141 +372,265 @@ function transformNode(node: LezerNode): IProgram {
                 },
               },
             ];
-          }
-          // todo: support empty literal
-          default:
-            throw new Error(`Unknown literal type: ${type}`);
-        }
-      }
-
-      case "PolarityExpression": {
-        const [operator, operand] = children;
-
-        if (operator.value === "+") {
-          return walk(operand);
-        } else {
-          if (operand.type === "Literal") {
-            operand.children[0].value = "-" + operand.children[0].value;
-            return walk(operand);
           } else {
-            return walk(makeAdditiveFromPolarity(operator, operand));
+            assertTerminalNode(child);
+
+            switch (child.type) {
+              case "Boolean":
+                return [
+                  {
+                    type: TokenType.boolean,
+                    value: child.value as "true" | "false",
+                  },
+                ];
+              case "String":
+                return [
+                  {
+                    type: TokenType.string,
+                    value: unescapeString(child.value),
+                  },
+                ];
+              case "Number":
+                return [{ type: TokenType.number, value: child.value }];
+              case "Date":
+                return [
+                  {
+                    type: TokenType.date,
+                    value: child.value.replace(/^@/, "") || "2000-01-01",
+                  },
+                ];
+              case "Datetime":
+                return [
+                  {
+                    type: TokenType.datetime,
+                    value: child.value.replace(/^@/, "") || "2000-01-01",
+                  },
+                ];
+              case "Time":
+                return [
+                  {
+                    type: TokenType.time,
+                    value: child.value.replace(/^@T/, "") || "00:00",
+                  },
+                ];
+
+              // todo: support empty literal
+              default:
+                throw new Error(`Unknown literal type: ${child.type}`);
+            }
           }
         }
-      }
 
-      case "MultiplicativeExpression":
-      case "AdditiveExpression":
-      case "UnionExpression":
-      case "InequalityExpression":
-      case "EqualityExpression":
-      case "TypeExpression":
-      case "MembershipExpression":
-      case "AndExpression":
-      case "OrExpression":
-      case "ImpliesExpression": {
-        const [leftNode, { value: operator }, rightNode] = children;
+        case "PolarityExpression": {
+          assertNonTerminalNode(node);
+          const [operator, operand] = node.children;
 
-        let leftExpression = walk(leftNode);
-        if (hasHigherPrecedence(node, leftNode)) {
-          leftExpression = define({
-            expression: leftExpression,
-          });
-        }
+          if (!operator || !operand) {
+            throw new Error(
+              "Invalid PolarityExpression: missing operator or operand",
+            );
+          }
 
-        let rightExpression = walk(rightNode);
-        if (hasHigherPrecedence(node, rightNode)) {
-          rightExpression = define({
-            expression: rightExpression,
-          });
-        }
-
-        return [
-          ...leftExpression,
-          { type: TokenType.operator, value: operator as OperatorName },
-          ...rightExpression,
-        ];
-      }
-
-      case "IndexerExpression": {
-        const value = children[1]?.type === "Literal" ? children[1].value : "";
-        return [...walk(children[0]), { type: TokenType.index, value }];
-      }
-
-      case "Identifier":
-        return [{ type: TokenType.field, value }]; // todo: generate TokenType.type if value is a FhirResource type and if first = true
-
-      case "ExternalConstant":
-        return [
-          {
-            type: TokenType.variable,
-            value: unescapeIdentifier(children[0].value),
-          },
-        ];
-
-      case "TypeSpecifier": {
-        const elements = children[0].children.map((identifier) =>
-          unescapeIdentifier(identifier.value),
-        );
-
-        const type =
-          elements.length > 1
-            ? ComplexType(elements)
-            : primitiveTypeMap[elements[0]] || standardTypeMap[elements[0]];
-
-        if (!type) {
-          throw new Error(`Unknown type: ${elements[0]}`);
-        }
-
-        return [
-          {
-            type: TokenType.type,
-            value: type,
-          },
-        ];
-      }
-
-      case "InvocationExpression": {
-        if (comment === ANSWER_TOKEN_MARKER) {
-          const linkId = extractLinkId(node);
-          if (linkId) {
-            return [{ type: TokenType.answer, value: linkId }];
+          if (isLezerTerminalNode(operator) && operator?.value === "+") {
+            return operand ? walk(operand) : [];
+          } else {
+            if (operand?.type === "Literal") {
+              assertNonTerminalNode(operand);
+              if (operand.children[0]) {
+                assertTerminalNode(operand.children[0]);
+                operand.children[0].value = "-" + operand.children[0].value;
+                return walk(operand);
+              } else {
+                return [{ type: TokenType.number, value: "0" }];
+              }
+            } else {
+              return walk(makeAdditiveFromPolarity(operator, operand));
+            }
           }
         }
-        const [parent, target] = children;
-        return [...walk(parent), ...walk(target, first)];
-      }
 
-      case "Function": {
-        const [{ value: name }, params] = children;
-        const { children: args } = params || { children: [] };
+        case "MultiplicativeExpression":
+        case "AdditiveExpression":
+        case "UnionExpression":
+        case "InequalityExpression":
+        case "EqualityExpression":
+        case "TypeExpression":
+        case "MembershipExpression":
+        case "AndExpression":
+        case "OrExpression":
+        case "ImpliesExpression": {
+          assertNonTerminalNode(node);
+          const [leftNode, operator, rightNode] = node.children;
 
-        if (name === "defineVariable") {
-          const [name, expression] = args;
-          define({
-            expression: walk(expression),
-            name: unescapeString(name.value),
+          if (!leftNode || !operator || !rightNode) {
+            throw new Error(
+              "Invalid operator expression: missing left, operator or right",
+            );
+          }
+
+          assertTerminalNode(operator);
+
+          let leftExpression = walk(leftNode);
+          if (hasHigherPrecedence(node, leftNode)) {
+            leftExpression = define({
+              expression: leftExpression,
+            });
+          }
+
+          let rightExpression = walk(rightNode);
+          if (hasHigherPrecedence(node, rightNode)) {
+            rightExpression = define({
+              expression: rightExpression,
+            });
+          }
+
+          return [
+            ...leftExpression,
+            { type: TokenType.operator, value: operator.value as OperatorName },
+            ...rightExpression,
+          ];
+        }
+
+        case "IndexerExpression": {
+          assertNonTerminalNode(node);
+          const [base, index] = node.children;
+          if (index?.type !== "Literal") {
+            throw new Error("Dynamic indexer is not supported"); // todo: support dynamic indexer
+          }
+          assertNonTerminalNode(index);
+          assertTerminalNode(index.children[0]);
+          const value = index.children[0].value;
+
+          return [
+            ...(base ? walk(base) : []),
+            { type: TokenType.index, value },
+          ];
+        }
+
+        case "Identifier":
+          assertTerminalNode(node);
+
+          if (!node.value) {
+            throw new Error("Identifier value is empty");
+          }
+
+          if (first && node.value[0]?.toUpperCase() === node.value[0]) {
+            return [{ type: TokenType.type, value: ComplexType([node.value]) }];
+          } else {
+            return [{ type: TokenType.field, value: node.value }];
+          }
+
+        case "ExternalConstant": {
+          assertNonTerminalNode(node);
+
+          const [child] = node.children;
+          assertTerminalNode(child);
+
+          return [
+            {
+              type: TokenType.variable,
+              value: unescapeIdentifier(child.value),
+            },
+          ];
+        }
+
+        case "TypeSpecifier": {
+          assertNonTerminalNode(node);
+          const elements = node.children.map((identifier) => {
+            assertTerminalNode(identifier);
+            return unescapeIdentifier(identifier.value);
           });
-          return [];
+
+          const type =
+            elements.length > 1
+              ? ComplexType(elements)
+              : elements[0]
+                ? primitiveTypeMap[elements[0]] || standardTypeMap[elements[0]]
+                : undefined;
+
+          if (!type) {
+            throw new Error(`Unknown type: ${elements[0]}`);
+          }
+
+          return [
+            {
+              type: TokenType.type,
+              value: type,
+            },
+          ];
         }
 
-        if (name === "select" && first) {
-          return walk(args[0]);
+        case "InvocationExpression": {
+          if (node.comment === ANSWER_TOKEN_MARKER) {
+            const linkId =
+              matchNodeTemplate(valueOfValueTemplate, node) ||
+              matchNodeTemplate(ordinalOfValueTemplate, node);
+            if (linkId) {
+              return [
+                { type: TokenType.answer, value: unescapeString(linkId) },
+              ];
+            }
+          }
+
+          assertNonTerminalNode(node);
+          const [parent, target] = node.children;
+          if (!parent || !target) {
+            throw new Error(
+              "Invalid InvocationExpression: missing parent or target",
+            );
+          }
+          return [...walk(parent), ...walk(target, first)];
         }
 
-        return [
-          {
-            type: TokenType.function,
-            value: unescapeIdentifier(name),
-            args: args.map((arg) => transformNode(arg)),
-          },
-        ];
+        case "Function": {
+          assertNonTerminalNode(node);
+          const [name, params] = node.children;
+          const args = isLezerNonTerminalNode(params) ? params.children : [];
+
+          assertTerminalNode(name);
+          if (name.value === "defineVariable") {
+            const [name, expression] = args || [];
+            if (
+              name.type === "Literal" &&
+              isLezerNonTerminalNode(name) &&
+              isLezerTerminalNode(name.children[0]) &&
+              name.children[0].value
+            ) {
+              define({
+                expression: expression ? walk(expression) : [],
+                name: unescapeString(name.children[0].value),
+              });
+
+              return [];
+            } else {
+              throw new Error(
+                "Invalid defineVariable call: missing name argument",
+              );
+            }
+          }
+
+          if (name.value === "select" && first && args[0]) {
+            return walk(args[0]);
+          }
+
+          return [
+            {
+              type: TokenType.function,
+              value: unescapeIdentifier(name.value),
+              args: args?.map((arg) => transformNode(arg)) || [],
+            },
+          ];
+        }
+
+        // todo support $this tokens
+        // todo support $index tokens
+        // todo support $total tokens
+        default:
+          throw new Error(`Unknown AST node type: ${node.type}`);
       }
-
-      // todo support $this tokens
-      // todo support $index tokens
-      // todo support $total tokens
-      default:
-        throw new Error(`Unknown AST node type: ${type}`);
+    } catch (error) {
+      console.error("Error processing node:", node, error);
+      return [];
     }
   }
 
@@ -439,7 +698,7 @@ const unparseAnswerToken = (
   token: IAnswerToken,
   { questionnaireItems }: UnparseContext,
 ) => {
-  let base = `%resource.repeat(item).where(linkId = '${token.value}').answer.value`;
+  let base = `%resource.repeat(item).where(linkId = '${token.value}').answer.value`; // corresponds to valueTemplate
 
   switch (questionnaireItems[token.value]?.item.type) {
     case "choice":
@@ -491,6 +750,7 @@ export const unparseExpression = (
 
   for (let i = 0; i < expression.length; i++) {
     const token = expression[i];
+    assertDefined(token);
     const stringifier = tokenUnparsers[token.type] as (
       token: Token,
       context: UnparseContext,
@@ -498,7 +758,7 @@ export const unparseExpression = (
     if (stringifier) {
       result += stringifier(token, {
         ...context,
-        first: i === 0 || expression[i - 1].type === "operator",
+        first: i === 0 || expression[i - 1]?.type === "operator",
       });
     }
   }
@@ -523,7 +783,10 @@ export const unparseProgram = (program: IProgram, context: UnparseContext) => {
     result = `${program.bindings
       .slice(0)
       .sort((a, b) => {
-        return context.bindingsOrder[a.id] - context.bindingsOrder[b.id];
+        return (
+          (context.bindingsOrder[a.id] || 0) -
+          (context.bindingsOrder[b.id] || 0)
+        );
       })
       .map((binding) => unparseBinding(binding, context))
       .join(".\n")}.\nselect(${result})`;

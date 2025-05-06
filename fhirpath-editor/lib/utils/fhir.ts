@@ -15,6 +15,7 @@ import {
   unwrapSingle,
   wrapSingle,
 } from "./type";
+import { assertDefined } from "./misc.ts";
 
 function resolveElements(
   node: FhirSchema | FhirElement,
@@ -47,7 +48,10 @@ function resolveElements(
 
     let baseNode = (typeDefinition || node) as FhirSchema;
     while (baseNode.base) {
-      baseNode = registry[baseNode["base"]];
+      const foundNode = registry[baseNode["base"]];
+      assertDefined(foundNode);
+
+      baseNode = foundNode;
       if (baseNode?.elements) {
         result = result.concat(Object.entries(baseNode.elements));
       }
@@ -81,9 +85,13 @@ function resolveField(
       return resolvePath(currentNodeAsElement.elementReference, registry);
     }
     if (currentNodeAsSchema.base) {
-      currentNode = registry[currentNodeAsSchema.base];
+      const foundNode = registry[currentNodeAsSchema.base];
+      if (!foundNode) return undefined;
+      currentNode = foundNode;
     } else if (currentNodeAsSchema.type) {
-      currentNode = registry[currentNodeAsSchema.type];
+      const foundNode = registry[currentNodeAsSchema.type];
+      if (!foundNode) return undefined;
+      currentNode = foundNode;
     } else {
       return undefined;
     }
@@ -103,7 +111,9 @@ function resolvePath(
   registry: FhirRegistry,
 ): FhirSchema | FhirElement | undefined {
   if (path.length > 0) {
-    let currentNode: FhirNode | undefined = registry[path[0]];
+    let currentNode: FhirNode | undefined = path[0]
+      ? registry[path[0]]
+      : undefined;
     if (!currentNode) {
       return undefined;
     }
@@ -128,6 +138,8 @@ function fieldSchemaToType(
   registry: FhirRegistry,
 ) {
   const element = elements[name];
+  assertDefined(element);
+
   const elementAsFhirElement = element as FhirElement;
   let result: Type;
 

@@ -39,6 +39,7 @@ import {
   type Type,
   TypeName,
 } from "../types/internal";
+import { assertDefined } from "./misc.ts";
 
 const typeHierarchy: Partial<Record<TypeName, TypeName[]>> = {};
 
@@ -273,7 +274,7 @@ export function normalizeChoice(choice: IChoiceType): Type {
     }
   }
 
-  return seen.length === 1 ? seen[0] : ChoiceType(seen);
+  return seen.length === 1 && seen[0] ? seen[0] : ChoiceType(seen);
 }
 
 export function promote(a: Type, b: Type): Type | undefined {
@@ -301,7 +302,9 @@ export function mergeBindings(
     if (key in result) {
       if (!deepEqual(result[key], b[key])) return undefined;
     } else {
-      result[key] = b[key];
+      const binding = b[key];
+      assertDefined(binding);
+      result[key] = binding;
     }
   }
   return result;
