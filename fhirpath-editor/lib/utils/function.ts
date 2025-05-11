@@ -1,4 +1,5 @@
 import {
+  AnyType,
   BooleanType,
   ChoiceType,
   DateTimeType,
@@ -458,8 +459,8 @@ export const functionMetadata: FunctionMetadata[] = [
   fn("truncate", DecimalType, [], IntegerType),
 
   // Section 5.8: Tree Navigation
-  fn("children", Generic("T"), [], Generic("X")), // todo: define any type?
-  fn("descendants", Generic("T"), [], Generic("X")), // todo: define any type?
+  fn("children", Generic("T"), [], AnyType),
+  fn("descendants", Generic("T"), [], AnyType),
 
   // Section 5.9: Utility Functions
   fn(

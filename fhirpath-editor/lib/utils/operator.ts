@@ -1,15 +1,14 @@
 import {
+  AnyType,
   BooleanType,
   ChoiceType,
   DateTimeType,
   DateType,
   DecimalType,
-  deepEqual,
   Generic,
   IntegerType,
   InvalidType,
   matchTypePattern,
-  mergeBindings,
   normalizeChoice,
   promote,
   QuantityType,
@@ -19,11 +18,12 @@ import {
   TimeType,
   TypeType,
 } from "./type";
-import type {
+import {
   OperatorMetadata,
   OperatorName,
   OperatorReturnType,
   Type,
+  TypeName,
 } from "../types/internal";
 import { assertDefined } from "./misc";
 
@@ -393,12 +393,24 @@ export const operatorMetadata: OperatorMetadata[] = [
     assertDefined(A);
     assertDefined(B);
 
-    if (deepEqual(A, B)) return A;
+    // Rule 1: If either bound type is AnyType, the union is AnyType.
+    if (A.type === TypeName.Any || B.type === TypeName.Any) {
+      return AnyType;
+    }
 
-    const promoted = promote(A, B);
-    if (promoted) return promoted;
+    // Rule 2: Attempt promotion. This also handles A | A = A if A and B are identical.
+    // e.g., promote(IntegerType, DecimalType) -> DecimalType
+    // e.g., promote(IntegerType, IntegerType) -> IntegerType
+    const promotedType = promote(A, B);
+    if (promotedType) {
+      return promotedType;
+    }
 
-    return normalizeChoice(ChoiceType([A, B]));
+    // Rule 3: If not promotable to a single type (and not AnyType), form a choice.
+    // normalizeChoice will further simplify if possible (e.g., flatten nested choices,
+    // or if A and B were somehow ChoiceTypes themselves).
+    // Given previous checks, A and B are not AnyType here, and not directly promotable.
+    return normalizeChoice(ChoiceType([A, B])); // e.g., StringType | BooleanType
   }),
 
   op("is", Generic("T"), TypeType(Generic("X")), BooleanType),
@@ -413,18 +425,30 @@ export function resolveOperator(name: OperatorName, left: Type, right: Type) {
   for (const meta of operatorMetadata) {
     if (meta.name !== name) continue;
 
-    const b1 = matchTypePattern(meta.left, left);
-    const b2 = matchTypePattern(meta.right, right);
-    if (!b1 || !b2) continue;
+    // 1. Match left operand against meta.left
+    const bindingsFromLeft = matchTypePattern(meta.left, left);
+    if (!bindingsFromLeft) continue;
 
-    const bindings = mergeBindings(b1 ?? {}, b2 ?? {});
-    if (!bindings) continue;
+    // 2. Substitute bindings from left match into the right pattern
+    const concreteMetaRight = substituteBindings(meta.right, bindingsFromLeft);
 
-    // Always wrap operator result — FHIRPath operators always return collections
-    return meta.returnType({
-      left,
+    // 3. Match actual right operand against the (potentially concretized) meta.right,
+    //    passing existing bindings from the left match.
+    //    matchTypePattern will try to merge/verify consistency if meta.right
+    //    also uses generics already bound by meta.left (e.g., Generic("T")).
+    const finalBindings = matchTypePattern(
+      concreteMetaRight,
       right,
-      ...bindings,
+      bindingsFromLeft, // Pass existing bindings for consistency check and accumulation
+    );
+
+    if (!finalBindings) continue;
+
+    // All checks passed, types are compatible with this overload.
+    return meta.returnType({
+      left, // actual left type provided to operator
+      right, // actual right type provided to operator
+      ...finalBindings, // all consistent bindings (e.g., T, X, A, B)
     });
   }
 

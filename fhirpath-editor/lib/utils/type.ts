@@ -1,5 +1,6 @@
 import {
   type GenericLetter,
+  type IAnyType,
   type IBooleanType,
   type IChoiceType,
   type IComplexType,
@@ -57,9 +58,11 @@ export function isSubtypeOf(actual: Type, expected: Type): boolean {
   const e = expected.type;
 
   if (a === e) return true;
+  if (e === TypeName.Any) return true;
+  if (a === TypeName.Any) return false;
 
   const seen = new Set<TypeName>();
-  const queue = [a];
+  const queue: Array<TypeName> = [a];
 
   while (queue.length > 0) {
     const t = queue.shift()!;
@@ -76,7 +79,6 @@ export function isSubtypeOf(actual: Type, expected: Type): boolean {
 
   return false;
 }
-
 export const IntegerType: IIntegerType = { type: TypeName.Integer };
 
 export const DecimalType: IDecimalType = { type: TypeName.Decimal };
@@ -94,6 +96,8 @@ export const TimeType: ITimeType = { type: TypeName.Time };
 export const QuantityType: IQuantityType = { type: TypeName.Quantity };
 
 export const NullType: INullType = { type: TypeName.Null };
+
+export const AnyType: IAnyType = { type: TypeName.Any };
 
 export const PrimitiveCodeType: IPrimitiveCodeType = extendType(StringType, {
   type: TypeName.PrimitiveCode,
@@ -255,26 +259,42 @@ export function unwrapSingle(t: Type): Type {
 }
 
 export function normalizeChoice(choice: IChoiceType): Type {
-  const options = [...choice.options];
+  // Recursively flatten options and check for AnyType presence.
+  // If AnyType is found at any level, the entire choice becomes AnyType.
+  const allFlattenedOptions: Type[] = [];
+  const queue: Type[] = [...choice.options]; // Use a queue of Type for mixed types
 
-  const seen: Type[] = [];
-  while (options.length > 0) {
-    const opt = options.shift();
-    if (opt && !seen.some((t) => deepEqual(t, opt))) {
-      if (opt.type === TypeName.Choice) {
-        const normalized = normalizeChoice(opt);
-        if (normalized.type === TypeName.Choice) {
-          options.push(...normalized.options);
-        } else {
-          options.push(normalized);
-        }
-      } else {
-        seen.push(opt);
-      }
+  while (queue.length > 0) {
+    const opt = queue.shift();
+    if (!opt) continue;
+
+    if (opt.type === TypeName.Any) {
+      return AnyType; // AnyType in options simplifies the choice to AnyType
+    }
+
+    if (opt.type === TypeName.Choice) {
+      // Instead of normalizing here, just add its options to the queue to check them for AnyType
+      // This ensures that an AnyType deep inside nested choices is found.
+      queue.push(...opt.options);
+    } else {
+      allFlattenedOptions.push(opt);
     }
   }
 
-  return seen.length === 1 && seen[0] ? seen[0] : ChoiceType(seen);
+  // If we reach here, no AnyType was found in the flattened list.
+  // Now, deduplicate the collected (non-AnyType) options.
+  const uniqueOptions: Type[] = [];
+  for (const opt of allFlattenedOptions) {
+    // Check if an equivalent option (by deepEqual) is already in uniqueOptions
+    if (!uniqueOptions.some((uo) => deepEqual(uo, opt))) {
+      uniqueOptions.push(opt);
+    }
+  }
+
+  // If, after deduplication, only one type remains, return it. Otherwise, return a new ChoiceType.
+  return uniqueOptions.length === 1 && uniqueOptions[0]
+    ? uniqueOptions[0]
+    : ChoiceType(uniqueOptions);
 }
 
 export function promote(a: Type, b: Type): Type | undefined {
@@ -282,6 +302,8 @@ export function promote(a: Type, b: Type): Type | undefined {
   const t2 = b.type;
 
   if (t1 === t2) return a;
+
+  if (t1 === TypeName.Any || t2 === TypeName.Any) return AnyType;
 
   const map: Partial<Record<TypeName, Partial<Record<TypeName, Type>>>> = {
     Integer: { Decimal: DecimalType, Quantity: QuantityType },
@@ -460,6 +482,7 @@ export const standardTypeMap: Record<string, Type> = {
   [TypeName.Time]: TimeType,
   [TypeName.Quantity]: QuantityType,
   [TypeName.Null]: NullType,
+  [TypeName.Any]: AnyType,
 };
 
 export const primitiveTypeMap: Record<string, Type> = {
