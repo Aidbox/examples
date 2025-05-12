@@ -1,6 +1,6 @@
 .wrapper {
   composes: button from "./Token.module.css";
-  cursor: auto !important;
+  cursor: auto;
 
   & > input {
     field-sizing: content;

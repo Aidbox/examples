@@ -141,7 +141,8 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
 
     const filteredTokens = nextTokens.filter((token) => {
       return (
-        lookup(token.value.toString(), search) ||
+        (token.type != TokenType.null &&
+          lookup(token.value.toString(), search)) ||
         lookup(token.type, search) ||
         (token.type === TokenType.operator &&
           lookup(operatorNames[token.value], search)) ||
@@ -318,7 +319,8 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       useInteractions([listNav]);
 
     const handleAddToken = (suggestedToken: SuggestedToken) => {
-      const blur = !suggestedToken.value;
+      const blur =
+        suggestedToken.type != TokenType.null && !suggestedToken.value;
       const token = omit(suggestedToken, [
         "debug",
         "incompatible",
@@ -475,7 +477,12 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                             data-active={
                               token.index === activeIndex ? "" : undefined
                             }
-                            key={token.type + (token.value || "")}
+                            key={
+                              token.type +
+                              (token.type !== TokenType.null
+                                ? token.value || ""
+                                : "")
+                            }
                             {...getItemProps({
                               onClick: () => {
                                 inputRef.current?.focus();
@@ -484,7 +491,9 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                             })}
                           >
                             <span className={style.dropdown.icon}>
-                              {token.type === TokenType.string ? (
+                              {token.type === TokenType.null ? (
+                                <Empty size={14} />
+                              ) : token.type === TokenType.string ? (
                                 <Quotes size={14} />
                               ) : token.type === TokenType.number ? (
                                 <Hash size={14} />

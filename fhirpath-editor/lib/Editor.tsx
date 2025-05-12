@@ -53,13 +53,13 @@ function Editor({
     if (isControlled && defaultValue !== undefined) {
       console.warn(
         "FHIRPath Editor: You provided both value and defaultValue props. " +
-          "The defaultValue prop will be ignored in controlled mode."
+          "The defaultValue prop will be ignored in controlled mode.",
       );
     }
   }, []);
 
   const [program, setProgram] = useState<IProgram>(() =>
-    parse(isControlled ? value : defaultValue || "")
+    parse(isControlled ? value : defaultValue || ""),
   );
 
   // Update program when value changes in controlled mode,
@@ -78,7 +78,7 @@ function Editor({
           (isControlledRef.current ? "controlled" : "uncontrolled") +
           " to " +
           (isControlled ? "controlled" : "uncontrolled") +
-          " mode is not supported and may lead to unexpected behavior."
+          " mode is not supported and may lead to unexpected behavior.",
       );
       isControlledRef.current = isControlled;
     }
@@ -125,6 +125,7 @@ function Editor({
           onProgramChange={setProgram}
           onFhirPathChange={handleFhirPathChange}
           context={context}
+          allowBindings={true}
           externalBindings={externalBindings}
           fhirSchema={fhirSchema}
           model={model}

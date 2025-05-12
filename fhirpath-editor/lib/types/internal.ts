@@ -63,6 +63,7 @@ export enum TokenGroup {
 }
 
 export enum TokenType {
+  null = "null",
   number = "number",
   string = "string",
   boolean = "boolean",
@@ -81,6 +82,10 @@ export enum TokenType {
 
 export interface IBaseToken {
   type: TokenType;
+}
+
+export interface INullToken extends IBaseToken {
+  type: TokenType.null;
 }
 
 export interface INumberToken extends IBaseToken {
@@ -155,6 +160,7 @@ export interface IAnswerToken extends IBaseToken {
 }
 
 export type Token =
+  | INullToken
   | INumberToken
   | IStringToken
   | IBooleanToken

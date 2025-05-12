@@ -13,6 +13,7 @@ import {
   IntegerType,
   InvalidType,
   matchTypePattern,
+  NullType,
   QuantityType,
   SingleType,
   stringifyType,
@@ -216,6 +217,9 @@ export const getExpressionType = (
         first = false;
         // we are at the first token
         switch (token.type) {
+          case TokenType.null:
+            currentType = SingleType(NullType);
+            continue;
           case TokenType.number:
             currentType = token.value.includes(".")
               ? SingleType(DecimalType)
@@ -418,6 +422,8 @@ function toTokens(
   fhirSchema: FhirRegistry,
 ): SuggestedToken[] {
   switch (type) {
+    case TokenType.null:
+      return [{ type }];
     case TokenType.string:
       return [{ type, value: "" }];
     case TokenType.number:

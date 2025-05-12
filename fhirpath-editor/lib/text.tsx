@@ -77,6 +77,7 @@ export const text = {
       quantity: "Quantity",
       type: "Type",
       index: "Index",
+      null: "Empty",
     },
   },
   value: {

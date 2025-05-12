@@ -1,7 +1,7 @@
 .wrapper {
   composes: button from "./Token.module.css";
   text-align: center;
-  gap: 0 !important;
+  gap: 0;
 
   & > span {
     user-select: none;

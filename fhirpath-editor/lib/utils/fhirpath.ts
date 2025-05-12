@@ -413,8 +413,8 @@ function transformNode(node: LezerNode): IProgram {
                     value: child.value.replace(/^@T/, "") || "00:00",
                   },
                 ];
-
-              // todo: support empty literal
+              case "Null":
+                return [{ type: TokenType.null }];
               default:
                 throw new Error(`Unknown literal type: ${child.type}`);
             }
@@ -652,6 +652,8 @@ export function parse(input: string): IProgram {
   return transformNode(node);
 }
 
+const unparseNullToken = () => "{}";
+
 const unparseNumberToken = (token: INumberToken) => token.value || "0";
 
 const unparseStringToken = (token: IStringToken) => `'${token.value}'`;
@@ -726,6 +728,7 @@ const unparseFunctionToken = (
 };
 
 const tokenUnparsers = {
+  [TokenType.null]: unparseNullToken,
   [TokenType.number]: unparseNumberToken,
   [TokenType.string]: unparseStringToken,
   [TokenType.boolean]: unparseBooleanToken,

@@ -18,11 +18,14 @@ import { useStyle } from "../style";
 import clx from "classnames";
 import { X } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store.ts";
+import NullToken from "./NullToken.tsx";
 
 const getTokenComponent = (
   type: TokenType,
 ): ReturnType<typeof forwardRef<HTMLElement, TokenComponentProps>> => {
   switch (type) {
+    case TokenType.null:
+      return NullToken;
     case TokenType.number:
       return NumberToken;
     case TokenType.string:

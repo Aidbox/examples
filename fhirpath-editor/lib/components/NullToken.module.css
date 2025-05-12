@@ -1,0 +1,4 @@
+.button {
+    composes: button from "./Token.module.css";
+    cursor: default;
+}
