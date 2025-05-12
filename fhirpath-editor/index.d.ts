@@ -115,6 +115,7 @@ export declare const style: {
         binding: string;
         main: string;
         empty: string;
+        lightweight: string;
     };
     token: {
         answer: {
@@ -136,16 +137,20 @@ export declare const style: {
             };
             header: string;
             search: string;
+            label: string;
+            name: string;
             args: string;
             arg: string;
             arrow: string;
-            label: string;
-            name: string;
             body: string;
             dropdown: string;
+            button: string;
         };
         index: {
             wrapper: string;
+        };
+        null: {
+            button: string;
         };
         number: {
             input: string;
@@ -199,10 +204,13 @@ export declare const text: {
     };
     program: {
         define: string;
+        placeholder: {
+            mainExpression: string;
+            argumentExpression: string;
+        };
         title: {
             namedExpressions: string;
             mainExpression: string;
-            argumentExpression: string;
         };
     };
     cursor: {
@@ -246,6 +254,7 @@ export declare const text: {
             quantity: string;
             type: string;
             index: string;
+            null: string;
         };
     };
     value: {
