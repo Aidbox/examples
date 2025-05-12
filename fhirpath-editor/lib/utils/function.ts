@@ -7,6 +7,7 @@ import {
   DecimalType,
   Generic,
   IntegerType,
+  InvalidType,
   LambdaType,
   matchTypePattern,
   mergeBindings,
@@ -20,7 +21,7 @@ import {
   TimeType,
   TypeType,
   unwrapSingle,
-  wrapSingle,
+  stringifyType,
 } from "./type";
 import {
   FunctionArg,
@@ -28,6 +29,7 @@ import {
   FunctionName,
   FunctionReturnType,
   Type,
+  TypeName,
 } from "../types/internal";
 import { assertDefined } from "./misc";
 
@@ -516,62 +518,159 @@ export const functionMetadata: FunctionMetadata[] = [
     "sum",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ({ input }) => wrapSingle(input),
+    ({ input }) => SingleType(input),
   ),
   fn(
     "min",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ({ input }) => wrapSingle(input),
+    ({ input }) => SingleType(input),
   ),
   fn(
     "max",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ({ input }) => wrapSingle(input),
+    ({ input }) => SingleType(input),
   ),
   fn(
     "avg",
     ChoiceType([DecimalType, IntegerType, QuantityType]),
     [],
-    ({ input }) => wrapSingle(input),
+    ({ input }) => SingleType(input),
   ),
 ];
+
+export function resolveFunctionCall(
+  name: string,
+  inputType: Type,
+  contextType: Type,
+  getArgumentType: (index: number, contextType: Type) => Type | undefined,
+): Type {
+  const meta = functionMetadata.find((f) => f.name === name);
+  if (!meta) return InvalidType(`Unknown function "${name}"`);
+
+  let bindings = matchTypePattern(meta.input, inputType);
+  if (!bindings) {
+    return InvalidType(
+      `Input type mismatch for ${name}. Expected ${stringifyType(
+        meta.input,
+      )}, got ${stringifyType(inputType)}`,
+    );
+  }
+
+  const resolvedArgumentTypes: Type[] = [];
+  for (let i = 0; i < meta.args.length; i++) {
+    const argDef = meta.args[i];
+    const concreteExpectedPatternForArg = substituteBindings(
+      argDef.type,
+      bindings,
+    );
+
+    let actualTypeToMatchArgument: Type;
+    const isExpectedLambda =
+      concreteExpectedPatternForArg?.type === TypeName.Lambda;
+
+    // Determine the context ($this) for the argument's core expression
+    const argContextType = isExpectedLambda
+      ? concreteExpectedPatternForArg.contextType // For lambda body
+      : contextType; // For regular expression arguments, $this is from the outer scope
+
+    const argExprBodyType = getArgumentType(i, argContextType);
+
+    if (!argExprBodyType) {
+      if (argDef.optional) {
+        actualTypeToMatchArgument = NullType;
+      } else {
+        actualTypeToMatchArgument = InvalidType(
+          `Missing required argument "${argDef.name}" (at index ${i}) for function "${name}"`,
+        );
+      }
+    } else if (argExprBodyType.type === TypeName.Invalid) {
+      actualTypeToMatchArgument = argExprBodyType; // Propagate error from argument expression evaluation
+    } else {
+      // If a lambda was expected, wrap the evaluated body type. Otherwise, use the type directly.
+      if (isExpectedLambda) {
+        actualTypeToMatchArgument = LambdaType(
+          argExprBodyType,
+          concreteExpectedPatternForArg.contextType, // Use the contextType from the *expected* pattern
+        );
+      } else {
+        actualTypeToMatchArgument = argExprBodyType;
+      }
+    }
+
+    resolvedArgumentTypes.push(actualTypeToMatchArgument);
+
+    if (actualTypeToMatchArgument.type === TypeName.Invalid) {
+      // The error message from InvalidType should be descriptive enough.
+      // console.debug(`Bailing due to invalid required arg: ${stringifyType(actualTypeToMatchArgument)}`);
+      return actualTypeToMatchArgument;
+    }
+
+    // Now, match the fully formed actual argument type against the original pattern
+    // to capture/verify any generics in the argument's definition (like 'R' in a projection).
+    const newBindings = matchTypePattern(
+      argDef.type, // Original pattern from metadata, e.g., LambdaType(Generic("R"), ...)
+      actualTypeToMatchArgument,
+      bindings,
+    );
+
+    if (!newBindings) {
+      return InvalidType(
+        `Argument type mismatch for "${
+          argDef.name
+        }" (at index ${i}) of function "${name}". Expected compatible with ${stringifyType(
+          substituteBindings(argDef.type, bindings), // Show expected with current bindings
+        )}, got ${stringifyType(actualTypeToMatchArgument)}`,
+      );
+    }
+
+    const mergedBindings = mergeBindings(bindings, newBindings);
+    if (!mergedBindings) {
+      return InvalidType(
+        `Binding conflict for argument ${argDef.name} at index ${i} in function "${name}"`,
+      );
+    }
+    bindings = mergedBindings;
+  }
+
+  return meta.returnType({
+    input: inputType,
+    args: resolvedArgumentTypes, // These are the fully formed types of the arguments
+    ...bindings,
+  });
+}
+
+export function getArgumentContextType(
+  index: number,
+  name: string,
+  inputType: Type,
+  contextType: Type,
+  getArgumentType: (index: number, contextType: Type) => Type | undefined,
+): Type {
+  let capturedContext: Type | undefined = undefined;
+
+  resolveFunctionCall(
+    name,
+    inputType,
+    contextType,
+    (argIndex: number, argContextType: Type) => {
+      if (argIndex === index) {
+        capturedContext = argContextType;
+        return undefined;
+      }
+
+      return argIndex < index
+        ? getArgumentType(argIndex, argContextType)
+        : undefined;
+    },
+  );
+
+  return capturedContext || InvalidType("Failed to capture argument context");
+}
 
 export function suggestFunctionsForInputType(input: Type) {
   return functionMetadata.filter(
     (meta) => !!matchTypePattern(meta.input, input),
   );
-}
-
-export function suggestArgumentTypesForFunction(
-  name: FunctionName,
-  inputType: Type,
-  knownArgumentTypes: Type[] | undefined,
-): Type[] {
-  const meta = functionMetadata.find((f) => f.name === name);
-  if (!meta) return [];
-
-  let bindings = matchTypePattern(meta.input, inputType);
-  if (!bindings) return [];
-
-  const result = [];
-  for (let i = 0; i < meta.args.length; i++) {
-    const expected = meta.args[i].type;
-    const actual = knownArgumentTypes?.[i];
-
-    if (actual) {
-      const newBindings = matchTypePattern(expected, actual, bindings);
-      if (!newBindings) break;
-
-      bindings = mergeBindings(bindings, newBindings);
-      if (!bindings) break;
-
-      result.push(actual);
-    } else {
-      result.push(substituteBindings(expected, bindings));
-    }
-  }
-
-  return result;
 }

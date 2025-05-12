@@ -12,24 +12,23 @@ import {
   DecimalType,
   IntegerType,
   InvalidType,
-  LambdaType,
   matchTypePattern,
-  mergeBindings,
-  NullType,
   QuantityType,
   SingleType,
   stringifyType,
   StringType,
-  substituteBindings,
   TimeType,
   TypeType,
   unwrapSingle,
-  wrapSingle,
 } from "./type";
 import { assertDefined, distinct, indexBy, never } from "./misc";
 import { getFields } from "./fhir";
 import "./function.ts";
-import { functionMetadata, suggestFunctionsForInputType } from "./function";
+import {
+  functionMetadata,
+  resolveFunctionCall,
+  suggestFunctionsForInputType,
+} from "./function";
 import fhirpath, { Model } from "fhirpath";
 import {
   Binding,
@@ -254,72 +253,23 @@ export const getExpressionType = (
 
       if (token.type === TokenType.index) {
         // Skip index tokens - they don't change the type
-        currentType = wrapSingle(currentType);
+        currentType = SingleType(currentType);
       } else if (token.type === TokenType.function) {
-        const meta = functionMetadata.find((f) => f.name === token.value);
-        if (!meta) return InvalidType(`Unknown function "${token.value}"`);
-
-        let bindings = matchTypePattern(meta.input, currentType);
-        if (!bindings) return InvalidType("Input type mismatch");
-
-        const result = [];
-        for (let i = 0; i < meta.args.length; i++) {
-          const arg = meta.args[i];
-          const program = token.args?.[i];
-          const expectedType = meta.args[i].type;
-
-          if (!program) {
-            if (arg.optional) {
-              result.push(NullType);
-              continue;
-            } else {
-              return InvalidType(`Missing required argument at index ${i}`);
-            }
-          }
-
-          const suggestedType = substituteBindings(expectedType, bindings);
-
-          const programType = getExpressionType(
-            program.expression,
-            questionnaireItems,
-            bindingTypes, // todo: merge types of program.bindings
-            suggestedType?.type === TypeName.Lambda
-              ? suggestedType.contextType
-              : contextType,
-            fhirSchema,
-          );
-
-          const actualType =
-            suggestedType?.type === TypeName.Lambda
-              ? LambdaType(programType, suggestedType.contextType)
-              : programType;
-
-          const newBindings = matchTypePattern(
-            expectedType,
-            actualType,
-            bindings,
-          );
-          if (!newBindings) {
-            console.debug("  ↳ expected", stringifyType(expectedType));
-            console.debug("  ↳ actual", stringifyType(actualType));
-            console.debug("  ↳ bindings");
-            Object.entries(bindings).map(([name, type]) => {
-              console.debug(`    ↳  ${name}: `, stringifyType(type));
-            });
-            return InvalidType(`Argument type mismatch at index ${i}`);
-          }
-
-          bindings = mergeBindings(bindings, newBindings);
-          if (!bindings) return InvalidType(`Binding mismatch at index ${i}`);
-
-          result.push(actualType);
-        }
-
-        currentType = meta.returnType({
-          input: currentType,
-          args: result,
-          ...bindings,
-        });
+        currentType = resolveFunctionCall(
+          token.value,
+          currentType,
+          contextType,
+          (argIndex: number, contextType: Type) =>
+            token.args[argIndex]
+              ? getExpressionType(
+                  token.args[argIndex].expression,
+                  questionnaireItems,
+                  bindingTypes, // consider: merge types of token.args[argIndex].bindings
+                  contextType,
+                  fhirSchema,
+                )
+              : undefined,
+        );
       } else if (token.type === TokenType.field) {
         const availableFields = getFields(currentType, fhirSchema);
         currentType =

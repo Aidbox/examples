@@ -8,34 +8,37 @@
 
 const header: string;
 const search: string;
+const label: string;
+const name: string;
 const args: string;
 const arg: string;
 const arrow: string;
-const label: string;
-const name: string;
 const body: string;
 const dropdown: string;
+const button: string;
 
 export {
 	header,
 	search,
+	label,
+	name,
 	args,
 	arg,
 	arrow,
-	label,
-	name,
 	body,
-	dropdown
+	dropdown,
+	button
 };
 
 export default {
 	header,
 	search,
+	label,
+	name,
 	args,
 	arg,
 	arrow,
-	label,
-	name,
 	body,
-	dropdown
+	dropdown,
+	button
 };

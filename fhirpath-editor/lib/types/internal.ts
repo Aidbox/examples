@@ -582,6 +582,28 @@ export class FhirValue {
     public origin: string | null = null,
     public error: { message: string } | null = null,
   ) {}
+
+  valueAt(index: number) {
+    if (this.error) {
+      return this;
+    } else {
+      if (
+        index > 0 &&
+        (!Array.isArray(this.value) || this.value.length - 1 < index)
+      ) {
+        return new FhirValue(
+          null,
+          this.origin,
+          new Error(`Index out of bounds: ${index}`),
+        );
+      }
+      return new FhirValue(
+        Array.isArray(this.value) ? this.value[index] : this.value,
+        this.origin,
+        null,
+      );
+    }
+  }
 }
 
 export type FhirElement = {

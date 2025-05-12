@@ -13,6 +13,7 @@ const define: string;
 const binding: string;
 const main: string;
 const empty: string;
+const lightweight: string;
 
 export {
 	container,
@@ -21,7 +22,8 @@ export {
 	define,
 	binding,
 	main,
-	empty
+	empty,
+	lightweight
 };
 
 export default {
@@ -31,5 +33,6 @@ export default {
 	define,
 	binding,
 	main,
-	empty
+	empty,
+	lightweight
 };

@@ -17,28 +17,21 @@ import {
   useMergeRefs,
   useRole,
 } from "@floating-ui/react";
-import {
-  category,
-  functionMetadata,
-  suggestArgumentTypesForFunction,
-} from "../utils/function";
-import {
-  BracketsRound,
-  CaretDown,
-  Empty,
-  Function,
-} from "@phosphor-icons/react";
+import { category, functionMetadata } from "../utils/function";
+import { CaretDown, Empty, Function } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store";
 import { isEmptyProgram } from "../utils/expression";
 import {
   FunctionMetadata,
   IFunctionToken,
   TokenComponentProps,
+  TypeName,
 } from "../types/internal";
-import { assertDefined, colors, scrollIntoView } from "../utils/misc";
+import { assertDefined, colors, scrollIntoView, truncate } from "../utils/misc";
 import { Argument } from "./Argument";
 import { useStyle } from "../style";
 import { useText } from "../text";
+import { unparseExpression } from "../utils/fhirpath.ts";
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
@@ -55,17 +48,23 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
     const arrowRef = useRef(null);
     const headerRef = useRef<HTMLDivElement | null>(null);
 
-    const { token, isLeadingToken, updateToken, portalRoot } =
-      useProgramContext((state) => ({
-        token: state.getToken(bindingId, tokenIndex) as IFunctionToken,
-        isLeadingToken: state.isLeadingToken(bindingId, tokenIndex),
-        updateToken: state.updateToken,
-        portalRoot: state.getPortalRoot(),
-      }));
-
-    const precedingExpressionType = useProgramContext((state) =>
-      state.getExpressionType(bindingId, tokenIndex),
-    );
+    const {
+      token,
+      contextValue,
+      getArgContextType,
+      getExpressionValue,
+      isLeadingToken,
+      updateToken,
+      portalRoot,
+    } = useProgramContext((state) => ({
+      token: state.getToken(bindingId, tokenIndex) as IFunctionToken,
+      contextValue: state.getContext().value,
+      getArgContextType: state.getArgContextType,
+      getExpressionValue: state.getExpressionValue,
+      isLeadingToken: state.isLeadingToken(bindingId, tokenIndex),
+      updateToken: state.updateToken,
+      portalRoot: state.getPortalRoot(),
+    }));
 
     const meta = functionMetadata.find((f) => f.name === token.value);
     assertDefined(meta, `Function ${token.value} metadata not found`);
@@ -79,11 +78,19 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
         : null,
     );
 
-    const suggestArgumentTypes = suggestArgumentTypesForFunction(
-      meta.name,
-      precedingExpressionType,
-      [],
-    );
+    const argContextType =
+      selectedArgIndex != null
+        ? getArgContextType(bindingId, tokenIndex, selectedArgIndex)
+        : undefined;
+
+    const inputValue =
+      selectedArgIndex != null
+        ? meta.args[selectedArgIndex].type.type === TypeName.Lambda
+          ? getExpressionValue(bindingId, tokenIndex - 1)
+          : contextValue
+        : undefined;
+
+    const inputSample = inputValue?.valueAt(0);
 
     const { refs, floatingStyles, context } = useFloating({
       placement: "right",
@@ -200,11 +207,27 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
           ref={mergedRefs}
           {...getReferenceProps()}
           data-open={isOpen || undefined}
-          className={style.token.button}
+          className={style.token.function.button}
         >
           {isLeadingToken ? "" : "."}
           {token.value}
-          <BracketsRound size={16} weight="bold" />
+          <span className={style.token.function.args}>
+            {`(${
+              token.args
+                .map((arg) =>
+                  arg
+                    ? truncate(
+                        unparseExpression(arg.expression, {
+                          bindingsOrder: {},
+                          questionnaireItems: {},
+                        }),
+                        24,
+                      )
+                    : "",
+                )
+                .join(", ") || ""
+            })`}
+          </span>
         </button>
         {isOpen && (
           <FloatingPortal id={portalRoot}>
@@ -288,13 +311,15 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
               <div className={style.token.function.body}>
                 {!selectingName &&
                   selectedArgIndex != null &&
+                  argContextType != null &&
+                  inputSample != null &&
                   meta.args[selectedArgIndex] !== undefined && (
                     <Argument
                       bindingId={bindingId}
                       tokenIndex={tokenIndex}
                       argIndex={selectedArgIndex}
-                      suggestedType={suggestArgumentTypes[selectedArgIndex]}
-                      contextValue={null} // todo: pass iteration element here
+                      contextType={argContextType}
+                      contextValue={inputSample}
                     />
                   )}
                 {selectingName &&

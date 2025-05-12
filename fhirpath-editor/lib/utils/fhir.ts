@@ -11,9 +11,9 @@ import {
   ChoiceType,
   ComplexType,
   primitiveTypeMap,
+  SingleType,
   typePrimitiveMap,
   unwrapSingle,
-  wrapSingle,
 } from "./type";
 import { assertDefined } from "./misc.ts";
 
@@ -176,7 +176,7 @@ function fieldSchemaToType(
     cache.set(element, result);
   }
 
-  return elementAsFhirElement.scalar && single ? wrapSingle(result) : result;
+  return elementAsFhirElement.scalar && single ? SingleType(result) : result;
 }
 
 export function getFields(

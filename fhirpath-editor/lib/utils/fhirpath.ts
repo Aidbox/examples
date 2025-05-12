@@ -719,7 +719,7 @@ const unparseFunctionToken = (
 ) => {
   const args = token.args
     ? token.args
-        .map((arg) => (arg ? unparseProgram(arg, context) : "{}")) // todo: pass inner bindingsOrder
+        .map((arg) => (arg ? unparseProgram(arg, context) : "{}")) // consider: pass bindingsOrder for arg.bindings
         .join(", ")
     : "";
   return `${first ? "" : "."}${token.value}(${args})`;

@@ -45,6 +45,7 @@
   width: 100%;
   align-items: stretch;
   flex-wrap: wrap;
+  align-self: start;
 
   &.nameless {
     grid-column: span 3 / span 3;

@@ -34,6 +34,7 @@ import {
 import { castDraft, enableMapSet, WritableDraft } from "immer";
 import type { ExtractState } from "zustand/vanilla";
 import { Model } from "fhirpath";
+import { functionMetadata, getArgumentContextType } from "./function.ts";
 
 enableMapSet();
 
@@ -54,10 +55,12 @@ export interface IProgramStore {
   getModel: () => Model;
   getDebug: () => boolean;
   getPortalRoot: () => string | undefined;
+  getAllowBindings: () => boolean;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string) => Token[];
   getBindingName: (id: string) => string;
-  getExpressionType: (id: string, upToIndex?: number) => Type;
+  getExpressionType: (id: string, upToIndex: number) => Type;
+  getExpressionValue: (id: string, upToIndex: number) => FhirValue;
   getBindingType: (id: string) => Type;
   getBindingValue: (id: string) => FhirValue;
   getBindingsOrder: () => Record<string, number>;
@@ -85,6 +88,7 @@ export interface IProgramStore {
   deleteToken: (id: string, index?: number) => void;
   setTokenRef: (id: string, index: number, ref: HTMLElement | null) => void;
   focusToken: (id: string, index: number) => boolean;
+  getArgContextType: (id: string, tokenIndex: number, argIndex: number) => Type;
   getArg: (id: string, tokenIndex: number, argIndex: number) => IProgram;
   updateArg: (
     id: string,
@@ -110,6 +114,7 @@ export interface IProgramStore {
 
 export const createProgramStore = (
   context: Context,
+  allowBindings: boolean,
   externalBindings: ExternalBinding[],
   fhirSchema: FhirRegistry,
   model: Model,
@@ -166,6 +171,8 @@ export const createProgramStore = (
 
         getPortalRoot: () => portalRoot,
 
+        getAllowBindings: () => allowBindings,
+
         getBindingExpression: (id) =>
           id
             ? get().program.bindings[get().bindingsIndex[id]]?.expression
@@ -213,7 +220,9 @@ export const createProgramStore = (
         },
 
         getExpressionType: (id, upToIndex) => {
-          const expression = get().getBindingExpression(id).slice(0, upToIndex);
+          const expression = get()
+            .getBindingExpression(id)
+            .slice(0, upToIndex + 1);
           if (!expression.length) return context.type;
 
           return getExpressionType(
@@ -222,6 +231,22 @@ export const createProgramStore = (
             get().getBindingTypes(),
             context.type,
             fhirSchema,
+          );
+        },
+
+        getExpressionValue: (id, upToIndex) => {
+          const expression = get()
+            .getBindingExpression(id)
+            .slice(0, upToIndex + 1);
+          if (!expression.length) return context.value;
+
+          return getExpressionValue(
+            null,
+            expression,
+            get().getBindingValues(),
+            get().getQuestionnaireItems(),
+            context.value,
+            model,
           );
         },
 
@@ -473,6 +498,38 @@ export const createProgramStore = (
           return ref != null;
         },
 
+        getArgContextType: (id, tokenIndex, argIndex) => {
+          const token = get().getToken(id, tokenIndex);
+          if (token.type !== TokenType.function) {
+            throw new Error("Token is not a function");
+          }
+
+          const meta = functionMetadata.find((f) => f.name === token.value);
+          assertDefined(meta, `Function ${token.value} metadata not found`);
+
+          const inputType = get().getExpressionType(id, tokenIndex - 1);
+
+          const questionnaireItems = get().getQuestionnaireItems();
+          const bindingTypes = get().getBindingTypes();
+
+          return getArgumentContextType(
+            argIndex,
+            meta.name,
+            inputType,
+            context.type,
+            (argIndex: number, contextType: Type) =>
+              token.args[argIndex]
+                ? getExpressionType(
+                    token.args[argIndex].expression,
+                    questionnaireItems,
+                    bindingTypes, // consider: merge types of token.args[argIndex].bindings
+                    contextType,
+                    fhirSchema,
+                  )
+                : undefined,
+          );
+        },
+
         getArg: (id, tokenIndex, argIndex) => {
           const token = get().getToken(id, tokenIndex);
           if (token.type !== TokenType.function) {
@@ -718,10 +775,25 @@ export const createProgramStore = (
                     token.value === binding.name
                   ) {
                     token.value = name;
+                  } else if (token.type === TokenType.function) {
+                    for (const arg of token.args) {
+                      if (arg) {
+                        let shadowed = false;
+                        for (const innerBinding of arg.bindings) {
+                          if (innerBinding.name === binding.name) {
+                            shadowed = true;
+                            break;
+                          } else {
+                            fixReferences(arg.expression);
+                          }
+                        }
+                        if (!shadowed) {
+                          fixReferences(arg.expression);
+                        }
+                      }
+                    }
                   }
                 }
-
-                // todo: update function token args
               };
 
               state.program.bindings.forEach((b, i) => {

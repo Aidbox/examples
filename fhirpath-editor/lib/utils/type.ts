@@ -223,10 +223,14 @@ export const TypeType = (ofType: Type): ITypeType => ({
   ofType,
 });
 
-export const SingleType = (ofType: Type): ISingleType => ({
-  type: TypeName.Single,
-  ofType,
-});
+export const SingleType = (ofType: Type): ISingleType => {
+  if (ofType.type === TypeName.Single) return ofType;
+
+  return {
+    type: TypeName.Single,
+    ofType,
+  };
+};
 
 export const ChoiceType = (options: Type[]): IChoiceType => ({
   type: TypeName.Choice,
@@ -248,11 +252,6 @@ export const LambdaType = (
   returnType,
   contextType,
 });
-
-export function wrapSingle(t: Type): ISingleType {
-  if (t.type === TypeName.Single) return t;
-  return SingleType(t);
-}
 
 export function unwrapSingle(t: Type): Type {
   return t?.type === TypeName.Single ? t.ofType : t;

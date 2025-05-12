@@ -19,6 +19,7 @@ type ProgramProviderProps = {
   onProgramChange?: (program: IProgram) => void;
   onFhirPathChange?: (fhirPath: string) => void;
   context: Context;
+  allowBindings: boolean;
   externalBindings: ExternalBinding[];
   fhirSchema: FhirRegistry;
   model: Model;
@@ -32,6 +33,7 @@ export function ProgramProvider({
   onProgramChange,
   onFhirPathChange,
   context,
+  allowBindings = true,
   externalBindings,
   fhirSchema,
   model,
@@ -45,6 +47,7 @@ export function ProgramProvider({
     setStore(
       createProgramStore(
         context,
+        allowBindings,
         externalBindings,
         fhirSchema,
         model,

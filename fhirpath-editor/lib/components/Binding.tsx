@@ -14,10 +14,11 @@ import clx from "classnames";
 
 type BindingProps = {
   bindingId: string;
+  placeholder?: string;
 };
 
 const Binding = forwardRef<BindingRef, BindingProps>(
-  ({ bindingId }, forwardingRef) => {
+  ({ bindingId, placeholder }, forwardingRef) => {
     const style = useStyle();
     const text = useText();
     const cursorRef = useRef<CursorRef | null>(null);
@@ -183,9 +184,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
             onMistake={() => {
               setExpressionAnimation(style.binding.animate);
             }}
-            placeholder={
-              !bindingId && empty ? "Add your formula here..." : undefined
-            }
+            placeholder={!bindingId && empty ? placeholder : undefined}
           />
         </div>
 

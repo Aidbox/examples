@@ -8,6 +8,9 @@ export const delay = (f: () => void): ReturnType<typeof setTimeout> =>
 export const upperFirst = (str: string): string =>
   str.charAt(0).toUpperCase() + str.slice(1);
 
+export const truncate = (str: string, mex: number) =>
+  str.length > mex ? `${str.slice(0, mex)}...` : str;
+
 export const pick = <T extends object, K extends keyof T>(
   obj: T,
   keys: K[],

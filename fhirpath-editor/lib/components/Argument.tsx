@@ -1,4 +1,4 @@
-import { IProgram, Type, TypeName } from "../types/internal";
+import { FhirValue, IProgram, Type } from "../types/internal";
 import { useProgramContext } from "../utils/store";
 import { useCallback, useMemo } from "react";
 import { ProgramProvider } from "./ProgramProvider";
@@ -10,23 +10,23 @@ type ArgumentProps = {
   bindingId: string;
   tokenIndex: number;
   argIndex: number;
-  suggestedType?: Type;
-  contextValue: any;
+  contextValue: FhirValue;
+  contextType: Type;
 };
 
 export const Argument = ({
   bindingId,
   tokenIndex,
   argIndex,
-  suggestedType,
   contextValue,
+  contextType,
 }: ArgumentProps) => {
+  console.log({ contextValue });
   const style = useStyle();
   const text = useText();
   const {
     arg,
     updateArg,
-    context,
     getBindingType,
     getBindingValue,
     getFhirSchema,
@@ -37,7 +37,6 @@ export const Argument = ({
     arg: state.getArg(bindingId, tokenIndex, argIndex),
     updateArg: state.updateArg,
     deleteArg: state.deleteArg,
-    context: state.getContext(),
     getBindingType: state.getBindingType,
     getBindingValue: state.getBindingValue,
     getFhirSchema: state.getFhirSchema,
@@ -68,22 +67,20 @@ export const Argument = ({
     [updateArg, bindingId, tokenIndex, argIndex],
   );
 
-  const argContext = useMemo(
+  const context = useMemo(
     () => ({
       value: contextValue,
-      type:
-        suggestedType?.type === TypeName.Lambda
-          ? suggestedType.contextType
-          : context.type,
+      type: contextType,
     }),
-    [contextValue, suggestedType, context],
+    [contextValue, contextType],
   );
 
   return (
     <ProgramProvider
       program={arg}
       onProgramChange={onProgramChange}
-      context={argContext}
+      context={context}
+      allowBindings={false}
       externalBindings={externalizedBindings}
       fhirSchema={getFhirSchema()}
       model={model}
@@ -92,7 +89,8 @@ export const Argument = ({
     >
       <Program
         className={style.token.function.argument.program}
-        title={text.program.title.argumentExpression}
+        title={null}
+        placeholder={text.program.placeholder.argumentExpression}
       />
     </ProgramProvider>
   );

@@ -11,19 +11,20 @@ import { useText } from "../text";
 type ProgramProps = {
   className?: string;
   title?: ReactNode;
+  placeholder?: string;
 };
 
-function Program({ className = "", title }: ProgramProps) {
+function Program({ className, title, placeholder }: ProgramProps) {
   const style = useStyle();
   const text = useText();
-  const { addBinding, setBindingRef, debug, empty } = useProgramContext(
-    (state) => ({
+  const { allowBindings, addBinding, setBindingRef, debug, empty } =
+    useProgramContext((state) => ({
+      allowBindings: state.getAllowBindings(),
       addBinding: state.addBinding,
       setBindingRef: state.setBindingRef,
       debug: state.getDebug(),
       empty: !state.program.expression.length,
-    }),
-  );
+    }));
 
   const bindingIds = useProgramContext((state) =>
     state.program.bindings.map((b) => b.id),
@@ -36,34 +37,41 @@ function Program({ className = "", title }: ProgramProps) {
       className={clx(
         style.program.container,
         debug && style.program.extended,
+        !allowBindings && style.program.lightweight,
         className,
       )}
     >
-      <div className={style.program.title}>
-        {text.program.title.namedExpressions}
-      </div>
+      {allowBindings && (
+        <>
+          <div className={style.program.title}>
+            {text.program.title.namedExpressions}
+          </div>
 
-      {bindingIds.map((bindingId) => (
-        <div key={bindingId} className={style.program.binding}>
-          <BindingMenu bindingId={bindingId} />
+          {bindingIds.map((bindingId) => (
+            <div key={bindingId} className={style.program.binding}>
+              <BindingMenu bindingId={bindingId} />
 
-          <Binding
-            ref={(ref) => setBindingRef(bindingId, ref)}
-            bindingId={bindingId}
-          />
-        </div>
-      ))}
+              <Binding
+                ref={(ref) => setBindingRef(bindingId, ref)}
+                bindingId={bindingId}
+              />
+            </div>
+          ))}
 
-      <div className={style.program.define}>
-        <button onClick={() => addBinding({ name: "var1" })}>
-          <Plus size={14} /> {text.program.define}
-        </button>
-      </div>
+          <div className={style.program.define}>
+            <button onClick={() => addBinding({ name: "var1" })}>
+              <Plus size={14} /> {text.program.define}
+            </button>
+          </div>
+        </>
+      )}
 
       <div className={clx(style.program.main, empty && style.program.empty)}>
-        <div className={style.program.title}>
-          {title || text.program.title.mainExpression}
-        </div>
+        {title !== null && (
+          <div className={style.program.title}>
+            {title || text.program.title.mainExpression}
+          </div>
+        )}
 
         {debug && (
           <div className={style.binding.debug}>
@@ -74,7 +82,11 @@ function Program({ className = "", title }: ProgramProps) {
         <div className={style.program.binding}>
           {/*<BindingMenu bindingId="" />*/}
           <span></span>
-          <Binding ref={(ref) => setBindingRef("", ref)} bindingId={""} />
+          <Binding
+            ref={(ref) => setBindingRef("", ref)}
+            bindingId={""}
+            placeholder={placeholder || text.program.placeholder.mainExpression}
+          />
         </div>
       </div>
     </div>

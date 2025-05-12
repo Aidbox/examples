@@ -27,10 +27,13 @@ export const text = {
   },
   program: {
     define: "Add expression",
+    placeholder: {
+      mainExpression: "Add your formula here...",
+      argumentExpression: "Add your argument here...",
+    },
     title: {
       namedExpressions: "Named expressions",
       mainExpression: "Final expression",
-      argumentExpression: "Argument expression",
     },
   },
   cursor: {
