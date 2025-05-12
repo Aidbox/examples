@@ -1,7 +1,7 @@
 import { forwardRef, Ref } from "react";
 import { useProgramContext } from "../utils/store";
 import { mergeRefs } from "../utils/react";
-import { Plus, PuzzlePiece } from "@phosphor-icons/react";
+import { Plus, PuzzlePiece, CurrencyDollar } from "@phosphor-icons/react";
 import Dropdown from "./Dropdown";
 import {
   IVariableToken,
@@ -65,7 +65,8 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
             ref={mergeRefs(forwardedRef as Ref<HTMLButtonElement>, ref)}
             {...mergeProps({ className: style.token.button })}
           >
-            {token.value}
+            {token.special && <CurrencyDollar />}
+            <span>{token.value}</span>
           </button>
         )}
         renderItem={(token, created) =>

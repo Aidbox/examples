@@ -622,8 +622,17 @@ function transformNode(node: LezerNode): IProgram {
           ];
         }
 
-        // todo support $this tokens
-        // todo support $index tokens
+        case "$this":
+        case "$index":
+          assertTerminalNode(node);
+          return [
+            {
+              type: TokenType.variable,
+              value: node.value.substring(1),
+              special: true,
+            },
+          ];
+
         // todo support $total tokens
         default:
           throw new Error(`Unknown AST node type: ${node.type}`);
@@ -689,8 +698,17 @@ const unparseOperatorToken = (token: IOperatorToken) => {
   return ` ${token.value} `;
 };
 
-const unparseVariableToken = (token: IVariableToken) => {
-  return `%${token.value}`;
+export const mocked = (name: string) => `mock/${name}`;
+
+const unparseVariableToken = (
+  token: IVariableToken,
+  { mockSpecials }: UnparseContext,
+) => {
+  return token.special
+    ? mockSpecials
+      ? `%\`${mocked(`$${token.value}`)}\``
+      : `$${token.value}`
+    : `%${token.value}`;
 };
 
 const unparseFieldToken = (token: IFieldToken, { first }: UnparseContext) =>
@@ -721,7 +739,9 @@ const unparseFunctionToken = (
 ) => {
   const args = token.args
     ? token.args
-        .map((arg) => (arg ? unparseProgram(arg, context) : "{}")) // consider: pass bindingsOrder for arg.bindings
+        .map((arg) =>
+          arg ? unparseProgram(arg, { ...context, mockSpecials: false }) : "{}",
+        ) // consider: pass bindingsOrder for arg.bindings
         .join(", ")
     : "";
   return `${first ? "" : "."}${token.value}(${args})`;
@@ -792,7 +812,7 @@ export const unparseProgram = (program: IProgram, context: UnparseContext) => {
         );
       })
       .map((binding) => unparseBinding(binding, context))
-      .join(".\n")}.\nselect(${result})`;
+      .join(".\n")}${result ? `.\nselect(${result})` : ""}`;
   }
 
   return result;

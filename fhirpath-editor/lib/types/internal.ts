@@ -131,6 +131,7 @@ export interface ITypeToken extends IBaseToken {
 export interface IVariableToken extends IBaseToken {
   type: TokenType.variable;
   value: string;
+  special?: true;
 }
 
 export interface IIndexToken extends IBaseToken {
@@ -662,6 +663,7 @@ export type QuestionnaireItemRegistry = {
 
 export type UnparseContext = {
   first?: boolean;
+  mockSpecials?: boolean;
   questionnaireItems: QuestionnaireItemRegistry;
   bindingsOrder: Record<LocalBinding["id"], number>;
 };

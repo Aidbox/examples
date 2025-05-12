@@ -320,6 +320,10 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                       argIndex={selectedArgIndex}
                       contextType={argContextType}
                       contextValue={inputSample}
+                      isLambda={
+                        meta.args[selectedArgIndex].type.type ===
+                        TypeName.Lambda
+                      }
                     />
                   )}
                 {selectingName &&

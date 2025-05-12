@@ -12,6 +12,7 @@ type ArgumentProps = {
   argIndex: number;
   contextValue: FhirValue;
   contextType: Type;
+  isLambda: boolean;
 };
 
 export const Argument = ({
@@ -20,8 +21,8 @@ export const Argument = ({
   argIndex,
   contextValue,
   contextType,
+  isLambda,
 }: ArgumentProps) => {
-  console.log({ contextValue });
   const style = useStyle();
   const text = useText();
   const {
@@ -81,6 +82,7 @@ export const Argument = ({
       onProgramChange={onProgramChange}
       context={context}
       allowBindings={false}
+      isLambda={isLambda}
       externalBindings={externalizedBindings}
       fhirSchema={getFhirSchema()}
       model={model}

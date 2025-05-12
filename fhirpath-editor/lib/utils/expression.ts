@@ -48,7 +48,7 @@ import {
   Type,
   TypeName,
 } from "../types/internal";
-import { unparseExpression } from "./fhirpath";
+import { mocked, unparseExpression } from "./fhirpath";
 
 const now = new Date();
 
@@ -58,16 +58,22 @@ function hasMessage(e: any): e is { message: string } {
 
 export const getExpressionValue = (
   name: string | null,
+  isLambda: boolean,
   expression: Token[],
   bindingValues: Record<string, FhirValue>,
   questionnaireItems: QuestionnaireItemRegistry,
-  contextValue: Context["value"],
+  contextValue: FhirValue,
   model: Model,
 ): FhirValue => {
   const code = unparseExpression(expression, {
     questionnaireItems,
     bindingsOrder: {},
+    mockSpecials: isLambda,
   });
+
+  if (!code) {
+    return contextValue;
+  }
 
   try {
     const value = fhirpath.evaluate(
@@ -77,10 +83,19 @@ export const getExpressionValue = (
         {},
         {
           has(_, prop) {
-            return prop in bindingValues;
+            return (
+              (isLambda && prop === mocked("$this")) ||
+              (isLambda && prop === mocked("$index")) ||
+              prop in bindingValues
+            );
           },
           get(_, prop) {
-            const value = bindingValues[prop as string];
+            const value =
+              isLambda && prop === mocked("$this")
+                ? contextValue
+                : isLambda && prop === mocked("$index")
+                  ? new FhirValue(0)
+                  : bindingValues[prop as string];
             if (value.error) throw value;
             return value.value;
           },
@@ -176,7 +191,7 @@ export const getExpressionType = (
   expression: Token[],
   questionnaireItems: QuestionnaireItemRegistry,
   bindingTypes: Partial<Record<string, Type>>,
-  contextType: Context["type"],
+  contextType: Type,
   fhirSchema: FhirRegistry,
 ) => {
   function getOperatorExpressionType(
@@ -247,9 +262,19 @@ export const getExpressionType = (
             currentType = TypeType(token.value); // Return the actual type value
             continue;
           case TokenType.variable: {
-            currentType =
-              bindingTypes[token.value] ||
-              InvalidType(`Unknown variable ${token.value}`);
+            if (token.special) {
+              if (token.value === "$this") {
+                currentType = SingleType(contextType);
+              } else if (token.value === "$index") {
+                currentType = SingleType(IntegerType);
+              } else {
+                return InvalidType(`Unknown keyword "${token.value}"`);
+              }
+            } else {
+              currentType =
+                bindingTypes[token.value] ||
+                InvalidType(`Unknown variable ${token.value}`);
+            }
             continue;
           }
         }
@@ -415,6 +440,8 @@ function suggestNextTokenTypes(
 
 function toTokens(
   type: TokenType,
+  isLambda: boolean,
+  contextType: Type,
   contextExpressionType: Type,
   questionnaireItems: QuestionnaireItemRegistry,
   bindableBindings: Binding[],
@@ -464,14 +491,36 @@ function toTokens(
         : [];
     }
     case TokenType.variable: {
-      return bindableBindings.map((binding) => ({
-        type,
-        value: binding.name,
-        debug: stringifyType(
-          bindingTypes[binding.name] ||
-            InvalidType(`Unknown variable ${binding.name}`),
-        ),
-      }));
+      return bindableBindings
+        .map(
+          (binding) =>
+            ({
+              type,
+              value: binding.name,
+              debug: stringifyType(
+                bindingTypes[binding.name] ||
+                  InvalidType(`Unknown variable ${binding.name}`),
+              ),
+            }) as SuggestedToken,
+        )
+        .concat(
+          isLambda
+            ? [
+                {
+                  type,
+                  value: "this",
+                  special: true,
+                  debug: stringifyType(SingleType(contextType)),
+                },
+                {
+                  type,
+                  value: "index",
+                  special: true,
+                  debug: stringifyType(SingleType(IntegerType)),
+                },
+              ]
+            : [],
+        );
     }
     case TokenType.function: {
       const compatible = new Set(
@@ -507,6 +556,7 @@ function toTokens(
 
 // Suggest next tokens based on current expression
 export function suggestNextTokens(
+  isLambda: boolean,
   expression: Token[],
   questionnaireItems: QuestionnaireItemRegistry,
   bindableBindings: Binding[],
@@ -540,6 +590,8 @@ export function suggestNextTokens(
   return types.flatMap((type) =>
     toTokens(
       type,
+      isLambda,
+      contextType,
       contextExpressionType,
       questionnaireItems,
       bindableBindings,
@@ -551,6 +603,7 @@ export function suggestNextTokens(
 
 export function suggestTokensAt<T extends Token>(
   index: number,
+  isLambda: boolean,
   expression: Token[],
   questionnaireItems: QuestionnaireItemRegistry,
   bindableBindings: Binding[],
@@ -578,6 +631,8 @@ export function suggestTokensAt<T extends Token>(
   if (types.includes(token.type)) {
     return toTokens(
       token.type,
+      isLambda,
+      contextType,
       contextExpressionType,
       questionnaireItems,
       bindableBindings,
@@ -591,7 +646,7 @@ export function suggestTokensAt<T extends Token>(
 
 function extractReferencedBindingNames(expression: Token[]): string[] {
   return expression.flatMap((token) => {
-    if (token.type === TokenType.variable) {
+    if (token.type === TokenType.variable && !token.special) {
       return [token.value];
     } else if (token.type === TokenType.function) {
       return token.args.flatMap((arg) => {

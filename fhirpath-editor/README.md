@@ -126,3 +126,8 @@ Note: Do not provide both `value` and `defaultValue` at the same time. If both a
 - Schema-based validation with autocomplete suggestions
 - Syntax highlighting and error detection
 - Reduces development time for complex FHIRPath queries
+
+## Todo
+- [ ] Support $total special variable
+- [ ] Support type evaluation of `aggregate` call
+- [ ] Support dynamic index access

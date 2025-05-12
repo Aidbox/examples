@@ -125,7 +125,6 @@ function Editor({
           onProgramChange={setProgram}
           onFhirPathChange={handleFhirPathChange}
           context={context}
-          allowBindings={true}
           externalBindings={externalBindings}
           fhirSchema={fhirSchema}
           model={model}

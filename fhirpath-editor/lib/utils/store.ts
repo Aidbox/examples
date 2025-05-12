@@ -56,6 +56,7 @@ export interface IProgramStore {
   getDebug: () => boolean;
   getPortalRoot: () => string | undefined;
   getAllowBindings: () => boolean;
+  getIsLambda: () => boolean;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string) => Token[];
   getBindingName: (id: string) => string;
@@ -115,6 +116,7 @@ export interface IProgramStore {
 export const createProgramStore = (
   context: Context,
   allowBindings: boolean,
+  isLambda: boolean,
   externalBindings: ExternalBinding[],
   fhirSchema: FhirRegistry,
   model: Model,
@@ -172,6 +174,8 @@ export const createProgramStore = (
         getPortalRoot: () => portalRoot,
 
         getAllowBindings: () => allowBindings,
+
+        getIsLambda: () => isLambda,
 
         getBindingExpression: (id) =>
           id
@@ -242,6 +246,7 @@ export const createProgramStore = (
 
           return getExpressionValue(
             null,
+            get().getIsLambda(),
             expression,
             get().getBindingValues(),
             get().getQuestionnaireItems(),
@@ -356,6 +361,7 @@ export const createProgramStore = (
                 const binding = state.program.bindings[state.bindingsIndex[id]];
                 state.bindingValues[binding.name] = getExpressionValue(
                   binding.name,
+                  get().getIsLambda(),
                   binding.expression,
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
@@ -365,6 +371,7 @@ export const createProgramStore = (
               } else {
                 state.bindingValues[""] = getExpressionValue(
                   null,
+                  get().getIsLambda(),
                   state.program.expression,
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
@@ -387,6 +394,7 @@ export const createProgramStore = (
 
         suggestNextTokens: (id) =>
           suggestNextTokens(
+            get().getIsLambda(),
             get().getBindingExpression(id),
             get().getQuestionnaireItems(),
             get().getBindableBindings(id),
@@ -398,6 +406,7 @@ export const createProgramStore = (
         suggestTokensAt: <T extends Token = Token>(id: string, index: number) =>
           suggestTokensAt<T>(
             index,
+            get().getIsLambda(),
             get().getBindingExpression(id),
             get().getQuestionnaireItems(),
             get().getBindableBindings(id),
@@ -643,6 +652,7 @@ export const createProgramStore = (
 
                 state.bindingValues[binding.name] = getExpressionValue(
                   binding.name,
+                  get().getIsLambda(),
                   binding.expression,
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
@@ -660,6 +670,7 @@ export const createProgramStore = (
 
                 state.bindingValues[""] = getExpressionValue(
                   null,
+                  get().getIsLambda(),
                   state.program.expression,
                   get().getBindingValues(),
                   get().getQuestionnaireItems(),
@@ -772,6 +783,7 @@ export const createProgramStore = (
                 for (const token of expression) {
                   if (
                     token.type === TokenType.variable &&
+                    !token.special &&
                     token.value === binding.name
                   ) {
                     token.value = name;
