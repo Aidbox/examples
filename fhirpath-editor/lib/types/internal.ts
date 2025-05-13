@@ -62,7 +62,7 @@ export enum TokenGroup {
   answer = "answer",
 }
 
-export enum TokenType {
+export enum TokenKind {
   null = "null",
   number = "number",
   string = "string",
@@ -81,82 +81,82 @@ export enum TokenType {
 }
 
 export interface IBaseToken {
-  type: TokenType;
+  kind: TokenKind;
 }
 
 export interface INullToken extends IBaseToken {
-  type: TokenType.null;
+  kind: TokenKind.null;
 }
 
 export interface INumberToken extends IBaseToken {
-  type: TokenType.number;
+  kind: TokenKind.number;
   value: string;
 }
 
 export interface IStringToken extends IBaseToken {
-  type: TokenType.string;
+  kind: TokenKind.string;
   value: string;
 }
 
 export interface IBooleanToken extends IBaseToken {
-  type: TokenType.boolean;
+  kind: TokenKind.boolean;
   value: "true" | "false";
 }
 
 export interface IDateToken extends IBaseToken {
-  type: TokenType.date;
+  kind: TokenKind.date;
   value: string;
 }
 
 export interface IDateTimeToken extends IBaseToken {
-  type: TokenType.datetime;
+  kind: TokenKind.datetime;
   value: string;
 }
 
 export interface ITimeToken extends IBaseToken {
-  type: TokenType.time;
+  kind: TokenKind.time;
   value: string;
 }
 
 export interface IQuantityToken extends IBaseToken {
-  type: TokenType.quantity;
+  kind: TokenKind.quantity;
   value: { value: string; unit: string };
 }
 
 export interface ITypeToken extends IBaseToken {
-  type: TokenType.type;
+  kind: TokenKind.type;
   value: Type;
 }
 
 export interface IVariableToken extends IBaseToken {
-  type: TokenType.variable;
+  kind: TokenKind.variable;
   value: string;
   special?: true;
 }
 
 export interface IIndexToken extends IBaseToken {
-  type: TokenType.index;
+  kind: TokenKind.index;
   value: string;
 }
 
 export interface IFunctionToken extends IBaseToken {
-  type: TokenType.function;
+  kind: TokenKind.function;
   value: string;
   args: (IProgram | undefined)[];
 }
 
 export interface IOperatorToken extends IBaseToken {
-  type: TokenType.operator;
+  kind: TokenKind.operator;
   value: OperatorName;
 }
 
 export interface IFieldToken extends IBaseToken {
-  type: TokenType.field;
+  kind: TokenKind.field;
   value: string;
 }
 
 export interface IAnswerToken extends IBaseToken {
-  type: TokenType.answer;
+  kind: TokenKind.answer;
   value: string;
 }
 
@@ -253,162 +253,162 @@ export enum TypeName {
 
 // Type system
 export interface IBaseType {
-  type: TypeName;
+  name: TypeName;
 }
 
 export interface IIntegerType extends IBaseType {
-  type: TypeName.Integer;
+  name: TypeName.Integer;
 }
 
 export interface IDecimalType extends IBaseType {
-  type: TypeName.Decimal;
+  name: TypeName.Decimal;
 }
 
 export interface IStringType extends IBaseType {
-  type: TypeName.String;
+  name: TypeName.String;
 }
 
 export interface IBooleanType extends IBaseType {
-  type: TypeName.Boolean;
+  name: TypeName.Boolean;
 }
 
 export interface IDateType extends IBaseType {
-  type: TypeName.Date;
+  name: TypeName.Date;
 }
 
 export interface IDateTimeType extends IBaseType {
-  type: TypeName.DateTime;
+  name: TypeName.DateTime;
 }
 
 export interface ITimeType extends IBaseType {
-  type: TypeName.Time;
+  name: TypeName.Time;
 }
 
 export interface IQuantityType extends IBaseType {
-  type: TypeName.Quantity;
+  name: TypeName.Quantity;
 }
 
 export interface INullType extends IBaseType {
-  type: TypeName.Null;
+  name: TypeName.Null;
 }
 
 export interface IAnyType extends IBaseType {
-  type: TypeName.Any;
+  name: TypeName.Any;
 }
 
 export interface IInvalidType extends IBaseType {
-  type: TypeName.Invalid;
+  name: TypeName.Invalid;
   error: string;
 }
 
 export interface ITypeType extends IBaseType {
-  type: TypeName.Type;
+  name: TypeName.Type;
   ofType: Type;
 }
 
 export interface ISingleType extends IBaseType {
-  type: TypeName.Single;
+  name: TypeName.Single;
   ofType: Type;
 }
 
 export interface IChoiceType extends IBaseType {
-  type: TypeName.Choice;
+  name: TypeName.Choice;
   options: Type[];
 }
 
 export interface IGenericType extends IBaseType {
-  type: TypeName.Generic;
-  name: GenericLetter;
+  name: TypeName.Generic;
+  letter: GenericLetter;
 }
 
 export interface ILambdaType extends IBaseType {
-  type: TypeName.Lambda;
+  name: TypeName.Lambda;
   returnType: Type;
   contextType: Type;
 }
 
 export interface IPrimitiveCodeType extends IBaseType {
-  type: TypeName.PrimitiveCode;
+  name: TypeName.PrimitiveCode;
 }
 
 export interface IPrimitiveBooleanType extends IBaseType {
-  type: TypeName.PrimitiveBoolean;
+  name: TypeName.PrimitiveBoolean;
 }
 
 export interface IPrimitiveStringType extends IBaseType {
-  type: TypeName.PrimitiveString;
+  name: TypeName.PrimitiveString;
 }
 
 export interface IPrimitiveUriType extends IBaseType {
-  type: TypeName.PrimitiveUri;
+  name: TypeName.PrimitiveUri;
 }
 
 export interface IPrimitiveDateType extends IBaseType {
-  type: TypeName.PrimitiveDate;
+  name: TypeName.PrimitiveDate;
 }
 
 export interface IPrimitiveDateTimeType extends IBaseType {
-  type: TypeName.PrimitiveDateTime;
+  name: TypeName.PrimitiveDateTime;
 }
 
 export interface IPrimitiveDecimalType extends IBaseType {
-  type: TypeName.PrimitiveDecimal;
+  name: TypeName.PrimitiveDecimal;
 }
 
 export interface IPrimitiveMarkdownType extends IBaseType {
-  type: TypeName.PrimitiveMarkdown;
+  name: TypeName.PrimitiveMarkdown;
 }
 
 export interface IPrimitiveCanonicalType extends IBaseType {
-  type: TypeName.PrimitiveCanonical;
+  name: TypeName.PrimitiveCanonical;
 }
 
 export interface IPrimitiveTimeType extends IBaseType {
-  type: TypeName.PrimitiveTime;
+  name: TypeName.PrimitiveTime;
 }
 
 export interface IPrimitiveIdType extends IBaseType {
-  type: TypeName.PrimitiveId;
+  name: TypeName.PrimitiveId;
 }
 
 export interface IPrimitiveIntegerType extends IBaseType {
-  type: TypeName.PrimitiveInteger;
+  name: TypeName.PrimitiveInteger;
 }
 
 export interface IPrimitivePositiveIntegerType extends IBaseType {
-  type: TypeName.PrimitivePositiveInteger;
+  name: TypeName.PrimitivePositiveInteger;
 }
 
 export interface IPrimitiveUnsignedIntegerType extends IBaseType {
-  type: TypeName.PrimitiveUnsignedInteger;
+  name: TypeName.PrimitiveUnsignedInteger;
 }
 
 export interface IPrimitiveInstantType extends IBaseType {
-  type: TypeName.PrimitiveInstant;
+  name: TypeName.PrimitiveInstant;
 }
 
 export interface IPrimitiveUuidType extends IBaseType {
-  type: TypeName.PrimitiveUuid;
+  name: TypeName.PrimitiveUuid;
 }
 
 export interface IPrimitiveUrlType extends IBaseType {
-  type: TypeName.PrimitiveUrl;
+  name: TypeName.PrimitiveUrl;
 }
 
 export interface IPrimitiveOidType extends IBaseType {
-  type: TypeName.PrimitiveOid;
+  name: TypeName.PrimitiveOid;
 }
 
 export interface IPrimitiveXhtmlType extends IBaseType {
-  type: TypeName.PrimitiveXhtml;
+  name: TypeName.PrimitiveXhtml;
 }
 
 export interface IPrimitiveBase64BinaryType extends IBaseType {
-  type: TypeName.PrimitiveBase64Binary;
+  name: TypeName.PrimitiveBase64Binary;
 }
 
 export interface IComplexType extends IBaseType {
-  type: TypeName.Complex;
+  name: TypeName.Complex;
   schemaReference: string[];
 }
 

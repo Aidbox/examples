@@ -6,7 +6,7 @@ import Dropdown from "./Dropdown";
 import {
   IVariableToken,
   TokenComponentProps,
-  TokenType,
+  TokenKind,
 } from "../types/internal";
 import { useStyle } from "../style";
 import { useText } from "../text";
@@ -50,7 +50,7 @@ const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
         keyFn={(token) => token.value}
         createFn={(term) =>
           isBindingNameUnique(term, bindingId)
-            ? { type: TokenType.variable as const, value: term }
+            ? { kind: TokenKind.variable as const, value: term }
             : undefined
         }
         onClick={(token, created) => {

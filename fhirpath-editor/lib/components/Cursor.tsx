@@ -49,7 +49,7 @@ import {
   SuggestedToken,
   Token,
   TokenGroup,
-  TokenType,
+  TokenKind,
 } from "../types/internal";
 import { colors, omit, scrollIntoView, weights } from "../utils/misc";
 import { useStyle } from "../style";
@@ -78,17 +78,17 @@ function getText(
   text: ReturnType<typeof useText>,
 ) {
   if (
-    token.type === TokenType.field ||
-    token.type === TokenType.function ||
-    token.type === TokenType.variable
+    token.kind === TokenKind.field ||
+    token.kind === TokenKind.function ||
+    token.kind === TokenKind.variable
   ) {
     return token.value;
-  } else if (token.type === TokenType.operator) {
+  } else if (token.kind === TokenKind.operator) {
     return operatorNames[token.value];
-  } else if (token.type === TokenType.answer) {
+  } else if (token.kind === TokenKind.answer) {
     return items[token.value]?.text || token.value;
   } else {
-    return text.token.labels[token.type];
+    return text.token.labels[token.kind];
   }
 }
 
@@ -141,18 +141,18 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
 
     const filteredTokens = nextTokens.filter((token) => {
       return (
-        (token.type != TokenType.null &&
+        (token.kind != TokenKind.null &&
           lookup(token.value.toString(), search)) ||
-        lookup(token.type, search) ||
-        (token.type === TokenType.operator &&
+        lookup(token.kind, search) ||
+        (token.kind === TokenKind.operator &&
           lookup(operatorNames[token.value], search)) ||
-        (token.type === TokenType.answer &&
+        (token.kind === TokenKind.answer &&
           lookup(items[token.value]?.text, search))
       );
     });
 
     function upsertToken(token: SuggestedToken) {
-      const index = filteredTokens.findIndex(({ type }) => type === token.type);
+      const index = filteredTokens.findIndex(({ kind }) => kind === token.kind);
       token.shortcut = true;
       if (index === -1) {
         filteredTokens.splice(0, 0, token);
@@ -163,7 +163,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
 
     if (search) {
       const numberToken = nextTokens.find(
-        (token): token is INumberToken => token.type === TokenType.number,
+        (token): token is INumberToken => token.kind === TokenKind.number,
       );
       if (numberToken) {
         if (search.match(/^-?\d+$/) || search.match(/^-?\d*\.\d+$/)) {
@@ -172,7 +172,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       }
 
       const stringToken = nextTokens.find(
-        (token): token is IStringToken => token.type === TokenType.string,
+        (token): token is IStringToken => token.kind === TokenKind.string,
       );
       if (stringToken) {
         if (search.match(/^["']/)) {
@@ -184,7 +184,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       }
 
       const booleanToken = nextTokens.find(
-        (token): token is IBooleanToken => token.type === TokenType.boolean,
+        (token): token is IBooleanToken => token.kind === TokenKind.boolean,
       );
       if (booleanToken) {
         const likeFalse = "false".includes(search);
@@ -198,7 +198,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
       }
 
       const indexToken = nextTokens.find(
-        (token): token is IIndexToken => token.type === TokenType.index,
+        (token): token is IIndexToken => token.kind === TokenKind.index,
       );
       if (indexToken) {
         if (search.match(/^\[(\d+]?)?$/)) {
@@ -213,12 +213,12 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
     function getGroup(token: SuggestedToken) {
       // prettier-ignore
       return (
-        token.type === TokenType.variable ? TokenGroup.variable :
-        token.type === TokenType.operator ? TokenGroup.operator :
-        token.type === TokenType.function ? TokenGroup.function :
-        token.type === TokenType.field ? TokenGroup.field :
-        token.type === TokenType.index ? TokenGroup.index:
-        token.type === TokenType.answer ? TokenGroup.answer : TokenGroup.literal);
+        token.kind === TokenKind.variable ? TokenGroup.variable :
+        token.kind === TokenKind.operator ? TokenGroup.operator :
+        token.kind === TokenKind.function ? TokenGroup.function :
+        token.kind === TokenKind.field ? TokenGroup.field :
+        token.kind === TokenKind.index ? TokenGroup.index:
+        token.kind === TokenKind.answer ? TokenGroup.answer : TokenGroup.literal);
     }
 
     const groupedTokens = filteredTokens
@@ -320,7 +320,7 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
 
     const handleAddToken = (suggestedToken: SuggestedToken) => {
       const blur =
-        suggestedToken.type != TokenType.null && !suggestedToken.value;
+        suggestedToken.kind != TokenKind.null && !suggestedToken.value;
       const token = omit(suggestedToken, [
         "debug",
         "incompatible",
@@ -478,8 +478,8 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                               token.index === activeIndex ? "" : undefined
                             }
                             key={
-                              token.type +
-                              (token.type !== TokenType.null
+                              token.kind +
+                              (token.kind !== TokenKind.null
                                 ? token.value || ""
                                 : "")
                             }
@@ -491,35 +491,35 @@ const Cursor = forwardRef<CursorRef, CursorProps>(
                             })}
                           >
                             <span className={style.dropdown.icon}>
-                              {token.type === TokenType.null ? (
+                              {token.kind === TokenKind.null ? (
                                 <Empty size={14} />
-                              ) : token.type === TokenType.string ? (
+                              ) : token.kind === TokenKind.string ? (
                                 <Quotes size={14} />
-                              ) : token.type === TokenType.number ? (
+                              ) : token.kind === TokenKind.number ? (
                                 <Hash size={14} />
-                              ) : token.type === TokenType.variable ? (
+                              ) : token.kind === TokenKind.variable ? (
                                 <PuzzlePiece size={14} />
-                              ) : token.type === TokenType.boolean ? (
+                              ) : token.kind === TokenKind.boolean ? (
                                 <Flag size={14} />
-                              ) : token.type === TokenType.date ? (
+                              ) : token.kind === TokenKind.date ? (
                                 <Calendar size={14} />
-                              ) : token.type === TokenType.datetime ? (
+                              ) : token.kind === TokenKind.datetime ? (
                                 <Clock size={14} />
-                              ) : token.type === TokenType.time ? (
+                              ) : token.kind === TokenKind.time ? (
                                 <Timer size={14} />
-                              ) : token.type === TokenType.quantity ? (
+                              ) : token.kind === TokenKind.quantity ? (
                                 <Scales size={14} />
-                              ) : token.type === TokenType.type ? (
+                              ) : token.kind === TokenKind.type ? (
                                 <Tag size={14} />
-                              ) : token.type === TokenType.index ? (
+                              ) : token.kind === TokenKind.index ? (
                                 <BracketsSquare size={14} />
-                              ) : token.type === TokenType.field ? (
+                              ) : token.kind === TokenKind.field ? (
                                 <Shapes size={14} />
-                              ) : token.type === TokenType.function ? (
+                              ) : token.kind === TokenKind.function ? (
                                 <Function size={14} />
-                              ) : token.type === TokenType.answer ? (
+                              ) : token.kind === TokenKind.answer ? (
                                 <Textbox size={14} />
-                              ) : token.type === TokenType.operator ? (
+                              ) : token.kind === TokenKind.operator ? (
                                 <OperatorIcon name={token.value} size={14} />
                               ) : null}
                             </span>

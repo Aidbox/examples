@@ -18,7 +18,7 @@ import { mergeRefs } from "../utils/react";
 import {
   ITypeToken,
   TokenComponentProps,
-  TokenType,
+  TokenKind,
   Type,
 } from "../types/internal";
 import { unparseTypeToken } from "../utils/fhirpath";
@@ -109,7 +109,7 @@ const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
               <Tag size={14} />
             </span>
             <span className={style.dropdown.primary}>
-              {unparseTypeToken({ type: TokenType.type, value: type })}
+              {unparseTypeToken({ kind: TokenKind.type, value: type })}
             </span>
           </>
         )}

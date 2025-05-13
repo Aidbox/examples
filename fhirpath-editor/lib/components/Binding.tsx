@@ -53,7 +53,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
     });
 
     const tokenTypes = useProgramContext((state) =>
-      state.getBindingExpression(bindingId).map((t) => t.type),
+      state.getBindingExpression(bindingId).map((t) => t.kind),
     );
 
     const type = getBindingType(bindingId);
@@ -167,11 +167,11 @@ const Binding = forwardRef<BindingRef, BindingProps>(
           }}
           onAnimationEnd={() => setExpressionAnimation("")}
         >
-          {tokenTypes.map((type, tokenIndex) => (
+          {tokenTypes.map((kind, tokenIndex) => (
             <Token
               key={tokenIndex}
               ref={(ref) => setTokenRef(bindingId, tokenIndex, ref)}
-              type={type}
+              kind={kind}
               bindingId={bindingId}
               tokenIndex={tokenIndex}
               deleting={trimming && tokenIndex === tokenTypes.length - 1}
@@ -209,7 +209,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
             </div>
             <span
               className={style.binding.debug}
-              title={type.type === TypeName.Invalid ? type.error : ""}
+              title={type.name === TypeName.Invalid ? type.error : ""}
             >
               {stringifyType(type)}
             </span>

@@ -394,7 +394,7 @@ export const operatorMetadata: OperatorMetadata[] = [
     assertDefined(B);
 
     // Rule 1: If either bound type is AnyType, the union is AnyType.
-    if (A.type === TypeName.Any || B.type === TypeName.Any) {
+    if (A.name === TypeName.Any || B.name === TypeName.Any) {
       return AnyType;
     }
 

@@ -28,7 +28,7 @@ import {
   QuestionnaireItemRegistry,
   SuggestedToken,
   Token,
-  TokenType,
+  TokenKind,
   Type,
 } from "../types/internal";
 import { castDraft, enableMapSet, WritableDraft } from "immer";
@@ -433,7 +433,7 @@ export const createProgramStore = (
           const expression = !id
             ? get().program.expression
             : get().program.bindings[get().bindingsIndex[id]].expression;
-          return expression[index - 1].type === "operator";
+          return expression[index - 1].kind === TokenKind.operator;
         },
 
         updateToken: <T extends Token = Token>(
@@ -509,7 +509,7 @@ export const createProgramStore = (
 
         getArgContextType: (id, tokenIndex, argIndex) => {
           const token = get().getToken(id, tokenIndex);
-          if (token.type !== TokenType.function) {
+          if (token.kind !== TokenKind.function) {
             throw new Error("Token is not a function");
           }
 
@@ -541,7 +541,7 @@ export const createProgramStore = (
 
         getArg: (id, tokenIndex, argIndex) => {
           const token = get().getToken(id, tokenIndex);
-          if (token.type !== TokenType.function) {
+          if (token.kind !== TokenKind.function) {
             throw new Error("Token is not a function");
           }
           return token.args[argIndex] || emptyProgram;
@@ -555,7 +555,7 @@ export const createProgramStore = (
 
             const token = expression[tokenIndex];
 
-            if (token.type !== "function") {
+            if (token.kind !== TokenKind.function) {
               throw new Error("Token is not a function");
             }
 
@@ -589,7 +589,7 @@ export const createProgramStore = (
               ? state.program.expression
               : state.program.bindings[state.bindingsIndex[id]].expression;
             const token = expression[tokenIndex];
-            if (token.type !== "function") {
+            if (token.kind !== TokenKind.function) {
               throw new Error("Token is not a function");
             }
             // bindings changed
@@ -693,7 +693,7 @@ export const createProgramStore = (
           set((state) => {
             state.program.expression = [
               {
-                type: TokenType.variable,
+                kind: TokenKind.variable,
                 value:
                   state.program.bindings[state.program.bindings.length - 1]
                     .name,
@@ -782,12 +782,12 @@ export const createProgramStore = (
               const fixReferences = (expression: Token[]) => {
                 for (const token of expression) {
                   if (
-                    token.type === TokenType.variable &&
+                    token.kind === TokenKind.variable &&
                     !token.special &&
                     token.value === binding.name
                   ) {
                     token.value = name;
-                  } else if (token.type === TokenType.function) {
+                  } else if (token.kind === TokenKind.function) {
                     for (const arg of token.args) {
                       if (arg) {
                         let shadowed = false;

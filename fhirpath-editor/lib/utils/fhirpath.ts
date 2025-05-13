@@ -22,7 +22,7 @@ import {
   LocalBinding,
   OperatorName,
   Token,
-  TokenType,
+  TokenKind,
   TypeName,
   UnparseContext,
 } from "../types/internal";
@@ -323,11 +323,11 @@ function transformNode(node: LezerNode): IProgram {
     name?: string;
     expression: Token[];
   }): Token[] {
-    if (expression.length === 1 && expression[0]?.type === TokenType.variable) {
+    if (expression.length === 1 && expression[0]?.kind === TokenKind.variable) {
       return expression;
     }
     if (name && bindings.find((b) => b.name === name)) {
-      return [{ type: TokenType.variable, value: name }];
+      return [{ kind: TokenKind.variable, value: name }];
     }
 
     const binding: LocalBinding = {
@@ -337,7 +337,7 @@ function transformNode(node: LezerNode): IProgram {
     };
     bindings.push(binding);
 
-    return [{ type: TokenType.variable, value: binding.name }];
+    return [{ kind: TokenKind.variable, value: binding.name }];
   }
 
   function walk(node: LezerNode, first = false): Token[] {
@@ -362,7 +362,7 @@ function transformNode(node: LezerNode): IProgram {
 
             return [
               {
-                type: TokenType.quantity,
+                kind: TokenKind.quantity,
                 value: {
                   value: value.value || "0",
                   unit:
@@ -379,42 +379,42 @@ function transformNode(node: LezerNode): IProgram {
               case "Boolean":
                 return [
                   {
-                    type: TokenType.boolean,
+                    kind: TokenKind.boolean,
                     value: child.value as "true" | "false",
                   },
                 ];
               case "String":
                 return [
                   {
-                    type: TokenType.string,
+                    kind: TokenKind.string,
                     value: unescapeString(child.value),
                   },
                 ];
               case "Number":
-                return [{ type: TokenType.number, value: child.value }];
+                return [{ kind: TokenKind.number, value: child.value }];
               case "Date":
                 return [
                   {
-                    type: TokenType.date,
+                    kind: TokenKind.date,
                     value: child.value.replace(/^@/, "") || "2000-01-01",
                   },
                 ];
               case "Datetime":
                 return [
                   {
-                    type: TokenType.datetime,
+                    kind: TokenKind.datetime,
                     value: child.value.replace(/^@/, "") || "2000-01-01",
                   },
                 ];
               case "Time":
                 return [
                   {
-                    type: TokenType.time,
+                    kind: TokenKind.time,
                     value: child.value.replace(/^@T/, "") || "00:00",
                   },
                 ];
               case "Null":
-                return [{ type: TokenType.null }];
+                return [{ kind: TokenKind.null }];
               default:
                 throw new Error(`Unknown literal type: ${child.type}`);
             }
@@ -441,7 +441,7 @@ function transformNode(node: LezerNode): IProgram {
                 operand.children[0].value = "-" + operand.children[0].value;
                 return walk(operand);
               } else {
-                return [{ type: TokenType.number, value: "0" }];
+                return [{ kind: TokenKind.number, value: "0" }];
               }
             } else {
               return walk(makeAdditiveFromPolarity(operator, operand));
@@ -486,7 +486,7 @@ function transformNode(node: LezerNode): IProgram {
 
           return [
             ...leftExpression,
-            { type: TokenType.operator, value: operator.value as OperatorName },
+            { kind: TokenKind.operator, value: operator.value as OperatorName },
             ...rightExpression,
           ];
         }
@@ -503,7 +503,7 @@ function transformNode(node: LezerNode): IProgram {
 
           return [
             ...(base ? walk(base) : []),
-            { type: TokenType.index, value },
+            { kind: TokenKind.index, value },
           ];
         }
 
@@ -515,9 +515,9 @@ function transformNode(node: LezerNode): IProgram {
           }
 
           if (first && node.value[0]?.toUpperCase() === node.value[0]) {
-            return [{ type: TokenType.type, value: ComplexType([node.value]) }];
+            return [{ kind: TokenKind.type, value: ComplexType([node.value]) }];
           } else {
-            return [{ type: TokenType.field, value: node.value }];
+            return [{ kind: TokenKind.field, value: node.value }];
           }
 
         case "ExternalConstant": {
@@ -528,7 +528,7 @@ function transformNode(node: LezerNode): IProgram {
 
           return [
             {
-              type: TokenType.variable,
+              kind: TokenKind.variable,
               value: unescapeIdentifier(child.value),
             },
           ];
@@ -554,7 +554,7 @@ function transformNode(node: LezerNode): IProgram {
 
           return [
             {
-              type: TokenType.type,
+              kind: TokenKind.type,
               value: type,
             },
           ];
@@ -567,7 +567,7 @@ function transformNode(node: LezerNode): IProgram {
               matchNodeTemplate(ordinalOfValueTemplate, node);
             if (linkId) {
               return [
-                { type: TokenType.answer, value: unescapeString(linkId) },
+                { kind: TokenKind.answer, value: unescapeString(linkId) },
               ];
             }
           }
@@ -615,7 +615,7 @@ function transformNode(node: LezerNode): IProgram {
 
           return [
             {
-              type: TokenType.function,
+              kind: TokenKind.function,
               value: unescapeIdentifier(name.value),
               args: args?.map((arg) => transformNode(arg)) || [],
             },
@@ -627,7 +627,7 @@ function transformNode(node: LezerNode): IProgram {
           assertTerminalNode(node);
           return [
             {
-              type: TokenType.variable,
+              kind: TokenKind.variable,
               value: node.value.substring(1),
               special: true,
             },
@@ -681,15 +681,15 @@ const unparseQuantityToken = (token: IQuantityToken) => {
 };
 
 export const unparseTypeToken = (token: ITypeToken) => {
-  const primitive = typePrimitiveMap[token.value.type];
+  const primitive = typePrimitiveMap[token.value.name];
 
   if (primitive) {
     return primitive + "";
-  } else if (token.value.type === TypeName.Complex) {
+  } else if (token.value.name === TypeName.Complex) {
     return token.value.schemaReference.join(".");
   }
 
-  return token.value.type + "";
+  return token.value.name + "";
 };
 
 const unparseIndexToken = (token: IIndexToken) => `[${token.value || 0}]`;
@@ -748,21 +748,21 @@ const unparseFunctionToken = (
 };
 
 const tokenUnparsers = {
-  [TokenType.null]: unparseNullToken,
-  [TokenType.number]: unparseNumberToken,
-  [TokenType.string]: unparseStringToken,
-  [TokenType.boolean]: unparseBooleanToken,
-  [TokenType.date]: unparseDateToken,
-  [TokenType.datetime]: unparseDateTimeToken,
-  [TokenType.time]: unparseTimeToken,
-  [TokenType.quantity]: unparseQuantityToken,
-  [TokenType.type]: unparseTypeToken,
-  [TokenType.index]: unparseIndexToken,
-  [TokenType.operator]: unparseOperatorToken,
-  [TokenType.variable]: unparseVariableToken,
-  [TokenType.field]: unparseFieldToken,
-  [TokenType.function]: unparseFunctionToken,
-  [TokenType.answer]: unparseAnswerToken,
+  [TokenKind.null]: unparseNullToken,
+  [TokenKind.number]: unparseNumberToken,
+  [TokenKind.string]: unparseStringToken,
+  [TokenKind.boolean]: unparseBooleanToken,
+  [TokenKind.date]: unparseDateToken,
+  [TokenKind.datetime]: unparseDateTimeToken,
+  [TokenKind.time]: unparseTimeToken,
+  [TokenKind.quantity]: unparseQuantityToken,
+  [TokenKind.type]: unparseTypeToken,
+  [TokenKind.index]: unparseIndexToken,
+  [TokenKind.operator]: unparseOperatorToken,
+  [TokenKind.variable]: unparseVariableToken,
+  [TokenKind.field]: unparseFieldToken,
+  [TokenKind.function]: unparseFunctionToken,
+  [TokenKind.answer]: unparseAnswerToken,
 } as const;
 
 export const unparseExpression = (
@@ -774,14 +774,14 @@ export const unparseExpression = (
   for (let i = 0; i < expression.length; i++) {
     const token = expression[i];
     assertDefined(token);
-    const stringifier = tokenUnparsers[token.type] as (
+    const stringifier = tokenUnparsers[token.kind] as (
       token: Token,
       context: UnparseContext,
     ) => string;
     if (stringifier) {
       result += stringifier(token, {
         ...context,
-        first: i === 0 || expression[i - 1]?.type === "operator",
+        first: i === 0 || expression[i - 1]?.kind === "operator",
       });
     }
   }

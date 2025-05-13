@@ -184,24 +184,24 @@ export function getFields(
   registry: FhirRegistry,
 ): Record<string, Type> {
   let single = false;
-  if (type && type.type === TypeName.Single) {
+  if (type && type.name === TypeName.Single) {
     single = true;
     type = unwrapSingle(type);
   }
 
-  if (type && type.type === TypeName.Type) {
+  if (type && type.name === TypeName.Type) {
     type = type.ofType;
   }
 
-  if (type.type === TypeName.Quantity) {
+  if (type.name === TypeName.Quantity) {
     type = ComplexType(["Quantity"]);
   }
 
   if (type) {
-    const primitive = typePrimitiveMap[type.type];
+    const primitive = typePrimitiveMap[type.name];
 
     const schema =
-      type.type === TypeName.Complex
+      type.name === TypeName.Complex
         ? resolvePath(type.schemaReference, registry)
         : primitive
           ? resolvePath([primitive], registry)
@@ -215,7 +215,7 @@ export function getFields(
           fieldSchemaToType(
             name,
             elements,
-            type.type === TypeName.Complex ? type.schemaReference : [],
+            type.name === TypeName.Complex ? type.schemaReference : [],
             single,
             registry,
           ),

@@ -324,7 +324,7 @@ export const functionMetadata: FunctionMetadata[] = [
     ({ T, F, args: [, , elseArg] }) => {
       assertDefined(T);
       assertDefined(F);
-      if (elseArg?.type !== NullType.type) {
+      if (elseArg?.name !== NullType.name) {
         return ChoiceType([T, F]);
       } else {
         return T;
@@ -568,7 +568,7 @@ export function resolveFunctionCall(
 
     let actualTypeToMatchArgument: Type;
     const isExpectedLambda =
-      concreteExpectedPatternForArg?.type === TypeName.Lambda;
+      concreteExpectedPatternForArg?.name === TypeName.Lambda;
 
     // Determine the context ($this) for the argument's core expression
     const argContextType = isExpectedLambda
@@ -585,7 +585,7 @@ export function resolveFunctionCall(
           `Missing required argument "${argDef.name}" (at index ${i}) for function "${name}"`,
         );
       }
-    } else if (argExprBodyType.type === TypeName.Invalid) {
+    } else if (argExprBodyType.name === TypeName.Invalid) {
       actualTypeToMatchArgument = argExprBodyType; // Propagate error from argument expression evaluation
     } else {
       // If a lambda was expected, wrap the evaluated body type. Otherwise, use the type directly.
@@ -601,7 +601,7 @@ export function resolveFunctionCall(
 
     resolvedArgumentTypes.push(actualTypeToMatchArgument);
 
-    if (actualTypeToMatchArgument.type === TypeName.Invalid) {
+    if (actualTypeToMatchArgument.name === TypeName.Invalid) {
       // The error message from InvalidType should be descriptive enough.
       // console.debug(`Bailing due to invalid required arg: ${stringifyType(actualTypeToMatchArgument)}`);
       return actualTypeToMatchArgument;

@@ -45,17 +45,17 @@ import { assertDefined } from "./misc.ts";
 const typeHierarchy: Partial<Record<TypeName, TypeName[]>> = {};
 
 export function extendType<T extends Type>(supertype: Type, subtype: T): T {
-  const currentSupertypes = typeHierarchy[subtype.type] || [];
-  typeHierarchy[subtype.type] = Array.from(
-    new Set([...currentSupertypes, supertype.type]),
+  const currentSupertypes = typeHierarchy[subtype.name] || [];
+  typeHierarchy[subtype.name] = Array.from(
+    new Set([...currentSupertypes, supertype.name]),
   );
 
   return subtype;
 }
 
 export function isSubtypeOf(actual: Type, expected: Type): boolean {
-  const a = actual.type;
-  const e = expected.type;
+  const a = actual.name;
+  const e = expected.name;
 
   if (a === e) return true;
   if (e === TypeName.Any) return true;
@@ -79,168 +79,168 @@ export function isSubtypeOf(actual: Type, expected: Type): boolean {
 
   return false;
 }
-export const IntegerType: IIntegerType = { type: TypeName.Integer };
+export const IntegerType: IIntegerType = { name: TypeName.Integer };
 
-export const DecimalType: IDecimalType = { type: TypeName.Decimal };
+export const DecimalType: IDecimalType = { name: TypeName.Decimal };
 
-export const StringType: IStringType = { type: TypeName.String };
+export const StringType: IStringType = { name: TypeName.String };
 
-export const BooleanType: IBooleanType = { type: TypeName.Boolean };
+export const BooleanType: IBooleanType = { name: TypeName.Boolean };
 
-export const DateType: IDateType = { type: TypeName.Date };
+export const DateType: IDateType = { name: TypeName.Date };
 
-export const DateTimeType: IDateTimeType = { type: TypeName.DateTime };
+export const DateTimeType: IDateTimeType = { name: TypeName.DateTime };
 
-export const TimeType: ITimeType = { type: TypeName.Time };
+export const TimeType: ITimeType = { name: TypeName.Time };
 
-export const QuantityType: IQuantityType = { type: TypeName.Quantity };
+export const QuantityType: IQuantityType = { name: TypeName.Quantity };
 
-export const NullType: INullType = { type: TypeName.Null };
+export const NullType: INullType = { name: TypeName.Null };
 
-export const AnyType: IAnyType = { type: TypeName.Any };
+export const AnyType: IAnyType = { name: TypeName.Any };
 
 export const PrimitiveCodeType: IPrimitiveCodeType = extendType(StringType, {
-  type: TypeName.PrimitiveCode,
+  name: TypeName.PrimitiveCode,
 });
 
 export const PrimitiveBooleanType: IPrimitiveBooleanType = extendType(
   BooleanType,
   {
-    type: TypeName.PrimitiveBoolean,
+    name: TypeName.PrimitiveBoolean,
   },
 );
 
 export const PrimitiveStringType: IPrimitiveStringType = extendType(
   StringType,
   {
-    type: TypeName.PrimitiveString,
+    name: TypeName.PrimitiveString,
   },
 );
 
 export const PrimitiveUriType: IPrimitiveUriType = extendType(StringType, {
-  type: TypeName.PrimitiveUri,
+  name: TypeName.PrimitiveUri,
 });
 
 export const PrimitiveDateType: IPrimitiveDateType = extendType(DateType, {
-  type: TypeName.PrimitiveDate,
+  name: TypeName.PrimitiveDate,
 });
 
 export const PrimitiveDateTimeType: IPrimitiveDateTimeType = extendType(
   DateTimeType,
   {
-    type: TypeName.PrimitiveDateTime,
+    name: TypeName.PrimitiveDateTime,
   },
 );
 
 export const PrimitiveDecimalType: IPrimitiveDecimalType = extendType(
   DecimalType,
   {
-    type: TypeName.PrimitiveDecimal,
+    name: TypeName.PrimitiveDecimal,
   },
 );
 
 export const PrimitiveMarkdownType: IPrimitiveMarkdownType = extendType(
   StringType,
   {
-    type: TypeName.PrimitiveMarkdown,
+    name: TypeName.PrimitiveMarkdown,
   },
 );
 
 export const PrimitiveCanonicalType: IPrimitiveCanonicalType = extendType(
   StringType,
   {
-    type: TypeName.PrimitiveCanonical,
+    name: TypeName.PrimitiveCanonical,
   },
 );
 
 export const PrimitiveTimeType: IPrimitiveTimeType = extendType(TimeType, {
-  type: TypeName.PrimitiveTime,
+  name: TypeName.PrimitiveTime,
 });
 
 export const PrimitiveIdType: IPrimitiveIdType = extendType(StringType, {
-  type: TypeName.PrimitiveId,
+  name: TypeName.PrimitiveId,
 });
 
 export const PrimitiveIntegerType: IPrimitiveIntegerType = extendType(
   IntegerType,
   {
-    type: TypeName.PrimitiveInteger,
+    name: TypeName.PrimitiveInteger,
   },
 );
 
 export const PrimitivePositiveIntegerType: IPrimitivePositiveIntegerType =
   extendType(IntegerType, {
-    type: TypeName.PrimitivePositiveInteger,
+    name: TypeName.PrimitivePositiveInteger,
   });
 
 export const PrimitiveUnsignedIntegerType: IPrimitiveUnsignedIntegerType =
   extendType(IntegerType, {
-    type: TypeName.PrimitiveUnsignedInteger,
+    name: TypeName.PrimitiveUnsignedInteger,
   });
 
 export const PrimitiveInstantType: IPrimitiveInstantType = extendType(
   DateTimeType,
   {
-    type: TypeName.PrimitiveInstant,
+    name: TypeName.PrimitiveInstant,
   },
 );
 
 export const PrimitiveUuidType: IPrimitiveUuidType = extendType(StringType, {
-  type: TypeName.PrimitiveUuid,
+  name: TypeName.PrimitiveUuid,
 });
 
 export const PrimitiveUrlType: IPrimitiveUrlType = extendType(StringType, {
-  type: TypeName.PrimitiveUrl,
+  name: TypeName.PrimitiveUrl,
 });
 
 export const PrimitiveOidType: IPrimitiveOidType = extendType(StringType, {
-  type: TypeName.PrimitiveOid,
+  name: TypeName.PrimitiveOid,
 });
 
 export const PrimitiveXhtmlType: IPrimitiveXhtmlType = extendType(StringType, {
-  type: TypeName.PrimitiveXhtml,
+  name: TypeName.PrimitiveXhtml,
 });
 
 export const PrimitiveBase64BinaryType: IPrimitiveBase64BinaryType = extendType(
   StringType,
   {
-    type: TypeName.PrimitiveBase64Binary,
+    name: TypeName.PrimitiveBase64Binary,
   },
 );
 
 export const ComplexType = (schemaReference: string[]): IComplexType => ({
-  type: TypeName.Complex,
+  name: TypeName.Complex,
   schemaReference,
 });
 
 export const InvalidType = (error: string): IInvalidType => ({
-  type: TypeName.Invalid,
+  name: TypeName.Invalid,
   error,
 });
 
 export const TypeType = (ofType: Type): ITypeType => ({
-  type: TypeName.Type,
+  name: TypeName.Type,
   ofType,
 });
 
 export const SingleType = (ofType: Type): ISingleType => {
-  if (ofType.type === TypeName.Single) return ofType;
+  if (ofType.name === TypeName.Single) return ofType;
 
   return {
-    type: TypeName.Single,
+    name: TypeName.Single,
     ofType,
   };
 };
 
 export const ChoiceType = (options: Type[]): IChoiceType => ({
-  type: TypeName.Choice,
+  name: TypeName.Choice,
   options,
 });
 
-export function Generic(name: GenericLetter): IGenericType {
+export function Generic(letter: GenericLetter): IGenericType {
   return {
-    type: TypeName.Generic,
-    name,
+    name: TypeName.Generic,
+    letter,
   };
 }
 
@@ -248,13 +248,13 @@ export const LambdaType = (
   returnType: Type,
   contextType: Type,
 ): ILambdaType => ({
-  type: TypeName.Lambda,
+  name: TypeName.Lambda,
   returnType,
   contextType,
 });
 
 export function unwrapSingle(t: Type): Type {
-  return t?.type === TypeName.Single ? t.ofType : t;
+  return t?.name === TypeName.Single ? t.ofType : t;
 }
 
 export function normalizeChoice(choice: IChoiceType): Type {
@@ -267,11 +267,11 @@ export function normalizeChoice(choice: IChoiceType): Type {
     const opt = queue.shift();
     if (!opt) continue;
 
-    if (opt.type === TypeName.Any) {
+    if (opt.name === TypeName.Any) {
       return AnyType; // AnyType in options simplifies the choice to AnyType
     }
 
-    if (opt.type === TypeName.Choice) {
+    if (opt.name === TypeName.Choice) {
       // Instead of normalizing here, just add its options to the queue to check them for AnyType
       // This ensures that an AnyType deep inside nested choices is found.
       queue.push(...opt.options);
@@ -297,8 +297,8 @@ export function normalizeChoice(choice: IChoiceType): Type {
 }
 
 export function promote(a: Type, b: Type): Type | undefined {
-  const t1 = a.type;
-  const t2 = b.type;
+  const t1 = a.name;
+  const t2 = b.name;
 
   if (t1 === t2) return a;
 
@@ -332,13 +332,13 @@ export function mergeBindings(
 }
 
 export function deepEqual(a: any, b: any): boolean {
-  if (a?.type === TypeName.Generic || b?.type === TypeName.Generic) {
+  if (a?.name === TypeName.Generic || b?.name === TypeName.Generic) {
     return true;
   }
-  if (a?.type === TypeName.Choice) {
+  if (a?.name === TypeName.Choice) {
     return a.options.some((opt: Type) => deepEqual(opt, b));
   }
-  if (b?.type === TypeName.Choice) {
+  if (b?.name === TypeName.Choice) {
     return b.options.some((opt: Type) => deepEqual(opt, a));
   }
 
@@ -348,7 +348,7 @@ export function deepEqual(a: any, b: any): boolean {
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
 
   if ("type" in a && "type" in b) {
-    if (a.type !== b.type && !isSubtypeOf(a, b) && !isSubtypeOf(b, a))
+    if (a.name !== b.name && !isSubtypeOf(a, b) && !isSubtypeOf(b, a))
       return false;
     keys.delete("type");
   }
@@ -369,15 +369,15 @@ export function matchTypePattern(
   let newBindings = { ...bindings };
 
   // If pattern is a Generic, record or check consistency
-  if (pattern.type === TypeName.Generic) {
+  if (pattern.name === TypeName.Generic) {
     const name = pattern.name;
 
     if (bindings[name]) {
       if (
         !deepEqual(bindings[name], actual) &&
         !(
-          parentOfPattern?.type === TypeName.Single &&
-          bindings[name].type === TypeName.Single &&
+          parentOfPattern?.name === TypeName.Single &&
+          bindings[name].name === TypeName.Single &&
           deepEqual(bindings[name].ofType, actual)
         )
       )
@@ -388,13 +388,13 @@ export function matchTypePattern(
     return newBindings;
   }
 
-  if (actual.type === TypeName.Single && pattern.type !== TypeName.Single) {
+  if (actual.name === TypeName.Single && pattern.name !== TypeName.Single) {
     // Promote Single to its ofType
     return matchTypePattern(pattern, actual.ofType, newBindings, undefined);
   }
 
   // Choice handling — try each branch
-  if (pattern.type === TypeName.Choice) {
+  if (pattern.name === TypeName.Choice) {
     for (const option of pattern.options) {
       const b = matchTypePattern(option, actual, newBindings, pattern);
       if (b) return b;
@@ -407,9 +407,9 @@ export function matchTypePattern(
     return undefined;
 
   if (
-    pattern.type &&
-    actual.type &&
-    pattern.type !== actual.type &&
+    pattern.name &&
+    actual.name &&
+    pattern.name !== actual.name &&
     !isSubtypeOf(actual, pattern)
   ) {
     return undefined;
@@ -446,22 +446,22 @@ export function substituteBindings(
 ): Type {
   if (!type || typeof type !== "object") return type;
 
-  if (type.type === TypeName.Generic) {
+  if (type.name === TypeName.Generic) {
     const name = type.name;
     return bindings[name] || type;
   }
 
-  if (type.type === TypeName.Single) {
+  if (type.name === TypeName.Single) {
     return SingleType(substituteBindings(type.ofType, bindings));
   }
 
-  if (type.type === TypeName.Choice) {
+  if (type.name === TypeName.Choice) {
     return ChoiceType(
       type.options.map((t: Type) => substituteBindings(t, bindings)),
     );
   }
 
-  if (type.type === TypeName.Lambda) {
+  if (type.name === TypeName.Lambda) {
     return LambdaType(
       substituteBindings(type.returnType, bindings),
       substituteBindings(type.contextType, bindings),
@@ -509,11 +509,11 @@ export const primitiveTypeMap: Record<string, Type> = {
 
 export const typePrimitiveMap: Partial<Record<TypeName, string>> =
   Object.fromEntries(
-    Object.entries(primitiveTypeMap).map(([key, value]) => [value.type, key]),
+    Object.entries(primitiveTypeMap).map(([key, value]) => [value.name, key]),
   );
 
 export function stringifyType(t: Type): string {
-  switch (t.type) {
+  switch (t.name) {
     case TypeName.Single:
       return `Single<${stringifyType(t.ofType)}>`;
     case TypeName.Generic:
@@ -532,9 +532,9 @@ export function stringifyType(t: Type): string {
         .map((field) => `["${field}"]`)
         .join("")}`;
     default:
-      if (typePrimitiveMap[t.type]) {
-        return `Primitive<${typePrimitiveMap[t.type]}>`;
+      if (typePrimitiveMap[t.name]) {
+        return `Primitive<${typePrimitiveMap[t.name]}>`;
       }
-      return t.type;
+      return t.name;
   }
 }

@@ -85,7 +85,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
 
     const inputValue =
       selectedArgIndex != null
-        ? meta.args[selectedArgIndex].type.type === TypeName.Lambda
+        ? meta.args[selectedArgIndex].type.name === TypeName.Lambda
           ? getExpressionValue(bindingId, tokenIndex - 1)
           : contextValue
         : undefined;
@@ -321,7 +321,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                       contextType={argContextType}
                       contextValue={inputSample}
                       isLambda={
-                        meta.args[selectedArgIndex].type.type ===
+                        meta.args[selectedArgIndex].type.name ===
                         TypeName.Lambda
                       }
                     />

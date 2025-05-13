@@ -13,7 +13,7 @@ import TypeToken from "./TypeToken";
 import IndexToken from "./IndexToken";
 import FunctionToken from "./FunctionToken";
 import AnswerToken from "./AnswerToken";
-import { TokenComponentProps, TokenType } from "../types/internal";
+import { TokenComponentProps, TokenKind } from "../types/internal";
 import { useStyle } from "../style";
 import clx from "classnames";
 import { X } from "@phosphor-icons/react";
@@ -21,55 +21,55 @@ import { useProgramContext } from "../utils/store.ts";
 import NullToken from "./NullToken.tsx";
 
 const getTokenComponent = (
-  type: TokenType,
+  kind: TokenKind,
 ): ReturnType<typeof forwardRef<HTMLElement, TokenComponentProps>> => {
-  switch (type) {
-    case TokenType.null:
+  switch (kind) {
+    case TokenKind.null:
       return NullToken;
-    case TokenType.number:
+    case TokenKind.number:
       return NumberToken;
-    case TokenType.string:
+    case TokenKind.string:
       return StringToken;
-    case TokenType.boolean:
+    case TokenKind.boolean:
       return BooleanToken;
-    case TokenType.date:
+    case TokenKind.date:
       return DateToken;
-    case TokenType.datetime:
+    case TokenKind.datetime:
       return DateTimeToken;
-    case TokenType.time:
+    case TokenKind.time:
       return TimeToken;
-    case TokenType.quantity:
+    case TokenKind.quantity:
       return QuantityToken;
-    case TokenType.type:
+    case TokenKind.type:
       return TypeToken;
-    case TokenType.index:
+    case TokenKind.index:
       return IndexToken;
-    case TokenType.operator:
+    case TokenKind.operator:
       return OperatorToken;
-    case TokenType.variable:
+    case TokenKind.variable:
       return VariableToken;
-    case TokenType.field:
+    case TokenKind.field:
       return FieldToken;
-    case TokenType.function:
+    case TokenKind.function:
       return FunctionToken;
-    case TokenType.answer:
+    case TokenKind.answer:
       return AnswerToken;
     default:
-      throw new Error(`Unknown token type: ${type}`);
+      throw new Error(`Unknown token type: ${kind}`);
   }
 };
 
 type TokenProps = {
-  type: TokenType;
+  kind: TokenKind;
   bindingId: string;
   tokenIndex: number;
   deleting?: boolean;
 };
 
 const Token = forwardRef<HTMLElement, TokenProps>(
-  ({ type, deleting, ...props }, ref) => {
+  ({ kind, deleting, ...props }, ref) => {
     const style = useStyle();
-    const TokenComponent = getTokenComponent(type);
+    const TokenComponent = getTokenComponent(kind);
     const deleteToken = useProgramContext((state) => state.deleteToken);
     const last = useProgramContext(
       (state) =>

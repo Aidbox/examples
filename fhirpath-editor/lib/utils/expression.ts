@@ -33,7 +33,6 @@ import {
 import fhirpath, { Model } from "fhirpath";
 import {
   Binding,
-  Context,
   FhirRegistry,
   FhirValue,
   IOperatorToken,
@@ -44,7 +43,7 @@ import {
   QuestionnaireItemRegistry,
   SuggestedToken,
   Token,
-  TokenType,
+  TokenKind,
   Type,
   TypeName,
 } from "../types/internal";
@@ -143,7 +142,7 @@ function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
 
   function parseLeaf() {
     const leaf = [];
-    while (pos < tokens.length && peek()?.type !== "operator") {
+    while (pos < tokens.length && peek()?.kind !== "operator") {
       leaf.push(next());
     }
     return leaf;
@@ -153,7 +152,7 @@ function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
     let left: OperatorTreeLeaf | Token[];
 
     // Missing left operand (e.g., starts with operator)
-    if (peek()?.type === "operator") {
+    if (peek()?.kind === "operator") {
       left = [];
     } else {
       left = parseLeaf();
@@ -161,7 +160,7 @@ function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
 
     while (true) {
       const token = peek();
-      if (token?.type !== "operator") break;
+      if (token?.kind !== "operator") break;
       const name = token.value as OperatorName;
 
       const [prec, assoc] = precedence[name] || [0, "left"];
@@ -171,7 +170,7 @@ function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
 
       // Gracefully handle missing right operand (e.g., end of input)
       let right: OperatorTreeLeaf | Token[];
-      if (peek() == null || peek()?.type === "operator") {
+      if (peek() == null || peek()?.kind === "operator") {
         right = []; // missing right operand
       } else {
         const nextMinPrec = assoc === "left" ? prec + 1 : prec;
@@ -207,10 +206,10 @@ export const getExpressionType = (
       ? getChainingExpressionType(right)
       : getOperatorExpressionType(right.name, right.left, right.right);
 
-    if (leftType.type === TypeName.Invalid)
+    if (leftType.name === TypeName.Invalid)
       return InvalidType(`Left operand is "${leftType.error}"`);
 
-    if (rightType.type === TypeName.Invalid)
+    if (rightType.name === TypeName.Invalid)
       return InvalidType(`Right operand is "${rightType.error}"`);
 
     return resolveOperator(operator, leftType, rightType);
@@ -224,44 +223,44 @@ export const getExpressionType = (
     let first = true;
     if (!tokens.length) return InvalidType("Empty expression");
 
-    while (tokens.length > 0 && currentType?.type !== TypeName.Invalid) {
+    while (tokens.length > 0 && currentType?.name !== TypeName.Invalid) {
       const token = tokens.shift();
       assertDefined(token, "Token should be defined");
 
       if (first) {
         first = false;
         // we are at the first token
-        switch (token.type) {
-          case TokenType.null:
+        switch (token.kind) {
+          case TokenKind.null:
             currentType = SingleType(NullType);
             continue;
-          case TokenType.number:
+          case TokenKind.number:
             currentType = token.value.includes(".")
               ? SingleType(DecimalType)
               : SingleType(IntegerType);
             continue;
-          case TokenType.string:
+          case TokenKind.string:
             currentType = SingleType(StringType);
             continue;
-          case TokenType.boolean:
+          case TokenKind.boolean:
             currentType = SingleType(BooleanType);
             continue;
-          case TokenType.date:
+          case TokenKind.date:
             currentType = SingleType(DateType);
             continue;
-          case TokenType.datetime:
+          case TokenKind.datetime:
             currentType = SingleType(DateTimeType);
             continue;
-          case TokenType.time:
+          case TokenKind.time:
             currentType = SingleType(TimeType);
             continue;
-          case TokenType.quantity:
+          case TokenKind.quantity:
             currentType = SingleType(QuantityType);
             continue;
-          case TokenType.type:
+          case TokenKind.type:
             currentType = TypeType(token.value); // Return the actual type value
             continue;
-          case TokenType.variable: {
+          case TokenKind.variable: {
             if (token.special) {
               if (token.value === "$this") {
                 currentType = SingleType(contextType);
@@ -280,10 +279,10 @@ export const getExpressionType = (
         }
       }
 
-      if (token.type === TokenType.index) {
+      if (token.kind === TokenKind.index) {
         // Skip index tokens - they don't change the type
         currentType = SingleType(currentType);
-      } else if (token.type === TokenType.function) {
+      } else if (token.kind === TokenKind.function) {
         currentType = resolveFunctionCall(
           token.value,
           currentType,
@@ -299,12 +298,12 @@ export const getExpressionType = (
                 )
               : undefined,
         );
-      } else if (token.type === TokenType.field) {
+      } else if (token.kind === TokenKind.field) {
         const availableFields = getFields(currentType, fhirSchema);
         currentType =
           availableFields[token.value] ||
           InvalidType(`Unknown field "${token.value}"`);
-      } else if (token.type === TokenType.answer) {
+      } else if (token.kind === TokenKind.answer) {
         if (
           !matchTypePattern(
             ComplexType(["QuestionnaireResponse"]),
@@ -316,7 +315,7 @@ export const getExpressionType = (
           );
         }
 
-        const single = currentType.type === TypeName.Single;
+        const single = currentType.name === TypeName.Single;
 
         currentType =
           questionnaireItems[token.value]?.type ||
@@ -329,7 +328,7 @@ export const getExpressionType = (
           currentType = unwrapSingle(currentType);
         }
       } else {
-        return InvalidType(`Unknown token type "${token.type}"`);
+        return InvalidType(`Unknown token type "${token.kind}"`);
       }
 
       first = false;
@@ -353,7 +352,7 @@ function extractOperatorContext(
   const opIndex = tokens.length - 1;
   const op = tokens[opIndex];
 
-  if (op.type !== TokenType.operator) {
+  if (op.kind !== TokenKind.operator) {
     throw new Error("Last token is not an operator");
   }
 
@@ -364,7 +363,7 @@ function extractOperatorContext(
   let i = opIndex - 1;
   while (i >= 0) {
     const t = tokens[i];
-    if (t.type === "operator") {
+    if (t.kind === "operator") {
       const name = t.value as OperatorName;
       const [tPrec, tAssoc] = precedence[name] || [0, "left"];
       const breakByPrecedence =
@@ -383,55 +382,55 @@ function extractOperatorContext(
 
 function suggestNextTokenTypes(
   tokens: Token[],
-): [TokenType[], Token[] | undefined, IOperatorToken | undefined] {
+): [TokenKind[], Token[] | undefined, IOperatorToken | undefined] {
   const literalTypes = [
-    TokenType.string,
-    TokenType.number,
-    TokenType.boolean,
-    TokenType.date,
-    TokenType.datetime,
-    TokenType.quantity,
-    TokenType.time,
+    TokenKind.string,
+    TokenKind.number,
+    TokenKind.boolean,
+    TokenKind.date,
+    TokenKind.datetime,
+    TokenKind.quantity,
+    TokenKind.time,
   ];
 
   const startTypes = [
-    TokenType.field,
-    TokenType.function,
-    TokenType.variable,
-    TokenType.type,
-    TokenType.answer,
+    TokenKind.field,
+    TokenKind.function,
+    TokenKind.variable,
+    TokenKind.type,
+    TokenKind.answer,
     ...literalTypes,
   ];
 
   const valueTypes = new Set([
-    TokenType.field,
-    TokenType.function,
-    TokenType.variable,
-    TokenType.index,
-    TokenType.type,
-    TokenType.answer,
+    TokenKind.field,
+    TokenKind.function,
+    TokenKind.variable,
+    TokenKind.index,
+    TokenKind.type,
+    TokenKind.answer,
     ...literalTypes,
   ]);
 
   const last = tokens[tokens.length - 1];
-  let types: TokenType[] = [];
+  let types: TokenKind[] = [];
   let contextTokens: Token[] | undefined;
   let operatorToken: IOperatorToken | undefined;
 
   if (!last) {
     types = startTypes;
-  } else if (last.type === "operator") {
+  } else if (last.kind === "operator") {
     types = startTypes;
     [contextTokens, operatorToken] = extractOperatorContext(tokens);
-  } else if (valueTypes.has(last.type)) {
+  } else if (valueTypes.has(last.kind)) {
     types = [
-      TokenType.field,
-      TokenType.function,
-      TokenType.index,
-      TokenType.operator,
+      TokenKind.field,
+      TokenKind.function,
+      TokenKind.index,
+      TokenKind.operator,
     ];
     let i = tokens.length - 1;
-    while (i > 0 && tokens[i - 1]?.type !== "operator") i--;
+    while (i > 0 && tokens[i - 1]?.kind !== "operator") i--;
     contextTokens = tokens.slice(i);
   }
 
@@ -439,7 +438,7 @@ function suggestNextTokenTypes(
 }
 
 function toTokens(
-  type: TokenType,
+  kind: TokenKind,
   isLambda: boolean,
   contextType: Type,
   contextExpressionType: Type,
@@ -448,54 +447,54 @@ function toTokens(
   bindingTypes: Partial<Record<string, Type>>,
   fhirSchema: FhirRegistry,
 ): SuggestedToken[] {
-  switch (type) {
-    case TokenType.null:
-      return [{ type }];
-    case TokenType.string:
-      return [{ type, value: "" }];
-    case TokenType.number:
-      return [{ type, value: "0" }];
-    case TokenType.date:
-      return [{ type, value: now.toISOString().split("T")[0] }];
-    case TokenType.datetime:
-      return [{ type, value: now.toISOString().slice(0, 16) }];
-    case TokenType.time:
-      return [{ type, value: now.toTimeString().slice(0, 5) }];
-    case TokenType.index:
-      return [{ type, value: "0" }];
-    case TokenType.type:
-      return [{ type, value: StringType }];
-    case TokenType.boolean:
-      return [{ type, value: "true" }];
-    case TokenType.quantity:
-      return [{ type, value: { value: "0", unit: "seconds" } }];
-    case TokenType.field: {
+  switch (kind) {
+    case TokenKind.null:
+      return [{ kind }];
+    case TokenKind.string:
+      return [{ kind, value: "" }];
+    case TokenKind.number:
+      return [{ kind, value: "0" }];
+    case TokenKind.date:
+      return [{ kind, value: now.toISOString().split("T")[0] }];
+    case TokenKind.datetime:
+      return [{ kind, value: now.toISOString().slice(0, 16) }];
+    case TokenKind.time:
+      return [{ kind, value: now.toTimeString().slice(0, 5) }];
+    case TokenKind.index:
+      return [{ kind, value: "0" }];
+    case TokenKind.type:
+      return [{ kind, value: StringType }];
+    case TokenKind.boolean:
+      return [{ kind, value: "true" }];
+    case TokenKind.quantity:
+      return [{ kind, value: { value: "0", unit: "seconds" } }];
+    case TokenKind.field: {
       return Object.entries(getFields(contextExpressionType, fhirSchema)).map(
         ([field, type]) => ({
-          type: TokenType.field,
+          kind: TokenKind.field,
           value: field,
           debug: stringifyType(type),
         }),
       );
     }
-    case TokenType.answer: {
+    case TokenKind.answer: {
       return matchTypePattern(
         ComplexType(["QuestionnaireResponse"]),
         bindingTypes["resource"],
       )
         ? Object.keys(questionnaireItems).map((linkId) => ({
-            type,
+            kind,
             value: linkId,
             debug: stringifyType(questionnaireItems[linkId].type),
           }))
         : [];
     }
-    case TokenType.variable: {
+    case TokenKind.variable: {
       return bindableBindings
         .map(
           (binding) =>
             ({
-              type,
+              kind,
               value: binding.name,
               debug: stringifyType(
                 bindingTypes[binding.name] ||
@@ -507,13 +506,13 @@ function toTokens(
           isLambda
             ? [
                 {
-                  type,
+                  kind,
                   value: "this",
                   special: true,
                   debug: stringifyType(SingleType(contextType)),
                 },
                 {
-                  type,
+                  kind,
                   value: "index",
                   special: true,
                   debug: stringifyType(SingleType(IntegerType)),
@@ -522,20 +521,20 @@ function toTokens(
             : [],
         );
     }
-    case TokenType.function: {
+    case TokenKind.function: {
       const compatible = new Set(
         suggestFunctionsForInputType(contextExpressionType).map(
           (meta) => meta.name,
         ),
       );
       return functionMetadata.map((meta) => ({
-        type,
+        kind,
         value: meta.name,
         args: [],
         incompatible: !compatible.has(meta.name),
       }));
     }
-    case TokenType.operator: {
+    case TokenKind.operator: {
       const compatible = new Set(
         suggestOperatorsForLeftType(contextExpressionType).map(
           (meta) => meta.name,
@@ -543,14 +542,14 @@ function toTokens(
       );
       return distinct(operatorMetadata.map((meta) => meta.name)).map(
         (name) => ({
-          type,
+          kind,
           value: name,
           incompatible: !compatible.has(name),
         }),
       );
     }
     default:
-      never(type);
+      never(kind);
   }
 }
 
@@ -561,7 +560,7 @@ export function suggestNextTokens(
   questionnaireItems: QuestionnaireItemRegistry,
   bindableBindings: Binding[],
   bindingTypes: Partial<Record<string, Type>>,
-  contextType: Context["type"],
+  contextType: Type,
   fhirSchema: FhirRegistry,
 ): SuggestedToken[] {
   const [types, contextExpression, operatorToken] =
@@ -608,7 +607,7 @@ export function suggestTokensAt<T extends Token>(
   questionnaireItems: QuestionnaireItemRegistry,
   bindableBindings: Binding[],
   bindingTypes: Partial<Record<string, Type>>,
-  contextType: Context["type"],
+  contextType: Type,
   fhirSchema: FhirRegistry,
 ): SuggestedToken<T>[] {
   const token = expression[index];
@@ -628,9 +627,9 @@ export function suggestTokensAt<T extends Token>(
         )
       : contextType;
 
-  if (types.includes(token.type)) {
+  if (types.includes(token.kind)) {
     return toTokens(
-      token.type,
+      token.kind,
       isLambda,
       contextType,
       contextExpressionType,
@@ -646,9 +645,9 @@ export function suggestTokensAt<T extends Token>(
 
 function extractReferencedBindingNames(expression: Token[]): string[] {
   return expression.flatMap((token) => {
-    if (token.type === TokenType.variable && !token.special) {
+    if (token.kind === TokenKind.variable && !token.special) {
       return [token.value];
-    } else if (token.type === TokenType.function) {
+    } else if (token.kind === TokenKind.function) {
       return token.args.flatMap((arg) => {
         if (!arg) return [];
 
