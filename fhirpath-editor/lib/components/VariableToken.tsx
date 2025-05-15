@@ -1,7 +1,7 @@
 import { forwardRef, Ref } from "react";
 import { useProgramContext } from "../utils/store";
 import { mergeRefs } from "../utils/react";
-import { Plus, PuzzlePiece, CurrencyDollar } from "@phosphor-icons/react";
+import { CurrencyDollar, Plus, PuzzlePiece } from "@phosphor-icons/react";
 import Dropdown from "./Dropdown";
 import {
   IVariableToken,

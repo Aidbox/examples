@@ -221,7 +221,7 @@ export enum TypeName {
   Time = "Time",
   Quantity = "Quantity",
   Null = "Null",
-  Any = "Any",
+  Unknown = "Unknown",
   Invalid = "Invalid",
   Type = "Type",
   Single = "Single",
@@ -292,8 +292,8 @@ export interface INullType extends IBaseType {
   name: TypeName.Null;
 }
 
-export interface IAnyType extends IBaseType {
-  name: TypeName.Any;
+export interface IUnknownType extends IBaseType {
+  name: TypeName.Unknown;
 }
 
 export interface IInvalidType extends IBaseType {
@@ -422,7 +422,7 @@ export type Type =
   | ITimeType
   | IQuantityType
   | INullType
-  | IAnyType
+  | IUnknownType
   | IInvalidType
   | ITypeType
   | ISingleType

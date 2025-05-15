@@ -1,5 +1,4 @@
 import {
-  AnyType,
   BooleanType,
   ChoiceType,
   DateTimeType,
@@ -16,12 +15,13 @@ import {
   primitiveTypeMap,
   QuantityType,
   SingleType,
+  stringifyType,
   StringType,
   substituteBindings,
   TimeType,
   TypeType,
+  UnknownType,
   unwrapSingle,
-  stringifyType,
 } from "./type";
 import {
   FunctionArg,
@@ -323,11 +323,11 @@ export const functionMetadata: FunctionMetadata[] = [
     ],
     ({ T, F, args: [, , elseArg] }) => {
       assertDefined(T);
-      assertDefined(F);
-      if (elseArg?.name !== NullType.name) {
-        return ChoiceType([T, F]);
-      } else {
+      if (elseArg?.name === TypeName.Null) {
         return T;
+      } else {
+        assertDefined(F);
+        return ChoiceType([T, F]);
       }
     },
   ),
@@ -461,8 +461,8 @@ export const functionMetadata: FunctionMetadata[] = [
   fn("truncate", DecimalType, [], IntegerType),
 
   // Section 5.8: Tree Navigation
-  fn("children", Generic("T"), [], AnyType),
-  fn("descendants", Generic("T"), [], AnyType),
+  fn("children", Generic("T"), [], UnknownType),
+  fn("descendants", Generic("T"), [], UnknownType),
 
   // Section 5.9: Utility Functions
   fn(
@@ -607,36 +607,45 @@ export function resolveFunctionCall(
       return actualTypeToMatchArgument;
     }
 
-    // Now, match the fully formed actual argument type against the original pattern
-    // to capture/verify any generics in the argument's definition (like 'R' in a projection).
-    const newBindings = matchTypePattern(
-      argDef.type, // Original pattern from metadata, e.g., LambdaType(Generic("R"), ...)
+    // Try to match the actual argument type against its definition to bind/verify generics.
+    const argPatternMatchResult = matchTypePattern(
+      argDef.type,
       actualTypeToMatchArgument,
       bindings,
     );
 
-    if (!newBindings) {
-      return InvalidType(
-        `Argument type mismatch for "${
-          argDef.name
-        }" (at index ${i}) of function "${name}". Expected compatible with ${stringifyType(
-          substituteBindings(argDef.type, bindings), // Show expected with current bindings
-        )}, got ${stringifyType(actualTypeToMatchArgument)}`,
-      );
+    if (!argPatternMatchResult) {
+      // If matching failed:
+      // - If the argument was optional AND it was omitted (actualTypeToMatchArgument is NullType),
+      //   this is acceptable. We don't get new bindings from it, but it's not an error.
+      // - Otherwise, it's a genuine type mismatch.
+      if (
+        !(argDef.optional && actualTypeToMatchArgument.name === TypeName.Null)
+      ) {
+        return InvalidType(
+          `Argument type mismatch for "${
+            argDef.name
+          }" (at index ${i}) of function "${name}". Expected compatible with ${stringifyType(
+            substituteBindings(argDef.type, bindings),
+          )}, got ${stringifyType(actualTypeToMatchArgument)}`,
+        );
+      }
+      // If optional and omitted, bindings remain unchanged for this argument.
+    } else {
+      // If matching succeeded, merge the new bindings.
+      const mergedBindings = mergeBindings(bindings, argPatternMatchResult);
+      if (!mergedBindings) {
+        return InvalidType(
+          `Binding conflict for argument ${argDef.name} at index ${i} in function "${name}"`,
+        );
+      }
+      bindings = mergedBindings;
     }
-
-    const mergedBindings = mergeBindings(bindings, newBindings);
-    if (!mergedBindings) {
-      return InvalidType(
-        `Binding conflict for argument ${argDef.name} at index ${i} in function "${name}"`,
-      );
-    }
-    bindings = mergedBindings;
   }
 
   return meta.returnType({
     input: inputType,
-    args: resolvedArgumentTypes, // These are the fully formed types of the arguments
+    args: resolvedArgumentTypes,
     ...bindings,
   });
 }
@@ -657,12 +666,12 @@ export function getArgumentContextType(
     (argIndex: number, argContextType: Type) => {
       if (argIndex === index) {
         capturedContext = argContextType;
-        return undefined;
+        return undefined; // Return undefined to stop further processing if needed, or a dummy type
       }
-
+      // For arguments already processed (before the target one), call the original getArgumentType
       return argIndex < index
         ? getArgumentType(argIndex, argContextType)
-        : undefined;
+        : undefined; // For subsequent args, don't evaluate them
     },
   );
 

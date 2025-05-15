@@ -6,7 +6,10 @@ const NullToken = forwardRef<HTMLElement, TokenComponentProps>(
   (_props, ref) => {
     const style = useStyle();
     return (
-      <label ref={ref as Ref<HTMLLabelElement>} className={style.token.null.button}>
+      <label
+        ref={ref as Ref<HTMLLabelElement>}
+        className={style.token.null.button}
+      >
         empty
       </label>
     );

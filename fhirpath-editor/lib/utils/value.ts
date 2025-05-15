@@ -1,15 +1,15 @@
-import { AnyType, ComplexType, SingleType } from "./type";
+import { ComplexType, SingleType, UnknownType } from "./type";
 
 export function detectValueType(value: any) {
   if (Array.isArray(value)) {
     if (value.length === 0 || !value[0].resourceType) {
-      return AnyType;
+      return UnknownType;
     }
     return ComplexType([value[0].resourceType]);
   }
 
   if (!value || typeof value !== "object") {
-    return AnyType;
+    return UnknownType;
   }
 
   const resourceType = value.resourceType;

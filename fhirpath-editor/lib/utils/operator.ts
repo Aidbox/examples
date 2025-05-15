@@ -1,5 +1,4 @@
 import {
-  AnyType,
   BooleanType,
   ChoiceType,
   DateTimeType,
@@ -23,7 +22,6 @@ import {
   OperatorName,
   OperatorReturnType,
   Type,
-  TypeName,
 } from "../types/internal";
 import { assertDefined } from "./misc";
 
@@ -393,24 +391,7 @@ export const operatorMetadata: OperatorMetadata[] = [
     assertDefined(A);
     assertDefined(B);
 
-    // Rule 1: If either bound type is AnyType, the union is AnyType.
-    if (A.name === TypeName.Any || B.name === TypeName.Any) {
-      return AnyType;
-    }
-
-    // Rule 2: Attempt promotion. This also handles A | A = A if A and B are identical.
-    // e.g., promote(IntegerType, DecimalType) -> DecimalType
-    // e.g., promote(IntegerType, IntegerType) -> IntegerType
-    const promotedType = promote(A, B);
-    if (promotedType) {
-      return promotedType;
-    }
-
-    // Rule 3: If not promotable to a single type (and not AnyType), form a choice.
-    // normalizeChoice will further simplify if possible (e.g., flatten nested choices,
-    // or if A and B were somehow ChoiceTypes themselves).
-    // Given previous checks, A and B are not AnyType here, and not directly promotable.
-    return normalizeChoice(ChoiceType([A, B])); // e.g., StringType | BooleanType
+    return promote(A, B) || normalizeChoice(ChoiceType([A, B]));
   }),
 
   op("is", Generic("T"), TypeType(Generic("X")), BooleanType),

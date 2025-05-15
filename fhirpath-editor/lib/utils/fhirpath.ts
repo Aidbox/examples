@@ -495,7 +495,7 @@ function transformNode(node: LezerNode): IProgram {
           assertNonTerminalNode(node);
           const [base, index] = node.children;
           if (index?.type !== "Literal") {
-            throw new Error("Dynamic indexer is not supported"); // todo: support dynamic indexer
+            throw new Error("Dynamic indexer is not supported");
           }
           assertNonTerminalNode(index);
           assertTerminalNode(index.children[0]);

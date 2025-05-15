@@ -1,6 +1,5 @@
 import {
   type GenericLetter,
-  type IAnyType,
   type IBooleanType,
   type IChoiceType,
   type IComplexType,
@@ -37,6 +36,7 @@ import {
   type IStringType,
   type ITimeType,
   type ITypeType,
+  type IUnknownType,
   type Type,
   TypeName,
 } from "../types/internal";
@@ -45,6 +45,25 @@ import { assertDefined } from "./misc.ts";
 const typeHierarchy: Partial<Record<TypeName, TypeName[]>> = {};
 
 export function extendType<T extends Type>(supertype: Type, subtype: T): T {
+  if (
+    supertype.name === TypeName.Single ||
+    supertype.name === TypeName.Choice ||
+    supertype.name === TypeName.Lambda ||
+    supertype.name === TypeName.Type ||
+    supertype.name === TypeName.Generic ||
+    supertype.name === TypeName.Complex ||
+    supertype.name === TypeName.Invalid ||
+    subtype.name === TypeName.Single ||
+    subtype.name === TypeName.Choice ||
+    subtype.name === TypeName.Lambda ||
+    subtype.name === TypeName.Type ||
+    subtype.name === TypeName.Generic ||
+    subtype.name === TypeName.Complex ||
+    subtype.name === TypeName.Invalid
+  ) {
+    throw new Error("Parametrized types cannot be extended");
+  }
+
   const currentSupertypes = typeHierarchy[subtype.name] || [];
   typeHierarchy[subtype.name] = Array.from(
     new Set([...currentSupertypes, supertype.name]),
@@ -57,9 +76,26 @@ export function isSubtypeOf(actual: Type, expected: Type): boolean {
   const a = actual.name;
   const e = expected.name;
 
+  if (
+    a === TypeName.Single ||
+    a === TypeName.Choice ||
+    a === TypeName.Lambda ||
+    a === TypeName.Type ||
+    a === TypeName.Generic ||
+    a === TypeName.Complex ||
+    a === TypeName.Invalid ||
+    e === TypeName.Single ||
+    e === TypeName.Choice ||
+    e === TypeName.Lambda ||
+    e === TypeName.Type ||
+    e === TypeName.Generic ||
+    e === TypeName.Complex ||
+    e === TypeName.Invalid
+  ) {
+    return false;
+  }
+
   if (a === e) return true;
-  if (e === TypeName.Any) return true;
-  if (a === TypeName.Any) return false;
 
   const seen = new Set<TypeName>();
   const queue: Array<TypeName> = [a];
@@ -97,7 +133,7 @@ export const QuantityType: IQuantityType = { name: TypeName.Quantity };
 
 export const NullType: INullType = { name: TypeName.Null };
 
-export const AnyType: IAnyType = { name: TypeName.Any };
+export const UnknownType: IUnknownType = { name: TypeName.Unknown };
 
 export const PrimitiveCodeType: IPrimitiveCodeType = extendType(StringType, {
   name: TypeName.PrimitiveCode,
@@ -258,8 +294,6 @@ export function unwrapSingle(t: Type): Type {
 }
 
 export function normalizeChoice(choice: IChoiceType): Type {
-  // Recursively flatten options and check for AnyType presence.
-  // If AnyType is found at any level, the entire choice becomes AnyType.
   const allFlattenedOptions: Type[] = [];
   const queue: Type[] = [...choice.options]; // Use a queue of Type for mixed types
 
@@ -267,50 +301,76 @@ export function normalizeChoice(choice: IChoiceType): Type {
     const opt = queue.shift();
     if (!opt) continue;
 
-    if (opt.name === TypeName.Any) {
-      return AnyType; // AnyType in options simplifies the choice to AnyType
-    }
-
     if (opt.name === TypeName.Choice) {
-      // Instead of normalizing here, just add its options to the queue to check them for AnyType
-      // This ensures that an AnyType deep inside nested choices is found.
       queue.push(...opt.options);
     } else {
       allFlattenedOptions.push(opt);
     }
   }
 
-  // If we reach here, no AnyType was found in the flattened list.
-  // Now, deduplicate the collected (non-AnyType) options.
   const uniqueOptions: Type[] = [];
   for (const opt of allFlattenedOptions) {
-    // Check if an equivalent option (by deepEqual) is already in uniqueOptions
     if (!uniqueOptions.some((uo) => deepEqual(uo, opt))) {
       uniqueOptions.push(opt);
     }
   }
 
-  // If, after deduplication, only one type remains, return it. Otherwise, return a new ChoiceType.
   return uniqueOptions.length === 1 && uniqueOptions[0]
     ? uniqueOptions[0]
     : ChoiceType(uniqueOptions);
 }
 
 export function promote(a: Type, b: Type): Type | undefined {
-  const t1 = a.name;
-  const t2 = b.name;
+  if (
+    a.name === TypeName.Single ||
+    a.name === TypeName.Choice ||
+    a.name === TypeName.Lambda ||
+    a.name === TypeName.Type ||
+    a.name === TypeName.Generic ||
+    a.name === TypeName.Complex ||
+    a.name === TypeName.Invalid ||
+    b.name === TypeName.Single ||
+    b.name === TypeName.Choice ||
+    b.name === TypeName.Lambda ||
+    b.name === TypeName.Type ||
+    b.name === TypeName.Generic ||
+    b.name === TypeName.Complex ||
+    b.name === TypeName.Invalid
+  ) {
+    return undefined;
+  }
+  if (a.name === b.name) return a;
 
-  if (t1 === t2) return a;
+  const normA = isSubtypeOf(a, IntegerType)
+    ? IntegerType
+    : isSubtypeOf(a, DecimalType)
+      ? DecimalType
+      : a;
 
-  if (t1 === TypeName.Any || t2 === TypeName.Any) return AnyType;
+  const normB = isSubtypeOf(b, IntegerType)
+    ? IntegerType
+    : isSubtypeOf(b, DecimalType)
+      ? DecimalType
+      : b;
+
+  if (normA.name === normB.name) return normA;
 
   const map: Partial<Record<TypeName, Partial<Record<TypeName, Type>>>> = {
-    Integer: { Decimal: DecimalType, Quantity: QuantityType },
-    Decimal: { Integer: DecimalType, Quantity: QuantityType },
-    Quantity: { Integer: QuantityType, Decimal: QuantityType },
+    [TypeName.Integer]: {
+      [TypeName.Decimal]: DecimalType,
+      [TypeName.Quantity]: QuantityType,
+    },
+    [TypeName.Decimal]: {
+      [TypeName.Integer]: DecimalType,
+      [TypeName.Quantity]: QuantityType,
+    },
+    [TypeName.Quantity]: {
+      [TypeName.Integer]: QuantityType,
+      [TypeName.Decimal]: QuantityType,
+    },
   } as const;
 
-  const result = map[t1]?.[t2] || map[t2]?.[t1];
+  const result = map[normA.name]?.[normB.name] || map[normB.name]?.[normA.name];
   return result || undefined;
 }
 
@@ -331,113 +391,313 @@ export function mergeBindings(
   return result;
 }
 
-export function deepEqual(a: any, b: any): boolean {
-  if (a?.name === TypeName.Generic || b?.name === TypeName.Generic) {
+export function deepEqual(a: Type, b: Type): boolean {
+  if (a === b) return true;
+  if (a.name !== b.name) return false;
+
+  switch (a.name) {
+    case TypeName.Generic:
+      return (a as IGenericType).letter === (b as IGenericType).letter;
+
+    case TypeName.Single:
+    case TypeName.Type:
+      return deepEqual(
+        (a as ISingleType | ITypeType).ofType,
+        (b as ISingleType | ITypeType).ofType,
+      );
+
+    case TypeName.Choice: {
+      const aOptions = (a as IChoiceType).options;
+      const bOptions = (b as IChoiceType).options;
+
+      if (aOptions.length !== bOptions.length) return false;
+      if (aOptions.length === 0) return true;
+
+      const bOptionsUsed = Array(bOptions.length).fill(false);
+      for (const aOpt of aOptions) {
+        let foundMatch = false;
+        for (let j = 0; j < bOptions.length; j++) {
+          if (!bOptionsUsed[j] && deepEqual(aOpt, bOptions[j])) {
+            bOptionsUsed[j] = true;
+            foundMatch = true;
+            break;
+          }
+        }
+        if (!foundMatch) return false;
+      }
+      return true;
+    }
+
+    case TypeName.Lambda:
+      return (
+        deepEqual(
+          (a as ILambdaType).returnType,
+          (b as ILambdaType).returnType,
+        ) &&
+        deepEqual(
+          (a as ILambdaType).contextType,
+          (b as ILambdaType).contextType,
+        )
+      );
+
+    case TypeName.Complex: {
+      const aRef = (a as IComplexType).schemaReference;
+      const bRef = (b as IComplexType).schemaReference;
+      if (aRef.length !== bRef.length) return false;
+      for (let i = 0; i < aRef.length; i++) {
+        if (aRef[i] !== bRef[i]) return false;
+      }
+      return true;
+    }
+
+    case TypeName.Invalid:
+      return (a as IInvalidType).error === (b as IInvalidType).error;
+
+    // Default: Non parametrized type
+    default:
+      return true;
+  }
+}
+
+export function isAssignableTo(source: Type, target: Type): boolean {
+  if (deepEqual(source, target)) {
     return true;
   }
-  if (a?.name === TypeName.Choice) {
-    return a.options.some((opt: Type) => deepEqual(opt, b));
-  }
-  if (b?.name === TypeName.Choice) {
-    return b.options.some((opt: Type) => deepEqual(opt, a));
+
+  if (isSubtypeOf(source, target)) {
+    return true;
   }
 
-  if (typeof a !== typeof b) return false;
-  if (typeof a !== "object" || a == null || b == null) return a === b;
-
-  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
-
-  if ("type" in a && "type" in b) {
-    if (a.name !== b.name && !isSubtypeOf(a, b) && !isSubtypeOf(b, a))
-      return false;
-    keys.delete("type");
+  if (target.name === TypeName.Choice) {
+    return target.options.some((option) => isAssignableTo(source, option));
   }
 
-  for (const key of keys) {
-    if (!deepEqual(a[key], b[key])) return false;
+  if (source.name === TypeName.Single && target.name !== TypeName.Single) {
+    return isAssignableTo(source.ofType, target);
   }
-  return true;
+
+  return false;
 }
 
 export function matchTypePattern(
   pattern: Type | undefined,
   actual: Type | undefined,
   bindings: Record<string, Type> = {},
-  parentOfPattern?: Type,
+  parentOfPattern?: Type, // parentOfPattern helps with the Single<T> vs T binding check
 ): Record<string, Type> | undefined {
-  if (!pattern || !actual) return undefined;
-  let newBindings = { ...bindings };
+  if (!pattern || !actual) return undefined; // No match if either is undefined
 
-  // If pattern is a Generic, record or check consistency
+  // --- Helper for permutations, used in Choice-to-Choice matching ---
+  // Placed inside or at module level if preferred, and accessible by matchChoiceToChoice
+  function* generatePermutations(
+    arr: number[],
+    l = 0,
+    r = arr.length - 1,
+  ): Generator<number[]> {
+    if (l === r) {
+      yield [...arr]; // Yield a copy of the permutation
+    } else {
+      for (let i = l; i <= r; i++) {
+        [arr[l], arr[i]] = [arr[i], arr[l]]; // Swap
+        yield* generatePermutations(arr, l + 1, r);
+        [arr[l], arr[i]] = [arr[i], arr[l]]; // Backtrack (swap back)
+      }
+    }
+  }
+
+  // --- Helper for Choice-to-Choice matching ---
+  // This function needs to be defined before its use in step 3 or be accessible in scope.
+  function matchChoiceToChoice(
+    patternAsChoice: IChoiceType,
+    actualAsChoice: IChoiceType,
+    currentBindings: Record<string, Type>,
+    // parentOfPatternForSubmatch is patternAsChoice itself
+  ): Record<string, Type> | undefined {
+    const pOptions = patternAsChoice.options;
+    const aOptions = actualAsChoice.options;
+
+    if (pOptions.length !== aOptions.length) {
+      return undefined;
+    }
+    if (pOptions.length === 0) {
+      // Both choices are empty
+      return { ...currentBindings };
+    }
+
+    const numOptions = pOptions.length;
+    // Create an array of indices [0, 1, ..., numOptions-1] for actual.options
+    const actualOptionIndices = Array.from({ length: numOptions }, (_, i) => i);
+
+    // Iterate over all permutations of actual.options to match against pattern.options
+    for (const permutedIndices of generatePermutations([
+      ...actualOptionIndices,
+    ])) {
+      // Pass a copy to permute
+      let permutationAttemptBindings: Record<string, Type> | undefined = {
+        ...currentBindings,
+      };
+      let possibleThisPermutation = true;
+
+      for (let i = 0; i < numOptions; i++) {
+        const pOpt = pOptions[i];
+        const aOpt = aOptions[permutedIndices[i]]; // Get permuted actual option
+
+        // Recursively call the main matchTypePattern function.
+        // The parentOfPattern for this sub-match is the patternAsChoice itself.
+        const optionMatchResult = matchTypePattern(
+          pOpt,
+          aOpt,
+          permutationAttemptBindings,
+          patternAsChoice,
+        );
+
+        if (optionMatchResult) {
+          permutationAttemptBindings = optionMatchResult; // Update bindings for the next option in this permutation
+        } else {
+          possibleThisPermutation = false; // This permutation failed
+          break;
+        }
+      }
+
+      if (possibleThisPermutation && permutationAttemptBindings) {
+        return permutationAttemptBindings; // Found a successful permutation
+      }
+    }
+    return undefined; // No permutation resulted in a successful match
+  }
+
+  // --- 1. Pattern is Generic ---
   if (pattern.name === TypeName.Generic) {
-    const name = pattern.name;
+    const name = (pattern as IGenericType).letter;
+    const existingBinding = bindings[name];
 
-    if (bindings[name]) {
+    if (existingBinding) {
       if (
-        !deepEqual(bindings[name], actual) &&
+        !deepEqual(existingBinding, actual) &&
         !(
           parentOfPattern?.name === TypeName.Single &&
-          bindings[name].name === TypeName.Single &&
-          deepEqual(bindings[name].ofType, actual)
+          existingBinding.name === TypeName.Single &&
+          deepEqual((existingBinding as ISingleType).ofType, actual)
         )
-      )
+      ) {
         return undefined;
+      }
+      return { ...bindings };
     } else {
+      const newBindings = { ...bindings };
       newBindings[name] = actual;
+      return newBindings;
     }
-    return newBindings;
   }
 
+  // --- 2. Actual is Single, Pattern is Not ---
   if (actual.name === TypeName.Single && pattern.name !== TypeName.Single) {
-    // Promote Single to its ofType
-    return matchTypePattern(pattern, actual.ofType, newBindings, undefined);
+    return matchTypePattern(
+      pattern,
+      (actual as ISingleType).ofType,
+      bindings,
+      undefined,
+    );
   }
 
-  // Choice handling — try each branch
+  // --- 3. Pattern is Choice ---
   if (pattern.name === TypeName.Choice) {
-    for (const option of pattern.options) {
-      const b = matchTypePattern(option, actual, newBindings, pattern);
-      if (b) return b;
-    }
-    return undefined;
-  }
-
-  // Basic type mismatch
-  if (typeof pattern !== "object" || typeof actual !== "object")
-    return undefined;
-
-  if (
-    pattern.name &&
-    actual.name &&
-    pattern.name !== actual.name &&
-    !isSubtypeOf(actual, pattern)
-  ) {
-    return undefined;
-  }
-
-  // Go through pattern keys
-  for (const key of Object.keys(pattern)) {
-    if (key === "type") continue;
-    if (!(key in actual)) return undefined;
-
-    if (key === "ofType" || key === "returnType" || key === "contextType") {
-      const sub = matchTypePattern(
-        pattern[key as keyof Type] as unknown as Type,
-        actual[key as keyof Type] as unknown as Type,
-        newBindings,
-        pattern,
-      );
-      if (!sub) return undefined;
-      const merged = mergeBindings(newBindings, sub);
-      if (!merged) return undefined;
-      newBindings = merged;
-    } else if (
-      !deepEqual(pattern[key as keyof Type], actual[key as keyof Type])
-    )
+    if (actual.name === TypeName.Choice) {
+      // Handle Choice-pattern-vs-Choice-actual using the helper
+      return matchChoiceToChoice(pattern, actual, bindings);
+    } else {
+      // Actual is not a Choice. Original logic: try to match actual against one of pattern's options.
+      for (const option of pattern.options) {
+        const branchBindings = matchTypePattern(
+          option,
+          actual,
+          bindings,
+          pattern,
+        );
+        if (branchBindings) {
+          return branchBindings;
+        }
+      }
       return undefined;
+    }
   }
 
-  return newBindings;
+  // --- 4. Core Type Compatibility ---
+  if (pattern.name !== actual.name && !isSubtypeOf(actual, pattern)) {
+    return undefined;
+  }
+
+  // --- 5. Recursive Matching for Structured Pattern Types ---
+  const currentBindingsStep5 = { ...bindings }; // Use a distinct variable name
+
+  if (pattern.name === TypeName.Single || pattern.name === TypeName.Type) {
+    if (pattern.name !== actual.name) {
+      return undefined;
+    }
+    const subPattern = (pattern as ISingleType | ITypeType).ofType;
+    const subActual = (actual as ISingleType | ITypeType).ofType;
+    return matchTypePattern(
+      subPattern,
+      subActual,
+      currentBindingsStep5,
+      pattern,
+    );
+  }
+
+  if (pattern.name === TypeName.Lambda) {
+    if (pattern.name !== actual.name) return undefined;
+    const patternLambda = pattern as ILambdaType;
+    const actualLambda = actual as ILambdaType;
+    const bindingsAfterReturnMatch = matchTypePattern(
+      patternLambda.returnType,
+      actualLambda.returnType,
+      currentBindingsStep5,
+      pattern,
+    );
+    if (!bindingsAfterReturnMatch) return undefined;
+    return matchTypePattern(
+      patternLambda.contextType,
+      actualLambda.contextType,
+      bindingsAfterReturnMatch,
+      pattern,
+    );
+  }
+
+  if (pattern.name === TypeName.Complex) {
+    if (pattern.name !== actual.name) return undefined;
+    const patternComplex = pattern as IComplexType;
+    const actualComplex = actual as IComplexType;
+
+    // make sure arrays are equal patternComplex.schemaReference, actualComplex.schemaReference
+    if (
+      patternComplex.schemaReference.length !==
+      actualComplex.schemaReference.length
+    ) {
+      return undefined;
+    }
+    // Check if all elements in the arrays are equal
+    for (let i = 0; i < patternComplex.schemaReference.length; i++) {
+      if (
+        patternComplex.schemaReference[i] !== actualComplex.schemaReference[i]
+      ) {
+        return undefined;
+      }
+    }
+    return currentBindingsStep5;
+  }
+
+  if (pattern.name === TypeName.Invalid) {
+    if (pattern.name !== actual.name) return undefined;
+    const patternInvalid = pattern as IInvalidType;
+    const actualInvalid = actual as IInvalidType;
+    if (patternInvalid.error !== actualInvalid.error) {
+      return undefined;
+    }
+    return currentBindingsStep5;
+  }
+
+  // --- 6. Default Case: Simple Types or UnknownType Pattern ---
+  return currentBindingsStep5; // Or initial `bindings` if currentBindingsStep5 wasn't modified
 }
 
 export function substituteBindings(
@@ -447,12 +707,16 @@ export function substituteBindings(
   if (!type || typeof type !== "object") return type;
 
   if (type.name === TypeName.Generic) {
-    const name = type.name;
+    const name = type.letter;
     return bindings[name] || type;
   }
 
   if (type.name === TypeName.Single) {
     return SingleType(substituteBindings(type.ofType, bindings));
+  }
+
+  if (type.name === TypeName.Type) {
+    return TypeType(substituteBindings(type.ofType, bindings));
   }
 
   if (type.name === TypeName.Choice) {
@@ -481,7 +745,7 @@ export const standardTypeMap: Record<string, Type> = {
   [TypeName.Time]: TimeType,
   [TypeName.Quantity]: QuantityType,
   [TypeName.Null]: NullType,
-  [TypeName.Any]: AnyType,
+  [TypeName.Unknown]: UnknownType,
 };
 
 export const primitiveTypeMap: Record<string, Type> = {
@@ -517,7 +781,9 @@ export function stringifyType(t: Type): string {
     case TypeName.Single:
       return `Single<${stringifyType(t.ofType)}>`;
     case TypeName.Generic:
-      return `${t.name}`;
+      return `${t.letter}`;
+    case TypeName.Type:
+      return `Type<${stringifyType(t.ofType)}>`;
     case TypeName.Lambda:
       return `Lambda<${stringifyType(t.contextType)} => ${stringifyType(
         t.returnType,

@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { parse } from "./utils/fhirpath";
 import { Model } from "fhirpath";
 import { detectValueType } from "./utils/value";
