@@ -7,22 +7,11 @@
  */
 
 const container: string;
-const button: string;
-const _delete: string;
-const deleting: string;
-const error: string;
 
 export {
-	container,
-	button,
-	deleting,
-	error
+	container
 };
 
 export default {
-	container,
-	button,
-	"delete": _delete,
-	deleting,
-	error
+	container
 };

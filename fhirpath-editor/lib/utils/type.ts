@@ -249,10 +249,19 @@ export const ComplexType = (schemaReference: string[]): IComplexType => ({
   schemaReference,
 });
 
-export const InvalidType = (error: string): IInvalidType => ({
-  name: TypeName.Invalid,
-  error,
-});
+export function InvalidType(error: string, positionOrStart?: number): Type {
+  return {
+    name: TypeName.Invalid,
+    error,
+    position:
+      typeof positionOrStart === "number"
+        ? {
+            start: positionOrStart,
+            end: positionOrStart,
+          }
+        : positionOrStart,
+  };
+}
 
 export const TypeType = (ofType: Type): ITypeType => ({
   name: TypeName.Type,

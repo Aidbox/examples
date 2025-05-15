@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useMemo } from "react";
 import dropdown from "./components/Dropdown.module.css";
+import tooltip from "./components/Tooltip.module.css";
 import token from "./components/Token.module.css";
 import { deepMerge } from "./utils/misc.ts";
 import { DeepPartial } from "./types/internal.ts";
@@ -35,6 +36,7 @@ export const style = {
     },
   },
   dropdown,
+  tooltip,
   program,
   token: {
     ...token,

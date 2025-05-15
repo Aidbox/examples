@@ -299,6 +299,10 @@ export interface IUnknownType extends IBaseType {
 export interface IInvalidType extends IBaseType {
   name: TypeName.Invalid;
   error: string;
+  position?: {
+    start: number;
+    end: number;
+  };
 }
 
 export interface ITypeType extends IBaseType {
@@ -688,6 +692,15 @@ export type OperatorTreeLeaf = {
   name: OperatorName;
   left: Token[] | OperatorTreeLeaf;
   right: Token[] | OperatorTreeLeaf;
+
+  leftPosition: {
+    start: number;
+    end: number;
+  };
+  rightPosition: {
+    start: number;
+    end: number;
+  };
 };
 
 export type QuestionnaireItem = {

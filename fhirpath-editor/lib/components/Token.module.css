@@ -61,3 +61,11 @@
   pointer-events: all;
   /*opacity: 100%;*/
 }
+
+.error {
+  & > :first-child {
+    border: 1px solid #fecaca;
+    background-color: #fef2f2;
+    color: #7f1d1d;
+  }
+}

@@ -130,6 +130,26 @@ export const generateBindingId = () =>
   `binding-${Math.random().toString(36).substring(2, 9)}`;
 
 function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
+  const indexMap = new Map<Token, number>();
+  tokens.forEach((t, i) => indexMap.set(t, i));
+
+  function bounds(node: Token[] | OperatorTreeLeaf): {
+    start: number;
+    end: number;
+  } {
+    if (Array.isArray(node)) {
+      if (node.length === 0) return { start: -1, end: -1 }; // “missing” operand
+      return {
+        start: indexMap.get(node[0])!,
+        end: indexMap.get(node[node.length - 1])!,
+      };
+    }
+    // OperatorTreeLeaf – recurse on its children
+    const l = bounds(node.left);
+    const r = bounds(node.right);
+    return { start: l.start, end: r.end };
+  }
+
   let pos = 0;
 
   function peek() {
@@ -152,11 +172,7 @@ function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
     let left: OperatorTreeLeaf | Token[];
 
     // Missing left operand (e.g., starts with operator)
-    if (peek()?.kind === "operator") {
-      left = [];
-    } else {
-      left = parseLeaf();
-    }
+    left = peek()?.kind === "operator" ? [] : parseLeaf();
 
     while (true) {
       const token = peek();
@@ -177,7 +193,13 @@ function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
         right = parseExpression(nextMinPrec);
       }
 
-      left = { name, left, right };
+      left = {
+        name,
+        left,
+        right,
+        leftPosition: bounds(left),
+        rightPosition: bounds(right),
+      };
     }
 
     return left;
@@ -185,7 +207,6 @@ function buildOperatorTree(tokens: Token[]): Token[] | OperatorTreeLeaf {
 
   return parseExpression();
 }
-
 export const getExpressionType = (
   expression: Token[],
   questionnaireItems: QuestionnaireItemRegistry,
@@ -193,34 +214,42 @@ export const getExpressionType = (
   contextType: Type,
   fhirSchema: FhirRegistry,
 ) => {
-  function getOperatorExpressionType(
-    operator: OperatorName,
-    left: Token[] | OperatorTreeLeaf,
-    right: Token[] | OperatorTreeLeaf,
-  ): Type {
-    const leftType = Array.isArray(left)
-      ? getChainingExpressionType(left)
-      : getOperatorExpressionType(left.name, left.left, left.right);
+  function getOperatorExpressionType(leaf: OperatorTreeLeaf): Type {
+    const leftType = Array.isArray(leaf.left)
+      ? getChainingExpressionType(leaf.left, leaf.leftPosition.start)
+      : getOperatorExpressionType(leaf.left);
 
-    const rightType = Array.isArray(right)
-      ? getChainingExpressionType(right)
-      : getOperatorExpressionType(right.name, right.left, right.right);
+    if (leftType.name === TypeName.Invalid) {
+      return leftType;
+    }
 
-    if (leftType.name === TypeName.Invalid)
-      return InvalidType(`Left operand is "${leftType.error}"`);
+    const rightType = Array.isArray(leaf.right)
+      ? getChainingExpressionType(leaf.right, leaf.rightPosition.start)
+      : getOperatorExpressionType(leaf.right);
 
-    if (rightType.name === TypeName.Invalid)
-      return InvalidType(`Right operand is "${rightType.error}"`);
+    if (rightType.name === TypeName.Invalid) {
+      return rightType;
+    }
 
-    return resolveOperator(operator, leftType, rightType);
+    const result = resolveOperator(leaf.name, leftType, rightType);
+
+    if (result.name === TypeName.Invalid) {
+      return InvalidType(result.error, leaf.leftPosition.end + 1);
+    }
+
+    return result;
   }
 
-  function getChainingExpressionType(expression: Token[]): Type {
+  function getChainingExpressionType(
+    expression: Token[],
+    currentIndex: number,
+  ): Type {
     if (expression.length === 0) return InvalidType("Empty expression");
 
     const tokens = [...expression];
     let currentType = contextType;
     let first = true;
+
     if (!tokens.length) return InvalidType("Empty expression");
 
     while (tokens.length > 0 && currentType?.name !== TypeName.Invalid) {
@@ -258,7 +287,7 @@ export const getExpressionType = (
             currentType = SingleType(QuantityType);
             continue;
           case TokenKind.type:
-            currentType = TypeType(token.value); // Return the actual type value
+            currentType = TypeType(token.value);
             continue;
           case TokenKind.variable: {
             if (token.special) {
@@ -267,12 +296,15 @@ export const getExpressionType = (
               } else if (token.value === "$index") {
                 currentType = SingleType(IntegerType);
               } else {
-                return InvalidType(`Unknown keyword "${token.value}"`);
+                return InvalidType(
+                  `Unknown keyword "${token.value}"`,
+                  currentIndex,
+                );
               }
             } else {
               currentType =
                 bindingTypes[token.value] ||
-                InvalidType(`Unknown variable ${token.value}`);
+                InvalidType(`Unknown variable ${token.value}`, currentIndex);
             }
             continue;
           }
@@ -292,17 +324,21 @@ export const getExpressionType = (
               ? getExpressionType(
                   token.args[argIndex].expression,
                   questionnaireItems,
-                  bindingTypes, // consider: merge types of token.args[argIndex].bindings
+                  bindingTypes,
                   contextType,
                   fhirSchema,
                 )
               : undefined,
         );
+
+        if (currentType.name === TypeName.Invalid) {
+          return InvalidType(currentType.error, currentIndex);
+        }
       } else if (token.kind === TokenKind.field) {
         const availableFields = getFields(currentType, fhirSchema);
         currentType =
           availableFields[token.value] ||
-          InvalidType(`Unknown field "${token.value}"`);
+          InvalidType(`Unknown field "${token.value}"`, currentIndex + 1);
       } else if (token.kind === TokenKind.answer) {
         if (
           !matchTypePattern(
@@ -312,6 +348,7 @@ export const getExpressionType = (
         ) {
           return InvalidType(
             `Answer token cannot be used when resource is not QuestionnaireResponse`,
+            currentIndex,
           );
         }
 
@@ -328,9 +365,10 @@ export const getExpressionType = (
           currentType = unwrapSingle(currentType);
         }
       } else {
-        return InvalidType(`Unknown token type "${token.kind}"`);
+        return InvalidType(`Unknown token type "${token.kind}"`, currentIndex);
       }
 
+      currentIndex++;
       first = false;
     }
 
@@ -340,9 +378,9 @@ export const getExpressionType = (
   const tree = buildOperatorTree(expression);
 
   if (Array.isArray(tree)) {
-    return getChainingExpressionType(tree);
+    return getChainingExpressionType(tree, 0);
   } else {
-    return getOperatorExpressionType(tree.name, tree.left, tree.right);
+    return getOperatorExpressionType(tree);
   }
 };
 

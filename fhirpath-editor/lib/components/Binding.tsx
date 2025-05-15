@@ -207,12 +207,7 @@ const Binding = forwardRef<BindingRef, BindingProps>(
                 .map((b) => b.name)
                 .join(", ")}
             </div>
-            <span
-              className={style.binding.debug}
-              title={type.name === TypeName.Invalid ? type.error : ""}
-            >
-              {stringifyType(type)}
-            </span>
+            <span className={style.binding.debug}>{stringifyType(type)}</span>
           </div>
         )}
       </>

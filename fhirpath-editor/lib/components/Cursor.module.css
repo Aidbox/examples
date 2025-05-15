@@ -4,6 +4,8 @@
   align-items: center;
   /*flex: 1;*/
   cursor: pointer;
+  padding: 0.125rem 0;
+  border: 1px solid transparent;
 
   &:hover {
     .faded {

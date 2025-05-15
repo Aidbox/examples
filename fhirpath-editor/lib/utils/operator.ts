@@ -12,6 +12,7 @@ import {
   promote,
   QuantityType,
   SingleType,
+  stringifyType,
   StringType,
   substituteBindings,
   TimeType,
@@ -433,7 +434,9 @@ export function resolveOperator(name: OperatorName, left: Type, right: Type) {
     });
   }
 
-  return InvalidType(`No matching overload for operator "${name}"`);
+  return InvalidType(
+    `No matching operator "${name}" for ${stringifyType(left)} and ${stringifyType(right)}`,
+  );
 }
 
 export function suggestOperatorsForLeftType(left: Type) {

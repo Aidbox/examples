@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, Ref } from "react";
 import NumberToken from "./NumberToken";
 import StringToken from "./StringToken";
 import OperatorToken from "./OperatorToken";
@@ -13,12 +13,13 @@ import TypeToken from "./TypeToken";
 import IndexToken from "./IndexToken";
 import FunctionToken from "./FunctionToken";
 import AnswerToken from "./AnswerToken";
-import { TokenComponentProps, TokenKind } from "../types/internal";
+import { TokenComponentProps, TokenKind, TypeName } from "../types/internal";
 import { useStyle } from "../style";
 import clx from "classnames";
 import { X } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store.ts";
 import NullToken from "./NullToken.tsx";
+import Tooltip from "./Tooltip.tsx";
 
 const getTokenComponent = (
   kind: TokenKind,
@@ -76,25 +77,50 @@ const Token = forwardRef<HTMLElement, TokenProps>(
         state.getBindingExpression(props.bindingId).length - 1 ===
         props.tokenIndex,
     );
+    const error = useProgramContext((state) => {
+      const type = state.getBindingType(props.bindingId);
+      if (type.name === TypeName.Invalid) {
+        if (type.position) {
+          if (
+            type.position.start <= props.tokenIndex &&
+            type.position.end >= props.tokenIndex
+          ) {
+            return type.error;
+          }
+        }
+      }
+      return undefined;
+    });
 
     return (
-      <div
-        data-token-index={props.tokenIndex}
-        className={clx(style.token.container, deleting && style.token.deleting)}
-      >
-        <TokenComponent ref={ref} {...props} />
-
-        {last && (
-          <button
-            className={style.token.delete}
-            onClick={() => {
-              deleteToken(props.bindingId, props.tokenIndex);
-            }}
+      <Tooltip content={error} delay={100}>
+        {(tooltipProps, tooltipRef) => (
+          <div
+            ref={tooltipRef as Ref<HTMLDivElement>}
+            data-token-index={props.tokenIndex}
+            {...tooltipProps({
+              className: clx(
+                style.token.container,
+                deleting && style.token.deleting,
+                error && style.token.error,
+              ),
+            })}
           >
-            <X size={16} weight="bold" />
-          </button>
+            <TokenComponent ref={ref} {...props} />
+
+            {last && (
+              <button
+                className={style.token.delete}
+                onClick={() => {
+                  deleteToken(props.bindingId, props.tokenIndex);
+                }}
+              >
+                <X size={16} weight="bold" />
+              </button>
+            )}
+          </div>
         )}
-      </div>
+      </Tooltip>
     );
   },
 );
