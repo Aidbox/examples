@@ -11,50 +11,19 @@ This Spring Boot sample application uses the [CQL Java engine](https://github.co
 
 ## Aidbox Integration Setup
 
-### 0. Start Aidbox and log in using the Aidbox Portal:
+### 0. Start Aidbox and the CQL Engine App
 ```
-docker compose up
-```
-
-### 1. Start the Spring Boot application from your IDE or using the Maven CLI:
-```
-mvn spring-boot:run 
+docker compose up --build
 ```
 
-### 2. Create a new endpoint at `http://<aidbox-url>/Library/<cql-file-name>/$evaluate`, which will redirect to `localhost:8080`.
+### 1. Activate the Aidbox instance
 
-Paste the following HTTP request into the **Aidbox Rest Console**:
-```
-PUT /App/com.cql.app.example
-Content-Type: application/json
-Accept: application/json
+Navigate to http://localhost:8080 in the browser and activate your Aidbox instance
 
-{
- "id": "com.cql.app.example",
- "type": "app",
- "endpoint": {
-  "url": "http://host.docker.internal:8080",
-  "type": "http-rpc",
-  "secret": "mysecret"
- },
- "apiVersion": 1,
- "operations": {
-  "cql-library-evaluate": {
-   "path": [
-    "Library",
-    {
-     "name": "libraryName"
-    },
-    "$evaluate"
-   ],
-   "method": "POST"
-  }
- },
- "resourceType": "App"
-}
-```
+### 2. Add sample patient data:
 
-### 3. Add sample patient data:
+Navigate to REST Console in Aidbox UI and execute the following request:
+
 ```
 POST /fhir/Patient
 Content-Type: application/json
@@ -71,7 +40,7 @@ Accept: application/json
 }
 ```
 
-### 4. To retrieve all names of patients with 'male' gender, use the `resources/example.cql` file:
+### 3. To retrieve all names of patients with 'male' gender, use the `resources/example.cql` file:
 ```
 library example
 
@@ -85,7 +54,7 @@ define "MalePatients":
     return P.name[0]
 ```
 
-### 5. Evaluate the `example` CQL library using the Aidbox Rest Console.
+### 4. Evaluate the `example` CQL library using the Aidbox Rest Console.
 
 Request:
 ```
