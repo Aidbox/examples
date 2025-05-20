@@ -96,9 +96,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<mainClass>com.cql.app.example.ExampleApplication</mainClass>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

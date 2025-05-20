@@ -22,7 +22,7 @@ Navigate to http://localhost:8080 in the browser and activate your Aidbox instan
 
 ### 2. Add sample patient data:
 
-Navigate to REST Console in Aidbox UI and execute the following request:
+Navigate to **REST Console** in Aidbox UI and execute the following request:
 
 ```
 POST /fhir/Patient
