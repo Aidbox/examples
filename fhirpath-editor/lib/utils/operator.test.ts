@@ -981,7 +981,7 @@ describe("operator", () => {
         );
         expect(result.name).toBe(TypeName.Invalid);
         if (result.name === TypeName.Invalid) {
-          expect(result.error).toContain("No matching overload");
+          expect(result.error).toContain("cannot be used on");
         }
       });
 
@@ -989,7 +989,7 @@ describe("operator", () => {
         const result = sut.resolveOperator("+", DateType, DateTimeType);
         expect(result.name).toBe(TypeName.Invalid);
         if (result.name === TypeName.Invalid) {
-          expect(result.error).toContain("No matching overload");
+          expect(result.error).toContain("cannot be used on");
         }
 
         const result2 = sut.resolveOperator(

@@ -44,7 +44,7 @@ function Program({ className, title, placeholder }: ProgramProps) {
       {allowBindings && (
         <>
           <div className={style.program.title}>
-            {text.program.title.namedExpressions}
+            {text.program.title.variables}
           </div>
 
           {bindingIds.map((bindingId) => (

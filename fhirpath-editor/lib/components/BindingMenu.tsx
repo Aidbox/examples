@@ -39,7 +39,7 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
     !bindingId &&
       !empty && {
         icon: <PuzzlePiece size={16} className={style.binding.menu.icon} />,
-        text: text.binding.menu.asNamedExpression,
+        text: text.binding.menu.asVariable,
         onClick: () => nameExpression(),
       },
   ].filter(Boolean) as {

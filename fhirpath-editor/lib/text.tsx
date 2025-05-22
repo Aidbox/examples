@@ -10,7 +10,7 @@ export const text = {
     menu: {
       delete: "Delete",
       duplicate: "Duplicate",
-      asNamedExpression: "As named expression",
+      asVariable: "As variable",
     },
   },
   dropdown: {
@@ -32,13 +32,13 @@ export const text = {
       argumentExpression: "Add your argument here...",
     },
     title: {
-      namedExpressions: "Named expressions",
+      variables: "Variables",
       mainExpression: "Final expression",
     },
   },
   cursor: {
     groups: {
-      variable: "Named expressions",
+      variable: "Variables",
       operator: "Operators",
       function: "Functions",
       field: "Fields",
@@ -49,7 +49,7 @@ export const text = {
   },
   token: {
     answer: {
-      newExpression: "New named expression",
+      newExpression: "New variable",
     },
     function: {
       search: {

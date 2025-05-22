@@ -813,3 +813,27 @@ export function stringifyType(t: Type): string {
       return t.name;
   }
 }
+
+export function describeType(t: Type): string {
+  switch (t.name) {
+    case TypeName.Single:
+      return `${describeType(t.ofType)}`;
+    case TypeName.Generic:
+      return `a generic type '${t.letter}'`;
+    case TypeName.Type:
+      return `a type describing ${describeType(t.ofType)}`;
+    case TypeName.Lambda:
+      return `a function from ${describeType(t.contextType)} to ${describeType(t.returnType)}`;
+    case TypeName.Choice:
+      return t.options.map(describeType).join(" or ");
+    case TypeName.Invalid:
+      return `an invalid type${t.error ? ` (${t.error})` : ""}`;
+    case TypeName.Complex:
+      return t.schemaReference.join(".");
+    default:
+      if (typePrimitiveMap[t.name]) {
+        return `${typePrimitiveMap[t.name]}`;
+      }
+      return t.name.toLowerCase();
+  }
+}

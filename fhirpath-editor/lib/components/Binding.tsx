@@ -6,7 +6,7 @@ import { Equals } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store";
 import { delay } from "../utils/misc";
 import ValueViewer from "./ValueViewer.tsx";
-import { BindingRef, TypeName } from "../types/internal";
+import { BindingRef } from "../types/internal";
 import { stringifyType } from "../utils/type";
 import { useStyle } from "../style";
 import { useText } from "../text";

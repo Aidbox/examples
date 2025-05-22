@@ -4,6 +4,7 @@ import {
   DateTimeType,
   DateType,
   DecimalType,
+  describeType,
   Generic,
   IntegerType,
   InvalidType,
@@ -12,7 +13,6 @@ import {
   promote,
   QuantityType,
   SingleType,
-  stringifyType,
   StringType,
   substituteBindings,
   TimeType,
@@ -435,7 +435,7 @@ export function resolveOperator(name: OperatorName, left: Type, right: Type) {
   }
 
   return InvalidType(
-    `No matching operator "${name}" for ${stringifyType(left)} and ${stringifyType(right)}`,
+    `Operator ${name} cannot be used on ${describeType(left)} and ${describeType(right)}`,
   );
 }
 
