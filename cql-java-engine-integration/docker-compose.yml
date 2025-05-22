@@ -11,13 +11,13 @@ services:
       POSTGRES_DB: aidbox
       POSTGRES_PASSWORD: M3ya7uZxdJ
   aidbox:
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     image: healthsamurai/aidboxone:edge
     depends_on:
       - aidbox_db
     ports:
       - 8888:8888
+    volumes:
+      - ./init.json:/tmp/init.json
     environment:
       AIDBOX_TERMINOLOGY_SERVICE_BASE_URL: https://tx.fhir.org/r4
       AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
@@ -37,3 +37,16 @@ services:
       PGPASSWORD: M3ya7uZxdJ
       PGPORT: "5432"
       BOX_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_INIT_BUNDLE: file:///tmp/init.json
+  cql-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      AIDBOX_URL: http://aidbox:8888/fhir
+    depends_on:
+      - aidbox
+    networks:
+      - default

@@ -107,6 +107,9 @@ export declare const style: {
         option: string;
         arrow: string;
     };
+    tooltip: {
+        container: string;
+    };
     program: {
         container: string;
         extended: string;
@@ -176,6 +179,7 @@ export declare const style: {
         button: string;
         delete: string;
         deleting: string;
+        error: string;
     };
 };
 
@@ -187,7 +191,7 @@ export declare const text: {
         menu: {
             delete: string;
             duplicate: string;
-            asNamedExpression: string;
+            asVariable: string;
         };
     };
     dropdown: {
@@ -209,7 +213,7 @@ export declare const text: {
             argumentExpression: string;
         };
         title: {
-            namedExpressions: string;
+            variables: string;
             mainExpression: string;
         };
     };
