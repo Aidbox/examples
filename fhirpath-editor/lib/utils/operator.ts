@@ -4,6 +4,7 @@ import {
   DateTimeType,
   DateType,
   DecimalType,
+  deepEqual,
   describeType,
   Generic,
   IntegerType,
@@ -23,6 +24,7 @@ import {
   OperatorName,
   OperatorReturnType,
   Type,
+  TypeName,
 } from "../types/internal";
 import { assertDefined } from "./misc";
 
@@ -407,31 +409,45 @@ export function resolveOperator(name: OperatorName, left: Type, right: Type) {
   for (const meta of operatorMetadata) {
     if (meta.name !== name) continue;
 
-    // 1. Match left operand against meta.left
-    const bindingsFromLeft = matchTypePattern(meta.left, left);
-    if (!bindingsFromLeft) continue;
+    const combinations = [[left, right]];
+    if (
+      deepEqual(meta.left, meta.right) &&
+      meta.left.name === TypeName.Generic
+    ) {
+      combinations.push([right, left]);
+    }
 
-    // 2. Substitute bindings from left match into the right pattern
-    const concreteMetaRight = substituteBindings(meta.right, bindingsFromLeft);
+    for (const combination of combinations) {
+      const [left, right] = combination;
+      // 1. Match left operand against meta.left
+      const bindingsFromLeft = matchTypePattern(meta.left, left);
+      if (!bindingsFromLeft) continue;
 
-    // 3. Match actual right operand against the (potentially concretized) meta.right,
-    //    passing existing bindings from the left match.
-    //    matchTypePattern will try to merge/verify consistency if meta.right
-    //    also uses generics already bound by meta.left (e.g., Generic("T")).
-    const finalBindings = matchTypePattern(
-      concreteMetaRight,
-      right,
-      bindingsFromLeft, // Pass existing bindings for consistency check and accumulation
-    );
+      // 2. Substitute bindings from left match into the right pattern
+      const concreteMetaRight = substituteBindings(
+        meta.right,
+        bindingsFromLeft,
+      );
 
-    if (!finalBindings) continue;
+      // 3. Match actual right operand against the (potentially concretized) meta.right,
+      //    passing existing bindings from the left match.
+      //    matchTypePattern will try to merge/verify consistency if meta.right
+      //    also uses generics already bound by meta.left (e.g., Generic("T")).
+      const finalBindings = matchTypePattern(
+        concreteMetaRight,
+        right,
+        bindingsFromLeft, // Pass existing bindings for consistency check and accumulation
+      );
 
-    // All checks passed, types are compatible with this overload.
-    return meta.returnType({
-      left, // actual left type provided to operator
-      right, // actual right type provided to operator
-      ...finalBindings, // all consistent bindings (e.g., T, X, A, B)
-    });
+      if (!finalBindings) continue;
+
+      // All checks passed, types are compatible with this overload.
+      return meta.returnType({
+        left, // actual left type provided to operator
+        right, // actual right type provided to operator
+        ...finalBindings, // all consistent bindings (e.g., T, X, A, B)
+      });
+    }
   }
 
   return InvalidType(

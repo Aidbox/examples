@@ -8,4 +8,5 @@
   max-width: 30rem;
   padding:  0.5rem 1rem;
   font-size: 0.875rem;
+  z-index: 20;
 }

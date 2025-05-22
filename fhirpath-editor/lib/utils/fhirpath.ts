@@ -563,8 +563,10 @@ function transformNode(node: LezerNode): IProgram {
         case "InvocationExpression": {
           if (node.comment === ANSWER_TOKEN_MARKER) {
             const linkId =
+              matchNodeTemplate(valueTemplate, node) ||
               matchNodeTemplate(valueOfValueTemplate, node) ||
               matchNodeTemplate(ordinalOfValueTemplate, node);
+
             if (linkId) {
               return [
                 { kind: TokenKind.answer, value: unescapeString(linkId) },

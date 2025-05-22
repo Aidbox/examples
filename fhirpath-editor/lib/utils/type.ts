@@ -832,7 +832,7 @@ export function describeType(t: Type): string {
       return t.schemaReference.join(".");
     default:
       if (typePrimitiveMap[t.name]) {
-        return `${typePrimitiveMap[t.name]}`;
+        return `fhir ${typePrimitiveMap[t.name]}`;
       }
       return t.name.toLowerCase();
   }

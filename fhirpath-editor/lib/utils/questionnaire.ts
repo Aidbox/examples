@@ -35,11 +35,7 @@ export function getItems(questionnaire: {
       return;
     }
 
-    if (
-      !index[item.linkId] &&
-      item.type !== "group" &&
-      item.type !== "display"
-    ) {
+    if (!index[item.linkId]) {
       // prettier-ignore
       let type: Type | undefined = item.type === "boolean" ? PrimitiveBooleanType :
         item.type === "decimal" ? PrimitiveDecimalType :
@@ -56,11 +52,11 @@ export function getItems(questionnaire: {
         item.type === "reference" ? getReferenceType(item) :
         item.type === "quantity" ? PrimitiveDecimalType : undefined;
 
-      if (type) {
-        if (item.repeats) {
-          single = false;
-        }
+      if (item.repeats) {
+        single = false;
+      }
 
+      if (type) {
         if (single) {
           type = SingleType(type);
         }

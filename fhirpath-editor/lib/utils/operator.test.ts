@@ -136,6 +136,11 @@ describe("operator", () => {
             SingleType(DecimalType),
           ],
           [
+            SingleType(PrimitiveDecimalType),
+            SingleType(PrimitiveDecimalType),
+            SingleType(DecimalType),
+          ],
+          [
             SingleType(PrimitiveIntegerType),
             SingleType(DecimalType),
             SingleType(DecimalType),
@@ -621,23 +626,17 @@ describe("operator", () => {
           expect(
             sut.resolveOperator(op, IntegerType, PrimitiveIntegerType),
           ).toEqual(BooleanType);
+          expect(
+            sut.resolveOperator(op, PrimitiveIntegerType, IntegerType),
+          ).toEqual(BooleanType);
 
           expect(
             sut.resolveOperator(op, StringType, PrimitiveStringType),
           ).toEqual(BooleanType);
-        },
-      );
 
-      test.each(comparisonOperators)(
-        "operator %s should be Invalid if right is not subtype of left's bound type (strict T matching)",
-        (op) => {
-          expectInvalid(
-            sut.resolveOperator(op, PrimitiveIntegerType, IntegerType),
-          );
-
-          expectInvalid(sut.resolveOperator(op, IntegerType, StringType));
-
-          expectInvalid(sut.resolveOperator(op, IntegerType, DecimalType));
+          expect(
+            sut.resolveOperator(op, PrimitiveStringType, StringType),
+          ).toEqual(BooleanType);
         },
       );
 

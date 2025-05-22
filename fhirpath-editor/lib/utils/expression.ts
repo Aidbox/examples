@@ -20,7 +20,6 @@ import {
   StringType,
   TimeType,
   TypeType,
-  unwrapSingle,
 } from "./type";
 import { assertDefined, distinct, indexBy, never } from "./misc";
 import { getFields } from "./fhir";
@@ -262,32 +261,41 @@ export const getExpressionType = (
         switch (token.kind) {
           case TokenKind.null:
             currentType = SingleType(NullType);
+            currentIndex++;
             continue;
           case TokenKind.number:
             currentType = token.value.includes(".")
               ? SingleType(DecimalType)
               : SingleType(IntegerType);
+            currentIndex++;
             continue;
           case TokenKind.string:
             currentType = SingleType(StringType);
+            currentIndex++;
             continue;
           case TokenKind.boolean:
             currentType = SingleType(BooleanType);
+            currentIndex++;
             continue;
           case TokenKind.date:
             currentType = SingleType(DateType);
+            currentIndex++;
             continue;
           case TokenKind.datetime:
             currentType = SingleType(DateTimeType);
+            currentIndex++;
             continue;
           case TokenKind.time:
             currentType = SingleType(TimeType);
+            currentIndex++;
             continue;
           case TokenKind.quantity:
             currentType = SingleType(QuantityType);
+            currentIndex++;
             continue;
           case TokenKind.type:
             currentType = TypeType(token.value);
+            currentIndex++;
             continue;
           case TokenKind.variable: {
             if (token.special) {
@@ -306,6 +314,7 @@ export const getExpressionType = (
                 bindingTypes[token.value] ||
                 InvalidType(`Unknown variable ${token.value}`, currentIndex);
             }
+            currentIndex++;
             continue;
           }
         }
@@ -352,18 +361,12 @@ export const getExpressionType = (
           );
         }
 
-        const single = currentType.name === TypeName.Single;
-
         currentType =
           questionnaireItems[token.value]?.type ||
           getFields(
             ComplexType(["QuestionnaireResponse", "item", "answer"]),
             fhirSchema,
           ).value;
-
-        if (!single) {
-          currentType = unwrapSingle(currentType);
-        }
       } else {
         return InvalidType(`Unknown token type "${token.kind}"`, currentIndex);
       }
