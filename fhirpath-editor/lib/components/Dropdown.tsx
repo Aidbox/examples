@@ -39,6 +39,7 @@ function Dropdown<T>({
   onClick,
   renderReference,
   renderItem,
+  className,
 }: {
   items: T[];
   searchFn?: (item: T, searchText: string) => boolean;
@@ -52,6 +53,7 @@ function Dropdown<T>({
     ref: Ref<HTMLButtonElement>,
   ) => ReactNode;
   renderItem?: (item: T, created: boolean) => ReactNode;
+  className?: string;
 }) {
   const style = useStyle();
   const text = useText();
@@ -192,7 +194,7 @@ function Dropdown<T>({
           <div
             ref={refs.setFloating}
             style={floatingStyles}
-            className={style.dropdown.container}
+            className={className || style.dropdown.container}
             {...getFloatingProps()}
           >
             {searchFn && (

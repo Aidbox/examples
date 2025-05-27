@@ -1,3 +1,8 @@
+.container {
+  composes: container from "./Dropdown.module.css";
+  width: fit-content !important;
+}
+
 .button {
   display: flex;
   align-items: center;

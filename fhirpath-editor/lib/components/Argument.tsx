@@ -1,27 +1,23 @@
-import { FhirValue, IProgram, Type } from "../types/internal";
+import { FunctionMetadata, IProgram, TypeName } from "../types/internal";
 import { useProgramContext } from "../utils/store";
 import { useCallback, useMemo } from "react";
 import { ProgramProvider } from "./ProgramProvider";
-import Program from "./Program";
 import { useStyle } from "../style";
 import { useText } from "../text";
+import Binding from "./Binding.tsx";
 
 type ArgumentProps = {
   bindingId: string;
   tokenIndex: number;
   argIndex: number;
-  contextValue: FhirValue;
-  contextType: Type;
-  isLambda: boolean;
+  meta: FunctionMetadata;
 };
 
 export const Argument = ({
   bindingId,
   tokenIndex,
   argIndex,
-  contextValue,
-  contextType,
-  isLambda,
+  meta,
 }: ArgumentProps) => {
   const style = useStyle();
   const text = useText();
@@ -31,9 +27,12 @@ export const Argument = ({
     getBindingType,
     getBindingValue,
     getFhirSchema,
+    getExpressionValue,
+    parentContextValue,
     model,
     debug,
     portalRoot,
+    getArgContextType,
   } = useProgramContext((state) => ({
     arg: state.getArg(bindingId, tokenIndex, argIndex),
     updateArg: state.updateArg,
@@ -41,14 +40,19 @@ export const Argument = ({
     getBindingType: state.getBindingType,
     getBindingValue: state.getBindingValue,
     getFhirSchema: state.getFhirSchema,
+    getExpressionValue: state.getExpressionValue,
+    parentContextValue: state.getContext().value,
     model: state.getModel(),
     debug: state.getDebug(),
     portalRoot: state.getPortalRoot(),
+    getArgContextType: state.getArgContextType,
   }));
 
   const bindableBindings = useProgramContext((state) =>
     state.getBindableBindings(bindingId),
   );
+
+  const isLambda = meta.args[argIndex].type.name === TypeName.Lambda;
 
   const externalizedBindings = useMemo(
     () =>
@@ -67,6 +71,14 @@ export const Argument = ({
     },
     [updateArg, bindingId, tokenIndex, argIndex],
   );
+
+  const contextType = getArgContextType(bindingId, tokenIndex, argIndex);
+
+  const inputValue = isLambda
+    ? getExpressionValue(bindingId, tokenIndex - 1)
+    : parentContextValue;
+
+  const contextValue = inputValue?.valueAt(0);
 
   const context = useMemo(
     () => ({
@@ -89,11 +101,17 @@ export const Argument = ({
       debug={debug}
       portalRoot={portalRoot}
     >
-      <Program
-        className={style.token.function.argument.program}
-        title={null}
-        placeholder={text.program.placeholder.argumentExpression}
-      />
+      <div className={style.program.binding}>
+        <span></span>
+        <Binding
+          bindingId={""}
+          placeholder={text.function.argument.placeholder.replace(
+            "{name}",
+            meta.args[argIndex].name,
+          )}
+          explicitName={meta.args[argIndex].name}
+        />
+      </div>
     </ProgramProvider>
   );
 };

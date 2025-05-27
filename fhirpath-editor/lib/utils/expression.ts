@@ -347,7 +347,7 @@ export const getExpressionType = (
         const availableFields = getFields(currentType, fhirSchema);
         currentType =
           availableFields[token.value] ||
-          InvalidType(`Unknown field "${token.value}"`, currentIndex + 1);
+          InvalidType(`Unknown field "${token.value}"`, currentIndex);
       } else if (token.kind === TokenKind.answer) {
         if (
           !matchTypePattern(

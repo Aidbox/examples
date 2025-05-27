@@ -12,19 +12,25 @@ type ProgramProps = {
   className?: string;
   title?: ReactNode;
   placeholder?: string;
+  explicitName?: string;
 };
 
-function Program({ className, title, placeholder }: ProgramProps) {
+function Program({
+  className,
+  title,
+  placeholder,
+  explicitName,
+}: ProgramProps) {
   const style = useStyle();
   const text = useText();
-  const { allowBindings, addBinding, setBindingRef, debug, empty } =
-    useProgramContext((state) => ({
+  const { allowBindings, addBinding, debug, empty } = useProgramContext(
+    (state) => ({
       allowBindings: state.getAllowBindings(),
       addBinding: state.addBinding,
-      setBindingRef: state.setBindingRef,
       debug: state.getDebug(),
       empty: !state.program.expression.length,
-    }));
+    }),
+  );
 
   const bindingIds = useProgramContext((state) =>
     state.program.bindings.map((b) => b.id),
@@ -51,10 +57,7 @@ function Program({ className, title, placeholder }: ProgramProps) {
             <div key={bindingId} className={style.program.binding}>
               <BindingMenu bindingId={bindingId} />
 
-              <Binding
-                ref={(ref) => setBindingRef(bindingId, ref)}
-                bindingId={bindingId}
-              />
+              <Binding bindingId={bindingId} />
             </div>
           ))}
 
@@ -80,12 +83,11 @@ function Program({ className, title, placeholder }: ProgramProps) {
         )}
 
         <div className={style.program.binding}>
-          {/*<BindingMenu bindingId="" />*/}
           <span></span>
           <Binding
-            ref={(ref) => setBindingRef("", ref)}
             bindingId={""}
-            placeholder={placeholder || text.program.placeholder.mainExpression}
+            placeholder={placeholder || text.program.placeholder}
+            explicitName={explicitName}
           />
         </div>
       </div>

@@ -20,8 +20,8 @@
   padding: 0.125rem;
   display: grid;
   place-items: center;
-  border-radius: 0.25rem;
-  border: 1px solid #d1d5db;
+  border-radius: 100%;
+  border: 1px dashed #d1d5db;
   background-color: white;
 
   &.faded {

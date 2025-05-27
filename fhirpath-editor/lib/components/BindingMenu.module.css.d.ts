@@ -8,13 +8,16 @@
 
 const button: string;
 const icon: string;
+const container: string;
 
 export {
 	button,
-	icon
+	icon,
+	container
 };
 
 export default {
 	button,
-	icon
+	icon,
+	container
 };

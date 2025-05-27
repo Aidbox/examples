@@ -117,13 +117,13 @@ export function deepMerge<T extends Record<string, unknown>>(
 }
 
 export const colors = {
-  variable: "#1976d2", // vivid blue
-  operator: "#388e3c", // deep green
-  function: "#f57c00", // strong orange
-  field: "#7b1fa2", // deep purple
-  index: "#00796b", // teal
-  answer: "#c2185b", // raspberry pink
-  literal: "#5d4037", // dark brown
+  variable: "#64b5f6", // vivid blue
+  operator: "#81c784", // deep green
+  function: "#ef9c68", // strong orange
+  field: "#ba68c8", // deep purple
+  index: "#4db6ac", // teal
+  answer: "#ffb2b3", // raspberry pink
+  literal: "#a1887f", // dark brown
 } satisfies Record<string, string>;
 
 export const weights = {

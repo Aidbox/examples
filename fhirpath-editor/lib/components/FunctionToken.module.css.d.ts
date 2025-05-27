@@ -8,7 +8,6 @@
 
 const header: string;
 const search: string;
-const label: string;
 const name: string;
 const args: string;
 const arg: string;
@@ -20,7 +19,6 @@ const button: string;
 export {
 	header,
 	search,
-	label,
 	name,
 	args,
 	arg,
@@ -33,7 +31,6 @@ export {
 export default {
 	header,
 	search,
-	label,
 	name,
 	args,
 	arg,

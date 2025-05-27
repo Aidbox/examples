@@ -20,18 +20,17 @@ import {
 import { category, functionMetadata } from "../utils/function";
 import { CaretDown, Empty, Function } from "@phosphor-icons/react";
 import { useProgramContext } from "../utils/store";
-import { isEmptyProgram } from "../utils/expression";
 import {
   FunctionMetadata,
   IFunctionToken,
   TokenComponentProps,
-  TypeName,
 } from "../types/internal";
 import { assertDefined, colors, scrollIntoView, truncate } from "../utils/misc";
 import { Argument } from "./Argument";
 import { useStyle } from "../style";
 import { useText } from "../text";
 import { unparseExpression } from "../utils/fhirpath.ts";
+import clx from "classnames";
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
   ({ bindingId, tokenIndex }, ref) => {
@@ -48,52 +47,22 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
     const arrowRef = useRef(null);
     const headerRef = useRef<HTMLDivElement | null>(null);
 
-    const {
-      token,
-      contextValue,
-      getArgContextType,
-      getExpressionValue,
-      isLeadingToken,
-      updateToken,
-      portalRoot,
-    } = useProgramContext((state) => ({
-      token: state.getToken(bindingId, tokenIndex) as IFunctionToken,
-      contextValue: state.getContext().value,
-      getArgContextType: state.getArgContextType,
-      getExpressionValue: state.getExpressionValue,
-      isLeadingToken: state.isLeadingToken(bindingId, tokenIndex),
-      updateToken: state.updateToken,
-      portalRoot: state.getPortalRoot(),
-    }));
+    const { token, isLeadingToken, updateToken, portalRoot, debug } =
+      useProgramContext((state) => ({
+        token: state.getToken(bindingId, tokenIndex) as IFunctionToken,
+        isLeadingToken: state.isLeadingToken(bindingId, tokenIndex),
+        updateToken: state.updateToken,
+        portalRoot: state.getPortalRoot(),
+        debug: state.getDebug(),
+      }));
 
     const meta = functionMetadata.find((f) => f.name === token.value);
     assertDefined(meta, `Function ${token.value} metadata not found`);
 
     const selectingName = _selectingName || !meta.args.length;
 
-    const [selectedArgIndex, setSelectedArgIndex] = useState(
-      meta.args.length &&
-        (!meta.args[0].optional || !isEmptyProgram(token.args[0]))
-        ? 0
-        : null,
-    );
-
-    const argContextType =
-      selectedArgIndex != null
-        ? getArgContextType(bindingId, tokenIndex, selectedArgIndex)
-        : undefined;
-
-    const inputValue =
-      selectedArgIndex != null
-        ? meta.args[selectedArgIndex].type.name === TypeName.Lambda
-          ? getExpressionValue(bindingId, tokenIndex - 1)
-          : contextValue
-        : undefined;
-
-    const inputSample = inputValue?.valueAt(0);
-
     const { refs, floatingStyles, context } = useFloating({
-      placement: "right",
+      placement: "bottom-start",
       strategy: "absolute",
       transform: false,
       whileElementsMounted: autoUpdate,
@@ -166,11 +135,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
     function handleSelectName(meta: FunctionMetadata) {
       setSearch("");
       setSelectingName(false);
-      if (meta.args.length) {
-        setSelectedArgIndex(
-          !meta.args[0].optional && !isEmptyProgram(token.args[0]) ? 0 : null,
-        );
-      } else {
+      if (!meta.args.length) {
         setIsOpen(false);
       }
       updateToken(bindingId, tokenIndex, {
@@ -274,58 +239,34 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                     >
                       {meta.name} <CaretDown />
                     </button>
-
-                    {meta.args.length > 0 && (
-                      <span className={style.token.function.label}>
-                        {text.token.function.label.arguments}
-                      </span>
-                    )}
-
-                    <div className={style.token.function.args}>
-                      {meta.args.map((arg, argIndex) => (
-                        <button
-                          key={argIndex}
-                          className={style.token.function.arg}
-                          data-selected={
-                            argIndex === selectedArgIndex || undefined
-                          }
-                          data-optional={arg.optional || undefined}
-                          onClick={() => setSelectedArgIndex(argIndex)}
-                        >
-                          {meta.args[argIndex].name}
-                          {argIndex === selectedArgIndex && (
-                            <svg
-                              viewBox="0 0 12 12"
-                              className={style.token.function.arrow}
-                            >
-                              <path d="M1 8H11" />
-                              <path d="M1 8L6 2L11 8" />
-                            </svg>
-                          )}
-                        </button>
-                      ))}
-                    </div>
+                    <div className={style.token.function.args}>{}</div>
                   </>
                 )}
               </div>
               <div className={style.token.function.body}>
-                {!selectingName &&
-                  selectedArgIndex != null &&
-                  argContextType != null &&
-                  inputSample != null &&
-                  meta.args[selectedArgIndex] !== undefined && (
-                    <Argument
-                      bindingId={bindingId}
-                      tokenIndex={tokenIndex}
-                      argIndex={selectedArgIndex}
-                      contextType={argContextType}
-                      contextValue={inputSample}
-                      isLambda={
-                        meta.args[selectedArgIndex].type.name ===
-                        TypeName.Lambda
-                      }
-                    />
-                  )}
+                {!selectingName && (
+                  <>
+                    <span className={style.dropdown.group}>
+                      {text.token.function.label.arguments}
+                    </span>
+                    <div
+                      className={clx(
+                        style.program.container,
+                        debug && style.program.extended,
+                      )}
+                    >
+                      {meta.args.map((_, argIndex) => (
+                        <Argument
+                          bindingId={bindingId}
+                          tokenIndex={tokenIndex}
+                          argIndex={argIndex}
+                          meta={meta}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+
                 {selectingName &&
                   (filteredFunctions.length > 0 ? (
                     Object.entries(groupedOptions).map(([group, options]) => (

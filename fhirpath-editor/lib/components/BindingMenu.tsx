@@ -65,6 +65,7 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
         </>
       )}
       onClick={({ onClick }) => onClick()}
+      className={style.binding.menu.container}
     />
   ) : (
     <span />
