@@ -56,6 +56,7 @@ export declare const style: {
         menu: {
             button: string;
             icon: string;
+            container: string;
         };
         cursor: {
             wrapper: string;
@@ -140,7 +141,6 @@ export declare const style: {
             };
             header: string;
             search: string;
-            label: string;
             name: string;
             args: string;
             arg: string;
@@ -208,13 +208,15 @@ export declare const text: {
     };
     program: {
         define: string;
-        placeholder: {
-            mainExpression: string;
-            argumentExpression: string;
-        };
+        placeholder: string;
         title: {
             variables: string;
             mainExpression: string;
+        };
+    };
+    function: {
+        argument: {
+            placeholder: string;
         };
     };
     cursor: {
