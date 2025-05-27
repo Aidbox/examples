@@ -196,7 +196,7 @@ export const createProgramStore = (
             : undefined;
 
           const localBindings = dependants
-            ? bindings.filter((b) => !dependants.has(b.id) && b.id !== id)
+            ? bindings.filter((b) => !dependants.includes(b.id) && b.id !== id)
             : bindings;
 
           return [...externalBindings, ...localBindings];

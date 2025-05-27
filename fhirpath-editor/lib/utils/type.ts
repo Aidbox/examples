@@ -269,12 +269,14 @@ export const TypeType = (ofType: Type): ITypeType => ({
 });
 
 export const SingleType = (ofType: Type): ISingleType => {
-  if (ofType.name === TypeName.Single) return ofType;
+  return ofType as unknown as ISingleType; // disable SingleType for now as it adds too much noise in the error messages
 
-  return {
-    name: TypeName.Single,
-    ofType,
-  };
+  // if (ofType.name === TypeName.Single) return ofType;
+  //
+  // return {
+  //   name: TypeName.Single,
+  //   ofType,
+  // };
 };
 
 export const ChoiceType = (options: Type[]): IChoiceType => ({
@@ -817,7 +819,7 @@ export function stringifyType(t: Type): string {
 export function describeType(t: Type): string {
   switch (t.name) {
     case TypeName.Single:
-      return `${describeType(t.ofType)}`;
+      return `a single ${describeType(t.ofType)}`;
     case TypeName.Generic:
       return `a generic type '${t.letter}'`;
     case TypeName.Type:

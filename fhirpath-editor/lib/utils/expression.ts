@@ -743,34 +743,34 @@ export function getTransitiveDependencies(
 export function getTransitiveDependents(
   graph: Record<string, Set<string>>,
   id: string,
-): Set<string> {
-  const result = new Set<string>();
-
-  const hasPathTo = (
-    from: string,
-    target: string,
-    visited = new Set<string>(),
-  ): boolean => {
-    if (from === target) return true;
-    if (visited.has(from)) return false;
-
-    visited.add(from);
-    for (const neighbor of graph[from] || []) {
-      if (hasPathTo(neighbor, target, visited)) return true;
-    }
-
-    return false;
-  };
-
-  for (const candidate of Object.keys(graph)) {
-    if (candidate !== id && hasPathTo(candidate, id)) {
-      result.add(candidate);
+): string[] {
+  // Build a reverse-edge map: node → set of nodes that depend on it
+  const reverse: Record<string, Set<string>> = {};
+  for (const [node, deps] of Object.entries(graph)) {
+    for (const dep of deps) {
+      (reverse[dep] ??= new Set()).add(node);
     }
   }
 
-  return result;
-}
+  const ordered: string[] = [];
+  const visited = new Set<string>([id]);
+  const queue: string[] = [...(reverse[id] ?? [])]; // direct dependents first
+  queue.forEach((v) => visited.add(v)); // mark them visited
 
+  while (queue.length) {
+    const current = queue.shift()!;
+    ordered.push(current);
+
+    for (const next of reverse[current] ?? []) {
+      if (!visited.has(next)) {
+        visited.add(next);
+        queue.push(next); // breadth-first ⇒ level ordering
+      }
+    }
+  }
+
+  return ordered;
+}
 export function walkDependencyGraph(
   graph: Record<string, Set<string>>,
   f: (nodeId: string) => void,
