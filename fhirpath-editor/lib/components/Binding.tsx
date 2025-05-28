@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import Token from "./Token";
 import Cursor, { CursorRef } from "./Cursor";
 import { useCommitableState, useDoubleInvoke } from "../utils/react";
@@ -15,7 +15,7 @@ import clx from "classnames";
 type BindingProps = {
   bindingId: string;
   placeholder?: string;
-  explicitName?: string;
+  explicitName?: ReactNode;
 };
 
 const Binding = ({ bindingId, placeholder, explicitName }: BindingProps) => {
@@ -39,7 +39,7 @@ const Binding = ({ bindingId, placeholder, explicitName }: BindingProps) => {
     setBindingRef,
   } = useProgramContext((state) => {
     return {
-      name: explicitName || (bindingId && state.getBindingName(bindingId)),
+      name: bindingId && state.getBindingName(bindingId),
       empty: !state.getBindingExpression(bindingId).length,
       trimBinding: state.trimBinding,
       renameBinding: state.renameBinding,
@@ -98,34 +98,33 @@ const Binding = ({ bindingId, placeholder, explicitName }: BindingProps) => {
 
   return (
     <>
-      {name &&
-        (explicitName ? (
-          <span className={style.binding.name}>{explicitName}</span>
-        ) : (
-          <input
-            ref={nameRef}
-            className={clx(
-              style.binding.name,
-              nameAnimation,
-              trimming && tokenTypes.length === 0 && style.binding.deleting,
-            )}
-            onAnimationEnd={() => setNameAnimation("")}
-            type="text"
-            placeholder={text.binding.name.placeholder}
-            value={uncommitedName}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={commitName}
-            onKeyDown={(e) => e.key === "Enter" && commitName()}
-          />
-        ))}
-      {name && (
+      {explicitName ? (
+        <span className={style.binding.name}>{explicitName}</span>
+      ) : name ? (
+        <input
+          ref={nameRef}
+          className={clx(
+            style.binding.name,
+            nameAnimation,
+            trimming && tokenTypes.length === 0 && style.binding.deleting,
+          )}
+          onAnimationEnd={() => setNameAnimation("")}
+          type="text"
+          placeholder={text.binding.name.placeholder}
+          value={uncommitedName}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={commitName}
+          onKeyDown={(e) => e.key === "Enter" && commitName()}
+        />
+      ) : null}
+      {(name || explicitName) && (
         <Equals size={12} weight="bold" className={style.binding.equals} />
       )}
       <div
         className={clx(
           style.binding.expression,
           expressionAnimation,
-          !name && style.binding.nameless,
+          !name && !explicitName && style.binding.nameless,
         )}
         onKeyDown={(e) => {
           const targetAsInput = e.target as HTMLInputElement;

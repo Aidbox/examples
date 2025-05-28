@@ -23,14 +23,11 @@ function Program({
 }: ProgramProps) {
   const style = useStyle();
   const text = useText();
-  const { allowBindings, addBinding, debug, empty } = useProgramContext(
-    (state) => ({
-      allowBindings: state.getAllowBindings(),
-      addBinding: state.addBinding,
-      debug: state.getDebug(),
-      empty: !state.program.expression.length,
-    }),
-  );
+  const { addBinding, debug, empty } = useProgramContext((state) => ({
+    addBinding: state.addBinding,
+    debug: state.getDebug(),
+    empty: !state.program.expression.length,
+  }));
 
   const bindingIds = useProgramContext((state) =>
     state.program.bindings.map((b) => b.id),
@@ -43,31 +40,24 @@ function Program({
       className={clx(
         style.program.container,
         debug && style.program.extended,
-        !allowBindings && style.program.lightweight,
         className,
       )}
     >
-      {allowBindings && (
-        <>
-          <div className={style.program.title}>
-            {text.program.title.variables}
-          </div>
+      <div className={style.program.title}>{text.program.title.variables}</div>
 
-          {bindingIds.map((bindingId) => (
-            <div key={bindingId} className={style.program.binding}>
-              <BindingMenu bindingId={bindingId} />
+      {bindingIds.map((bindingId) => (
+        <div key={bindingId} className={style.program.binding}>
+          <BindingMenu bindingId={bindingId} />
 
-              <Binding bindingId={bindingId} />
-            </div>
-          ))}
+          <Binding bindingId={bindingId} />
+        </div>
+      ))}
 
-          <div className={style.program.define}>
-            <button onClick={() => addBinding({ name: "var1" })}>
-              <Plus size={14} /> {text.program.define}
-            </button>
-          </div>
-        </>
-      )}
+      <div className={style.program.define}>
+        <button onClick={() => addBinding({ name: "var1" })}>
+          <Plus size={14} /> {text.program.define}
+        </button>
+      </div>
 
       <div className={clx(style.program.main, empty && style.program.empty)}>
         {title !== null && (

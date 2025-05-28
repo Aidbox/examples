@@ -75,18 +75,3 @@
 .empty {
   background-color: #f9fafb;
 }
-
-.lightweight {
-  padding: 1.25rem 1rem;
-  grid-template-columns: 0 0 2rem 1fr auto;
-
-  &.extended {
-    grid-template-columns: 0 01rem auto auto auto;
-  }
-
-  .main {
-    margin: 0;
-    padding: 0;
-    border: none;
-  }
-}

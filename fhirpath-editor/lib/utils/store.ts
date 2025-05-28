@@ -55,7 +55,6 @@ export interface IProgramStore {
   getModel: () => Model;
   getDebug: () => boolean;
   getPortalRoot: () => string | undefined;
-  getAllowBindings: () => boolean;
   getIsLambda: () => boolean;
   getQuestionnaireItems: () => QuestionnaireItemRegistry;
   getBindingExpression: (id: string) => Token[];
@@ -115,7 +114,6 @@ export interface IProgramStore {
 
 export const createProgramStore = (
   context: Context,
-  allowBindings: boolean,
   isLambda: boolean,
   externalBindings: ExternalBinding[],
   fhirSchema: FhirRegistry,
@@ -172,8 +170,6 @@ export const createProgramStore = (
         getDebug: () => debug,
 
         getPortalRoot: () => portalRoot,
-
-        getAllowBindings: () => allowBindings,
 
         getIsLambda: () => isLambda,
 

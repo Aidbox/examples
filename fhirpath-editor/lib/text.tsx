@@ -26,7 +26,7 @@ export const text = {
     },
   },
   program: {
-    define: "Add expression",
+    define: "Add variable",
     placeholder: "Add your formula here...",
     title: {
       variables: "Variables",

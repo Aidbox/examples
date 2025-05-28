@@ -7,11 +7,17 @@
  */
 
 const program: string;
+const required: string;
+const name: string;
 
 export {
-	program
+	program,
+	required,
+	name
 };
 
 export default {
-	program
+	program,
+	required,
+	name
 };

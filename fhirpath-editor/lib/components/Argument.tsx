@@ -93,7 +93,6 @@ export const Argument = ({
       program={arg}
       onProgramChange={onProgramChange}
       context={context}
-      allowBindings={false}
       isLambda={isLambda}
       externalBindings={externalizedBindings}
       fhirSchema={getFhirSchema()}
@@ -109,7 +108,14 @@ export const Argument = ({
             "{name}",
             meta.args[argIndex].name,
           )}
-          explicitName={meta.args[argIndex].name}
+          explicitName={
+            <span className={style.token.function.argument.name}>
+              {meta.args[argIndex].name}{" "}
+              {!meta.args[argIndex].optional && (
+                <span className={style.token.function.argument.required}></span>
+              )}
+            </span>
+          }
         />
       </div>
     </ProgramProvider>
