@@ -72,13 +72,18 @@ export const Argument = ({
     [updateArg, bindingId, tokenIndex, argIndex],
   );
 
-  const contextType = getArgContextType(bindingId, tokenIndex, argIndex);
+  const contextType = useMemo(
+    () => getArgContextType(bindingId, tokenIndex, argIndex),
+    [getArgContextType, bindingId, tokenIndex, argIndex],
+  );
 
-  const inputValue = isLambda
-    ? getExpressionValue(bindingId, tokenIndex - 1)
-    : parentContextValue;
+  const contextValue = useMemo(() => {
+    const inputValue = isLambda
+      ? getExpressionValue(bindingId, tokenIndex - 1)
+      : parentContextValue;
 
-  const contextValue = inputValue?.valueAt(0);
+    return inputValue?.valueAt(0);
+  }, [isLambda, getExpressionValue, bindingId, tokenIndex, parentContextValue]);
 
   const context = useMemo(
     () => ({

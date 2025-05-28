@@ -4,7 +4,7 @@ import { ITimeToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
 
 const TimeToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, ref) => {
+  function TimeToken({ bindingId, tokenIndex }, ref) {
     const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as ITimeToken,

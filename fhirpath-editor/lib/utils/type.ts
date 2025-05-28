@@ -119,6 +119,8 @@ export const IntegerType: IIntegerType = { name: TypeName.Integer };
 
 export const DecimalType: IDecimalType = { name: TypeName.Decimal };
 
+extendType(DecimalType, IntegerType);
+
 export const StringType: IStringType = { name: TypeName.String };
 
 export const BooleanType: IBooleanType = { name: TypeName.Boolean };

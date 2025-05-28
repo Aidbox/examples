@@ -4,7 +4,7 @@ import { INumberToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
 
 const NumberToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, ref) => {
+  function NumberToken({ bindingId, tokenIndex }, ref) {
     const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as INumberToken,

@@ -88,7 +88,9 @@ function Editor({
     if (onChange) {
       // Store the value we're about to emit to avoid unnecessary re-parsing
       lastGeneratedValueRef.current = newValue;
-      onChange(newValue);
+      if (newValue !== value) {
+        onChange(newValue);
+      }
     }
   };
 

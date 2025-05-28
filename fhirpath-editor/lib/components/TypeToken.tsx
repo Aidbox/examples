@@ -26,7 +26,7 @@ import { useStyle } from "../style";
 import { useText } from "../text";
 
 const TypeToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, forwardedRef) => {
+  function TypeToken({ bindingId, tokenIndex }, forwardedRef) {
     const style = useStyle();
     const text = useText();
     const { token, updateToken, getFhirSchema } = useProgramContext(

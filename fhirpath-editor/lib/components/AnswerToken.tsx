@@ -13,7 +13,7 @@ type AnswerTokenProps = {
 };
 
 const AnswerToken = forwardRef<HTMLElement, AnswerTokenProps>(
-  ({ bindingId, tokenIndex }, forwardedRef) => {
+  function AnswerToken({ bindingId, tokenIndex }, forwardedRef) {
     const style = useStyle();
     const {
       token,

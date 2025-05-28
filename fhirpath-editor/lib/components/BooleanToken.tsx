@@ -5,7 +5,7 @@ import { IBooleanToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
 
 const BooleanToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, ref) => {
+  function BooleanToken({ bindingId, tokenIndex }, ref) {
     const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as IBooleanToken,

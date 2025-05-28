@@ -4,7 +4,7 @@ import { IIndexToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
 
 const IndexToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, ref) => {
+  function IndexToken({ bindingId, tokenIndex }, ref) {
     const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as IIndexToken,

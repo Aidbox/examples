@@ -4,7 +4,7 @@ import { IDateTimeToken, TokenComponentProps } from "../types/internal";
 import { useStyle } from "../style";
 
 const DateTimeToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, ref) => {
+  function DateTimeToken({ bindingId, tokenIndex }, ref) {
     const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as IDateTimeToken,

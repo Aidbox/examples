@@ -10,7 +10,7 @@ import { useStyle } from "../style";
 import { colors } from "../utils/misc.ts";
 
 const OperatorToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, forwardedRef) => {
+  function OperatorToken({ bindingId, tokenIndex }, forwardedRef) {
     const style = useStyle();
     const { token, updateToken, suggestTokensAt } = useProgramContext(
       (state) => ({

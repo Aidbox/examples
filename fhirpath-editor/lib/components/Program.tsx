@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { memo, ReactNode, useCallback } from "react";
 import Binding from "./Binding";
 import BindingMenu from "./BindingMenu";
 import { Plus } from "@phosphor-icons/react";
@@ -15,7 +15,7 @@ type ProgramProps = {
   explicitName?: string;
 };
 
-function Program({
+const Program = memo(function Program({
   className,
   title,
   placeholder,
@@ -32,6 +32,8 @@ function Program({
   const bindingIds = useProgramContext((state) =>
     state.program.bindings.map((b) => b.id),
   );
+
+  const onClick = useCallback(() => addBinding({ name: "var1" }), [addBinding]);
 
   const context = useProgramContext((state) => state.getContext());
 
@@ -54,7 +56,7 @@ function Program({
       ))}
 
       <div className={style.program.define}>
-        <button onClick={() => addBinding({ name: "var1" })}>
+        <button onClick={onClick}>
           <Plus size={14} /> {text.program.define}
         </button>
       </div>
@@ -83,6 +85,6 @@ function Program({
       </div>
     </div>
   );
-}
+});
 
 export default Program;

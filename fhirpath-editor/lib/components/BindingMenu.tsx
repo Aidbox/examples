@@ -4,7 +4,7 @@ import {
   PuzzlePiece,
   Trash,
 } from "@phosphor-icons/react";
-import { ReactNode } from "react";
+import { memo, ReactNode } from "react";
 import { useProgramContext } from "../utils/store";
 import Dropdown from "./Dropdown";
 import { useStyle } from "../style";
@@ -14,7 +14,7 @@ type BindingMenuProps = {
   bindingId: string;
 };
 
-const BindingMenu = ({ bindingId }: BindingMenuProps) => {
+const BindingMenu = memo(function BindingMenu({ bindingId }: BindingMenuProps) {
   const style = useStyle();
   const text = useText();
   const { empty, nameExpression, deleteBinding, duplicateBinding } =
@@ -70,6 +70,6 @@ const BindingMenu = ({ bindingId }: BindingMenuProps) => {
   ) : (
     <span />
   );
-};
+});
 
 export default BindingMenu;

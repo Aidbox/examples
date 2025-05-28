@@ -9,7 +9,7 @@ import { useStyle } from "../style";
 import { colors } from "../utils/misc.ts";
 
 const FieldToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, forwardedRef) => {
+  function FieldToken({ bindingId, tokenIndex }, forwardedRef) {
     const style = useStyle();
     const { token, isLeadingToken, updateToken, suggestTokensAt, debug } =
       useProgramContext((state) => ({

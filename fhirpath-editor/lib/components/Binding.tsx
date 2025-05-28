@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState, memo } from "react";
 import Token from "./Token";
 import Cursor, { CursorRef } from "./Cursor";
 import { useCommitableState, useDoubleInvoke } from "../utils/react";
@@ -18,7 +18,11 @@ type BindingProps = {
   explicitName?: ReactNode;
 };
 
-const Binding = ({ bindingId, placeholder, explicitName }: BindingProps) => {
+const Binding = memo(function Binding({
+  bindingId,
+  placeholder,
+  explicitName,
+}: BindingProps) {
   const style = useStyle();
   const text = useText();
   const cursorRef = useRef<CursorRef | null>(null);
@@ -218,6 +222,6 @@ const Binding = ({ bindingId, placeholder, explicitName }: BindingProps) => {
       )}
     </>
   );
-};
+});
 
 export default Binding;

@@ -33,7 +33,7 @@ import { unparseExpression } from "../utils/fhirpath.ts";
 import clx from "classnames";
 
 const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, ref) => {
+  function FunctionToken({ bindingId, tokenIndex }, ref) {
     const style = useStyle();
     const text = useText();
     const [isOpen, setIsOpen] = useState(false);
@@ -257,6 +257,7 @@ const FunctionToken = forwardRef<HTMLElement, TokenComponentProps>(
                     >
                       {meta.args.map((_, argIndex) => (
                         <Argument
+                          key={argIndex}
                           bindingId={bindingId}
                           tokenIndex={tokenIndex}
                           argIndex={argIndex}

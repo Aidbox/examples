@@ -26,7 +26,7 @@ const units = [
 ];
 
 const QuantityToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, forwardedRef) => {
+  function QuantityToken({ bindingId, tokenIndex }, forwardedRef) {
     const style = useStyle();
     const { token, updateToken } = useProgramContext((state) => ({
       token: state.getToken(bindingId, tokenIndex) as IQuantityToken,

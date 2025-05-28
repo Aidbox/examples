@@ -44,17 +44,18 @@ export function ProgramProvider({
   const [store, setStore] = useState<StoreApi<IProgramStore> | null>(null);
 
   useEffect(() => {
-    setStore(
-      createProgramStore(
-        context,
-        isLambda,
-        externalBindings,
-        fhirSchema,
-        model,
-        debug,
-        portalRoot,
-      ),
+    const store = createProgramStore(
+      context,
+      isLambda,
+      externalBindings,
+      fhirSchema,
+      model,
+      debug,
+      portalRoot,
     );
+
+    setStore(store);
+    store.getState().setProgram(program);
   }, [
     context,
     isLambda,

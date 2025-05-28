@@ -1,4 +1,4 @@
-import { forwardRef, Ref } from "react";
+import { forwardRef, memo, Ref } from "react";
 import NumberToken from "./NumberToken";
 import StringToken from "./StringToken";
 import OperatorToken from "./OperatorToken";
@@ -67,8 +67,11 @@ type TokenProps = {
   deleting?: boolean;
 };
 
-const Token = forwardRef<HTMLElement, TokenProps>(
-  ({ kind, deleting, ...props }, ref) => {
+const Token = memo(
+  forwardRef<HTMLElement, TokenProps>(function Token(
+    { kind, deleting, ...props },
+    ref,
+  ) {
     const style = useStyle();
     const TokenComponent = getTokenComponent(kind);
     const deleteToken = useProgramContext((state) => state.deleteToken);
@@ -122,7 +125,7 @@ const Token = forwardRef<HTMLElement, TokenProps>(
         )}
       </Tooltip>
     );
-  },
+  }),
 );
 
 export default Token;

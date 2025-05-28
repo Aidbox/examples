@@ -13,7 +13,7 @@ import { useText } from "../text";
 import { colors } from "../utils/misc.ts";
 
 const VariableToken = forwardRef<HTMLElement, TokenComponentProps>(
-  ({ bindingId, tokenIndex }, forwardedRef) => {
+  function VariableToken({ bindingId, tokenIndex }, forwardedRef) {
     const style = useStyle();
     const text = useText();
     const {
