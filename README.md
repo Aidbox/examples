@@ -9,6 +9,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Aidbox Forms Builder with Angular.js](aidbox-forms-builder-angular/)
 - [Aidbox Forms Builder with Angular.js in controlled mode](aidbox-forms-builder-angular-controlled/)
 - [Aidbox Forms Renderer with Angular.js](aidbox-forms-renderer-angular/)
+- [Multiple instances Aidbox Forms Renderer with Angular.js](aidbox-forms-two-renderers-angular/)
 - [Aidbox Forms Renderer with Angular.js in controlled mode](aidbox-forms-renderer-angular-controlled/)
 - [Aidbox Forms Renderer with React.js](aidbox-forms-renderer-react/)
 - [Aidbox Forms Renderer with React.js in controlled mode](aidbox-forms-renderer-react-controlled/)

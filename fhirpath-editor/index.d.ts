@@ -119,7 +119,6 @@ export declare const style: {
         binding: string;
         main: string;
         empty: string;
-        lightweight: string;
     };
     token: {
         answer: {
@@ -138,6 +137,8 @@ export declare const style: {
         function: {
             argument: {
                 program: string;
+                required: string;
+                name: string;
             };
             header: string;
             search: string;
