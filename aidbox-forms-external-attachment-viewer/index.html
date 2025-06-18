@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <script src="http://localhost:8080/static/aidbox-forms-renderer-webcomponent.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.25.7/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dwv@0.34.2/dist/dwv.min.js"></script>
+  <title>React App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="env,react">  
+    function DicomViewer({attachment}) {
+      const app = new dwv.App();
+      
+      const viewConfig0 = new dwv.ViewConfig('dicom-viewer-content');
+      const viewConfigs = {'*': [viewConfig0]};
+      const options = new dwv.AppOptions(viewConfigs);
+      options.tools = {ZoomAndPan: new dwv.ToolConfig()};
+      app.init(options);
+      // activate tool
+      app.addEventListener('load', function () {
+        app.setTool('ZoomAndPan');
+      });    // Initialize the DICOM viewer
+      
+      
+      const viewerContent = React.useRef(null);
+      
+      React.useEffect(() => {
+        viewerContent.current.innerHTML = ''; // Clear previous content
+        app.loadURLs([attachment.url || attachment.data]);
+        
+      }, [attachment]);
+      
+      // load dicom data
+      
+      
+      return (
+      <div id="dicom-viewer-content" ref={viewerContent}></div>
+      );
+    }
+    
+    function App() {
+      const questionnaire = {
+        resourceType: "Questionnaire",
+        url: "example-attachment-questionnaire",
+        title: "Attachment Questionnaire",
+        item: [
+        {
+          text: "Upload a DICOM file",
+          linkId: "dicom-question",
+          type: "attachment"
+        },
+        {
+          linkId: "png-question",
+          type: "attachment",
+          text: "Upload a PNG image"
+        },
+        {
+          linkId: "super-question",
+          type: "string",
+          text: "super question"
+        }
+        ]
+      };
+      
+      const [modalOpened, setModalOpened] = React.useState(false);
+      const [attachment, setAttachment] = React.useState(null);
+      
+      const rendererRef = React.useRef();
+      
+      React.useEffect(() => {
+        const renderer = rendererRef.current;
+        
+        
+        
+        
+        if(renderer) {
+          renderer.onPreviewAttachment = (attachment) => {
+            console.log("Previewing attachment:", attachment);
+            if(attachment.contentType.startsWith("image/") || attachment.contentType === "application/dicom") {
+              console.log("Attachment is DICOM: ", attachment);
+              setAttachment(attachment);
+              document.getElementById("show-attachment-dialog").showModal();
+              
+              return true;
+            }
+            return false;
+          }
+        }
+      }, []);
+      
+      const questionnaireJSON = JSON.stringify(questionnaire, null, 2);
+      
+      let viewer;
+      if (attachment && attachment.contentType.startsWith("image/")) {
+        viewer = <img src={attachment && attachment.data} alt="Attachment Preview" style={{ maxWidth: "100%", maxHeight: "80vh" }} />
+      } else if (attachment && attachment.contentType.startsWith("application/dicom")) { 
+        viewer = <DicomViewer attachment={attachment} />
+      }
+      
+      return (
+      <div className="App">
+        <aidbox-form-renderer 
+        id="renderer" 
+        style={{ width: "100%", height: "100vh" }}
+        ref={rendererRef}
+        questionnaire={questionnaireJSON}
+        />
+        <dialog id="show-attachment-dialog" style={{width: "500px", borderRadius: "10px", borderColor: "#aaa", borderWidth: "1px"}}>
+          <h2>Attachment Preview</h2>  
+          <h4>This is custom preview component</h4>
+          <div id="attachment-preview-content" style={{width: "500px", height: "500px"}}>
+            {viewer}
+          </div>
+          <button onClick={() => document.getElementById('show-attachment-dialog').close()}>Close</button>
+        </dialog>
+        
+        
+      </div>
+      );
+    }
+    
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+    <App />
+    );
+    
+  </script>
+</body>
+</html>
