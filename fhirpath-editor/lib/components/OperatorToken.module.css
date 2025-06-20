@@ -1,6 +1,0 @@
-.button {
-  composes: button from "./Token.module.css";
-  /*bg-blue-50 text-blue-800*/
-  background-color: #eff6ff;
-  color: #1e40af;
-}

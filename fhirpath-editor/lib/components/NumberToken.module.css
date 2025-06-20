@@ -1,6 +1,0 @@
-.input {
-  composes: button from "./Token.module.css";
-  text-align: center;
-  field-sizing: content;
-  outline: none;
-}
