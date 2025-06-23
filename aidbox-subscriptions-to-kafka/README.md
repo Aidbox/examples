@@ -84,7 +84,7 @@ accept: application/json
   "trigger": [
     {
       "resource": "QuestionnaireResponse",
-      "fhirPathCriteria": "status = 'completed' or status = 'amended'"
+      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and (status = 'completed' or status = 'amended')"
     }
   ]
 }
@@ -127,7 +127,7 @@ accept: application/json
 
 ### Submit Form
 
-Open the [list of forms](http://localhost:8888/ui/sdc#/), click `share` -> enable 'allow amend' -> click `attach` -> copy the link -> open the link -> fill out the form, and submit it.
+Open the [list of forms](http://localhost:8888/ui/sdc#/), click `share` -> select patient 'patient-portal-example'  -> enable 'allow amend' -> click `attach` -> copy the link -> open the link -> fill out the form, and submit it.
 
 ### Check AidboxTopicDestination Status
 
