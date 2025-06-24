@@ -955,47 +955,6 @@
         "method": "PUT",
         "url": "Questionnaire/phq2-phq9"
       }
-    },
-    {
-      "fullUrl": "Patient/patient-not-portal-example",
-      "resource": {
-        "resourceType": "Patient",
-        "id": "patient-not-portal-example"
-      },
-      "request": {
-        "method": "PUT",
-        "url": "Patient/patient-not-portal-example"
-      }
-    },
-    {
-      "fullUrl": "Patient/patient-portal-example",
-      "resource": {
-        "resourceType": "Patient",
-        "id": "patient-portal-example",
-        "identifier": [
-          {
-            "use": "secondary",
-            "type": {
-              "coding": [
-                {
-                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-                  "code": "PI",
-                  "display": "Patient Internal Identifier"
-                }
-              ]
-            },
-            "system": "http://hospital.example.org/patient-portal",
-            "value": "portal_user_98765",
-            "assigner": {
-              "display": "Example Hospital Patient Portal"
-            }
-          }
-        ]
-      },
-      "request": {
-        "method": "PUT",
-        "url": "Patient/patient-portal-example"
-      }
     }
   ]
 } 
