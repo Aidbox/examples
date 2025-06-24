@@ -63,10 +63,10 @@ docker compose up
 
 The Docker Compose file initializes the environment for both Kafka and Aidbox with the following configuration:
 
-- Imports FHIR Questionnaire (see `init-aidbox` service).
-- Creates a Kafka topic for `QuestionnaireResponse` (see `init-kafka` service).
+- Imports FHIR Questionnaire using [init bundle](https://docs.aidbox.app/configuration/init-bundle) feature
+- Creates Kafka topics for `QuestionnaireResponse` and `Encounter` (see `init-kafka` service).
 
-## Step 2: Set Up Subscription and Destination
+## Step 2: Set Up Subscription and Destination For QuestionnaireResponse
 
 ### Create AidboxSubscriptionTopic Resource
 
@@ -123,7 +123,7 @@ accept: application/json
 }
 ```
 
-## Step 3: Demonstration
+## Step 3: Demonstration of QuestionnaireResponse subscriptions
 
 ### Submit Form
 
@@ -140,6 +140,178 @@ GET /fhir/AidboxTopicDestination/kafka-destination/$status
 ### See Messages in Kafka UI
 
 Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-forms` -> `messages` and review the `QuestionnaireResponse` that was created after submitting the form.
+
+## Step 4: Set Up Subscription and Destination For Encounters
+
+### Create AidboxSubscriptionTopic Resource
+
+To create a subscription on the `Encounter` resource for patients who have an identifier from the patient portal, open Aidbox UI -> APIs -> REST Console and execute the following request:
+
+```json
+POST /fhir/AidboxSubscriptionTopic
+content-type: application/json
+accept: application/json
+
+{
+  "resourceType": "AidboxSubscriptionTopic",
+  "url": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
+  "status": "active",
+  "trigger": [
+    {
+      "resource": "Encounter",
+      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists()"
+    }
+  ]
+}
+```
+### Create AidboxTopicDestination Resource
+
+Create the `AidboxTopicDestination` for the Encounters.
+
+```json
+POST /fhir/AidboxTopicDestination
+content-type: application/json
+accept: application/json
+
+{
+  "meta": {
+    "profile": [
+      "http://aidbox.app/StructureDefinition/aidboxtopicdestination-kafka-at-least-once"
+    ]
+  },
+  "kind": "kafka-at-least-once",
+  "id": "kafka-destination-encounters",
+  "topic": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
+  "parameter": [
+    {
+      "name": "kafkaTopic",
+      "valueString": "aidbox-encounters"
+    },
+    {
+      "name": "bootstrapServers",
+      "valueString": "kafka:29092"
+    }
+  ]
+}
+```
+
+## Step 5: Demonstration of Encounter subscriptions
+
+### Create Patients and Encounters
+
+Aidbox UI -> APIs -> REST Console
+
+Create two Patients.
+First one is the user of the Patient Portal, it has the identifier in patient portal system:
+
+```json
+POST /fhir/Patient
+content-type: application/json
+accept: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "patient-portal-example",
+  "identifier": [
+    {
+      "use": "secondary",
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "PI",
+            "display": "Patient Internal Identifier"
+          }
+        ]
+      },
+      "system": "http://hospital.example.org/patient-portal",
+      "value": "portal_user_98765",
+      "assigner": {
+        "display": "Example Hospital Patient Portal"
+      }
+    }
+  ]
+}
+```
+
+Second one is not a portal user, so it doesn't have a portal identifier:
+
+```json
+POST /fhir/Patient
+content-type: application/json
+accept: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "patient-not-portal-example"
+}
+```
+
+Create the Encounter for the first Patient:
+
+```json
+POST /fhir/Encounter
+content-type: application/json
+accept: application/json
+
+{
+  "resourceType": "Encounter",
+  "id": "encounter-001",
+  "status": "finished",
+  "class": {
+    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+    "code": "AMB",
+    "display": "ambulatory"
+  },
+  "subject": {
+    "reference": "Patient/patient-portal-example"
+  },
+  "period": {
+    "start": "2025-06-24T10:00:00Z",
+    "end": "2025-06-24T10:30:00Z"
+  }
+}
+```
+
+Create the Encounter for the patient who is **not** a portal user:
+
+```json
+POST /fhir/Encounter
+content-type: application/json
+accept: application/json
+
+{
+  "resourceType": "Encounter",
+  "id": "encounter-002",
+  "status": "in-progress",
+  "class": {
+    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+    "code": "EMER",
+    "display": "emergency"
+  },
+  "subject": {
+    "reference": "Patient/patient-not-portal-example"
+  },
+  "period": {
+    "start": "2025-06-24T15:45:00Z"
+  }
+}
+```
+
+### See Messages in Kafka UI
+
+Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-encounters` -> `messages` and review the `Encounter`. 
+You’ll notice that only the Encounter for the patient `patient-portal-example` was published.
+This behavior is due to the trigger configuration in the AidboxSubscriptionTopic:
+
+```json
+"trigger": [
+    {
+      "resource": "Encounter",
+      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists()"
+    }
+  ]
+```
 
 ## Example of Kubernetes Setup
 

@@ -55,6 +55,7 @@ services:
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
       echo -e 'Creating kafka topics'
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-forms --replication-factor 1 --partitions 1
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-encounters --replication-factor 1 --partitions 1
       echo -e 'Created the following topics:'
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
       "
@@ -76,7 +77,7 @@ services:
     pull_policy: always
     depends_on: ["aidbox-db"]
     volumes:
-      - "./tmp:/tmp"
+      - "./resources/bundle.json:/tmp/bundle.json"
     ports:
       - "8888:8888"
     environment:
@@ -88,6 +89,7 @@ services:
       PGDATABASE: aidbox
       AIDBOX_BASE_URL: http://localhost:8888
       AIDBOX_PORT: 8888
+      BOX_INIT_BUNDLE: file:///tmp/bundle.json
     env_file:
       - .env
     healthcheck:
@@ -97,17 +99,3 @@ services:
       retries: 5
       start_period: 30s
 
-  init-aidbox:
-    image: healthsamurai/aidboxone:edge
-    depends_on:
-      aidbox:
-        condition: service_healthy
-    entrypoint: [ '/bin/sh', '-c' ]
-    volumes:
-      - "./resources:/resources"
-    command: |
-      "
-      FILE="/resources/questionnaire.json"
-      URL="http://aidbox:8888/fhir/Questionnaire/subs-demo-kafka-questionnaire"
-      curl -X PUT "$$URL" -u root:secret -d @"$$FILE" -H "Content-Type: application/json"
-      "
