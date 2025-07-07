@@ -1,0 +1,38 @@
+volumes:
+  pg_data:
+    name: pg_data
+services:
+  aidbox-db:
+    image: healthsamurai/aidboxdb:16.1
+    pull_policy: always
+    ports:
+      - "${PGHOSTPORT}:5432"
+    volumes:
+      - "pg_data:/data:delegated"
+    environment:
+      POSTGRES_USER: "${PGUSER}"
+      POSTGRES_PASSWORD: "${PGPASSWORD}"
+      POSTGRES_DB: "${PGDATABASE}"
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on: ["aidbox-db"]
+    volumes:
+      - ./init-bundle.json:/tmp/init-bundle.json
+    ports:
+      - "${AIDBOX_PORT}:${AIDBOX_PORT}"
+    env_file:
+      - .env
+
+  app:
+    build: .
+    ports:
+      - "${APP_PORT:-4000}:4000"
+    environment:
+      - NODE_ENV=development
+      - APP_PORT=4000
+    volumes:
+      - ./src:/app/src
+      - ./nodemon.json:/app/nodemon.json
+    depends_on: ["aidbox"]

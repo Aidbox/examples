@@ -1,0 +1,25 @@
+{
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "id": "node-service-1",
+        "resourceType": "App",
+        "apiVersion": 1,
+        "type": "app",
+        "endpoint": { "url": "http://host.docker.internal:4000", "type": "http-rpc", "secret": "secret" }
+      },
+      "request": { "method": "PUT", "url": "/App/node-service-1" }
+    }, {
+      "resource": {
+        "id": "questionnaire-fhir-api",
+        "resourceType": "Operation",
+        "app": { "reference": "App/node-service-1" },
+        "module": "node-service-1",
+        "action": "proto.app/endpoint",
+        "request": ["put", "fhir", "Questionnaire", { "name": "id" }]
+      },
+      "request": { "method": "PUT", "url": "/Operation/questionnaire-fhir-api" }
+    }
+  ]
+}
