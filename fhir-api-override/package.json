@@ -1,0 +1,29 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development nodemon",
+    "build": "tsc -b --force"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aidbox/sdk-r4": "^1.0.12",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.21.0",
+    "fastify-healthcheck": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.17.5",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}

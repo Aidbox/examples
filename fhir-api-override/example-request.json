@@ -1,0 +1,28 @@
+{
+  "resourceType": "Questionnaire",
+  "title": "Patient Health Questionnaire",
+  "status": "active",
+  "publisher": "Example Organization",
+  "description": "A simple health questionnaire for patients",
+  "item": [
+    {
+      "linkId": "1",
+      "text": "What is your age?",
+      "type": "integer",
+      "required": true
+    },
+    {
+      "linkId": "2",
+      "text": "Do you have any allergies?",
+      "type": "boolean",
+      "required": false
+    },
+    {
+      "linkId": "3",
+      "text": "Please describe your symptoms",
+      "type": "text",
+      "required": true,
+      "maxLength": 500
+    }
+  ]
+} 
