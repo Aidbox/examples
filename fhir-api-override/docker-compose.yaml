@@ -21,7 +21,7 @@ services:
     volumes:
       - ./init-bundle.json:/tmp/init-bundle.json
     ports:
-      - "${AIDBOX_PORT}:${AIDBOX_PORT}"
+      - "${BOX_WEB_PORT}:${BOX_WEB_PORT}"
     env_file:
       - .env
 
