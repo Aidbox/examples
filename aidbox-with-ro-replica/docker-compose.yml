@@ -1,0 +1,98 @@
+services:
+  postgres_primary:
+    image: "healthsamurai/aidboxdb:17"
+    container_name: postgres_primary
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: aidbox
+    volumes:
+      - postgres_primary_data:/var/lib/postgresql/data
+      - ./init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh
+    ports:
+      - "5432:5432"
+    command: >
+      -c shared_preload_libraries=pg_stat_statements
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres_replica:
+    image: "healthsamurai/aidboxdb:17"
+    container_name: postgres_replica
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: aidbox
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+      - ./init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh
+    ports:
+      - "5433:5432"
+    depends_on:
+      postgres_primary:
+        condition: service_healthy
+    command: >
+      -c hot_standby=on
+      -c primary_conninfo='host=postgres_primary port=5432 user=replicator password=secret'
+      -c primary_slot_name='replica_slot'
+      -c listen_addresses='*'
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    container_name: aidbox
+    pull_policy: always
+    depends_on:
+      - postgres_primary
+      - postgres_replica
+    ports:
+      - 8080:8080
+    environment:
+      BOX_ADMIN_PASSWORD: A0cDkLXo4w
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: "#{:fhir-datetime}"
+
+      BOX_DB_HOST: postgres_primary
+      BOX_DB_PORT: 5432
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_USER: aidbox
+      BOX_DB_PASSWORD: secret
+
+      BOX_DB_RO_REPLICA_ENABLED: true
+      BOX_DB_RO_REPLICA_HOST: postgres_replica
+      BOX_DB_RO_REPLICA_PORT: 5432
+      BOX_DB_RO_REPLICA_DATABASE: aidbox
+      BOX_DB_RO_REPLICA_USER: aidbox
+      BOX_DB_RO_REPLICA_PASSWORD: secret
+
+      BOX_FHIR_COMPLIANT_MODE: true
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: true
+      BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
+      BOX_FHIR_SCHEMA_VALIDATION: true
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_FHIR_SEARCH_CHAIN_SUBSELECT: true
+      BOX_FHIR_SEARCH_COMPARISONS: true
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
+      BOX_ROOT_CLIENT_SECRET: EQgXoA1I9k
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_SECURITY_AUDIT_LOG_ENABLED: true
+      BOX_SECURITY_DEV_MODE: true
+      BOX_SETTINGS_MODE: read-write
+      BOX_WEB_BASE_URL: http://localhost:8080
+      BOX_WEB_PORT: 8080
+    healthcheck:
+      test: curl -f http://localhost:8080/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 90
+      start_period: 30s
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  postgres_primary_data:
+  postgres_replica_data:
