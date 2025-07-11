@@ -109,6 +109,13 @@ Full settings specification described here: [Aidbox Settings Reference: Database
    ```
    You'll receive an error indicating that write operations are not allowed on the read-only replica.
 
+5. Receiving database usage metrics. Open in your browser: <http://localhost:8080/metrics> and search for the lines like:
+
+  ```text
+  hikari_acquired_total{db="aidbox",source="primary-db",instance="Aidbox",runtime="b3232255-84fd-49b3-8c9c-7f2b1329318e",} 59
+  hikari_acquired_total{db="aidbox",source="ro-replica-db",instance="Aidbox",runtime="b3232255-84fd-49b3-8c9c-7f2b1329318e",} 5
+  ```
+
 ### Practical Use Cases
 
 #### Case 1: Heavy Analytics Queries
