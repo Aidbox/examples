@@ -24,10 +24,10 @@ This setup uses PostgreSQL's built-in streaming replication to maintain a read-o
 graph LR
     aidbox
     subgraph database
-        primary --> replica
+        primary[(primary)] --> replica[(replica)]
     end
-    aidbox <--> primary
-    replica --> aidbox
+    aidbox <-->|Reads/Writes| primary
+    replica -->|Reads| aidbox
 ```
 
 ### Replication Considerations
