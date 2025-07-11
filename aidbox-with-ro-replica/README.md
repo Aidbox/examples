@@ -20,6 +20,16 @@ This setup uses PostgreSQL's built-in streaming replication to maintain a read-o
 1. The primary database (for all write operations and default read operations)
 2. The read-only replica (for read operations explicitly directed to use the replica)
 
+```mermaid
+graph LR
+    aidbox
+    subgraph database
+        primary --> replica
+    end
+    aidbox <--> primary
+    replica --> aidbox
+```
+
 ### Replication Considerations
 
 - **Replication Lag**: Be aware that there may be a delay between when data is written to the primary and when it becomes available on the replica. In most configurations, this lag is minimal (typically less than 50ms), but it can increase under heavy write loads.
@@ -52,6 +62,8 @@ BOX_DB_RO_REPLICA_DATABASE: aidbox
 BOX_DB_RO_REPLICA_USER: aidbox
 BOX_DB_RO_REPLICA_PASSWORD: secret
 ```
+
+Full settings specification described here: [Aidbox Settings Reference: Database](https://docs.aidbox.app/reference/settings/database)
 
 ## Usage Examples
 
