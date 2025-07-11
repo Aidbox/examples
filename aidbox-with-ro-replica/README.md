@@ -63,7 +63,7 @@ BOX_DB_RO_REPLICA_USER: aidbox
 BOX_DB_RO_REPLICA_PASSWORD: secret
 ```
 
-Full settings specification described here: [Aidbox Settings Reference: Database](https://docs.aidbox.app/reference/settings/database)
+Full settings specification described here: [Aidbox Settings Reference: Database](https://docs.aidbox.app/reference/settings/database#read-only-replica)
 
 ## Usage Examples
 
