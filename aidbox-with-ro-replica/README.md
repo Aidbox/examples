@@ -123,8 +123,8 @@ Full settings specification described here: [Aidbox Settings Reference: Database
 When running analytics that might involve complex queries across large datasets:
 
 ```json
-GET /fhir/Observation?code=http://loinc.org|8867-4&_count=100&_sort=date&patient.identifier=urn:oid:1.2.36.146.595.217.0.1|12345
-X-USE-RO-REPLICA: 1
+  GET /fhir/Observation?code=http://loinc.org|8867-4&_count=100&_sort=date&subject:Patient.identifier=urn:oid:1.2.36.146.595.217.0.1|12345
+  X-USE-RO-REPLICA: 1
 ```
 
 #### Case 2: Bulk Exports
@@ -141,7 +141,7 @@ X-USE-RO-REPLICA: 1
 For UI components where real-time data is less critical, such as displaying historical patient information:
 
 ```json
-GET /fhir/Patient/123/history
+GET /fhir/Patient/123/_history
 X-USE-RO-REPLICA: 1
 ```
 
