@@ -35,6 +35,15 @@ graph LR
 - **Replication Lag**: Be aware that there may be a delay between when data is written to the primary and when it becomes available on the replica. In most configurations, this lag is minimal (typically less than 50ms), but it can increase under heavy write loads.
 - **Consistency Model**: This architecture provides eventual consistency for read operations directed to the replica. If your application requires immediate read-after-write consistency, you should direct those specific read operations to the primary database.
 
+## Prerequisites
+
+- [Docker](https://www.docker.com/)
+- Clone the repository and navigate to the working directory:
+  ```sh
+  git clone https://github.com/Aidbox/examples.git
+  cd aidbox-with-ro-replica
+  ```
+
 ## Up and Running
 
 Below is a Docker Compose configuration ([docker-compose.yml](./docker-compose.yml)) that sets up:
