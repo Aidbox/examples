@@ -14,7 +14,7 @@ services:
     command: >
       -c shared_preload_libraries=pg_stat_statements
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U aidbox"]
       interval: 10s
       timeout: 5s
       retries: 5
