@@ -27,6 +27,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [FHIR SDC API in AIdbox](fhir-sdc-api/)
 - [OpenTelemetry](OpenTelemetry/)
 - [FHIRPath Editor](fhirpath-editor/)
+- [Organization-Based Access Control (OrgBAC) Practitioner Application](orgbac-practitioner-application/)
 
 ## Documentation
 
