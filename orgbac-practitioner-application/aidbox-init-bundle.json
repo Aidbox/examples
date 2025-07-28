@@ -1,0 +1,95 @@
+{
+  "resourceType": "Bundle",
+  "type": "batch",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/TokenIntrospector/external-auth-server"
+      },
+      "resource": {
+        "resourceType": "TokenIntrospector",
+        "id": "external-auth-server",
+        "type": "jwt",
+        "jwt": {
+          "iss": "https://auth.example.com",
+          "secret": "very-secret"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/patients-by-organization"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "organization-access",
+        "description": "Access to Organization Based API for Practitioner",
+        "engine": "matcho",
+        "matcho": {
+          "jwt": {
+            "organization": ".params.organization/id",
+            "iss": "https://auth.example.com"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/create-organization"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "create-organization",
+        "description": "Can create organization outside of OrgBAC API",
+        "engine": "matcho",
+        "matcho": {
+          "jwt": {
+            "iss": "https://auth.example.com"
+          },
+          "request-method": "post",
+          "params": {
+            "resource/type": "Organization"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Client/log-in-practitioner"
+      },
+      "resource": {
+        "resourceType": "Client",
+        "id": "log-in-practitioner",
+        "secret": "secret",
+        "grant_types": ["password"]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/log-in-practitioner"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "log-in-practitioner",
+        "engine": "matcho",
+        "matcho": {
+          "jwt": {
+            "client": "log-in-practitioner"
+          }
+          
+        },
+        "link": [
+            {
+              "reference": "/Operation/auth-token"
+            }
+          ]
+      }
+    }
+  ]
+}
+
