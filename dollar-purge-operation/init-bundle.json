@@ -1,0 +1,164 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/App/purge-app"
+      },
+      "resource": {
+        "resourceType": "App",
+        "id": "purge-app",
+        "type": "app",
+        "apiVersion": 1,
+        "endpoint": {
+          "url": "http://host.docker.internal:3000/",
+          "type": "http-rpc",
+          "secret": "purge-secret"
+        },
+        "operations": {
+          "purge": {
+            "method": "POST",
+            "path": ["fhir", "Patient", {"name": "id"}, "$purge"]
+          },
+          "purge-status": {
+            "method": "GET",
+            "path": ["fhir", "purge-status", {"name": "operationId"}]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Client/basic"
+      },
+      "resource": {
+        "resourceType": "Client",
+        "id": "basic",
+        "secret": "secret",
+        "grant_types": ["basic"]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/basic-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "basic-policy",
+        "engine": "allow",
+        "link": [
+          {
+            "id": "basic",
+            "resourceType": "Client"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/purge-delete-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "purge-delete-policy",
+        "engine": "matcho",
+        "matcho": {
+          "request-method": "delete",
+          "client": {
+            "id": "purge-app"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/purge-sql-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "purge-sql-policy",
+        "engine": "matcho",
+        "matcho": {
+          "uri": "/$sql",
+          "client": {
+            "id": "purge-app"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/purge-read-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "purge-read-policy",
+        "engine": "matcho",
+        "matcho": {
+          "request-method": "get",
+          "client": {
+            "id": "purge-app"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Patient/test-patient-1"
+      },
+      "resource": {
+        "resourceType": "Patient",
+        "id": "test-patient-1",
+        "name": [{"given": ["John"], "family": "Doe"}],
+        "birthDate": "1980-01-01",
+        "gender": "male"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Observation"
+      },
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "code": {"text": "Blood pressure"},
+        "subject": {"reference": "Patient/test-patient-1"},
+        "valueString": "120/80 mmHg"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Encounter"
+      },
+      "resource": {
+        "resourceType": "Encounter",
+        "status": "finished",
+        "class": {"code": "AMB"},
+        "subject": {"reference": "Patient/test-patient-1"},
+        "period": {"start": "2025-01-01T10:00:00Z", "end": "2025-01-01T11:00:00Z"}
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Condition"
+      },
+      "resource": {
+        "resourceType": "Condition",
+        "clinicalStatus": {"coding": [{"code": "active"}]},
+        "code": {"text": "Hypertension"},
+        "subject": {"reference": "Patient/test-patient-1"}
+      }
+    }
+  ]
+}
