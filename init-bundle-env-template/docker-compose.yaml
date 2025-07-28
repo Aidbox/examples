@@ -28,7 +28,7 @@ services:
     - /bin/sh
     - -c
     - |
-      envsubst < /tmp/init-bundle.json.tpl > /tmp/init-bundle.json
+      envsubst "$(printf '$${%s} ' $$(env | cut -d= -f1))" < /tmp/init-bundle.json.tpl > /tmp/init-bundle.json
       /aidbox.sh
     environment:
       INIT_BUNDLE_CLIENT_ID: client-id
