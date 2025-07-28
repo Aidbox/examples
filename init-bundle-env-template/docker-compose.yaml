@@ -23,17 +23,18 @@ services:
     ports:
     - 8080:8080
     volumes:
-    - ./init-bundle.json.tpl:/tmp/init-bundle.json.tpl  
-    entrypoint: 
-    - /bin/sh
-    - -c
-    - |
-      envsubst < /tmp/init-bundle.json.tpl > /tmp/init-bundle.json
-      /aidbox.sh
+    - ./init-bundle.json.tpl:/tmp/init-bundle.json.tpl
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        VARS=$$(printf '$${%s} ' $$(env | cut -d= -f1))
+        envsubst "$$VARS" < /tmp/init-bundle.json.tpl > /tmp/init-bundle.json
+        /aidbox.sh
     environment:
+      BOX_INIT_BUNDLE: file:///tmp/init-bundle.json
       INIT_BUNDLE_CLIENT_ID: client-id
       INIT_BUNDLE_CLIENT_SECRET: client-secret
-      BOX_INIT_BUNDLE: file:///tmp/init-bundle.json
       BOX_ADMIN_PASSWORD: t_LRDXTuel
       BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
       BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
