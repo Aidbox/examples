@@ -309,17 +309,41 @@ This implementation provides:
 
 ## Architecture Overview
 
-```
-┌─────────────────┐    ┌──────────────┐    ┌─────────────────┐
-│   FHIR Client   │───▶│    Aidbox    │───▶│ TypeScript App  │
-└─────────────────┘    └──────────────┘    └─────────────────┘
-                              │                        │
-                              ▼                        ▼
-                       ┌──────────────┐    ┌─────────────────┐
-                       │ PostgreSQL   │    │ In-Memory Store │
-                       │ (FHIR Data + │    │ (Operation      │
-                       │  History)    │    │  Status)        │
-                       └──────────────┘    └─────────────────┘
+```mermaid
+graph TB
+    Client[FHIR Client]
+    Aidbox[Aidbox<br/>FHIR Server]
+    App[TypeScript App<br/>Purge Service]
+    DB[(PostgreSQL<br/>FHIR Data + History)]
+    Memory[(In-Memory Store<br/>Operation Status)]
+    
+    Client -->|POST /fhir/Patient/{id}/$purge| Aidbox
+    Aidbox -->|HTTP-RPC Request| App
+    App -->|DELETE /ResourceType| Aidbox
+    App -->|$sql Queries| Aidbox
+    Aidbox <-->|Read/Write FHIR Resources| DB
+    App <-->|Store Operation Status| Memory
+    
+    subgraph "Purge Process"
+        Phase1[Phase 1: Delete Related Resources<br/>67 FHIR Resource Types]
+        Phase2[Phase 2: Delete Patient<br/>Patient/{id}]
+        Phase3[Phase 3: Clean History<br/>SQL DELETE from *_history]
+        
+        Phase1 --> Phase2
+        Phase2 --> Phase3
+    end
+    
+    App -.->|Executes| Phase1
+    
+    classDef client fill:#e1f5fe
+    classDef server fill:#f3e5f5
+    classDef storage fill:#e8f5e8
+    classDef process fill:#fff3e0
+    
+    class Client client
+    class Aidbox,App server
+    class DB,Memory storage
+    class Phase1,Phase2,Phase3 process
 ```
 
 ## Development
