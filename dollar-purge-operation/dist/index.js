@@ -13,42 +13,28 @@ app.get('/purge-status/:operationId', (req, res) => {
     const operation = (0, purgeHandler_1.getOperation)(operationId);
     if (!operation) {
         res.status(404).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'not-found',
-                    details: { text: `Purge operation ${operationId} not found` }
-                }]
+            error: 'not-found',
+            message: `Purge operation ${operationId} not found`
         });
         return;
     }
     const response = {
-        resourceType: 'OperationOutcome',
-        issue: [{
-                severity: 'information',
-                code: 'informational',
-                details: {
-                    text: `Purge operation ${operationId} is ${operation.status}. ` +
-                        `Processed ${operation.progress.processedResourceTypes}/${operation.progress.totalResourceTypes} resource types. ` +
-                        `Deleted ${operation.progress.deletedResourcesCount} resources.` +
-                        (operation.progress.currentResourceType ? ` Currently processing: ${operation.progress.currentResourceType}` : '') +
-                        (operation.errors.length > 0 ? ` Errors: ${operation.errors.length}` : '')
-                }
-            }],
-        extension: [
-            {
-                url: 'http://hl7.org/fhir/StructureDefinition/operationdefinition-profile',
-                valueString: JSON.stringify({
-                    id: operationId,
-                    patientId: operation.patientId,
-                    status: operation.status,
-                    startedAt: operation.startedAt,
-                    completedAt: operation.completedAt,
-                    progress: operation.progress,
-                    errors: operation.errors
-                })
-            }
-        ]
+        operationId: operationId,
+        patientId: operation.patientId,
+        status: operation.status,
+        startedAt: operation.startedAt,
+        completedAt: operation.completedAt,
+        progress: operation.progress,
+        errors: operation.errors,
+        deletedResources: operation.deletedResources,
+        summary: {
+            message: `Purge operation ${operationId} is ${operation.status}`,
+            totalResourceTypes: operation.progress.totalResourceTypes,
+            processedResourceTypes: operation.progress.processedResourceTypes,
+            totalDeleted: operation.progress.deletedResourcesCount,
+            currentlyProcessing: operation.progress.currentResourceType || null,
+            errorCount: operation.errors.length
+        }
     };
     res.json(response);
 });
@@ -78,12 +64,8 @@ app.post('/', async (req, res) => {
     console.log(`Operation ID: ${operationId}`);
     if (!operationId) {
         res.status(400).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'invalid',
-                    details: { text: 'Operation ID is required in request body' }
-                }]
+            error: 'invalid-request',
+            message: 'Operation ID is required in request body'
         });
         return;
     }
@@ -96,12 +78,8 @@ app.post('/', async (req, res) => {
             break;
         default:
             res.status(400).json({
-                resourceType: 'OperationOutcome',
-                issue: [{
-                        severity: 'error',
-                        code: 'not-supported',
-                        details: { text: `Operation '${operationId}' is not supported` }
-                    }]
+                error: 'not-supported',
+                message: `Operation '${operationId}' is not supported`
             });
     }
 });
@@ -120,35 +98,25 @@ async function handlePurgeOperation(req, res) {
     console.log(`Extracted patient ID: ${patientId}`);
     if (!patientId || patientId.trim() === '') {
         res.status(400).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'invalid',
-                    details: { text: 'Patient ID is required. Received request details logged to console.' }
-                }]
+            error: 'invalid-request',
+            message: 'Patient ID is required. Received request details logged to console.'
         });
         return;
     }
     try {
         const operationId = await (0, purgeHandler_1.processPurge)(patientId);
         res.status(202).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'information',
-                    code: 'informational',
-                    details: { text: `Purge operation started with ID: ${operationId}. Check status at /fhir/purge-status/${operationId}` }
-                }]
+            operationId: operationId,
+            status: 'accepted',
+            message: `Purge operation started with ID: ${operationId}`,
+            statusUrl: `/fhir/purge-status/${operationId}`
         });
     }
     catch (error) {
         console.error('Failed to start purge operation:', error);
         res.status(500).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'exception',
-                    details: { text: `Failed to start purge operation: ${error}` }
-                }]
+            error: 'internal-error',
+            message: `Failed to start purge operation: ${error}`
         });
     }
 }
@@ -167,54 +135,36 @@ function handlePurgeStatusOperation(req, res) {
     console.log(`Extracted operation ID: ${operationId}`);
     if (!operationId) {
         res.status(400).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'invalid',
-                    details: { text: 'Operation ID is required' }
-                }]
+            error: 'invalid-request',
+            message: 'Operation ID is required'
         });
         return;
     }
     const operation = (0, purgeHandler_1.getOperation)(operationId);
     if (!operation) {
         res.status(404).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'not-found',
-                    details: { text: `Purge operation ${operationId} not found` }
-                }]
+            error: 'not-found',
+            message: `Purge operation ${operationId} not found`
         });
         return;
     }
     const response = {
-        resourceType: 'OperationOutcome',
-        issue: [{
-                severity: 'information',
-                code: 'informational',
-                details: {
-                    text: `Purge operation ${operationId} is ${operation.status}. ` +
-                        `Processed ${operation.progress.processedResourceTypes}/${operation.progress.totalResourceTypes} resource types. ` +
-                        `Deleted ${operation.progress.deletedResourcesCount} resources.` +
-                        (operation.progress.currentResourceType ? ` Currently processing: ${operation.progress.currentResourceType}` : '') +
-                        (operation.errors.length > 0 ? ` Errors: ${operation.errors.length}` : '')
-                }
-            }],
-        extension: [
-            {
-                url: 'http://hl7.org/fhir/StructureDefinition/operationdefinition-profile',
-                valueString: JSON.stringify({
-                    id: operationId,
-                    patientId: operation.patientId,
-                    status: operation.status,
-                    startedAt: operation.startedAt,
-                    completedAt: operation.completedAt,
-                    progress: operation.progress,
-                    errors: operation.errors
-                })
-            }
-        ]
+        operationId: operationId,
+        patientId: operation.patientId,
+        status: operation.status,
+        startedAt: operation.startedAt,
+        completedAt: operation.completedAt,
+        progress: operation.progress,
+        errors: operation.errors,
+        deletedResources: operation.deletedResources,
+        summary: {
+            message: `Purge operation ${operationId} is ${operation.status}`,
+            totalResourceTypes: operation.progress.totalResourceTypes,
+            processedResourceTypes: operation.progress.processedResourceTypes,
+            totalDeleted: operation.progress.deletedResourcesCount,
+            currentlyProcessing: operation.progress.currentResourceType || null,
+            errorCount: operation.errors.length
+        }
     };
     res.json(response);
 }

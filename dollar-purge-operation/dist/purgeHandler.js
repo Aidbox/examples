@@ -22,7 +22,8 @@ function createOperation(patientId) {
             processedResourceTypes: 0,
             deletedResourcesCount: 0
         },
-        errors: []
+        errors: [],
+        deletedResources: []
     };
     purgeOperations.set(operationId, operation);
     return operationId;
@@ -35,6 +36,14 @@ function updateOperationProgress(operationId, currentResourceType, result) {
     operation.progress.processedResourceTypes++;
     if (result.success && result.count) {
         operation.progress.deletedResourcesCount += result.count;
+        if (result.deletedIds) {
+            result.deletedIds.forEach(id => {
+                operation.deletedResources.push({
+                    resourceType: currentResourceType,
+                    id: id
+                });
+            });
+        }
     }
     if (!result.success && result.error) {
         operation.errors.push(`${currentResourceType}: ${result.error}`);
@@ -75,43 +84,8 @@ async function withRetry(operation, maxRetries = 3, backoffMs = 1000) {
 }
 async function deleteResourceType(resourceType, conditionalParams, patientId) {
     try {
-        const deleteUrl = `${AIDBOX_URL}/${resourceType}?${conditionalParams}`;
-        console.log(`Attempting conditional DELETE: ${deleteUrl}`);
-        const deleteResponse = await withRetry(() => fetch(deleteUrl, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Basic ${AIDBOX_AUTH}`,
-                'Content-Type': 'application/json'
-            }
-        }));
-        if (deleteResponse.ok) {
-            if (deleteResponse.status === 204) {
-                console.log(`No ${resourceType} resources found for patient ${patientId}`);
-                return {
-                    success: true,
-                    method: 'conditional',
-                    count: 0
-                };
-            }
-            console.log(`Conditional DELETE succeeded for ${resourceType}`);
-            let deletedCount = 1;
-            try {
-                const responseText = await deleteResponse.text();
-                if (responseText) {
-                    const responseData = JSON.parse(responseText);
-                    deletedCount = responseData.count || responseData.deleted || 1;
-                }
-            }
-            catch (e) {
-            }
-            return {
-                success: true,
-                method: 'conditional',
-                count: deletedCount
-            };
-        }
-        console.log(`Conditional DELETE failed for ${resourceType} (${deleteResponse.status}), trying fallback`);
         const searchUrl = `${AIDBOX_URL}/${resourceType}?${conditionalParams}`;
+        console.log(`Searching for ${resourceType} resources: ${searchUrl}`);
         const searchResponse = await withRetry(() => fetch(searchUrl, {
             method: 'GET',
             headers: {
@@ -124,29 +98,61 @@ async function deleteResourceType(resourceType, conditionalParams, patientId) {
         }
         const bundle = await searchResponse.json();
         const resources = bundle.entry || [];
+        const resourceIds = resources.map(entry => entry.resource.id);
         if (resources.length === 0) {
             console.log(`No ${resourceType} resources found for patient ${patientId}`);
-            return { success: true, method: 'individual', count: 0 };
+            return { success: true, method: 'conditional', count: 0, deletedIds: [] };
         }
-        console.log(`Found ${resources.length} ${resourceType} resources, deleting individually`);
-        const deletePromises = resources.map(entry => withRetry(() => fetch(`${AIDBOX_URL}/${resourceType}/${entry.resource.id}`, {
+        console.log(`Found ${resources.length} ${resourceType} resources to delete`);
+        const deleteUrl = `${AIDBOX_URL}/${resourceType}?${conditionalParams}`;
+        console.log(`Attempting conditional DELETE: ${deleteUrl}`);
+        const deleteResponse = await withRetry(() => fetch(deleteUrl, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Basic ${AIDBOX_AUTH}`,
                 'Content-Type': 'application/json'
             }
+        }));
+        if (deleteResponse.ok) {
+            console.log(`Conditional DELETE succeeded for ${resourceType}`);
+            return {
+                success: true,
+                method: 'conditional',
+                count: resourceIds.length,
+                deletedIds: resourceIds
+            };
+        }
+        console.log(`Conditional DELETE failed for ${resourceType} (${deleteResponse.status}), trying fallback`);
+        console.log(`Deleting ${resources.length} ${resourceType} resources individually`);
+        const deletePromises = resources.map((entry, index) => withRetry(() => fetch(`${AIDBOX_URL}/${resourceType}/${entry.resource.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Basic ${AIDBOX_AUTH}`,
+                'Content-Type': 'application/json'
+            }
+        })).then(response => ({
+            success: response.ok,
+            id: resourceIds[index]
         })));
         const deleteResults = await Promise.allSettled(deletePromises);
-        const successCount = deleteResults.filter(result => result.status === 'fulfilled').length;
-        if (successCount === resources.length) {
-            return { success: true, method: 'individual', count: successCount };
+        const successfulDeletes = deleteResults
+            .filter(result => result.status === 'fulfilled' && result.value.success)
+            .map(result => result.value.id);
+        if (successfulDeletes.length === resources.length) {
+            return {
+                success: true,
+                method: 'individual',
+                count: successfulDeletes.length,
+                deletedIds: successfulDeletes
+            };
         }
         else {
-            const failedCount = resources.length - successCount;
+            const failedCount = resources.length - successfulDeletes.length;
             return {
                 success: false,
                 method: 'individual',
-                count: successCount,
+                count: successfulDeletes.length,
+                deletedIds: successfulDeletes,
                 error: `${failedCount}/${resources.length} individual deletes failed`
             };
         }

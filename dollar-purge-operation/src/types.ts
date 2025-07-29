@@ -1,3 +1,8 @@
+export interface DeletedResource {
+  resourceType: string;
+  id: string;
+}
+
 export interface PurgeOperation {
   id: string;
   patientId: string;
@@ -12,6 +17,7 @@ export interface PurgeOperation {
   };
   outcome?: OperationOutcome;
   errors: string[];
+  deletedResources: DeletedResource[];
 }
 
 export interface ResourceDeletion {
@@ -25,6 +31,7 @@ export interface DeleteResult {
   method: 'conditional' | 'individual';
   count?: number;
   error?: string;
+  deletedIds?: string[];
 }
 
 export interface OperationOutcome {
