@@ -20,11 +20,24 @@
         "operations": {
           "purge": {
             "method": "POST",
-            "path": ["fhir", "Patient", {"name": "id"}, "$purge"]
+            "path": [
+              "fhir",
+              "Patient",
+              {
+                "name": "id"
+              },
+              "$purge"
+            ]
           },
           "purge-status": {
             "method": "GET",
-            "path": ["fhir", "purge-status", {"name": "operationId"}]
+            "path": [
+              "fhir",
+              "purge-status",
+              {
+                "name": "operationId"
+              }
+            ]
           }
         }
       }
@@ -38,7 +51,9 @@
         "resourceType": "Client",
         "id": "basic",
         "secret": "secret",
-        "grant_types": ["basic"]
+        "grant_types": [
+          "basic"
+        ]
       }
     },
     {
@@ -117,7 +132,14 @@
       "resource": {
         "resourceType": "Patient",
         "id": "test-patient-1",
-        "name": [{"given": ["John"], "family": "Doe"}],
+        "name": [
+          {
+            "given": [
+              "John"
+            ],
+            "family": "Doe"
+          }
+        ],
         "birthDate": "1980-01-01",
         "gender": "male"
       }
@@ -130,8 +152,12 @@
       "resource": {
         "resourceType": "Observation",
         "status": "final",
-        "code": {"text": "Blood pressure"},
-        "subject": {"reference": "Patient/test-patient-1"},
+        "code": {
+          "text": "Blood pressure"
+        },
+        "subject": {
+          "reference": "Patient/test-patient-1"
+        },
         "valueString": "120/80 mmHg"
       }
     },
@@ -143,9 +169,16 @@
       "resource": {
         "resourceType": "Encounter",
         "status": "finished",
-        "class": {"code": "AMB"},
-        "subject": {"reference": "Patient/test-patient-1"},
-        "period": {"start": "2025-01-01T10:00:00Z", "end": "2025-01-01T11:00:00Z"}
+        "class": {
+          "code": "AMB"
+        },
+        "subject": {
+          "reference": "Patient/test-patient-1"
+        },
+        "period": {
+          "start": "2025-01-01T10:00:00Z",
+          "end": "2025-01-01T11:00:00Z"
+        }
       }
     },
     {
@@ -155,10 +188,27 @@
       },
       "resource": {
         "resourceType": "Condition",
-        "clinicalStatus": {"coding": [{"code": "active"}]},
-        "code": {"text": "Hypertension"},
-        "subject": {"reference": "Patient/test-patient-1"}
+        "clinicalStatus": {
+          "coding": [
+            {
+              "code": "active"
+            }
+          ]
+        },
+        "code": {
+          "text": "Hypertension"
+        },
+        "subject": {
+          "reference": "Patient/test-patient-1"
+        }
       }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/$drop-cache"
+      },
+      "resource": {}
     }
   ]
 }

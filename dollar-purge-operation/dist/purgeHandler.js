@@ -85,11 +85,29 @@ async function deleteResourceType(resourceType, conditionalParams, patientId) {
             }
         }));
         if (deleteResponse.ok) {
+            if (deleteResponse.status === 204) {
+                console.log(`No ${resourceType} resources found for patient ${patientId}`);
+                return {
+                    success: true,
+                    method: 'conditional',
+                    count: 0
+                };
+            }
             console.log(`Conditional DELETE succeeded for ${resourceType}`);
+            let deletedCount = 1;
+            try {
+                const responseText = await deleteResponse.text();
+                if (responseText) {
+                    const responseData = JSON.parse(responseText);
+                    deletedCount = responseData.count || responseData.deleted || 1;
+                }
+            }
+            catch (e) {
+            }
             return {
                 success: true,
                 method: 'conditional',
-                count: 1
+                count: deletedCount
             };
         }
         console.log(`Conditional DELETE failed for ${resourceType} (${deleteResponse.status}), trying fallback`);
@@ -144,7 +162,7 @@ async function deleteResourceType(resourceType, conditionalParams, patientId) {
 }
 async function deleteHistory(patientId, processedResourceTypes) {
     console.log(`Starting history cleanup for patient ${patientId}, processed ${processedResourceTypes.length} resource types`);
-    const queries = (0, resourceDeletions_1.getHistoryCleanupQueries)(patientId);
+    const queries = (0, resourceDeletions_1.getHistoryCleanupQueries)(patientId, processedResourceTypes);
     for (const query of queries) {
         try {
             console.log(`Executing history cleanup query: ${query.substring(0, 100)}...`);
@@ -167,8 +185,8 @@ async function processPurge(patientId) {
     const operationId = createOperation(patientId);
     console.log(`Starting purge operation ${operationId} for patient ${patientId}`);
     setImmediate(async () => {
-        const processedResourceTypes = [];
-        console.log(`Will track processed resource types: ${processedResourceTypes.length} initially`);
+        const deletedResourceTypes = [];
+        console.log(`Starting purge operation for patient ${patientId}`);
         try {
             console.log(`Phase 1: Deleting current resources for patient ${patientId}`);
             const resourceDeletions = (0, resourceDeletions_1.getResourceDeletionsForPatient)(patientId);
@@ -177,24 +195,29 @@ async function processPurge(patientId) {
                     continue;
                 }
                 const result = await deleteResourceType(deletion.resourceType, deletion.conditionalParams, patientId);
-                if (result.success) {
-                    processedResourceTypes.push(deletion.resourceType);
+                if (result.success && result.count && result.count > 0) {
+                    deletedResourceTypes.push(deletion.resourceType);
                 }
                 updateOperationProgress(operationId, deletion.resourceType, result);
             }
             console.log(`Phase 2: Deleting patient ${patientId}`);
             const patientDeleteResult = await deleteResourceType('Patient', `_id=${patientId}`, patientId);
             updateOperationProgress(operationId, 'Patient', patientDeleteResult);
-            if (patientDeleteResult.success) {
-                processedResourceTypes.push('Patient');
+            if (patientDeleteResult.success && patientDeleteResult.count && patientDeleteResult.count > 0) {
+                deletedResourceTypes.push('Patient');
             }
             console.log(`Phase 3: Cleaning history for patient ${patientId}`);
             const operation = purgeOperations.get(operationId);
             if (operation) {
                 operation.progress.currentResourceType = 'history cleanup';
             }
-            await deleteHistory(patientId, processedResourceTypes);
-            console.log(`Processed ${processedResourceTypes.length} resource types for patient ${patientId}`);
+            if (deletedResourceTypes.length > 0) {
+                await deleteHistory(patientId, deletedResourceTypes);
+            }
+            else {
+                console.log(`No resources were deleted, skipping history cleanup`);
+            }
+            console.log(`Deleted resources from ${deletedResourceTypes.length} resource types for patient ${patientId}`);
             const finalOperation = purgeOperations.get(operationId);
             const hasErrors = finalOperation?.errors.length || 0 > 0;
             const outcome = {
@@ -204,7 +227,7 @@ async function processPurge(patientId) {
                         code: hasErrors ? 'incomplete' : 'success',
                         details: {
                             text: `Purge ${hasErrors ? 'completed with errors' : 'completed successfully'}. ` +
-                                `Processed ${processedResourceTypes.length} resource types. ` +
+                                `Processed ${resourceDeletions_1.RESOURCE_DELETIONS.length} resource types. ` +
                                 `Deleted ${finalOperation?.progress.deletedResourcesCount || 0} resources.` +
                                 (hasErrors ? ` Errors: ${finalOperation?.errors.length}` : '')
                         }

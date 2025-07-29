@@ -8,43 +8,6 @@ const purgeHandler_1 = require("./purgeHandler");
 const app = (0, express_1.default)();
 const PORT = 3000;
 app.use(express_1.default.json());
-app.post('/purge/:patientId', async (req, res) => {
-    const { patientId } = req.params;
-    console.log(`Received $purge request for patient: ${patientId}`);
-    if (!patientId || patientId.trim() === '') {
-        res.status(400).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'invalid',
-                    details: { text: 'Patient ID is required' }
-                }]
-        });
-        return;
-    }
-    try {
-        const operationId = await (0, purgeHandler_1.processPurge)(patientId);
-        res.status(202).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'information',
-                    code: 'informational',
-                    details: { text: `Purge operation started with ID: ${operationId}. Check status at /purge-status/${operationId}` }
-                }]
-        });
-    }
-    catch (error) {
-        console.error('Failed to start purge operation:', error);
-        res.status(500).json({
-            resourceType: 'OperationOutcome',
-            issue: [{
-                    severity: 'error',
-                    code: 'exception',
-                    details: { text: `Failed to start purge operation: ${error}` }
-                }]
-        });
-    }
-});
 app.get('/purge-status/:operationId', (req, res) => {
     const { operationId } = req.params;
     const operation = (0, purgeHandler_1.getOperation)(operationId);
@@ -106,21 +69,53 @@ app.get('/purge-operations', (_req, res) => {
 app.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
-app.post('/purge', async (req, res) => {
-    console.log('Received purge request from Aidbox:');
+app.post('/', async (req, res) => {
+    console.log('Received request from Aidbox:');
     console.log('Headers:', req.headers);
     console.log('Body:', req.body);
-    console.log('Query:', req.query);
-    console.log('Params:', req.params);
-    let patientId = req.body?.id || req.query?.id || req.params?.id;
-    if (!patientId) {
-        if (req.body && typeof req.body === 'object') {
-            const body = req.body;
-            patientId = body.patientId || body.patient || body.subject;
-            if (typeof patientId === 'object' && patientId.reference) {
-                patientId = patientId.reference.replace('Patient/', '');
-            }
-        }
+    const body = req.body;
+    const operationId = body?.operation?.id;
+    console.log(`Operation ID: ${operationId}`);
+    if (!operationId) {
+        res.status(400).json({
+            resourceType: 'OperationOutcome',
+            issue: [{
+                    severity: 'error',
+                    code: 'invalid',
+                    details: { text: 'Operation ID is required in request body' }
+                }]
+        });
+        return;
+    }
+    switch (operationId) {
+        case 'purge':
+            await handlePurgeOperation(req, res);
+            break;
+        case 'purge-status':
+            handlePurgeStatusOperation(req, res);
+            break;
+        default:
+            res.status(400).json({
+                resourceType: 'OperationOutcome',
+                issue: [{
+                        severity: 'error',
+                        code: 'not-supported',
+                        details: { text: `Operation '${operationId}' is not supported` }
+                    }]
+            });
+    }
+});
+async function handlePurgeOperation(req, res) {
+    let patientId;
+    const body = req.body;
+    if (body && body.request && body.request['route-params'] && body.request['route-params'].id) {
+        patientId = body.request['route-params'].id;
+    }
+    else if (body && body['route-params'] && body['route-params'].id) {
+        patientId = body['route-params'].id;
+    }
+    else {
+        patientId = body?.id || req.query?.id || req.params?.id;
     }
     console.log(`Extracted patient ID: ${patientId}`);
     if (!patientId || patientId.trim() === '') {
@@ -141,7 +136,7 @@ app.post('/purge', async (req, res) => {
             issue: [{
                     severity: 'information',
                     code: 'informational',
-                    details: { text: `Purge operation started with ID: ${operationId}. Check status at /purge-status/${operationId}` }
+                    details: { text: `Purge operation started with ID: ${operationId}. Check status at /fhir/purge-status/${operationId}` }
                 }]
         });
     }
@@ -156,23 +151,73 @@ app.post('/purge', async (req, res) => {
                 }]
         });
     }
-});
-app.post('/test-purge/:patientId', async (req, res) => {
-    const { patientId } = req.params;
-    console.log(`Test purge request for patient: ${patientId}`);
-    try {
-        const operationId = await (0, purgeHandler_1.processPurge)(patientId);
-        res.json({
-            message: 'Purge operation started',
-            operationId,
-            statusUrl: `/purge-status/${operationId}`
+}
+function handlePurgeStatusOperation(req, res) {
+    let operationId;
+    const body = req.body;
+    if (body && body.request && body.request['route-params'] && body.request['route-params'].operationId) {
+        operationId = body.request['route-params'].operationId;
+    }
+    else if (body && body['route-params'] && body['route-params'].operationId) {
+        operationId = body['route-params'].operationId;
+    }
+    else {
+        operationId = req.query?.operationId || req.params?.operationId;
+    }
+    console.log(`Extracted operation ID: ${operationId}`);
+    if (!operationId) {
+        res.status(400).json({
+            resourceType: 'OperationOutcome',
+            issue: [{
+                    severity: 'error',
+                    code: 'invalid',
+                    details: { text: 'Operation ID is required' }
+                }]
         });
+        return;
     }
-    catch (error) {
-        console.error('Test purge failed:', error);
-        res.status(500).json({ error: error });
+    const operation = (0, purgeHandler_1.getOperation)(operationId);
+    if (!operation) {
+        res.status(404).json({
+            resourceType: 'OperationOutcome',
+            issue: [{
+                    severity: 'error',
+                    code: 'not-found',
+                    details: { text: `Purge operation ${operationId} not found` }
+                }]
+        });
+        return;
     }
-});
+    const response = {
+        resourceType: 'OperationOutcome',
+        issue: [{
+                severity: 'information',
+                code: 'informational',
+                details: {
+                    text: `Purge operation ${operationId} is ${operation.status}. ` +
+                        `Processed ${operation.progress.processedResourceTypes}/${operation.progress.totalResourceTypes} resource types. ` +
+                        `Deleted ${operation.progress.deletedResourcesCount} resources.` +
+                        (operation.progress.currentResourceType ? ` Currently processing: ${operation.progress.currentResourceType}` : '') +
+                        (operation.errors.length > 0 ? ` Errors: ${operation.errors.length}` : '')
+                }
+            }],
+        extension: [
+            {
+                url: 'http://hl7.org/fhir/StructureDefinition/operationdefinition-profile',
+                valueString: JSON.stringify({
+                    id: operationId,
+                    patientId: operation.patientId,
+                    status: operation.status,
+                    startedAt: operation.startedAt,
+                    completedAt: operation.completedAt,
+                    progress: operation.progress,
+                    errors: operation.errors
+                })
+            }
+        ]
+    };
+    res.json(response);
+}
 app.listen(PORT, () => {
     console.log(`Purge service listening on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);

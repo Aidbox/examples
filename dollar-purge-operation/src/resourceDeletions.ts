@@ -76,15 +76,22 @@ export function getResourceDeletionsForPatient(patientId: string): ResourceDelet
   }));
 }
 
-export function getHistoryCleanupQueries(patientId: string): string[] {
+export function getHistoryCleanupQueries(patientId: string, deletedResourceTypes?: string[]): string[] {
   const queries: string[] = [];
   
-  // Patient history cleanup
-  queries.push(`DELETE FROM patient_history WHERE id = '${patientId}'`);
+  // Patient history cleanup - only if Patient was actually deleted
+  if (!deletedResourceTypes || deletedResourceTypes.includes('Patient')) {
+    queries.push(`DELETE FROM patient_history WHERE id = '${patientId}'`);
+  }
   
   // Related resources history cleanup
   for (const deletion of RESOURCE_DELETIONS) {
     if (deletion.resourceType === 'Patient') continue; // Already handled above
+    
+    // If deletedResourceTypes is provided, only clean history for those types
+    if (deletedResourceTypes && !deletedResourceTypes.includes(deletion.resourceType)) {
+      continue;
+    }
     
     const tableName = deletion.historyTableName;
     

@@ -96,8 +96,9 @@ curl "http://localhost:8888/fhir/Observation" \
 The $purge operation implements a comprehensive 3-phase deletion process:
 
 #### Phase 1: Delete Related Resources
-- Processes **67 different FHIR resource types** that may reference the patient
+- Checks up to **67 different FHIR resource types** that may reference the patient
 - Uses **Conditional DELETE** for efficient bulk deletion: `DELETE /fhir/ResourceType?patient=Patient/{id}`
+- **Smart detection**: HTTP 204 responses indicate no resources found - these are skipped from counting
 - **Fallback mechanism**: If conditional delete fails with "multiple matches" error, falls back to individual DELETE operations
 - Resource types include: Observation, Encounter, Condition, AllergyIntolerance, CarePlan, and 62 others
 
@@ -106,6 +107,7 @@ The $purge operation implements a comprehensive 3-phase deletion process:
 
 #### Phase 3: Clean History Tables  
 - Uses **$sql operation** to remove historical versions from `*_history` tables
+- **Optimized cleanup**: Only processes history for resource types where data was actually deleted
 - Executes SQL queries like: `DELETE FROM observation_history WHERE resource->>'subject' = 'Patient/{id}'`
 - Ensures complete data removal including audit trail
 
@@ -119,7 +121,7 @@ const operation = {
   progress: {
     totalResourceTypes: 67,
     processedResourceTypes: 23,
-    deletedResourcesCount: 156,
+    deletedResourcesCount: 4,  // Actual count of deleted resources
     currentResourceType: "Observation"
   }
 }
@@ -150,7 +152,6 @@ const operation = {
 | `GET` | `/purge-status/{operationId}` | Check operation status |
 | `GET` | `/purge-operations` | List all operations |
 | `GET` | `/health` | Health check |
-| `POST` | `/test-purge/{patientId}` | Direct test endpoint |
 
 ## FHIR $purge Operation Specification
 
@@ -165,10 +166,11 @@ According to the [FHIR specification](https://build.fhir.org/patient-operation-p
 ### Implementation Notes
 
 This implementation provides:
-- ✅ **Complete resource coverage**: All 67 FHIR resource types that can reference patients
-- ✅ **History cleanup**: Removes historical versions using database queries  
+- ✅ **Complete resource coverage**: Checks all 67 FHIR resource types that can reference patients
+- ✅ **Smart resource counting**: Only counts resources that were actually deleted (not empty checks)
+- ✅ **Optimized history cleanup**: Only processes history for resource types with deleted data
 - ✅ **Asynchronous processing**: Prevents timeouts on large datasets
-- ✅ **Progress tracking**: Real-time status updates
+- ✅ **Progress tracking**: Real-time status updates with accurate counts
 - ✅ **Error resilience**: Continues processing despite partial failures
 - ✅ **Fallback mechanisms**: Handles edge cases like multiple matches
 
@@ -181,7 +183,7 @@ This implementation provides:
     "severity": "information",
     "code": "success", 
     "details": {
-      "text": "Purge completed successfully. Processed 67 resource types. Deleted 234 resources."
+      "text": "Purge completed successfully. Processed 67 resource types. Deleted 4 resources."
     }
   }]
 }
@@ -196,7 +198,7 @@ This implementation provides:
     "severity": "warning",
     "code": "incomplete",
     "details": {
-      "text": "Purge completed with errors. Processed 67 resource types. Deleted 230 resources. Errors: 3"
+      "text": "Purge completed with errors. Processed 67 resource types. Deleted 4 resources. Errors: 3"
     }
   }]
 }
@@ -265,5 +267,54 @@ dollar-purge-operation/
 - **Aidbox**: FHIR server and database
 - **PostgreSQL**: Data storage with JSONB support
 - **Docker Compose**: Local development environment
+
+## Configuration
+
+### Customizing Resource Types for Deletion
+
+The list of FHIR resource types that are checked during the purge operation is defined in `src/resourceDeletions.ts`. You can customize this list based on your specific FHIR implementation needs.
+
+#### Location of Resource Definitions
+
+```typescript
+// src/resourceDeletions.ts
+export const RESOURCE_DELETIONS: ResourceDeletion[] = [
+  { resourceType: 'Account', conditionalParams: 'subject=Patient/%s', historyTableName: 'account_history' },
+  { resourceType: 'AdverseEvent', conditionalParams: 'subject=Patient/%s', historyTableName: 'adverseevent_history' },
+  // ... 65 more resource types
+];
+```
+
+#### Resource Definition Structure
+
+Each resource type definition includes:
+- **resourceType**: The FHIR resource type name
+- **conditionalParams**: The search parameter for finding resources linked to a patient
+  - `%s` is replaced with the patient ID at runtime
+  - Common patterns: `patient=Patient/%s`, `subject=Patient/%s`, `beneficiary=Patient/%s`
+- **historyTableName**: The PostgreSQL table name for historical versions
+
+#### Adding a New Resource Type
+
+To add support for a custom resource type:
+
+```typescript
+// Add to RESOURCE_DELETIONS array
+{
+  resourceType: 'CustomResource',
+  conditionalParams: 'patient=Patient/%s',  // or appropriate search parameter
+  historyTableName: 'customresource_history'
+}
+```
+
+#### Removing Resource Types
+
+To skip checking certain resource types, simply remove or comment out the corresponding entry from the `RESOURCE_DELETIONS` array.
+
+### Performance Considerations
+
+- The system checks all configured resource types but only deletes and counts those with actual data
+- History cleanup is automatically optimized to run only for resource types where data was deleted
+- You can reduce processing time by removing resource types that your implementation doesn't use
 
 This implementation demonstrates a production-ready approach to implementing complex FHIR operations with proper error handling, monitoring, and data integrity guarantees.

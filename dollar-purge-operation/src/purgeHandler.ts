@@ -127,11 +127,36 @@ async function deleteResourceType(
     );
 
     if (deleteResponse.ok) {
+      // 204 No Content means no resources were found to delete
+      if (deleteResponse.status === 204) {
+        console.log(`No ${resourceType} resources found for patient ${patientId}`);
+        return { 
+          success: true, 
+          method: 'conditional',
+          count: 0
+        };
+      }
+      
+      // 200 OK means resources were deleted
       console.log(`Conditional DELETE succeeded for ${resourceType}`);
+      
+      // Try to parse response for actual count
+      let deletedCount = 1; // Default to 1 if we can't determine
+      try {
+        const responseText = await deleteResponse.text();
+        if (responseText) {
+          const responseData = JSON.parse(responseText);
+          // Aidbox might return count in different formats
+          deletedCount = responseData.count || responseData.deleted || 1;
+        }
+      } catch (e) {
+        // If we can't parse, stick with default
+      }
+      
       return { 
         success: true, 
         method: 'conditional',
-        count: 1 // Aidbox doesn't always return count, assume at least 1
+        count: deletedCount
       };
     }
 
@@ -208,7 +233,7 @@ async function deleteHistory(
 ): Promise<void> {
   console.log(`Starting history cleanup for patient ${patientId}, processed ${processedResourceTypes.length} resource types`);
   
-  const queries = getHistoryCleanupQueries(patientId);
+  const queries = getHistoryCleanupQueries(patientId, processedResourceTypes);
   
   for (const query of queries) {
     try {
@@ -242,10 +267,9 @@ export async function processPurge(patientId: string): Promise<string> {
   
   // Run purge asynchronously
   setImmediate(async () => {
-    const processedResourceTypes: string[] = [];
+    const deletedResourceTypes: string[] = []; // Only resource types where we actually deleted something
     
-    // Use processedResourceTypes to track successful deletions
-    console.log(`Will track processed resource types: ${processedResourceTypes.length} initially`);
+    console.log(`Starting purge operation for patient ${patientId}`);
     
     try {
       // Phase 1: Delete current resources
@@ -265,8 +289,8 @@ export async function processPurge(patientId: string): Promise<string> {
           patientId
         );
         
-        if (result.success) {
-          processedResourceTypes.push(deletion.resourceType);
+        if (result.success && result.count && result.count > 0) {
+          deletedResourceTypes.push(deletion.resourceType);
         }
         
         updateOperationProgress(operationId, deletion.resourceType, result);
@@ -278,8 +302,8 @@ export async function processPurge(patientId: string): Promise<string> {
       const patientDeleteResult = await deleteResourceType('Patient', `_id=${patientId}`, patientId);
       updateOperationProgress(operationId, 'Patient', patientDeleteResult);
       
-      if (patientDeleteResult.success) {
-        processedResourceTypes.push('Patient');
+      if (patientDeleteResult.success && patientDeleteResult.count && patientDeleteResult.count > 0) {
+        deletedResourceTypes.push('Patient');
       }
       
       // Phase 3: Clean history
@@ -290,9 +314,14 @@ export async function processPurge(patientId: string): Promise<string> {
         operation.progress.currentResourceType = 'history cleanup';
       }
       
-      await deleteHistory(patientId, processedResourceTypes);
+      // Only clean history for resource types where we actually deleted something
+      if (deletedResourceTypes.length > 0) {
+        await deleteHistory(patientId, deletedResourceTypes);
+      } else {
+        console.log(`No resources were deleted, skipping history cleanup`);
+      }
       
-      console.log(`Processed ${processedResourceTypes.length} resource types for patient ${patientId}`);
+      console.log(`Deleted resources from ${deletedResourceTypes.length} resource types for patient ${patientId}`);
       
       // Complete operation
       const finalOperation = purgeOperations.get(operationId);
@@ -305,7 +334,7 @@ export async function processPurge(patientId: string): Promise<string> {
           code: hasErrors ? 'incomplete' : 'success',
           details: { 
             text: `Purge ${hasErrors ? 'completed with errors' : 'completed successfully'}. ` +
-                  `Processed ${processedResourceTypes.length} resource types. ` +
+                  `Processed ${RESOURCE_DELETIONS.length} resource types. ` +
                   `Deleted ${finalOperation?.progress.deletedResourcesCount || 0} resources.` +
                   (hasErrors ? ` Errors: ${finalOperation?.errors.length}` : '')
           }

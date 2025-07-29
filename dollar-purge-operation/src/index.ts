@@ -247,24 +247,6 @@ function handlePurgeStatusOperation(req: any, res: any) {
   res.json(response);
 }
 
-// Test endpoint for development (bypasses Aidbox)
-app.post('/test-purge/:patientId', async (req, res) => {
-  const { patientId } = req.params;
-  
-  console.log(`Test purge request for patient: ${patientId}`);
-  
-  try {
-    const operationId = await processPurge(patientId);
-    res.json({
-      message: 'Purge operation started',
-      operationId,
-      statusUrl: `/purge-status/${operationId}`
-    });
-  } catch (error) {
-    console.error('Test purge failed:', error);
-    res.status(500).json({ error: error });
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Purge service listening on port ${PORT}`);
