@@ -57,7 +57,7 @@ docker compose up
 
 ```bash
 # Verify test patient exists
-curl "http://localhost:8888/Patient/test-patient-1" -H "Authorization: Basic YmFzaWM6c2VjcmV0"
+curl "http://localhost:8888/Patient/test-patient-1" -H "Authorization: Basic YmFzaWM6c2VjcmV0" | jq
 ```
 
 ```bash
@@ -67,15 +67,15 @@ curl -X POST "http://localhost:8888/fhir/Patient/test-patient-1/\$purge" \
   -H "Content-Type: application/json" | jq .
 ```
 
-### 4. Check Operation Status
+### Check Operation Status
 
 ```bash
-curl -X POST "http://localhost:8888/fhir/purge-status/purge-<id-from-purge-response>"
+curl -X GET "http://localhost:8888/fhir/purge-status/<id-from-purge-response>" \
   -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
   -H "Content-Type: application/json" | jq .
 ```
 
-### 5. Verify Resources are Deleted
+### Verify Resources are Deleted
 
 ```bash
 # Patient should return 404
@@ -96,9 +96,9 @@ curl "http://localhost:8888/fhir/Observation" \
 The $purge operation implements a comprehensive 3-phase deletion process:
 
 #### Phase 1: Delete Related Resources
-- Checks up to **67 different FHIR resource types** that may reference the patient
+- Checks up to **60+ different FHIR resource types** that may reference the patient. See `src/resourceDeletions.ts`.
 - Uses **Conditional DELETE** for efficient bulk deletion: `DELETE /fhir/ResourceType?patient=Patient/{id}`
-- **Smart detection**: HTTP 204 responses indicate no resources found - these are skipped from counting
+- **Smart detection**: HTTP 204 responses indicate no resources found - these are skipped from counting (no such resources).
 - **Fallback mechanism**: If conditional delete fails with "multiple matches" error, falls back to individual DELETE operations
 - Resource types include: Observation, Encounter, Condition, AllergyIntolerance, CarePlan, and 62 others
 
@@ -109,23 +109,6 @@ The $purge operation implements a comprehensive 3-phase deletion process:
 - Uses **$sql operation** to remove historical versions from `*_history` tables
 - **Optimized cleanup**: Only processes history for resource types where data was actually deleted
 - Executes SQL queries like: `DELETE FROM observation_history WHERE resource->>'subject' = 'Patient/{id}'`
-- Ensures complete data removal including audit trail
-
-### Asynchronous Processing
-
-```typescript
-// Operation tracking
-const operation = {
-  id: "purge-1234567890-abcdef",
-  status: "in-progress", // "completed" | "failed"
-  progress: {
-    totalResourceTypes: 67,
-    processedResourceTypes: 23,
-    deletedResourcesCount: 4,  // Actual count of deleted resources
-    currentResourceType: "Observation"
-  }
-}
-```
 
 ### Error Handling
 
@@ -133,8 +116,6 @@ const operation = {
 - **Multiple matches fallback**: Automatically switches to individual DELETE when conditional DELETE fails
 - **Partial success tracking**: Reports which resources were successfully deleted
 - **Comprehensive error logging**: All failures are recorded in the operation outcome
-
-### Complete Workflow Automation
 
 ## API Endpoints
 
