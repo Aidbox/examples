@@ -77,12 +77,17 @@ function getResourceDeletionsForPatient(patientId) {
         conditionalParams: deletion.conditionalParams.replace('%s', patientId)
     }));
 }
-function getHistoryCleanupQueries(patientId) {
+function getHistoryCleanupQueries(patientId, deletedResourceTypes) {
     const queries = [];
-    queries.push(`DELETE FROM patient_history WHERE id = '${patientId}'`);
+    if (!deletedResourceTypes || deletedResourceTypes.includes('Patient')) {
+        queries.push(`DELETE FROM patient_history WHERE id = '${patientId}'`);
+    }
     for (const deletion of exports.RESOURCE_DELETIONS) {
         if (deletion.resourceType === 'Patient')
             continue;
+        if (deletedResourceTypes && !deletedResourceTypes.includes(deletion.resourceType)) {
+            continue;
+        }
         const tableName = deletion.historyTableName;
         if (deletion.conditionalParams.includes('subject=')) {
             queries.push(`
