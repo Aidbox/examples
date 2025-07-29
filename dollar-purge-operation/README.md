@@ -23,31 +23,29 @@ git clone git@github.com:Aidbox/examples.git
 cd examples/dollar-purge-operation
 ```
 
-3. Start Aidbox and PostgreSQL:
-```bash
-docker compose up
-```
-
-4. The init bundle will automatically configure:
-   - **App resource** for the $purge operation endpoint
-   - **Basic Client** for API authentication 
-   - **Access Policies** for DELETE operations and $sql queries
-
-5. Aidbox will be available at http://localhost:8888
-
-## Running the Application
-
-1. Install dependencies:
+3. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Start the TypeScript development server:
+4. Start the TypeScript development server:
 ```bash
 npm run dev
 ```
 
-3. The purge service will be available at http://localhost:3000
+5. The purge service will be available at http://localhost:3000
+
+6. Start Aidbox and PostgreSQL:
+```bash
+docker compose up
+```
+
+7. The init bundle will automatically configure:
+   - **App resource** for the $purge operation endpoint
+   - **Basic Client** for API authentication 
+   - **Access Policies** for DELETE operations and $sql queries
+
+8. **Log in to in Aidbox at http://localhost:8888**.
 
 ## Testing the $purge Operation
 
@@ -57,85 +55,24 @@ npm run dev
 - **Encounter**: Ambulatory visit linked to test patient  
 - **Condition**: Hypertension diagnosis linked to test patient
 
-### Option 1: Use Pre-created Test Patient
-
 ```bash
 # Verify test patient exists
-curl "http://localhost:8888/Patient/test-patient-1" \
-  -H "Authorization: Basic YmFzaWM6c2VjcmV0" | jq .
+curl "http://localhost:8888/Patient/test-patient-1" -H "Authorization: Basic YmFzaWM6c2VjcmV0"
+```
 
+```bash
 # Execute $purge on test patient
 curl -X POST "http://localhost:8888/fhir/Patient/test-patient-1/\$purge" \
   -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
   -H "Content-Type: application/json" | jq .
 ```
 
-### Option 2: Create Your Own Test Patient
-
-```bash
-curl -X PUT "http://localhost:8888/Patient/test-patient-123" \
-  -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceType": "Patient",
-    "id": "test-patient-123", 
-    "name": [{"given": ["Test"], "family": "Patient"}],
-    "birthDate": "1990-01-01"
-  }' | jq .
-```
-
-### 2. Create Related Resources
-
-```bash
-# Create an Observation
-curl -X POST "http://localhost:8888/Observation" \
-  -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceType": "Observation",
-    "status": "final",
-    "code": {"text": "Test observation"},
-    "subject": {"reference": "Patient/test-patient-123"}
-  }' | jq .
-
-# Create an Encounter
-curl -X POST "http://localhost:8888/Encounter" \
-  -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resourceType": "Encounter", 
-    "status": "finished",
-    "class": {"code": "AMB"},
-    "subject": {"reference": "Patient/test-patient-123"}
-  }' | jq .
-```
-
-### 3. Execute $purge Operation
-
-```bash
-curl -X POST "http://localhost:8888/fhir/Patient/test-patient-123/\$purge" \
-  -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
-  -H "Content-Type: application/json" | jq .
-```
-
-Expected response:
-```json
-{
-  "resourceType": "OperationOutcome",
-  "issue": [{
-    "severity": "information", 
-    "code": "informational",
-    "details": {
-      "text": "Purge operation started with ID: purge-1234567890-abcdef. Check status at /purge-status/purge-1234567890-abcdef"
-    }
-  }]
-}
-```
-
 ### 4. Check Operation Status
 
 ```bash
-curl "http://localhost:3000/purge-status/purge-1234567890-abcdef" | jq .
+curl -X POST "http://localhost:8888/fhir/purge-status/purge-<id-from-purge-response>"
+  -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
+  -H "Content-Type: application/json" | jq .
 ```
 
 ### 5. Verify Resources are Deleted
@@ -144,9 +81,11 @@ curl "http://localhost:3000/purge-status/purge-1234567890-abcdef" | jq .
 # Patient should return 404
 curl "http://localhost:8888/Patient/test-patient-123" \
   -H "Authorization: Basic YmFzaWM6c2VjcmV0" | jq .
+```
 
+```bash
 # Related resources should also be deleted
-curl "http://localhost:8888/Observation?subject=Patient/test-patient-123" \
+curl "http://localhost:8888/fhir/Observation" \
   -H "Authorization: Basic YmFzaWM6c2VjcmV0" | jq .
 ```
 
@@ -158,12 +97,12 @@ The $purge operation implements a comprehensive 3-phase deletion process:
 
 #### Phase 1: Delete Related Resources
 - Processes **67 different FHIR resource types** that may reference the patient
-- Uses **Conditional DELETE** for efficient bulk deletion: `DELETE /ResourceType?patient=Patient/{id}`
+- Uses **Conditional DELETE** for efficient bulk deletion: `DELETE /fhir/ResourceType?patient=Patient/{id}`
 - **Fallback mechanism**: If conditional delete fails with "multiple matches" error, falls back to individual DELETE operations
 - Resource types include: Observation, Encounter, Condition, AllergyIntolerance, CarePlan, and 62 others
 
 #### Phase 2: Delete Patient
-- Removes the patient resource itself: `DELETE /Patient/{id}`
+- Removes the patient resource itself: `DELETE /fhir/Patient/{id}`
 
 #### Phase 3: Clean History Tables  
 - Uses **$sql operation** to remove historical versions from `*_history` tables
@@ -193,51 +132,6 @@ const operation = {
 - **Partial success tracking**: Reports which resources were successfully deleted
 - **Comprehensive error logging**: All failures are recorded in the operation outcome
 
-## Useful jq Commands
-
-### Extract Operation ID from $purge Response
-```bash
-# Get operation ID from the purge response
-OPERATION_ID=$(curl -X POST "http://localhost:8888/fhir/Patient/test-patient-1/\$purge" \
-  -H "Authorization: Basic YmFzaWM6c2VjcmV0" \
-  -H "Content-Type: application/json" -s | jq -r '.issue[0].details.text | match("ID: ([^.]+)") | .captures[0].string')
-
-echo "Operation ID: $OPERATION_ID"
-```
-
-### Extract Status Information
-```bash
-# Get current status
-curl "http://localhost:3000/purge-status/$OPERATION_ID" -s | jq -r '.issue[0].details.text'
-
-# Get detailed progress
-curl "http://localhost:3000/purge-status/$OPERATION_ID" -s | jq '.extension[0].valueString | fromjson | {status, progress, errors: (.errors | length)}'
-
-# Check if operation is completed
-curl "http://localhost:3000/purge-status/$OPERATION_ID" -s | jq -r '.extension[0].valueString | fromjson | .status'
-```
-
-### Monitor Progress
-```bash
-# Watch operation progress (requires watch command)
-watch 'curl "http://localhost:3000/purge-status/'$OPERATION_ID'" -s | jq -r ".issue[0].details.text"'
-
-# Get progress percentage
-curl "http://localhost:3000/purge-status/$OPERATION_ID" -s | jq -r '.extension[0].valueString | fromjson | "\(.progress.processedResourceTypes)/\(.progress.totalResourceTypes) (\((.progress.processedResourceTypes / .progress.totalResourceTypes * 100) | floor)%)"'
-```
-
-### List All Operations
-```bash
-# Get all operations with status
-curl "http://localhost:3000/purge-operations" -s | jq '.operations[] | {id, patientId, status, errorCount}'
-
-# Get only completed operations
-curl "http://localhost:3000/purge-operations" -s | jq '.operations[] | select(.status == "completed")'
-
-# Get operations with errors
-curl "http://localhost:3000/purge-operations" -s | jq '.operations[] | select(.errorCount > 0)'
-```
-
 ### Complete Workflow Automation
 
 ## API Endpoints
@@ -247,6 +141,7 @@ curl "http://localhost:3000/purge-operations" -s | jq '.operations[] | select(.e
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/fhir/Patient/{id}/$purge` | Start purge operation for patient |
+| `GET` | `/fhir/purge-status` | Get status of purge operation |
 
 ### Monitoring Endpoints (Direct to TypeScript service)
 
