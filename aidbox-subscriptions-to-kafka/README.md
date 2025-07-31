@@ -159,7 +159,7 @@ accept: application/json
   "trigger": [
     {
       "resource": "Encounter",
-      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists()"
+      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
     }
   ]
 }
@@ -257,7 +257,7 @@ accept: application/json
 {
   "resourceType": "Encounter",
   "id": "encounter-001",
-  "status": "finished",
+  "status": "in-progress",
   "class": {
     "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
     "code": "AMB",
@@ -300,18 +300,51 @@ accept: application/json
 
 ### See Messages in Kafka UI
 
-Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-encounters` -> `messages` and review the `Encounter`. 
-You’ll notice that only the Encounter for the patient `patient-portal-example` was published.
+Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-encounters` -> `messages` and review the `Encounter`.
+At this point, there should be no messages because, although we've submitted an Encounter for the patient, it didn't match the `fhirPathCriteria` we've specified.
+
+Update the Encounter by changing the `status` field from `in-progress` to `finished`:
+
+```json
+PUT /fhir/Encounter/encounter-001
+content-type: application/json
+accept: application/json
+
+{
+  "resourceType": "Encounter",
+  "id": "encounter-001",
+  "status": "finished",
+  "class": {
+    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+    "code": "AMB",
+    "display": "ambulatory"
+  },
+  "subject": {
+    "reference": "Patient/patient-portal-example"
+  },
+  "period": {
+    "start": "2025-06-24T10:00:00Z",
+    "end": "2025-06-24T10:30:00Z"
+  }
+}
+```
+
+An Encounter message should appear.
+
+You’ll also notice that only the Encounter for the patient `patient-portal-example` was published.
 This behavior is due to the trigger configuration in the AidboxSubscriptionTopic:
 
 ```json
 "trigger": [
     {
       "resource": "Encounter",
-      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists()"
+      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
     }
   ]
 ```
+
+The `subject.resolve().identifier.where(system.contains('patient-portal')).exists()` part is responsible for matching only subjects that are part of `patient-portal`.
+The `%current.status = 'finished' and %previous.status = 'in-progress'` ensures that messages will be sent only when the Encounter status is changed from `in-progress` to `finished`.
 
 ## Example of Kubernetes Setup
 
@@ -327,7 +360,7 @@ A deployed and configured [Aidbox](https://subscriptions.hz.aidbox.dev/) instanc
 
 To try it out:
 
-1. Open <a href="https://subscriptions.hz.aidbox.dev/ui/sdc#/?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJxIjp7ImlkIjoiOTVhMmE5MzctMWY4NC00MTJiLTkyMDktNmY5ZTM4NWI0NGE4IiwidXJsIjoiaHR0cDovL2xvaW5jLm9yZy9xLzEwMDEwOS04IiwiY2Fub25pY2FsIjoiaHR0cDovL2xvaW5jLm9yZy9xLzEwMDEwOS04In0sInFyIjp7ImlkIjoiM2NiN2IzNDUtNWFjMy00ZTdlLTgwYjctZjg2MTNhNDBlZDM3In0sImFsbG93LWFtZW5kIjpudWxsLCJjb25maWciOm51bGwsImlzcyI6IlNEQ1JTQVNoYXJlZExpbmtJc3N1ZXIiLCJleHAiOjc3NzU5OTI4MDAsInJlZGlyZWN0LW9uLXN1Ym1pdCI6bnVsbCwiYXBwLW5hbWUiOm51bGwsInRoZW1lIjpudWxsLCJ1c2VyLXRva2VuIjpudWxsLCJvcGVyYXRpb25zIjpbImZoaXItcHJvY2Vzcy1yZXNwb25zZSIsInByb2Nlc3MtcmVzcG9uc2UiXSwicmVhZC1vbmx5IjpudWxsLCJyZWRpcmVjdC1vbi1zYXZlIjpudWxsfQ.rQcRFt-lr06qtJCGC12KiIRRWkoYzWHGXXbLb8g85GYvooyZVfi9NwMLFUjcHOWE751zXV1edtTBh12RM9xJkCeucocLmTvGpjQjKthMBcYjJKB6F6RGhPtDALuhdJ_oakAcsle8LSwWpwkvTyxUGrO_n9Dqn3_56GWCTRF6oVwwNzqUHZATrNvghH5T8t-60mYviSYxB72A0GnGJIxdyu8p1ND7XJvIjQWBxHNicPZw4VlkL7dIO6-IKdLIbNhAAgVdKLebQFyHFdZBwEjoov2h3qIKa77rDVoKK2e0OuBM2Y14DoR3jZcbWy1lR3bX2vozKKi8US1rXWGnY6KoWw" target="_blank">Aidbox Forms</a> 
+1. Open <a href="https://subscriptions.hz.aidbox.dev/ui/sdc#/?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJxIjp7ImlkIjoiOTVhMmE5MzctMWY4NC00MTJiLTkyMDktNmY5ZTM4NWI0NGE4IiwidXJsIjoiaHR0cDovL2xvaW5jLm9yZy9xLzEwMDEwOS04IiwiY2Fub25pY2FsIjoiaHR0cDovL2xvaW5jLm9yZy9xLzEwMDEwOS04In0sInFyIjp7ImlkIjoiM2NiN2IzNDUtNWFjMy00ZTdlLTgwYjctZjg2MTNhNDBlZDM3In0sImFsbG93LWFtZW5kIjpudWxsLCJjb25maWciOm51bGwsImlzcyI6IlNEQ1JTQVNoYXJlZExpbmtJc3N1ZXIiLCJleHAiOjc3NzU5OTI4MDAsInJlZGlyZWN0LW9uLXN1Ym1pdCI6bnVsbCwiYXBwLW5hbWUiOm51bGwsInRoZW1lIjpudWxsLCJ1c2VyLXRva2VuIjpudWxsLCJvcGVyYXRpb25zIjpbImZoaXItcHJvY2Vzcy1yZXNwb25zZSIsInByb2Nlc3MtcmVzcG9uc2UiXSwicmVhZC1vbmx5IjpudWxsLCJyZWRpcmVjdC1vbi1zYXZlIjpudWxsfQ.rQcRFt-lr06qtJCGC12KiIRRWkoYzWHGXXbLb8g85GYvooyZVfi9NwMLFUjcHOWE751zXV1edtTBh12RM9xJkCeucocLmTvGpjQjKthMBcYjJKB6F6RGhPtDALuhdJ_oakAcsle8LSwWpwkvTyxUGrO_n9Dqn3_56GWCTRF6oVwwNzqUHZATrNvghH5T8t-60mYviSYxB72A0GnGJIxdyu8p1ND7XJvIjQWBxHNicPZw4VlkL7dIO6-IKdLIbNhAAgVdKLebQFyHFdZBwEjoov2h3qIKa77rDVoKK2e0OuBM2Y14DoR3jZcbWy1lR3bX2vozKKi8US1rXWGnY6KoWw" target="_blank">Aidbox Forms</a>
 2. Share form, copy the link.
 3. Open the link and fill form.
 4. Open the <a href="https://kafka-ui-subscriptions.hz.aidbox.dev/ui/clusters/local/all-topics" target="_blank">Kafka UI</a> to view your `QuestionnaireResponse` in the Kafka messages tab.
