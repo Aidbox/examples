@@ -1,7 +1,7 @@
 # Topic-based Subscriptions to Kafka
 [Demo](#demo) | [Documentation](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=app-examples&utm_medium=readme)
 
-This example showcases [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) producing data to  Kafka.
+This example showcases [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) producing data to Kafka.
 
 Objectives:
 
@@ -38,7 +38,7 @@ docker compose up
 
 - Aidbox will be available at <http://localhost:8888/>
   - Upon first login, you will be asked to obtain a license by logging into https://aidbox.app
-- Kafka UI will be be available at <http://localhost:8080/>
+- Kafka UI will be available at <http://localhost:8080/>
 - Kafka itself will be available at `http://localhost:9092/` (no authorization required)
 
 The Docker Compose file initializes the environment for both Kafka and Aidbox with the following configuration:
@@ -108,12 +108,12 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 1. **Submit Form**
 
    - Open the [list of forms](http://localhost:8888/ui/sdc#/)
-   - click <kbd>share</kbd>
-   - enable 'allow amend' checkbox;
-   - click <kbd>attach</kbd>;
-   - copy the link, and open it;
-   - fill out the form;
-   - submit the form.
+   - Click <kbd>share</kbd>
+   - Enable 'allow amend' checkbox
+   - Click <kbd>attach</kbd>
+   - Copy the link, and open it
+   - Fill out the form
+   - Submit the form
 
 2. **Check AidboxTopicDestination Status**
 
@@ -126,8 +126,8 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 3. **See Messages in Kafka UI**
 
    - Open [Kafka UI](http://localhost:8080/)
-   - Go to the `Topics` section, open the `aidbox-forms` topic, and open the `messages` tab;
-   - Review the `QuestionnaireResponse` that was created after submitting the form.
+   - Go to the `Topics` section, open the `aidbox-forms` topic, and open the `messages` tab
+   - Review the `QuestionnaireResponse` that was created after submitting the form
 
 ## Step 4: Set Up Subscription and Destination For Encounters
 
@@ -135,8 +135,8 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 
    To create a subscription on the `Encounter` resource for patients who have an identifier from the patient portal:
 
-   - open Aidbox UI;
-   - Navigate to the REST Console in the sidebar;
+   - Open Aidbox UI
+   - Navigate to the REST Console in the sidebar
    - Execute the following request:
 
      ```json
@@ -330,7 +330,7 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 
    An Encounter message should appear.
 
-   You’ll also notice that only the Encounter for the patient `patient-portal-example` was published.
+   You'll also notice that only the Encounter for the patient `patient-portal-example` was published.
    This behavior is due to the trigger configuration in the AidboxSubscriptionTopic:
 
    ```json
@@ -349,10 +349,10 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 
 ## Example of Kubernetes Setup
 
-Also you can find example of k8s deployment:
+You can also find an example of k8s deployment:
 
 - Configuration: [k8s.yaml](k8s.yaml)
-- Also, you need to pass secrets for Aidbox and Database. See details: [Deploy Aidbox with Helm Charts](https://docs.aidbox.app/getting-started/run-aidbox-in-kubernetes/deploy-aidbox-with-helm-charts). We recommend to use helm.
+- Also, you need to pass secrets for Aidbox and Database. See details: [Deploy Aidbox with Helm Charts](https://docs.aidbox.app/getting-started/run-aidbox-in-kubernetes/deploy-aidbox-with-helm-charts). We recommend using helm.
 - Configuration resource examples: [k8s_resources](k8s_resources.html)
 
 ## Demo
