@@ -13,19 +13,14 @@ Objectives:
 **Table of Contents**
 
 - [Topic-based Subscriptions to Kafka](#topic-based-subscriptions-to-kafka)
-    - [Prerequisites](#prerequisites)
-    - [Step 1: Set Up the Environment](#step-1-set-up-the-environment)
-        - [Set Up Aidbox](#set-up-aidbox)
-        - [Run Aidbox, Kafka & Kafka UI](#run-aidbox-kafka--kafka-ui)
-    - [Step 2: Set Up Subscription and Destination](#step-2-set-up-subscription-and-destination)
-        - [Create AidboxSubscriptionTopic Resource](#create-aidboxsubscriptiontopic-resource)
-        - [Create AidboxTopicDestination Resource](#create-aidboxtopicdestination-resource)
-    - [Step 3: Demonstration](#step-3-demonstration)
-        - [Submit Form](#submit-form)
-        - [Check AidboxTopicDestination Status](#check-aidboxtopicdestination-status)
-        - [See Messages in Kafka UI](#see-messages-in-kafka-ui)
-    - [Example of Kubernetes Setup](#example-of-kubernetes-setup)
-    - [Demo](#demo)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Run Aidbox, Kafka & Kafka UI](#step-1-run-aidbox-kafka--kafka-ui)
+  - [Step 2: Set Up Subscription and Destination For QuestionnaireResponse](#step-2-set-up-subscription-and-destination-for-questionnaireresponse)
+  - [Step 3: Demonstration of QuestionnaireResponse subscriptions](#step-3-demonstration-of-questionnaireresponse-subscriptions)
+  - [Step 4: Set Up Subscription and Destination For Encounters](#step-4-set-up-subscription-and-destination-for-encounters)
+  - [Step 5: Demonstration of Encounter subscriptions](#step-5-demonstration-of-encounter-subscriptions)
+  - [Example of Kubernetes Setup](#example-of-kubernetes-setup)
+  - [Demo](#demo)
 
 <!-- markdown-toc end -->
 
@@ -35,26 +30,16 @@ Objectives:
 - Cloned repository: [Github: Aidbox/examples](https://github.com/Aidbox/examples/tree/main)
 - Working directory: `aidbox-subscriptions-to-kafka`
 
-## Step 1: Set Up the Environment
-
-### Set Up Aidbox
-
-Copy the `.env.tpl` file to `.env`:
-
-```shell
-cp .env.tpl .env
-```
-
-### Run Aidbox, Kafka & Kafka UI
+## Step 1: Run Aidbox, Kafka & Kafka UI
 
 ```shell
 docker compose up
 ```
 
-- Aidbox is be available at <http://localhost:8888/>
+- Aidbox will be available at <http://localhost:8888/>
   - Upon first login, you will be asked to obtain a license by logging into https://aidbox.app
-- Kafka UI is be available at <http://localhost:8080/>
-- Kafka is available at `http://localhost:9092/` (no authorization required)
+- Kafka UI will be be available at <http://localhost:8080/>
+- Kafka itself will be available at `http://localhost:9092/` (no authorization required)
 
 The Docker Compose file initializes the environment for both Kafka and Aidbox with the following configuration:
 
