@@ -80,17 +80,70 @@ services:
     ports:
       - "8888:8888"
     environment:
-      PGPORT: 5432
-      PGHOST: aidbox-db
+      BOX_DB_PORT: 5432
+      BOX_DB_HOST: aidbox-db
       PGHOSTPORT: 5438
-      PGUSER: postgres
-      PGPASSWORD: postgres
-      PGDATABASE: aidbox
-      AIDBOX_BASE_URL: http://localhost:8888
-      AIDBOX_PORT: 8888
+      BOX_DB_USER: postgres
+      BOX_DB_PASSWORD: postgres
+      BOX_DB_DATABASE: aidbox
+      BOX_WEB_BASE_URL: http://localhost:8888
+      BOX_WEB_PORT: 8888
       BOX_INIT_BUNDLE: file:///tmp/bundle.json
-    env_file:
-      - .env
+      BOX_SECURITY_DEV_MODE: true
+      BOX_FHIR_SCHEMA_VALIDATION: true
+      BOX_BOOTSTRAP_FHIR_PACKAGES: "hl7.fhir.r4.core#4.0.1"
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
+      BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: true
+      BOX_SETTINGS_MODE: read-write
+      BOX_FHIR_COMPLIANT_MODE: true
+      BOX_FHIR_SEARCH_COMPARISONS: true
+      BOX_FHIR_JSON_SCHEMA_DATETIME_REGEX: '#{:fhir-datetime}'
+      BOX_FHIR_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_SECURITY_AUDIT_LOG_ENABLED: false
+      BOX_ROOT_CLIENT_SECRET: secret
+      BOX_ROOT_CLIENT_ID: root
+      BOX_ADMIN_PASSWORD: password
+      BOX_AUTH_KEYS_SECRET: auth-key-secret
+      BOX_AUTH_KEYS_PRIVATE: |
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEpAIBAAKCAQEApbUYGNmCz1P8G0j/FFOjx1d5GNssJ/jj6xasSwTIbjjt6FtY
+        CDw8o7hayOc/u8aUqXCGhK3JD2T9gtKv9/rV30w4YzmHhA8OOuLJE7tfh/PJA4Hn
+        4i2JJ30BuoZ7rPTlTRGdc1FS3XFdmBQtnplEkJ7y8qbdrVme3Kbtn+BR1BdtgwSy
+        bpNH2yqh3bb6PwpgNSMH7BIkBWL4A6QDpaFf1/9jSNE1vO25ssLC+bhFQNWLYriu
+        +HogzEf9NWIrR2W29mI1QiA7wqvEuhg1yx38ylWD8GhCGL6+2QLKBYgp7DIGv6Uo
+        TnqcVISatdQ51lVcCPmU6L1BhmcXVti6dWBI+wIDAQABAoIBAFKMOcJbTKpKvLq8
+        7PErz1lFDpreyArrlmKsy0ydx9j8vCt1oY+MrmqisnsFk/7PaIxV9XUP+6qTFSUA
+        HtAKYVOZLTfk10jmlSCpjCCrxWW9AISiSKkoJPyKbfuE9gRNhRMU9NoXB5Av4r+Z
+        QbaRxJHE1OMjVCgAjr592786qJjd+shhY8ZLchrxctpBj6/4T2Rd4Q8ltyEV3hiy
+        oYaFVp9g332bFw7jZSuxgedZojNO6xPvbparTAgVDDwKB+CVUhuZ5EXWwemRvwoc
+        YZM1UKPgtCqBZwm2GRv7s6XzJKBAZEMxcL7hS0RfijCe4MJcZlUCoM43Tf5XqDlT
+        MmoXnPECgYEA4dkY/uqDLjJep5+4imRbceotxV2CZoJRQ0D85Ewu3tm9zdXhqL4p
+        3XAOcNnqj7xBP3qkb/cXZumwdAIZns4kO1kw5hVQLX+xwMAJuravxp8sYJkx3CLO
+        oaOPNnlhGRv35fg4ZnoHHMO2C0wUmtSqsi6vE1EObYsIIFil58pI0NECgYEAu9SL
+        e6AUCI/sdDlrTXQ8fdW8XSSJYPhZHqAvOAZfkeG4uuA2Qzxe8yUSES7z5V29futl
+        WU7x+FWfqzkjh8qerviydAEFxVOpZ99ih9VB9dAwz3nX3OCoz3EUFmQGtTMxQmbo
+        fW9sT4E6R7Hpa5jKnYvixk6u4p3aoEaZI4KeUAsCgYEA2OC3hiQBcN1h1Com9o7E
+        2bF93qebT4EZNDI2J62Y3NvPztfy6S4j2cd/tpMtEnY/WgwV2Ic5a9RBZEWYAM4I
+        MQ3HTUtuQSL8uRIwxaIlTeEQpnq2TKUINGRyZGdO/OPEvIwO7SmFpvOx30tiBgTv
+        HkiCS1RtPHhkh1tZhirUneECgYAxNmARVQDKuYLXdM/jbEgJJD4FHXSNHqSi/I9C
+        m5DgtQZkmCg/d4rdI+JW9Dlc6DGlFmHog2GskiqSfxcLFhB7gZeoAziS2fexynqT
+        YlG06QZQ5fij24z/RP5hW3XSdgY7AqF5c/8p2Y7+h+PDmDXGD4esM6NoprlIcxbe
+        kfOOvwKBgQCoOpkW+OWnxPLawmG/gv8+s5CsfOPUpURwAjltSXz9LXvsJmWQPQVG
+        p4sKEOJidYyt24YrIHi9/UEqRi+uuRQ4zCuXS6UjXftjAarPIPGkL/1S6B1Z91zg
+        E5C0rXOvAlrvK09p4HGXLrwQxjrWt8R7rPvaD2yqVKLP4liFj8RMdg==
+        -----END RSA PRIVATE KEY-----
+      BOX_AUTH_KEYS_PUBLIC: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApbUYGNmCz1P8G0j/FFOj
+        x1d5GNssJ/jj6xasSwTIbjjt6FtYCDw8o7hayOc/u8aUqXCGhK3JD2T9gtKv9/rV
+        30w4YzmHhA8OOuLJE7tfh/PJA4Hn4i2JJ30BuoZ7rPTlTRGdc1FS3XFdmBQtnplE
+        kJ7y8qbdrVme3Kbtn+BR1BdtgwSybpNH2yqh3bb6PwpgNSMH7BIkBWL4A6QDpaFf
+        1/9jSNE1vO25ssLC+bhFQNWLYriu+HogzEf9NWIrR2W29mI1QiA7wqvEuhg1yx38
+        ylWD8GhCGL6+2QLKBYgp7DIGv6UoTnqcVISatdQ51lVcCPmU6L1BhmcXVti6dWBI
+        +wIDAQAB
+        -----END PUBLIC KEY-----
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
       interval: 30s
