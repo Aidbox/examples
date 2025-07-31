@@ -29,7 +29,7 @@ services:
       - "9092:9092"
       - "9093:29093"
     volumes:
-      - "subs-kafka-data:/var/lib/kafka/data"
+      - "subs-kafka-data:/var/lib/kafka/data:z"
 
   kafka-ui:
     container_name: kafka-ui
@@ -48,25 +48,24 @@ services:
     depends_on:
       kafka:
        condition: service_healthy
+    command:
+        - /bin/sh
+        - -c
+        - |
+            /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
+            echo -e 'Creating kafka topics'
+            /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-forms --replication-factor 1 --partitions 1
+            /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-encounters --replication-factor 1 --partitions 1
+            echo -e 'Created the following topics:'
+            /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
 
-    entrypoint: [ '/bin/sh', '-c' ]
-    command: |
-      "
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
-      echo -e 'Creating kafka topics'
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-forms --replication-factor 1 --partitions 1
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic aidbox-encounters --replication-factor 1 --partitions 1
-      echo -e 'Created the following topics:'
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
-      "
-  
   aidbox-db:
     image: healthsamurai/aidboxdb:16.1
     pull_policy: always
     ports:
       - "5438:5432"
     volumes:
-      - "subs-pgdata:/data:delegated"
+      - "subs-pgdata:/data:delegated,z"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -77,7 +76,7 @@ services:
     pull_policy: always
     depends_on: ["aidbox-db"]
     volumes:
-      - "./resources/bundle.json:/tmp/bundle.json"
+      - "./resources/bundle.json:/tmp/bundle.json:z"
     ports:
       - "8888:8888"
     environment:
@@ -98,4 +97,3 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-
