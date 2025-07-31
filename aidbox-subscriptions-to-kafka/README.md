@@ -39,15 +39,11 @@ Objectives:
 
 ### Set Up Aidbox
 
-1. Copy the `.env.tpl` file to `.env`:
+Copy the `.env.tpl` file to `.env`:
 
-    ```shell
-    cp .env.tpl .env
-    ```
-
-2. Get a self-hosted Aidbox license from the [Aidbox Portal](https://aidbox.app/?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo).
-
-3. Add the license key (`AIDBOX_LICENSE`) to the `.env` file.
+```shell
+cp .env.tpl .env
+```
 
 ### Run Aidbox, Kafka & Kafka UI
 
@@ -56,8 +52,7 @@ docker compose up
 ```
 
 - Aidbox is be available at <http://localhost:8888/>
-  - Username: `admin`
-  - Password: `password`
+  - Upon first login, you will be asked to obtain a license by logging into https://aidbox.app
 - Kafka UI is be available at <http://localhost:8080/>
 - Kafka is available at `http://localhost:9092/` (no authorization required)
 
