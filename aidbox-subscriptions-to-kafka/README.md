@@ -63,283 +63,304 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 
 ## Step 2: Set Up Subscription and Destination For QuestionnaireResponse
 
-### Create AidboxSubscriptionTopic Resource
+1. **Create AidboxSubscriptionTopic Resource**
 
-To create a subscription on the `QuestionnaireResponse` resource that has a specific status, open Aidbox UI -> APIs -> REST Console and execute the following request:
+   To create a subscription on the `QuestionnaireResponse` resource that has a specific status, open Aidbox UI -> APIs -> REST Console and execute the following request:
 
-```json
-POST /fhir/AidboxSubscriptionTopic
-content-type: application/json
-accept: application/json
+   ```json
+   POST /fhir/AidboxSubscriptionTopic
+   content-type: application/json
+   accept: application/json
 
-{
-  "resourceType": "AidboxSubscriptionTopic",
-  "url": "http://example.org/FHIR/R5/SubscriptionTopic/QuestionnaireResponse-topic",
-  "status": "active",
-  "trigger": [
-    {
-      "resource": "QuestionnaireResponse",
-      "fhirPathCriteria": "status = 'completed' or status = 'amended'"
-    }
-  ]
-}
-```
+   {
+     "resourceType": "AidboxSubscriptionTopic",
+     "url": "http://example.org/FHIR/R5/SubscriptionTopic/QuestionnaireResponse-topic",
+     "status": "active",
+     "trigger": [
+       {
+         "resource": "QuestionnaireResponse",
+         "fhirPathCriteria": "status = 'completed' or status = 'amended'"
+       }
+     ]
+   }
+   ```
 
-This resource describes the data source for the subscription but doesn't execute any activities from Aidbox.
+   This resource describes the data source for the subscription but doesn't execute any activities from Aidbox.
 
-### Create AidboxTopicDestination Resource
+2. **Create AidboxTopicDestination Resource**
 
-Creating this resource establishes a connection to the Kafka server. When the system produces an event, it will be processed to the specified Kafka topic.
+   Creating this resource establishes a connection to the Kafka server. When the system produces an event, it will be processed to the specified Kafka topic.
 
-```json
-POST /fhir/AidboxTopicDestination
-content-type: application/json
-accept: application/json
+   ```json
+   POST /fhir/AidboxTopicDestination
+   content-type: application/json
+   accept: application/json
 
-{
-  "meta": {
-    "profile": [
-      "http://aidbox.app/StructureDefinition/aidboxtopicdestination-kafka-at-least-once"
-    ]
-  },
-  "kind": "kafka-at-least-once",
-  "id": "kafka-destination",
-  "topic": "http://example.org/FHIR/R5/SubscriptionTopic/QuestionnaireResponse-topic",
-  "parameter": [
-    {
-      "name": "kafkaTopic",
-      "valueString": "aidbox-forms"
-    },
-    {
-      "name": "bootstrapServers",
-      "valueString": "kafka:29092"
-    }
-  ]
-}
-```
+   {
+     "meta": {
+       "profile": [
+         "http://aidbox.app/StructureDefinition/aidboxtopicdestination-kafka-at-least-once"
+       ]
+     },
+     "kind": "kafka-at-least-once",
+     "id": "kafka-destination",
+     "topic": "http://example.org/FHIR/R5/SubscriptionTopic/QuestionnaireResponse-topic",
+     "parameter": [
+       {
+         "name": "kafkaTopic",
+         "valueString": "aidbox-forms"
+       },
+       {
+         "name": "bootstrapServers",
+         "valueString": "kafka:29092"
+       }
+     ]
+   }
+   ```
 
 ## Step 3: Demonstration of QuestionnaireResponse subscriptions
 
-### Submit Form
+1. **Submit Form**
 
-Open the [list of forms](http://localhost:8888/ui/sdc#/), click `share` -> enable 'allow amend' -> click `attach` -> copy the link -> open the link -> fill out the form, and submit it.
+   - Open the [list of forms](http://localhost:8888/ui/sdc#/)
+   - click <kbd>share</kbd>
+   - enable 'allow amend' checkbox;
+   - click <kbd>attach</kbd>;
+   - copy the link, and open it;
+   - fill out the form;
+   - submit the form.
 
-### Check AidboxTopicDestination Status
+2. **Check AidboxTopicDestination Status**
 
-Open the Aidbox [REST Console](http://localhost:8888/ui/console#/rest) and get the AidboxTopicDestination status:
+   Open the Aidbox [REST Console](http://localhost:8888/ui/console#/rest) and get the AidboxTopicDestination status:
 
-```
-GET /fhir/AidboxTopicDestination/kafka-destination/$status
-```
+   ```
+   GET /fhir/AidboxTopicDestination/kafka-destination/$status
+   ```
 
-### See Messages in Kafka UI
+3. **See Messages in Kafka UI**
 
-Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-forms` -> `messages` and review the `QuestionnaireResponse` that was created after submitting the form.
+   - Open [Kafka UI](http://localhost:8080/)
+   - Go to the `Topics` section, open the `aidbox-forms` topic, and open the `messages` tab;
+   - Review the `QuestionnaireResponse` that was created after submitting the form.
 
 ## Step 4: Set Up Subscription and Destination For Encounters
 
-### Create AidboxSubscriptionTopic Resource
+1. **Create AidboxSubscriptionTopic Resource**
 
-To create a subscription on the `Encounter` resource for patients who have an identifier from the patient portal, open Aidbox UI -> APIs -> REST Console and execute the following request:
+   To create a subscription on the `Encounter` resource for patients who have an identifier from the patient portal:
 
-```json
-POST /fhir/AidboxSubscriptionTopic
-content-type: application/json
-accept: application/json
+   - open Aidbox UI;
+   - Navigate to the REST Console in the sidebar;
+   - Execute the following request:
 
-{
-  "resourceType": "AidboxSubscriptionTopic",
-  "url": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
-  "status": "active",
-  "trigger": [
-    {
-      "resource": "Encounter",
-      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
-    }
-  ]
-}
-```
-### Create AidboxTopicDestination Resource
+     ```json
+     POST /fhir/AidboxSubscriptionTopic
+     content-type: application/json
+     accept: application/json
 
-Create the `AidboxTopicDestination` for the Encounters.
+     {
+       "resourceType": "AidboxSubscriptionTopic",
+       "url": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
+       "status": "active",
+       "trigger": [
+         {
+           "resource": "Encounter",
+           "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
+         }
+       ]
+     }
+     ```
 
-```json
-POST /fhir/AidboxTopicDestination
-content-type: application/json
-accept: application/json
+2. **Create AidboxTopicDestination Resource**
 
-{
-  "meta": {
-    "profile": [
-      "http://aidbox.app/StructureDefinition/aidboxtopicdestination-kafka-at-least-once"
-    ]
-  },
-  "kind": "kafka-at-least-once",
-  "id": "kafka-destination-encounters",
-  "topic": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
-  "parameter": [
-    {
-      "name": "kafkaTopic",
-      "valueString": "aidbox-encounters"
-    },
-    {
-      "name": "bootstrapServers",
-      "valueString": "kafka:29092"
-    }
-  ]
-}
-```
+   In REST Console, create the `AidboxTopicDestination` for the Encounters:
+
+   ```json
+   POST /fhir/AidboxTopicDestination
+   content-type: application/json
+   accept: application/json
+
+   {
+     "meta": {
+       "profile": [
+         "http://aidbox.app/StructureDefinition/aidboxtopicdestination-kafka-at-least-once"
+       ]
+     },
+     "kind": "kafka-at-least-once",
+     "id": "kafka-destination-encounters",
+     "topic": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
+     "parameter": [
+       {
+         "name": "kafkaTopic",
+         "valueString": "aidbox-encounters"
+       },
+       {
+         "name": "bootstrapServers",
+         "valueString": "kafka:29092"
+       }
+     ]
+   }
+   ```
 
 ## Step 5: Demonstration of Encounter subscriptions
 
-### Create Patients and Encounters
+1. **Create Patients and Encounters**
 
-Aidbox UI -> APIs -> REST Console
+   In Aidbox UI sidebar open the REST Console.
+   Create two Patients:
 
-Create two Patients.
-First one is the user of the Patient Portal, it has the identifier in patient portal system:
+   - A user of the Patient Portal (has the identifier in patient portal system):
 
-```json
-POST /fhir/Patient
-content-type: application/json
-accept: application/json
+     ```json
+     POST /fhir/Patient
+     content-type: application/json
+     accept: application/json
 
-{
-  "resourceType": "Patient",
-  "id": "patient-portal-example",
-  "identifier": [
-    {
-      "use": "secondary",
-      "type": {
-        "coding": [
-          {
-            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code": "PI",
-            "display": "Patient Internal Identifier"
-          }
-        ]
-      },
-      "system": "http://hospital.example.org/patient-portal",
-      "value": "portal_user_98765",
-      "assigner": {
-        "display": "Example Hospital Patient Portal"
-      }
-    }
-  ]
-}
-```
+     {
+       "resourceType": "Patient",
+       "id": "patient-portal-example",
+       "identifier": [
+         {
+           "use": "secondary",
+           "type": {
+             "coding": [
+               {
+                 "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                 "code": "PI",
+                 "display": "Patient Internal Identifier"
+               }
+             ]
+           },
+           "system": "http://hospital.example.org/patient-portal",
+           "value": "portal_user_98765",
+           "assigner": {
+             "display": "Example Hospital Patient Portal"
+           }
+         }
+       ]
+     }
+     ```
 
-Second one is not a portal user, so it doesn't have a portal identifier:
+   - Not a portal user (doesn't have a portal identifier):
 
-```json
-POST /fhir/Patient
-content-type: application/json
-accept: application/json
+     ```json
+     POST /fhir/Patient
+     content-type: application/json
+     accept: application/json
 
-{
-  "resourceType": "Patient",
-  "id": "patient-not-portal-example"
-}
-```
+     {
+       "resourceType": "Patient",
+       "id": "patient-not-portal-example"
+     }
+     ```
 
-Create the Encounter for the first Patient:
+2. **Create the Encounter for the first Patient**
 
-```json
-POST /fhir/Encounter
-content-type: application/json
-accept: application/json
+   ```json
+   POST /fhir/Encounter
+   content-type: application/json
+   accept: application/json
 
-{
-  "resourceType": "Encounter",
-  "id": "encounter-001",
-  "status": "in-progress",
-  "class": {
-    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-    "code": "AMB",
-    "display": "ambulatory"
-  },
-  "subject": {
-    "reference": "Patient/patient-portal-example"
-  },
-  "period": {
-    "start": "2025-06-24T10:00:00Z",
-    "end": "2025-06-24T10:30:00Z"
-  }
-}
-```
+   {
+     "resourceType": "Encounter",
+     "id": "encounter-001",
+     "status": "in-progress",
+     "class": {
+       "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+       "code": "AMB",
+       "display": "ambulatory"
+     },
+     "subject": {
+       "reference": "Patient/patient-portal-example"
+     },
+     "period": {
+       "start": "2025-06-24T10:00:00Z",
+       "end": "2025-06-24T10:30:00Z"
+     }
+   }
+   ```
 
-Create the Encounter for the patient who is **not** a portal user:
+3. **Create the Encounter for the patient who is not a portal user**
 
-```json
-POST /fhir/Encounter
-content-type: application/json
-accept: application/json
+   ```json
+   POST /fhir/Encounter
+   content-type: application/json
+   accept: application/json
 
-{
-  "resourceType": "Encounter",
-  "id": "encounter-002",
-  "status": "in-progress",
-  "class": {
-    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-    "code": "EMER",
-    "display": "emergency"
-  },
-  "subject": {
-    "reference": "Patient/patient-not-portal-example"
-  },
-  "period": {
-    "start": "2025-06-24T15:45:00Z"
-  }
-}
-```
+   {
+     "resourceType": "Encounter",
+     "id": "encounter-002",
+     "status": "in-progress",
+     "class": {
+       "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+       "code": "EMER",
+       "display": "emergency"
+     },
+     "subject": {
+       "reference": "Patient/patient-not-portal-example"
+     },
+     "period": {
+       "start": "2025-06-24T15:45:00Z"
+     }
+   }
+   ```
 
-### See Messages in Kafka UI
+6. **Check Messages in Kafka UI**
 
-Open [Kafka UI](http://localhost:8080/) -> `Topics` -> `aidbox-encounters` -> `messages` and review the `Encounter`.
-At this point, there should be no messages because, although we've submitted an Encounter for the patient, it didn't match the `fhirPathCriteria` we've specified.
+   - Open [Kafka UI](http://localhost:8080/)
+   - Go to `Topics`, select `aidbox-encounters` and open the Messages tab.
 
-Update the Encounter by changing the `status` field from `in-progress` to `finished`:
+   At this point, there should be no messages because, although we've submitted an Encounter for the patient, it didn't match the `fhirPathCriteria` we've specified.
 
-```json
-PUT /fhir/Encounter/encounter-001
-content-type: application/json
-accept: application/json
+7. **Update the Encounter**
 
-{
-  "resourceType": "Encounter",
-  "id": "encounter-001",
-  "status": "finished",
-  "class": {
-    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-    "code": "AMB",
-    "display": "ambulatory"
-  },
-  "subject": {
-    "reference": "Patient/patient-portal-example"
-  },
-  "period": {
-    "start": "2025-06-24T10:00:00Z",
-    "end": "2025-06-24T10:30:00Z"
-  }
-}
-```
+   Use `PUT` to update the Encounter changing the `status` field from `in-progress` to `finished`:
 
-An Encounter message should appear.
+   ```json
+   PUT /fhir/Encounter/encounter-001
+   content-type: application/json
+   accept: application/json
 
-You’ll also notice that only the Encounter for the patient `patient-portal-example` was published.
-This behavior is due to the trigger configuration in the AidboxSubscriptionTopic:
+   {
+     "resourceType": "Encounter",
+     "id": "encounter-001",
+     "status": "finished",
+     "class": {
+       "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+       "code": "AMB",
+       "display": "ambulatory"
+     },
+     "subject": {
+       "reference": "Patient/patient-portal-example"
+     },
+     "period": {
+       "start": "2025-06-24T10:00:00Z",
+       "end": "2025-06-24T10:30:00Z"
+     }
+   }
+   ```
 
-```json
-"trigger": [
-    {
-      "resource": "Encounter",
-      "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
-    }
-  ]
-```
+8. **Check Messages in Kafka UI again**
 
-The `subject.resolve().identifier.where(system.contains('patient-portal')).exists()` part is responsible for matching only subjects that are part of `patient-portal`.
-The `%current.status = 'finished' and %previous.status = 'in-progress'` ensures that messages will be sent only when the Encounter status is changed from `in-progress` to `finished`.
+   An Encounter message should appear.
+
+   You’ll also notice that only the Encounter for the patient `patient-portal-example` was published.
+   This behavior is due to the trigger configuration in the AidboxSubscriptionTopic:
+
+   ```json
+   "trigger": [
+       {
+         "resource": "Encounter",
+         "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
+       }
+     ]
+   ```
+
+   Explanation:
+
+   - `subject.resolve().identifier.where(system.contains('patient-portal')).exists()` - matches only subjects that are part of `patient-portal`;
+   - `%current.status = 'finished' and %previous.status = 'in-progress'` - messages will be sent only when the Encounter status is changed from `in-progress` to `finished`.
 
 ## Example of Kubernetes Setup
 
