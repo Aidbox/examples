@@ -133,29 +133,35 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 
 1. **Create AidboxSubscriptionTopic Resource**
 
-   To create a subscription on the `Encounter` resource for patients who have an identifier from the patient portal:
+    To create a subscription on the `Encounter` resource for patients who have an identifier from the patient portal:
 
-   - Open Aidbox UI
-   - Navigate to the REST Console in the sidebar
-   - Execute the following request:
+    - Open Aidbox UI
+    - Navigate to the REST Console in the sidebar
+    - Execute the following request:
 
-     ```json
-     POST /fhir/AidboxSubscriptionTopic
-     content-type: application/json
-     accept: application/json
+        ```json
+        POST /fhir/AidboxSubscriptionTopic
+        content-type: application/json
+        accept: application/json
 
-     {
-       "resourceType": "AidboxSubscriptionTopic",
-       "url": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
-       "status": "active",
-       "trigger": [
-         {
-           "resource": "Encounter",
-           "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
-         }
-       ]
-     }
-     ```
+        {
+        "resourceType": "AidboxSubscriptionTopic",
+        "url": "http://example.org/FHIR/R5/SubscriptionTopic/Encounter-topic",
+        "status": "active",
+        "trigger": [
+            {
+            "resource": "Encounter",
+            "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
+            }
+        ]
+        }
+        ```
+
+        where:
+
+        - `subject.resolve().identifier.where(system.contains('patient-portal')).exists()` - matches only subjects that are part of `patient-portal`;
+        - `and %current.status = 'finished'` - matches only encounters that are finished;
+        - `and %previous.status = 'in-progress'` - matches only encounters that were in progress before;
 
 2. **Create AidboxTopicDestination Resource**
 
@@ -329,23 +335,6 @@ The Docker Compose file initializes the environment for both Kafka and Aidbox wi
 8. **Check Messages in Kafka UI again**
 
    An Encounter message should appear.
-
-   You'll also notice that only the Encounter for the patient `patient-portal-example` was published.
-   This behavior is due to the trigger configuration in the AidboxSubscriptionTopic:
-
-   ```json
-   "trigger": [
-       {
-         "resource": "Encounter",
-         "fhirPathCriteria": "subject.resolve().identifier.where(system.contains('patient-portal')).exists() and %current.status = 'finished' and %previous.status = 'in-progress'"
-       }
-     ]
-   ```
-
-   Explanation:
-
-   - `subject.resolve().identifier.where(system.contains('patient-portal')).exists()` - matches only subjects that are part of `patient-portal`;
-   - `%current.status = 'finished' and %previous.status = 'in-progress'` - messages will be sent only when the Encounter status is changed from `in-progress` to `finished`.
 
 ## Example of Kubernetes Setup
 
