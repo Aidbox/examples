@@ -90,9 +90,9 @@ claude
 
 Check the generated resources in the `target` directory.
 Couple of examples: 
-- CodeSystem definition [CSIdentidadGenero](target/CS/CSIdentidadGenero.json)
-- ValueSet definition [VSIdentidadGenero](target/VS/VSIdentidadGenero.json)
-- Profile definition [PacienteCl](target/Profiles/PacienteCl.json)
+- CodeSystem definition [CSIdentidadGenero](target/CSIdentidadGenero.json)
+- ValueSet definition [VSIdentidadGenero](target/VSIdentidadGenero.json)
+- Profile definition [PacienteCl](target/PacienteCl.json)
 
 
 ### 2. Resource Testing  
@@ -121,14 +121,14 @@ claude
 **Test Profiles:**
 ```bash
 claude
-> /test-profile PatientChileno
+> /test-profile PacienteCl
 ```
 
 Take a look at the test cases that were generated in the test directory:
 
-- [test-cs.http](test/CS/CSIdentidadGenero.http)
-- [test-vs.http](test/VS/VSIdentidadGenero.http)
-- [test-profile.http](test/Profiles/PacienteCl.http)
+- [test-cs.http](test/CS/test-CSIdentidadGenero.http)
+- [test-vs.http](test/VS/test-VSIdentidadGenero.http)
+- [test-profile.http](test/Profile/test-PacienteCl.http)
 
 Each test run provides a detailed log of executing the test cases - you should be able to see the log files next to the `.http` file.
 
