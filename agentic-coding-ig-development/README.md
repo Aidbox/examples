@@ -78,7 +78,7 @@ Write requirements in natural language markdown files in the `src` directory.
 Couple of examples: 
 - CodeSystem definition [CSIdentidadGenero](src/CS/CSIdentidadGenero.MD)
 - ValueSet definition [VSIdentidadGenero](src/VS/VSIdentidadGenero.MD)
-- Profile definition [PatientChileno](src/Profiles/PacienteCl.MD)
+- Profile definition [PacienteCl](src/Profiles/Resources/PacienteCl.MD)
 
 Ask Claude to generate the FHIR resource for the definition in the markdown file.
 
