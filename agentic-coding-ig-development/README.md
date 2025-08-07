@@ -38,12 +38,11 @@ This project demonstrates how the Aidbox FHIR Server enables LLMs to immediately
    ```
 
 3. **Initialize Aidbox:**
-   - Open http://localhost:8888 in your browser
+   - Open http://localhost:8080 in your browser
    - Log in and initialize the instance with your Aidbox account
    - The [init bundle](https://www.health-samurai.io/docs/aidbox/configuration/init-bundle) automatically configures:
-     - Basic authentication (`basic:secret`)
-     - Access policies for DELETE operations and $sql queries
-
+     - Client with Basic authentication (`basic:secret`)
+     - Access policies for the client
 ## Project Structure
 
 ```
@@ -79,7 +78,7 @@ Write requirements in natural language markdown files in the `src` directory.
 Couple of examples: 
 - CodeSystem definition [CSIdentidadGenero](src/CS/CSIdentidadGenero.MD)
 - ValueSet definition [VSIdentidadGenero](src/VS/VSIdentidadGenero.MD)
-- Profile definition [PatientChileno](src/Profiles/PatientChileno.MD)
+- Profile definition [PatientChileno](src/Profiles/PacienteCl.MD)
 
 Ask Claude to generate the FHIR resource for the definition in the markdown file.
 
@@ -125,7 +124,16 @@ claude
 > /test-profile PatientChileno
 ```
 
-If there are any issues you can iterate on the resources and test them again.
+Take a look at the test cases that were generated in the test directory:
+
+- [test-cs.http](test/CS/CSIdentidadGenero.http)
+- [test-vs.http](test/VS/VSIdentidadGenero.http)
+- [test-profile.http](test/Profiles/PacienteCl.http)
+
+Each test run provides a detailed log of executing the test cases - you should be able to see the log files next to the `.http` file.
+
+The stable `.http` file with all the test cases gives you the ability to rerun all the test cases manually when needed and enables the LLM to iterate on fixing any issues that arise.
+
 
 ### 3. Implementation Guide Publication
 
