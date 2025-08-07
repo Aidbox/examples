@@ -1,6 +1,11 @@
 # Agentic FHIR Implementation Guide Development
 
-This project demonstrates AI-assisted development of a FHIR Implementation Guide (IG) for Chilean healthcare systems using Claude Code. It showcases how agentic development can accelerate FHIR IG creation while maintaining best practices and quality standards.
+Traditional FHIR Implementation Guide development is complex and time-consuming. Creating and validating FHIR StructureDefinition resources and terminology resources requires deep technical expertise, which led to the development of additional tooling like the FSH (FHIR Shorthand) language.
+
+With the advent of Large Language Models, we can now explore a different approach: **describing all profiles, code systems, and value sets in natural language and having an LLM generate the complete Implementation Guide from those descriptions.**
+
+This project demonstrates how the Aidbox FHIR Server enables LLMs to immediately test and validate each generated resource, creating a seamless AI-assisted development workflow for FHIR Implementation Guides.
+
 
 ## Key Features
 
@@ -9,7 +14,6 @@ This project demonstrates AI-assisted development of a FHIR Implementation Guide
 - **Integrated Testing Environment**: Local Aidbox FHIR server for real-time validation and testing
 - **Comprehensive Test Suite**: HTTP-based automated testing for all resource types
 - **Publication Ready**: Direct integration with HL7 FHIR IG Publisher
-
 
 
 ## Prerequisites
@@ -40,60 +44,6 @@ This project demonstrates AI-assisted development of a FHIR Implementation Guide
      - Basic authentication (`basic:secret`)
      - Access policies for DELETE operations and $sql queries
 
-4. **Verify setup:**
-   - FHIR Server: http://localhost:8080/fhir
-   - Use authentication: `Basic basic:secret`
-
-## Development Workflow
-
-The project follows an AI-assisted development pattern using Claude Code's custom commands:
-
-### 1. Resource Specification
-Write requirements in natural language markdown files in the `src` directory.
-Ask Claude to generate the FHIR resource for the definition in the markdown file.
-
-```bash
-claude  
-> Generate FHIR resource for CSIdentidadGenero codesystem
-```
-
-### 2. Resource Generation & Testing  
-Use Claude Code commands for iterative development:
-
-**Test CodeSystems:**
-```bash
-claude
-> /test-cs CSIdentidadGenero
-```
-
-**Test ValueSets:**
-```bash
-claude  
-> /test-vs VSIdentidadGenero
-```
-
-**Test Profiles:**
-```bash
-claude
-> /test-profile PatientChileno
-```
-
-### 3. Implementation Guide Publication
-Generate and publish the complete IG:
-```bash
-claude
-> /publish-ig
-```
-
-### 4. Review Published IG
-View the final implementation guide:
-```bash
-claude  
-> /view-ig
-```
-
-Each step validates resources against the FHIR specification and Chilean healthcare standards, ensuring quality before moving to the next phase.
-
 ## Project Structure
 
 ```
@@ -120,17 +70,86 @@ agentic-coding-ig-development/
     └── *.http                  # Individual test files
 ```
 
-## Custom Claude Code Commands
+## Development Workflow
 
-The `.claude/commands/` directory contains specialized commands for FHIR IG development:
+### 1. Generation of the FHIR Resources from the MD definitions.
 
-| Command | Purpose |
-|---------|---------|
-| `/test-cs` | Validate CodeSystem resources against FHIR server |
-| `/test-vs` | Validate ValueSet resources and expansion |
-| `/test-profile` | Test StructureDefinition profiles with sample data |
-| `/publish-ig` | Generate complete IG using HL7 FHIR Publisher |
-| `/view-ig` | Open published IG in browser for review |
+Write requirements in natural language markdown files in the `src` directory.
+
+Couple of examples: 
+- CodeSystem definition [CSIdentidadGenero](src/CS/CSIdentidadGenero.MD)
+- ValueSet definition [VSIdentidadGenero](src/VS/VSIdentidadGenero.MD)
+- Profile definition [PatientChileno](src/Profiles/PatientChileno.MD)
+
+Ask Claude to generate the FHIR resource for the definition in the markdown file.
+
+
+```bash
+claude  
+> Generate FHIR resource for CSIdentidadGenero codesystem
+```
+
+Check the generated resources in the `target` directory.
+Couple of examples: 
+- CodeSystem definition [CSIdentidadGenero](target/CS/CSIdentidadGenero.json)
+- ValueSet definition [VSIdentidadGenero](target/VS/VSIdentidadGenero.json)
+- Profile definition [PacienteCl](target/Profiles/PacienteCl.json)
+
+
+### 2. Resource Testing  
+We need to **test** the generated resources and it's very easy to do that with Aidbox FHIR Server.
+
+The testing methodology is described in the following commands:
+
+- [test-cs.md](.claude/commands/test-cs.md) - test CodeSystem resources against FHIR server
+- [test-vs.md](.claude/commands/test-vs.md) - test ValueSet resources and expansion
+- [test-profile.md](.claude/commands/test-profile.md) - test StructureDefinition profiles with sample data
+
+Ask Claude to test the resources:
+
+**Test CodeSystems:**
+```bash
+claude
+> /test-cs CSIdentidadGenero
+```
+
+**Test ValueSets:**
+```bash
+claude  
+> /test-vs VSIdentidadGenero
+```
+
+**Test Profiles:**
+```bash
+claude
+> /test-profile PatientChileno
+```
+
+If there are any issues you can iterate on the resources and test them again.
+
+### 3. Implementation Guide Publication
+
+Once we are happy with the results, we can generate the Implementation Guide.
+The following command will generate all the required HTML files with the IG content and put them to `ig-publisher/output` folder:
+
+- [publish-ig.md](.claude/commands/publish-ig.md) 
+
+
+Generate and publish the complete IG:
+```bash
+claude
+> /publish-ig
+```
+
+### 4. Review Published IG
+Once the IG is generated, we can view it in the browser.
+
+- [view-ig.md](.claude/commands/view-ig.md) 
+
+```bash
+claude  
+> /view-ig
+```
 
 ## AI Assistant Configuration
 
