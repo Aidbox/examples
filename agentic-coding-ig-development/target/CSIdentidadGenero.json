@@ -1,0 +1,63 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "CSIdentidadGenero",
+  "url": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+  "version": "0.1.0",
+  "name": "CSIdentidadGenero",
+  "title": "Codes for Gender Identity (DEIS)",
+  "status": "active",
+  "experimental": true,
+  "date": "2025-08-04",
+  "publisher": "TESTCOMPANY",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "CL",
+          "display": "Chile"
+        }
+      ]
+    }
+  ],
+  "description": "This system provides structured identifiers representing gender identity according to Chilean health standards (DEIS).",
+  "caseSensitive": true,
+  "content": "complete",
+  "concept": [
+    {
+      "code": "1",
+      "display": "Masculino (Male)",
+      "definition": "Assigned male at birth, identifies as male (cisgender male)"
+    },
+    {
+      "code": "2",
+      "display": "Femenina (Female)",
+      "definition": "Assigned female at birth, identifies as female (cisgender female)"
+    },
+    {
+      "code": "4",
+      "display": "Transgénero Masculino (Trans Man)",
+      "definition": "Assigned female at birth, identifies as male"
+    },
+    {
+      "code": "5",
+      "display": "Transgénero Femenina (Trans Woman)",
+      "definition": "Assigned male at birth, identifies as female"
+    },
+    {
+      "code": "6",
+      "display": "No binarie (Non-binary)",
+      "definition": "Does not identify exclusively as female or male"
+    },
+    {
+      "code": "7",
+      "display": "Otra (Other)",
+      "definition": "Gender identity not previously listed"
+    },
+    {
+      "code": "8",
+      "display": "No Revelado (Not Disclosed)",
+      "definition": "Prefers not to disclose gender identity"
+    }
+  ]
+}

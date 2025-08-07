@@ -1,0 +1,40 @@
+@fhirServer = http://localhost:8080/fhir
+@auth = Basic YmFzaWM6c2VjcmV0
+
+### 1. Create CodeSystem CSIdentidadGenero
+PUT {{fhirServer}}/CodeSystem/CSIdentidadGenero
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/CSIdentidadGenero.json
+
+### 2. Create ValueSet VSIdentidadGenero
+PUT {{fhirServer}}/ValueSet/VSIdentidadGenero
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/VSIdentidadGenero.json
+
+### 3. Expand ValueSet
+GET {{fhirServer}}/ValueSet/VSIdentidadGenero/$expand
+Authorization: {{auth}}
+
+### 4. Validate code "1" (Masculino)
+GET {{fhirServer}}/ValueSet/VSIdentidadGenero/$validate-code?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=1
+Authorization: {{auth}}
+
+### 5. Validate code "6" (No binarie)
+GET {{fhirServer}}/ValueSet/VSIdentidadGenero/$validate-code?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=6
+Authorization: {{auth}}
+
+### 6. Validate invalid code "99"
+GET {{fhirServer}}/ValueSet/VSIdentidadGenero/$validate-code?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=99
+Authorization: {{auth}}
+
+### 7. Delete ValueSet
+DELETE {{fhirServer}}/ValueSet/VSIdentidadGenero
+Authorization: {{auth}}
+
+### 8. Delete CodeSystem
+DELETE {{fhirServer}}/CodeSystem/CSIdentidadGenero
+Authorization: {{auth}}

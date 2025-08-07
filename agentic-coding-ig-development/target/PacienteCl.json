@@ -1,0 +1,187 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "PacienteCl",
+  "url": "https://interoperability.testcompany.cl/StructureDefinition/PacienteCl",
+  "version": "1.0.0",
+  "name": "PacienteCl",
+  "title": "Patient Profile - PacienteCl",
+  "status": "active",
+  "experimental": false,
+  "date": "2025-08-04",
+  "publisher": "TESTCOMPANY",
+  "description": "Designed to meet Chile's national clinical record needs, the profile extends the base FHIR Patient resource with Chile-specific constraints and extensions such as gender identity, biological sex, nationality, and additional identifiers.",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "CL",
+          "display": "Chile"
+        }
+      ]
+    }
+  ],
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient",
+        "path": "Patient",
+        "short": "Chilean Patient Profile",
+        "definition": "Patient profile for Chilean healthcare system with required extensions and constraints."
+      },
+      {
+        "id": "Patient.extension",
+        "path": "Patient.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        },
+        "min": 2
+      },
+      {
+        "id": "Patient.extension:identidadDeGenero",
+        "path": "Patient.extension",
+        "sliceName": "identidadDeGenero",
+        "short": "Gender Identity Extension",
+        "definition": "Extension to capture the patient's gender identity.",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero"
+            ]
+          }
+        ],
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.extension:sexoBiologico",
+        "path": "Patient.extension",
+        "sliceName": "sexoBiologico",
+        "short": "Biological Sex Extension",
+        "definition": "Extension to capture the patient's biological sex.",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico"
+            ]
+          }
+        ],
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier",
+        "path": "Patient.identifier",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "use"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        },
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier:official",
+        "path": "Patient.identifier",
+        "sliceName": "official",
+        "short": "Official Patient Identifier",
+        "definition": "Official identifier for the patient (e.g., RUN/RUT).",
+        "min": 1,
+        "max": "*",
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier:official.use",
+        "path": "Patient.identifier.use",
+        "min": 1,
+        "fixedCode": "official",
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.identifier:official.value",
+        "path": "Patient.identifier.value",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name",
+        "path": "Patient.name",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "use"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        },
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name:official",
+        "path": "Patient.name",
+        "sliceName": "official",
+        "short": "Official Patient Name",
+        "definition": "Official name of the patient with required components.",
+        "min": 1,
+        "max": "*",
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name:official.use",
+        "path": "Patient.name.use",
+        "min": 1,
+        "fixedCode": "official",
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name:official.family",
+        "path": "Patient.name.family",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name:official.given",
+        "path": "Patient.name.given",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.name:official.prefix",
+        "path": "Patient.name.prefix",
+        "min": 1,
+        "mustSupport": true
+      },
+      {
+        "id": "Patient.telecom",
+        "path": "Patient.telecom",
+        "min": 1,
+        "mustSupport": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+@fhirServer = http://localhost:8080/fhir
+@auth = Basic YmFzaWM6c2VjcmV0
+
+### 1. Create CodeSystem CSSexoBiologico
+PUT {{fhirServer}}/CodeSystem/CSSexoBiologico
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/CSSexoBiologico.json
+
+### 2. Create ValueSet VSSexoBiologico
+PUT {{fhirServer}}/ValueSet/VSSexoBiologico
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/VSSexoBiologico.json
+
+### 3. Expand ValueSet
+GET {{fhirServer}}/ValueSet/VSSexoBiologico/$expand
+Authorization: {{auth}}
+
+### 4. Validate code "1" (Male)
+GET {{fhirServer}}/ValueSet/VSSexoBiologico/$validate-code?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=1
+Authorization: {{auth}}
+
+### 5. Validate code "3" (Intersex)
+GET {{fhirServer}}/ValueSet/VSSexoBiologico/$validate-code?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=3
+Authorization: {{auth}}
+
+### 6. Validate invalid code "10"
+GET {{fhirServer}}/ValueSet/VSSexoBiologico/$validate-code?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=10
+Authorization: {{auth}}
+
+### 7. Delete ValueSet
+DELETE {{fhirServer}}/ValueSet/VSSexoBiologico
+Authorization: {{auth}}
+
+### 8. Delete CodeSystem
+DELETE {{fhirServer}}/CodeSystem/CSSexoBiologico
+Authorization: {{auth}}

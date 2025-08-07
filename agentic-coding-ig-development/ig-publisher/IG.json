@@ -1,0 +1,108 @@
+{
+  "resourceType": "ImplementationGuide",
+  "id": "cl-core-ig",
+  "url": "https://interoperability.testcompany.cl/ImplementationGuide/cl-core-ig",
+  "version": "0.1.0",
+  "name": "ChileanCoreImplementationGuide",
+  "title": "Chilean FHIR Core Implementation Guide",
+  "status": "draft",
+  "experimental": true,
+  "date": "2025-08-06",
+  "publisher": "TESTCOMPANY",
+  "description": "FHIR Implementation Guide for Chilean healthcare systems",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "CL",
+          "display": "Chile"
+        }
+      ]
+    }
+  ],
+  "packageId": "testcompany.cl.core",
+  "fhirVersion": [
+    "4.0.1"
+  ],
+  "definition": {
+    "resource": [
+      {
+        "reference": {
+          "reference": "CodeSystem/CSSexoBiologico"
+        },
+        "name": "Código de Sexo Biológico",
+        "description": "CodeSystem based on Chilean Table 820 for biological sex"
+      },
+      {
+        "reference": {
+          "reference": "CodeSystem/CSIdentidadGenero"
+        },
+        "name": "Código de Identidad de Género",
+        "description": "CodeSystem for gender identity"
+      },
+      {
+        "reference": {
+          "reference": "ValueSet/VSSexoBiologico"
+        },
+        "name": "ValueSet Sexo Biológico",
+        "description": "ValueSet for biological sex codes"
+      },
+      {
+        "reference": {
+          "reference": "ValueSet/VSIdentidadGenero"
+        },
+        "name": "ValueSet Identidad de Género",
+        "description": "ValueSet for gender identity codes"
+      },
+      {
+        "reference": {
+          "reference": "StructureDefinition/SexoBiologico"
+        },
+        "name": "Extensión Sexo Biológico",
+        "description": "Extension for biological sex"
+      },
+      {
+        "reference": {
+          "reference": "StructureDefinition/IdentidadDeGenero"
+        },
+        "name": "Extensión Identidad de Género",
+        "description": "Extension for gender identity"
+      },
+      {
+        "reference": {
+          "reference": "StructureDefinition/PacienteCl"
+        },
+        "name": "Perfil Paciente Chileno",
+        "description": "Chilean Patient profile"
+      }
+    ],
+    "page": {
+      "nameUrl": "toc.html",
+      "title": "Table of Contents",
+      "generation": "html",
+      "page": [
+        {
+          "nameUrl": "index.html",
+          "title": "Home",
+          "generation": "markdown"
+        },
+        {
+          "nameUrl": "artifacts.html",
+          "title": "Artifacts",
+          "generation": "html"
+        }
+      ]
+    },
+    "parameter": [
+      {
+        "code": "copyrightyear",
+        "value": "2025+"
+      },
+      {
+        "code": "releaselabel",
+        "value": "draft"
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "resourceType": "ValueSet",
+  "id": "VSIdentidadGenero",
+  "url": "https://interoperability.testcompany.cl/ValueSet/VSIdentidadGenero",
+  "version": "0.1.0",
+  "name": "VSIdentidadGenero",
+  "title": "Identidad de Género (Gender Identity)",
+  "status": "active",
+  "experimental": true,
+  "date": "2025-08-04",
+  "publisher": "TESTCOMPANY",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "CL",
+          "display": "Chile"
+        }
+      ]
+    }
+  ],
+  "description": "Defines a set of gender identity concepts recognized in Chile, allowing systems to record a patient's self-identified gender. It aligns with CHILE's national health standards (DEIS) for inclusive health data collection.",
+  "compose": {
+    "include": [
+      {
+        "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero"
+      }
+    ]
+  }
+}

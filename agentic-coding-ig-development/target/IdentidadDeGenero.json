@@ -1,0 +1,71 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "IdentidadDeGenero",
+  "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+  "version": "2.0.0",
+  "name": "IdentidadDeGenero",
+  "title": "Identidad de Género Extension",
+  "status": "active",
+  "experimental": true,
+  "date": "2025-08-05",
+  "publisher": "TESTCOMPANY",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "CL",
+          "display": "Chile"
+        }
+      ]
+    }
+  ],
+  "description": "This extension allows representing a patient's gender identity within Chilean health records, distinct from their biological sex. It is designed for use within the Patient resource and supports capturing gender identity in a structured, coded format.",
+  "context": [
+    {
+      "type": "element",
+      "expression": "Patient"
+    }
+  ],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "kind": "complex-type",
+  "abstract": false,
+  "differential": {
+    "element": [
+      {
+        "id": "Extension",
+        "path": "Extension",
+        "short": "Identidad de Género",
+        "definition": "Extension to capture gender identity information for Chilean healthcare systems",
+        "min": 0,
+        "max": "1",
+        "mustSupport": true
+      },
+      {
+        "id": "Extension.extension",
+        "path": "Extension.extension",
+        "max": "0"
+      },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero"
+      },
+      {
+        "id": "Extension.value[x]",
+        "path": "Extension.value[x]",
+        "type": [
+          {
+            "code": "CodeableConcept"
+          }
+        ],
+        "binding": {
+          "strength": "required",
+          "valueSet": "https://interoperability.testcompany.cl/ValueSet/VSIdentidadGenero"
+        }
+      }
+    ]
+  }
+}

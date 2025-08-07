@@ -1,0 +1,546 @@
+@fhirServer = http://localhost:8080/fhir
+@auth = Basic YmFzaWM6c2VjcmV0
+
+### 1. Create CodeSystem CSIdentidadGenero
+PUT {{fhirServer}}/CodeSystem/CSIdentidadGenero
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/CSIdentidadGenero.json
+
+### 2. Create CodeSystem CSSexoBiologico
+PUT {{fhirServer}}/CodeSystem/CSSexoBiologico
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/CSSexoBiologico.json
+
+### 3. Create ValueSet VSIdentidadGenero
+PUT {{fhirServer}}/ValueSet/VSIdentidadGenero
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/VSIdentidadGenero.json
+
+### 4. Create ValueSet VSSexoBiologico
+PUT {{fhirServer}}/ValueSet/VSSexoBiologico
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/VSSexoBiologico.json
+
+### 5. Create StructureDefinition IdentidadDeGenero Extension
+PUT {{fhirServer}}/StructureDefinition/IdentidadDeGenero
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/IdentidadDeGenero.json
+
+### 6. Create StructureDefinition SexoBiologico Extension
+PUT {{fhirServer}}/StructureDefinition/SexoBiologico
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/SexoBiologico.json
+
+### 7. Create StructureDefinition PacienteCl Profile
+PUT {{fhirServer}}/StructureDefinition/PacienteCl
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/PacienteCl.json
+
+### 8. Test valid PacienteCl instance - Complete patient with all required fields
+PUT {{fhirServer}}/Patient/paciente-valid-complete
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "paciente-valid-complete",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+            "code": "1",
+            "display": "Masculino (Male)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico",
+            "code": "1",
+            "display": "Male"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "use": "official",
+      "value": "12345678-9",
+      "system": "http://www.registrocivil.cl/RUN"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "González",
+      "given": ["Juan", "Carlos"],
+      "prefix": ["Mr."]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+56912345678",
+      "use": "mobile"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1990-05-15"
+}
+
+### 9. Test valid PacienteCl instance - Trans woman patient
+PUT {{fhirServer}}/Patient/paciente-trans-woman
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "paciente-trans-woman",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+            "code": "5",
+            "display": "Transgénero Femenina (Trans Woman)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico",
+            "code": "1",
+            "display": "Male"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "use": "official",
+      "value": "98765432-1",
+      "system": "http://www.registrocivil.cl/RUN"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Rodriguez",
+      "given": ["Maria", "Elena"],
+      "prefix": ["Mrs."]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "maria.rodriguez@example.cl"
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1985-12-03"
+}
+
+### 10. Test invalid PacienteCl instance - Missing required IdentidadDeGenero extension (should fail)
+PUT {{fhirServer}}/Patient/paciente-missing-genero
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "paciente-missing-genero",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico",
+            "code": "2",
+            "display": "Female"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "use": "official",
+      "value": "11111111-1",
+      "system": "http://www.registrocivil.cl/RUN"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Lopez",
+      "given": ["Ana"],
+      "prefix": ["Mrs."]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+56987654321"
+    }
+  ]
+}
+
+### 11. Test invalid PacienteCl instance - Missing required SexoBiologico extension (should fail)
+PUT {{fhirServer}}/Patient/paciente-missing-sexo
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "paciente-missing-sexo",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+            "code": "6",
+            "display": "No binarie (Non-binary)"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "use": "official",
+      "value": "22222222-2",
+      "system": "http://www.registrocivil.cl/RUN"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Silva",
+      "given": ["Alex"],
+      "prefix": ["Mx."]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "alex.silva@example.cl"
+    }
+  ]
+}
+
+### 12. Test invalid PacienteCl instance - Missing required identifier (should fail)
+PUT {{fhirServer}}/Patient/paciente-missing-identifier
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "paciente-missing-identifier",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+            "code": "2",
+            "display": "Femenina (Female)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico",
+            "code": "2",
+            "display": "Female"
+          }
+        ]
+      }
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Perez",
+      "given": ["Carmen"],
+      "prefix": ["Mrs."]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+56955555555"
+    }
+  ]
+}
+
+### 13. Test invalid PacienteCl instance - Missing required name (should fail)
+PUT {{fhirServer}}/Patient/paciente-missing-name
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "paciente-missing-name",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+            "code": "7",
+            "display": "Otra (Other)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico",
+            "code": "3",
+            "display": "Intersex"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "use": "official",
+      "value": "33333333-3",
+      "system": "http://www.registrocivil.cl/RUN"
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "patient@example.cl"
+    }
+  ]
+}
+
+### 14. Test invalid PacienteCl instance - Missing required telecom (should fail)
+PUT {{fhirServer}}/Patient/paciente-missing-telecom
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "id": "paciente-missing-telecom",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+            "code": "8",
+            "display": "No Revelado (Not Disclosed)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico",
+            "code": "99",
+            "display": "Unknown"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "use": "official",
+      "value": "44444444-4",
+      "system": "http://www.registrocivil.cl/RUN"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Torres",
+      "given": ["Anonymous"],
+      "prefix": ["N/A"]
+    }
+  ]
+}
+
+### 15. Validate resources without creating them
+POST {{fhirServer}}/Patient/$validate
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "resourceType": "Patient",
+  "meta": {
+    "profile": ["https://interoperability.testcompany.cl/StructureDefinition/PacienteCl"]
+  },
+  "extension": [
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/IdentidadDeGenero",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero",
+            "code": "1",
+            "display": "Masculino (Male)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico",
+            "code": "1",
+            "display": "Male"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "use": "official",
+      "value": "validation-test-123",
+      "system": "http://www.registrocivil.cl/RUN"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "ValidateTest",
+      "given": ["Test"],
+      "prefix": ["Mr."]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+56911111111"
+    }
+  ]
+}
+
+### 16. Clean up - Delete test patients
+DELETE {{fhirServer}}/Patient/paciente-valid-complete
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/Patient/paciente-trans-woman
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/Patient/paciente-missing-genero
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/Patient/paciente-missing-sexo
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/Patient/paciente-missing-identifier
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/Patient/paciente-missing-name
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/Patient/paciente-missing-telecom
+Authorization: {{auth}}
+
+### 17. Clean up - Delete structure definitions
+DELETE {{fhirServer}}/StructureDefinition/PacienteCl
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/StructureDefinition/IdentidadDeGenero
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/StructureDefinition/SexoBiologico
+Authorization: {{auth}}
+
+### 18. Clean up - Delete value sets
+DELETE {{fhirServer}}/ValueSet/VSIdentidadGenero
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/ValueSet/VSSexoBiologico
+Authorization: {{auth}}
+
+### 19. Clean up - Delete code systems
+DELETE {{fhirServer}}/CodeSystem/CSIdentidadGenero
+Authorization: {{auth}}
+
+###
+DELETE {{fhirServer}}/CodeSystem/CSSexoBiologico
+Authorization: {{auth}}
