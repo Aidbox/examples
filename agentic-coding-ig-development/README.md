@@ -58,6 +58,10 @@ agentic-coding-ig-development/
 ├── CLAUDE.md                    # AI assistant configuration
 ├── README.md                    # Project documentation  
 ├── docker-compose.yaml          # FHIR server orchestration
+├── ig-publisher/                # IG publisher configuration
+│   ├── ig.ini
+│   ├── ig.json
+│   └── input/ 
 ├── src/                         # FHIR resource definitions
 │   ├── CS/                     # CodeSystem resources
 │   ├── VS/                     # ValueSet resources
