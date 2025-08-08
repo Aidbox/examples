@@ -21,7 +21,7 @@ This project demonstrates how the Aidbox FHIR Server enables LLMs to immediately
 - [Docker](https://www.docker.com/) and Docker Compose - Container orchestration
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/setup) - Primary tool for AI-assisted IG development  
 - [httpyac](https://httpyac.github.io/) - HTTP client for testing FHIR resources
-- [HL7 FHIR IG Publisher](https://confluence.hl7.org/spaces/FHIR/pages/175618322/IG+Publisher+CLI) - Official FHIR IG publishing tool (`publisher.jar`) - put the publisher.jar in the ig-publisher directory
+- [HL7 FHIR IG Publisher](https://confluence.hl7.org/spaces/FHIR/pages/175618322/IG+Publisher+CLI) - Official FHIR IG publishing tool (`publisher.jar`) - **Download and put** the `publisher.jar` in the `ig-publisher` directory
 - [Aidbox](https://www.health-samurai.io/docs/aidbox/getting-started/run-aidbox-locally) - Local FHIR server for testing and validation
 
 ## Quick Start
