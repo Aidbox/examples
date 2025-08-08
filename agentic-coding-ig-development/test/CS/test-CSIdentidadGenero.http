@@ -1,0 +1,53 @@
+@fhirServer = http://localhost:8080/fhir
+@auth = Basic basic:secret
+
+### Create CSIdentidadGenero CodeSystem
+PUT {{fhirServer}}/CodeSystem/CSIdentidadGenero
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/CSIdentidadGenero.json
+
+### Test $lookup operation for code "1" (Masculino)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=1
+Authorization: {{auth}}
+
+### Test $lookup operation for code "2" (Femenina)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=2
+Authorization: {{auth}}
+
+### Test $lookup operation for code "4" (Transgénero Masculino)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=4
+Authorization: {{auth}}
+
+### Test $lookup operation for code "5" (Transgénero Femenina)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=5
+Authorization: {{auth}}
+
+### Test $lookup operation for code "6" (No binarie)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=6
+Authorization: {{auth}}
+
+### Test $lookup operation for code "7" (Otra)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=7
+Authorization: {{auth}}
+
+### Test $lookup operation for code "8" (No Revelado)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=8
+Authorization: {{auth}}
+
+### Test $lookup operation for invalid code "3" (skipped in sequence)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=3
+Authorization: {{auth}}
+
+### Test $lookup operation for invalid code "999"
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSIdentidadGenero&code=999
+Authorization: {{auth}}
+
+### Verify CodeSystem was created
+GET {{fhirServer}}/CodeSystem/CSIdentidadGenero
+Authorization: {{auth}}
+
+### Delete CSIdentidadGenero CodeSystem
+DELETE {{fhirServer}}/CodeSystem/CSIdentidadGenero
+Authorization: {{auth}}

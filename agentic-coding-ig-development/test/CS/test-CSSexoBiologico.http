@@ -1,0 +1,41 @@
+@fhirServer = http://localhost:8080/fhir
+@auth = Basic basic:secret
+
+### Create CSSexoBiologico CodeSystem
+PUT {{fhirServer}}/CodeSystem/CSSexoBiologico
+Authorization: {{auth}}
+Content-Type: application/json
+
+< ../../target/CSSexoBiologico.json
+
+### Test $lookup operation for code "1" (Male)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=1
+Authorization: {{auth}}
+
+### Test $lookup operation for code "2" (Female)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=2
+Authorization: {{auth}}
+
+### Test $lookup operation for code "3" (Intersex)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=3
+Authorization: {{auth}}
+
+### Test $lookup operation for code "93" (Not reported)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=93
+Authorization: {{auth}}
+
+### Test $lookup operation for code "99" (Unknown)
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=99
+Authorization: {{auth}}
+
+### Test $lookup operation for invalid code "999"
+GET {{fhirServer}}/CodeSystem/$lookup?system=https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico&code=999
+Authorization: {{auth}}
+
+### Verify CodeSystem was created
+GET {{fhirServer}}/CodeSystem/CSSexoBiologico
+Authorization: {{auth}}
+
+### Delete CSSexoBiologico CodeSystem
+DELETE {{fhirServer}}/CodeSystem/CSSexoBiologico
+Authorization: {{auth}}

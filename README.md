@@ -28,6 +28,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [OpenTelemetry](OpenTelemetry/)
 - [FHIRPath Editor](fhirpath-editor/)
 - [Organization-Based Access Control (OrgBAC) Practitioner Application](orgbac-practitioner-application/)
+- [Agentic FHIR Implementation Guide Development](agentic-coding-ig-development/)
 
 ## Documentation
 
