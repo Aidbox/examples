@@ -159,13 +159,13 @@ claude
 > /view-ig
 ```
 
+### 5. (Optional) Load the IG into Aidbox
+Once the IG is generated, you can load it into Aidbox to start using it in your projects.
+
+Navigate to the Aidbox UI -> FAR.
+Click "Import package" button and select the `ig-publisher/output/package.tgz` file.
+
+
 ## AI Assistant Configuration
 
-The `CLAUDE.md` file provides project context to Claude Code, including:
-- **FHIR Standards**: Resource patterns and validation requirements
-- **Chilean Healthcare Context**: Local terminology and regulatory compliance  
-- **Development Workflow**: Testing protocols and quality gates
-- **Canonical URLs**: Standardized `https://interoperability.testcompany.cl/` namespace
-- **Architecture Patterns**: Resource organization and naming conventions
-
-This configuration ensures consistent AI-assisted development aligned with FHIR best practices and project requirements.
+Apart from Claude commands we used above, there's a general configuration file for the Claude in the [CLAUDE.md](CLAUDE.md) file.
