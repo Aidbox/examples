@@ -48,14 +48,14 @@ This project demonstrates how the Aidbox FHIR Server enables LLMs to immediately
 ```
 agentic-coding-ig-development/
 ├── .claude/                     # Claude Code configuration
-│   ├── commands/               # Custom development commands
-│   │   ├── publish-ig.md      # Publish IG using publisher.jar
-│   │   ├── test-cs.md         # Test and validate CodeSystems
-│   │   ├── test-profile.md    # Test and validate Profiles
-│   │   ├── test-vs.md         # Test and validate ValueSets
-│   │   └── view-ig.md         # View published IG in browser
-│   └── settings.local.json    # Local Claude Code settings
-├── CLAUDE.md                    # AI assistant configuration
+│   ├── commands/                # Custom development commands
+│   │   ├── publish-ig.md        # Publish IG using publisher.jar
+│   │   ├── test-cs.md           # Test and validate CodeSystems
+│   │   ├── test-profile.md      # Test and validate Profiles
+│   │   ├── test-vs.md           # Test and validate ValueSets
+│   │   └── view-ig.md           # View published IG in browser
+│   └── settings.local.json      # Local Claude Code settings
+├── CLAUDE.md                    # Claude Code main configuration file
 ├── README.md                    # Project documentation  
 ├── docker-compose.yaml          # FHIR server orchestration
 ├── ig-publisher/                # IG publisher configuration
