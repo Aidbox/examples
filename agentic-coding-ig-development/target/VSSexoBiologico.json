@@ -1,0 +1,31 @@
+{
+  "resourceType": "ValueSet",
+  "id": "VSSexoBiologico",
+  "url": "https://interoperability.testcompany.cl/ValueSet/VSSexoBiologico",
+  "version": "0.1.0",
+  "name": "VSSexoBiologico",
+  "title": "Codes for Biological Sex in Chile",
+  "status": "active",
+  "experimental": true,
+  "date": "2025-08-04",
+  "publisher": "TESTCOMPANY",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "CL",
+          "display": "Chile"
+        }
+      ]
+    }
+  ],
+  "description": "This ValueSet defines a set of codes used to represent biological sex in Chilean healthcare systems. The codes are based on Table 820, as defined by Chilean national standards.",
+  "compose": {
+    "include": [
+      {
+        "system": "https://interoperability.testcompany.cl/CodeSystem/CSSexoBiologico"
+      }
+    ]
+  }
+}

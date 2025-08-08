@@ -1,0 +1,36 @@
+{
+    "type": "batch",
+    "entry": [
+        {
+            "request": {
+              "method": "PUT",
+              "url": "/Client/basic"
+            },
+            "resource": {
+              "resourceType": "Client",
+              "id": "basic",
+              "secret": "secret",
+              "grant_types": [
+                "basic"
+              ]
+            }
+        },
+        {
+        "request": {
+            "method": "PUT",
+            "url": "/AccessPolicy/basic-policy"
+        },
+        "resource": {
+            "resourceType": "AccessPolicy",
+            "id": "basic-policy",
+            "engine": "allow",
+            "link": [
+            {
+                "id": "basic",
+                "resourceType": "Client"
+            }
+            ]
+        }
+        }
+    ]
+  }

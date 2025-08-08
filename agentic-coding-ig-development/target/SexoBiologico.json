@@ -1,0 +1,72 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "SexoBiologico",
+  "url": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico",
+  "version": "2.0.0",
+  "name": "SexoBiologico",
+  "title": "Sexo Biológico Extension",
+  "status": "draft",
+  "experimental": true,
+  "date": "2025-08-05",
+  "publisher": "TESTCOMPANY",
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "CL",
+          "display": "Chile"
+        }
+      ]
+    }
+  ],
+  "description": "Sexo Biologico del paciente. This extension is used to represent the biological sex of a patient in a structured and interoperable way, following healthcare standards relevant in Chile.",
+  "context": [
+    {
+      "type": "element",
+      "expression": "Patient"
+    },
+    {
+      "type": "element",
+      "expression": "Practitioner"
+    }
+  ],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "kind": "complex-type",
+  "abstract": false,
+  "differential": {
+    "element": [
+      {
+        "id": "Extension",
+        "path": "Extension",
+        "short": "Sexo Biológico",
+        "definition": "Extension to capture biological sex information for Chilean healthcare systems"
+      },
+      {
+        "id": "Extension.extension",
+        "path": "Extension.extension",
+        "max": "0"
+      },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "https://interoperability.testcompany.cl/StructureDefinition/SexoBiologico"
+      },
+      {
+        "id": "Extension.value[x]",
+        "path": "Extension.value[x]",
+        "type": [
+          {
+            "code": "CodeableConcept"
+          }
+        ],
+        "binding": {
+          "strength": "preferred",
+          "valueSet": "https://interoperability.testcompany.cl/ValueSet/VSSexoBiologico"
+        }
+      }
+    ]
+  }
+}
