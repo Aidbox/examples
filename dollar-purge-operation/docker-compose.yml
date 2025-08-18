@@ -22,24 +22,32 @@ services:
     ports:
       - 8888:8888
     environment:
-      AIDBOX_TERMINOLOGY_SERVICE_BASE_URL: https://tx.fhir.org/r4
-      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
-      AIDBOX_FHIR_SCHEMA_VALIDATION: true
-      AIDBOX_CREATED_AT_URL: https://aidbox.app/ex/createdAt
-      AIDBOX_CLIENT_SECRET: secret
-      AIDBOX_CORRECT_AIDBOX_FORMAT: true
-      AIDBOX_ADMIN_PASSWORD: cwSgexVsRb
-      AIDBOX_COMPLIANCE: enabled
-      BOX_SEARCH_FHIR__COMPARISONS: true
-      PGHOST: aidbox_db
+      BOX_ADMIN_PASSWORD: cwSgexVsRb
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
       BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: "#{:fhir-datetime}"
-      BOX_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
-      PGUSER: aidbox
-      AIDBOX_PORT: 8888
-      PGDATABASE: aidbox
-      PGPASSWORD: M3ya7uZxdJ
-      PGPORT: "5432"
-      BOX_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_HOST: aidbox_db
+      BOX_DB_PASSWORD: M3ya7uZxdJ
+      BOX_DB_PORT: "5432"
+      BOX_DB_USER: aidbox
+      BOX_FHIR_COMPLIANT_MODE: true
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: true
+      BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
+      BOX_FHIR_SCHEMA_VALIDATION: true
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_FHIR_SEARCH_CHAIN_SUBSELECT: true
+      BOX_FHIR_SEARCH_COMPARISONS: true
+      BOX_FHIR_TERMINOLOGY_ENGINE: hybrid
+      BOX_FHIR_TERMINOLOGY_ENGINE_HYBRID_EXTERNAL_TX_SERVER: https://tx.health-samurai.io/fhir
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
       BOX_INIT_BUNDLE: file:///app/init-bundle.json
+      BOX_MODULE_SDC_STRICT_ACCESS_CONTROL: true
+      BOX_ROOT_CLIENT_SECRET: BQuJmUG7N6
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_SECURITY_AUDIT_LOG_ENABLED: true
+      BOX_SECURITY_DEV_MODE: true
+      BOX_SETTINGS_MODE: read-write
+      BOX_WEB_BASE_URL: http://localhost:8888
+      BOX_WEB_PORT: 8888
     volumes:
       - ./init-bundle.json:/app/init-bundle.json:ro
