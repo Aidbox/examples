@@ -1,11 +1,10 @@
-# Using HAPI Java client with Aidbox FHIR Server
+# Using Firely .NET SDK with Aidbox FHIR Server
 
-This example demonstrates how to use the HAPI FHIR Java client library to create a patient resource in Aidbox.
+This example demonstrates how to use the Firely .NET SDK to create a patient resource in Aidbox.
 
 ## Prerequisites
 
-- Java
-- Maven
+- .NET
 - Docker and Docker Compose
 
 ## Setup and Run
@@ -48,19 +47,19 @@ accept: application/json
 }
 ```
 
-### 3. Build and Run the Java Application
+### 3. Build and Run the .NET Application
 
 ```bash
-mvn clean compile exec:java
+# Build and run the application
+dotnet run
 ```
 
 ## What the Application Does
 
 1. Connects to Aidbox running on `http://localhost:8080`
-2. Uses basic authentication with the basic client credentials
+2. Uses basic authentication with the default basic client credentials
 3. Creates a sample patient with:
    - Name: John Doe
    - Birth date: January 15, 1990
    - Gender: Male
 4. Retrieves the created patient to verify the operation
-

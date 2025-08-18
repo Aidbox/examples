@@ -30,6 +30,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Organization-Based Access Control (OrgBAC) Practitioner Application](orgbac-practitioner-application/)
 - [Agentic FHIR Implementation Guide Development](agentic-coding-ig-development/)
 - [Aidbox HAPI FHIR Client](aidbox-hapi-client/)
+- [Aidbox Firely .NET Client](aidbox-firely-dotnet-client/)
 
 ## Documentation
 
