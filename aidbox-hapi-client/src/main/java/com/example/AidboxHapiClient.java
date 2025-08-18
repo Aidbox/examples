@@ -18,7 +18,7 @@ public class AidboxHapiClient {
             
             FhirContext ctx = FhirContext.forR4();
             
-            IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8080");
+            IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8080/fhir");
             
             // Add basic authentication
             BasicAuthInterceptor authInterceptor = new BasicAuthInterceptor("basic", "secret");
