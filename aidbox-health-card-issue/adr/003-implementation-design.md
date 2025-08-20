@@ -1,7 +1,7 @@
 # ADR-003: Implementation Design for $health-cards-issue Operation
 
 ## Status
-Proposed
+Accepted
 
 ## Context
 Based on the existing architectural decisions (ADR-001 and ADR-002) and SMART Health Cards specification analysis, we need to design a minimal, focused implementation of the `$health-cards-issue` FHIR operation. The implementation should leverage the established Aidbox integration patterns while providing core health card generation functionality.
