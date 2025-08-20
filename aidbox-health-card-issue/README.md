@@ -42,10 +42,10 @@ flowchart LR
 
 1. **Create .env file**
 ```bash
-cp .envexample .env
+cp .env.example .env
 ```
 
-2. **Generate signing keys**:
+2. **Generate signing keys for JWS generation**:
    ```bash
    npm run generate-keys
    ```
