@@ -4,7 +4,7 @@ A minimal TypeScript implementation of the FHIR `$health-cards-issue` operation 
 
 ## Overview
 
-This project implements the [SMART Health Cards specification](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) as a FHIR operation. It retrieves patient health data from Aidbox, sanitizes it according to SMART Health Cards requirements, and generates verifiable health cards in JWS format.
+This project implements the [SMART Health Cards specification](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) as a FHIR operation. It retrieves patient health data from Aidbox, sanitizes it according to SMART Health Cards requirements, and generates verifiable health cards in [JWS](https://datatracker.ietf.org/doc/html/rfc7515) format.
 
 ## Architecture
 
@@ -40,22 +40,30 @@ flowchart LR
 
 ### Running the Application
 
-1. **Generate signing keys**:
+1. **Create .env file**
+```bash
+cp .envexample .env
+```
+
+2. **Generate signing keys**:
    ```bash
    npm run generate-keys
    ```
 
 
-2. **Run docker compose**:
+3. **Run docker compose**:
     ```bash
    docker compose up --build
    ```
 
-3. Navigate to [Aidbox UI](http://localhost:8080) and initialize the Aidbox instance.
+4. **Initialize Aidbox instance**
+Navigate to [Aidbox UI](http://localhost:8080) and initialize the Aidbox instance.
 
 ### Testing Health Cards generation
 
-1. Navigate to  [Aidbox Rest Console](http://localhost:8080/ui/console#/rest)
+1. **Run `$health-cards-issue` operation**
+
+Navigate to  [Aidbox Rest Console](http://localhost:8080/ui/console#/rest) and execute the following request:
 
 ```http
 POST /fhir/Patient/example-patient/$health-cards-issue
@@ -97,94 +105,7 @@ Example response:
 
 ```
 
-2. Extract the `valueString`
-
-### JWKS Endpoint
-```http
-GET /.well-known/jwks.json
-```
-
-Returns the public key set for verifying health card signatures.
-
-## Available Scripts
-
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run test` - Run tests
-- `npm run lint` - Run ESLint with auto-fix
-- `npm run generate-keys` - Generate new signing keys
-
-## Configuration
-
-Create a `.env` file:
-
-```bash
-# SMART Health Cards Configuration
-JWT_ISSUER_ID=https://your-domain.com/issuer
-JWT_PRIVATE_KEY_PATH=./keys/private-key.pem
-JWT_PUBLIC_KEY_PATH=./keys/public-key.pem
-JWT_KID=auto-generated
-
-# Aidbox Configuration
-AIDBOX_BASE_URL=http://localhost:8080
-AIDBOX_CLIENT_ID=basic
-AIDBOX_CLIENT_SECRET=secret
-
-# Application Configuration
-APP_PORT=3000
-NODE_ENV=development
-```
-
-## SMART Health Cards Compliance
-
-This implementation follows the SMART Health Cards specification:
-
-- **JWS Format**: ES256 algorithm signatures
-- **Data Minimization**: Removes non-essential fields (id, meta, text, display)
-- **FHIR Bundle**: Collection-type bundles with patient and clinical resources
-- **JWKS Endpoint**: Public key discovery for verification
-- **Credential Types**: Supports Immunization and Observation resources
-
-## Project Structure
-
-```
-src/
-├── handlers/          # FHIR operation handlers
-├── services/          # Core business logic
-│   ├── bundle-builder.ts    # FHIR bundle creation & sanitization
-│   ├── fhir-client.ts       # Aidbox API client
-│   ├── health-card.ts       # Health card generation
-│   └── jwks.ts              # JWKS service
-├── types/             # TypeScript definitions
-├── utils/             # Shared utilities
-│   ├── crypto.ts            # JWT signing
-│   ├── key-utils.ts         # Key ID generation
-│   └── credential-utils.ts  # Credential validation
-└── server.ts          # Express application
-
-scripts/
-└── generate-keys.ts   # Cryptographic key generation
-```
-
-## Dependencies
-
-**Runtime:**
-- `express` - Web server
-- `axios` - HTTP client for Aidbox API
-- `jose` - JWT/JWS operations
-- `cors` - CORS middleware
-- `dotenv` - Environment configuration
-
-**Development:**
-- `typescript` - Type checking
-- `eslint` - Code linting
-- `jest` - Testing framework
-- `nodemon` - Development server
-
-
-
-```json
-
-
-```
+2. **Test the JWS**
+Extract the `valueString` element and decode the JWT using `https://www.jwt.io/`
+The decoded payload in the HealthCard should match the data you pre-loaded into Aidbox using  [init-bundle](/init-bindle/bundle.json)
+To validate the signature, retrieve the public key from [http://localhost:8080/.well-known/jwks.json](http://localhost:8080/.well-known/jwks.json)

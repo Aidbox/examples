@@ -61,6 +61,12 @@
       }
     },
     {
+      "request": {
+        "method": "POST",
+        "url": "$drop-cache"
+      }
+    },
+    {
       "resource": {
         "resourceType": "Patient",
         "id": "example-patient",
