@@ -3,6 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { loadConfig } from './types/config';
 import { HealthCardsHandler } from './handlers/health-cards';
+import { JWKSHandler } from './handlers/jwks';
 import { JWKSService } from './services/jwks';
 
 const app = express();
@@ -21,6 +22,7 @@ const jwksService = new JWKSService({
   publicKeyPath: config.jwks.publicKeyPath,
   issuer: config.healthCards.issuer,
 });
+const jwksHandler = new JWKSHandler(jwksService);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -32,44 +34,28 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// JWKS endpoint - SMART Health Cards compliance
-app.get('/.well-known/jwks.json', (req: Request, res: Response) => {
-  try {
-    const jwks = jwksService.getJWKS();
-    
-    // Set CORS headers for cross-origin access
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    
-    // Set caching headers (24 hours)
-    res.header('Cache-Control', 'public, max-age=86400');
-    res.header('Expires', new Date(Date.now() + 86400000).toUTCString());
-    
-    // Set content type
-    res.header('Content-Type', 'application/json');
-    
-    res.status(200).json(jwks);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('JWKS endpoint error:', error);
-    
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to generate JWKS'
-    });
-  }
-});
-
 // Main operation endpoint - matches Aidbox App configuration
 app.post('/health-cards-issue', (req: Request, res: Response) => {
-  healthCardsHandler.handleHealthCardsIssue(req, res);
+  const operationId = req.body.operation.id;
+  switch (operationId) {
+    case 'health-cards-issue':
+      healthCardsHandler.handleHealthCardsIssue(req, res);
+      break;
+    case 'well-known-jwks':
+      jwksHandler.handleWellKnownJWKS(req, res);
+      break;
+    default:
+      res.status(400).json({
+        error: 'Bad request',
+        message: `Unsupported operation: ${operationId}`
+      });
+  }
 });
 
 // Error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled error:', error);
-  
+
   res.status(500).json({
     resourceType: 'OperationOutcome',
     issue: [{
@@ -100,7 +86,7 @@ async function startServer() {
     // Initialize JWKS service
     await jwksService.initialize();
     console.log('JWKS service initialized successfully');
-    
+
     // Start the Express server
     app.listen(PORT, () => {
       console.log(`Health Cards service started on port ${PORT}`);

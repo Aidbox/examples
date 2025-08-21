@@ -47,6 +47,7 @@ cp .env.example .env
 
 2. **Generate signing keys for JWS generation**:
    ```bash
+   npm install
    npm run generate-keys
    ```
 
@@ -57,7 +58,7 @@ cp .env.example .env
    ```
 
 4. **Initialize Aidbox instance**
-Navigate to [Aidbox UI](http://localhost:8080) and initialize the Aidbox instance.
+Navigate to [Aidbox UI](http://localhost:8080) and [initialize](https://docs.aidbox.app/getting-started/run-aidbox-locally#id-4.-activate-your-aidbox-instance) the Aidbox instance.
 
 ### Testing Health Cards generation
 
@@ -108,4 +109,4 @@ Example response:
 2. **Test the JWS**
 Extract the `valueString` element and decode the JWT using `https://www.jwt.io/`
 The decoded payload in the HealthCard should match the data you pre-loaded into Aidbox using  [init-bundle](/init-bindle/bundle.json)
-To validate the signature, retrieve the public key from [http://localhost:8080/.well-known/jwks.json](http://localhost:8080/.well-known/jwks.json)
+To validate the signature, retrieve the public key from [http://localhost:8080/health-cards-app/.well-known/jwks.json](http://localhost:8080/health-cards-app/.well-known/jwks.json)

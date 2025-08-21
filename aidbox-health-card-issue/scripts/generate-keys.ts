@@ -34,10 +34,10 @@ async function generateKeys(): Promise<void> {
 
     // Export public key as JWK
     const jwk = await jose.exportJWK(publicKey);
-    
+
     // Generate consistent key ID using shared utility
     const keyId = generateKeyId(publicKeyPem);
-    
+
     // Add required fields for SMART Health Cards
     const healthCardJwk = {
       ...jwk,
@@ -53,10 +53,6 @@ async function generateKeys(): Promise<void> {
 
 
     console.log('✅ Key generation completed successfully!');
-    console.log('Next steps:');
-    console.log('1. Update your .env file with the key paths');
-    console.log('2. Ensure the keys directory is secured and backed up');
-    console.log('3. Consider implementing key rotation for production');
 
   } catch (error) {
     console.error('Failed to generate keys:', error);

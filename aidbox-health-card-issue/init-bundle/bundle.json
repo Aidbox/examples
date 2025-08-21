@@ -38,7 +38,7 @@
         "type": "app",
         "apiVersion": 1,
         "endpoint": {
-          "url": "http://host.docker.internal:3000/health-cards-issue",
+          "url": "http://health-cards-app:3000/health-cards-issue",
           "secret": "health-cards-app-secret"
         },
         "operations": {
@@ -48,6 +48,7 @@
           },
           "well-known-jwks": {
             "path": [
+              "health-cards-app",
               ".well-known",
               "jwks.json"
             ],
