@@ -31,6 +31,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Agentic FHIR Implementation Guide Development](agentic-coding-ig-development/)
 - [Aidbox HAPI FHIR Client](aidbox-hapi-client/)
 - [Aidbox Firely .NET Client](aidbox-firely-dotnet-client/)
+- [Aidbox Health Card Issue](aidbox-health-card-issue/)
 
 ## Documentation
 
