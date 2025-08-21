@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Source control
+.git
+.gitignore
+
+# Environment files (use env vars or mounted configs instead)
+.env*
+!.env.example
+
+# Test files and coverage
+test
+tests
+**/*.test.ts
+**/*.spec.ts
+coverage
+.nyc_output
+jest.config.js
+
+# Build artifacts
+dist
+.cache
+
+# Development files
+.vscode
+.DS_Store
+*.log
+temp
+nodemon.json
+
+# Documentation (comment out if you want to include)
+README.md
+docs
+adr
+
+# Docker files (don't include in image)
+Dockerfile*
+docker-compose*.yaml
+.dockerignore
