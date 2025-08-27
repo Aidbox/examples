@@ -1,3 +1,7 @@
+---
+features: [fhir sdc, structured data capture, questionnaire, api, forms]
+languages: [yaml]
+---
 # FHIR SDC API in Aidbox
 
 This demo shows how to use [FHIR SDC Api](https://hl7.org/fhir/uv/sdc/) in Aidbox via Aidbox Forms module.

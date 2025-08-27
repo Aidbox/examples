@@ -1,3 +1,7 @@
+---
+features: [cql, custom operations, spring boot, fhir operations, clinical decision support]
+languages: [java]
+---
 # Aidbox CQL Integration with Spring Boot Example
 
 This Spring Boot sample application uses the [CQL Java engine](https://github.com/cqframework/clinical_quality_language) and implements the [$evaluate](https://build.fhir.org/ig/HL7/cql-ig/OperationDefinition-cql-library-evaluate.html) operation.

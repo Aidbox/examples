@@ -1,3 +1,7 @@
+---
+features: [forms renderer, controlled, questionnaire, angular, web components]
+languages: [html]
+---
 # aidbox-forms-renderer-angular-controlled
 
 In controlled mode, integrating the Aidbox Forms Renderer with Angular.js

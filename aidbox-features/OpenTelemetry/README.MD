@@ -1,3 +1,7 @@
+---
+features: [observability, opentelemetry, monitoring, logs, metrics]
+languages: [yaml]
+---
 # OpenTelemetry
 
 This demo helps you to launch and explore the Aidbox observability features locally.

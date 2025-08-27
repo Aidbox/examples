@@ -1,3 +1,7 @@
+---
+features: [ips, chile localization, fhir ig, international patient summary, narrative generation]
+languages: [typescript]
+---
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
 This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.

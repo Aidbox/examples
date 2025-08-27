@@ -1,3 +1,7 @@
+---
+features: [fhir ig, ai assisted, claude code, implementation guide, markdown]
+languages: [markdown]
+---
 # Agentic FHIR Implementation Guide Development
 
 Traditional FHIR Implementation Guide development is complex and time-consuming. Creating and validating FHIR StructureDefinition resources and terminology resources requires deep technical expertise, which led to the development of additional tooling like the FSH (FHIR Shorthand) language.

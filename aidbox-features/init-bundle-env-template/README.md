@@ -1,3 +1,7 @@
+---
+features: [configuration, init bundle, environment variables, templating, setup]
+languages: [yaml]
+---
 # Init Bundle Environment Template
 
 This example demonstrates how to dynamically template Aidbox init bundles using environment variables in Docker Compose by overriding the container entrypoint.

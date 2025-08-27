@@ -1,3 +1,7 @@
+---
+features: [custom renderer, forms builder, questionnaire, template, customization]
+languages: [javascript]
+---
 # Custom Renderer Tutorial for Aidbox Forms Builder
 
 This tutorial demonstrates how connect a custom renderer to the Aidbox Forms Builder preview.

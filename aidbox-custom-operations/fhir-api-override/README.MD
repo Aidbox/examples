@@ -1,3 +1,7 @@
+---
+features: [api override, custom operations, fastify, app framework, fhir extensions]
+languages: [typescript]
+---
 # Aidbox: Override default FHIR endpoint
 
 This example demonstrates how to use the Aidbox FHIR server to replace the default behavior of FHIR endpoints with your own custom logic. Aidbox provides the ["App" functionality](https://docs.aidbox.app/app-development/aidbox-sdk/apps), which allows you to create an App entity and define new operations or override existing ones for any FHIR resource. With this approach, you can implement and manage custom logic for standard FHIR operations directly within your service.

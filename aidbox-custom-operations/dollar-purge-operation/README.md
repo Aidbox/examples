@@ -1,3 +1,7 @@
+---
+features: [purge operation, custom operations, async operations, data deletion, fhir operations]
+languages: [typescript]
+---
 # FHIR $purge Operation with Aidbox
 
 This example demonstrates the implementation of the [FHIR $purge operation](https://build.fhir.org/patient-operation-purge.html) using TypeScript and Aidbox. The $purge operation removes all current and historical versions of resources associated with a specific patient.

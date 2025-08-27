@@ -1,3 +1,7 @@
+---
+features: [kafka, subscriptions, event streaming, questionnaire response, topic based]
+languages: [yaml]
+---
 # Topic-based Subscriptions to Kafka
 [Demo](#demo) | [Documentation](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=app-examples&utm_medium=readme)
 

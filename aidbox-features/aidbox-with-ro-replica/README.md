@@ -1,3 +1,7 @@
+---
+features: [postgresql, read replica, performance, scalability, database]
+languages: [bash]
+---
 # PostgreSQL Read-Only Replica for Aidbox
 
 This guide demonstrates how to set up Aidbox with a PostgreSQL primary database and read-only replica, and how to configure Aidbox to direct read-only queries to the replica.

@@ -1,3 +1,7 @@
+---
+features: [orgbac, jwt auth, practitioner app, nextjs, role based access]
+languages: [typescript]
+---
 # Aidbox Organization-Based Access Control (OrgBAC) Practitioner Application
 
 This is a complete example application demonstrating how to build a practitioner-facing healthcare application using Aidbox with Organization-Based Access Control (OrgBAC). The application showcases JWT authentication, organization-scoped data access, and FHIR R4 resource management.

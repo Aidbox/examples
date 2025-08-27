@@ -1,3 +1,7 @@
+---
+features: [forms builder, controlled, questionnaire, angular, web components]
+languages: [html]
+---
 # aidbox-forms-builder-angular-controlled
 
 In controlled mode, integrating the Aidbox Forms Builder with Angular.js

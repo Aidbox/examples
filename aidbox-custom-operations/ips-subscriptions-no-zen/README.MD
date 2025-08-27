@@ -1,3 +1,7 @@
+---
+features: [ips, subscriptions, event driven, international patient summary, no zen]
+languages: [typescript]
+---
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
 This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:

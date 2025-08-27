@@ -1,3 +1,7 @@
+---
+features: [ips, international patient summary, fhir ig, summary operation, narrative generation]
+languages: [typescript]
+---
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
 [Demo](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)

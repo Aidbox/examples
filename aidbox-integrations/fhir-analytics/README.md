@@ -1,3 +1,7 @@
+---
+features: [analytics, metabase, sql on fhir, data visualization, risk assessment]
+languages: [yaml]
+---
 # FHIR Analytics with Aidbox and Metabase
 
 Use SQL on FHIR on sample risk assessment form with Aidbox and visualize data with Metabase.

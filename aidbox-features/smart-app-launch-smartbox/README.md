@@ -1,3 +1,7 @@
+---
+features: [smart on fhir, growth chart, aidbox only, app launch, fhir client]
+languages: [yaml]
+---
 # Example: SMART App Launch using Smartbox and Keycloak
 
 This example showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html).

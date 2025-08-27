@@ -1,3 +1,7 @@
+---
+features: [forms builder, flutter, web, questionnaire, cross platform]
+languages: [dart]
+---
 # aidbox-forms-flutter-web
 
 Example of integration Aidbox Forms Builder with Flutter Web

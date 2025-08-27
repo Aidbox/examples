@@ -1,3 +1,7 @@
+---
+features: [smart health cards, custom operations, jwks, jws signing, fhir operations]
+languages: [typescript]
+---
 # SMART Health Cards Issue Operation
 
 A minimal TypeScript implementation of the FHIR `$health-cards-issue` operation that integrates with Aidbox to generate SMART Health Cards from patient health data.

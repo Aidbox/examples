@@ -1,3 +1,7 @@
+---
+features: [custom resources, notifications, fhir schema, workflow, automation]
+languages: [javascript]
+---
 # Aidbox Notify via Custom Resources
 
 [Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)

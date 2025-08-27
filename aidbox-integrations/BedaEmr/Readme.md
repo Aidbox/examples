@@ -1,3 +1,7 @@
+---
+features: [beda emr, ehr integration, electronic medical record, healthcare, integration]
+languages: [yaml]
+---
 # BedaEMR
 
 Runs on [Aidbox FHIR platform](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo)

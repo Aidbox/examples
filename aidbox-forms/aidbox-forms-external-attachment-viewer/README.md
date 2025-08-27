@@ -1,3 +1,7 @@
+---
+features: [attachments, dicom, external viewer, multimedia, forms]
+languages: [html]
+---
 # Integrating external attachment preview tool
 
 Example of integration Aidbox Forms Renderer with React.js

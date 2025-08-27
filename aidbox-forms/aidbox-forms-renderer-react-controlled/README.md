@@ -1,3 +1,7 @@
+---
+features: [forms renderer, controlled, questionnaire, react, web components]
+languages: [html]
+---
 # aidbox-forms-renderer-react-controlled
 
 In controlled mode, integrating the Aidbox Forms Renderer with React involves 

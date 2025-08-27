@@ -1,3 +1,7 @@
+---
+features: [forms renderer, questionnaire, react, web components, fhir forms]
+languages: [html]
+---
 # aidbox-forms-renderer-react
 
 Example of integration Aidbox Forms Renderer with React.js

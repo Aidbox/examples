@@ -1,3 +1,7 @@
+---
+features: [smart on fhir, keycloak, growth chart, ehr launch, patient launch]
+languages: [yaml]
+---
 # SMART App Launch with Aidbox and Keycloak
 
 This demo showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html). 

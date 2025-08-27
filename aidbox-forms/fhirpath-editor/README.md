@@ -1,3 +1,7 @@
+---
+features: [fhirpath, editor, query language, expression, testing]
+languages: [html]
+---
 # FHIRPath Editor - Moved
 
 This project has been moved to its own repository.

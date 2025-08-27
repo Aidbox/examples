@@ -1,3 +1,7 @@
+---
+features: [forms builder, questionnaire, angular, web components, fhir forms]
+languages: [html]
+---
 # aidbox-forms-builder-angular
 
 Example of integration Aidbox Forms Builder with Angular.js

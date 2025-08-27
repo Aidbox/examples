@@ -1,5 +1,6 @@
 ---
-tags: [s3, storage, typescript]
+features: [s3, storage, attachments, nextjs, presigned urls]
+languages: [typescript]
 ---
 # AWS S3 Aidbox integration example
 ![image](https://github.com/user-attachments/assets/fb3026ef-be1f-4ef8-845e-064e463adb0f)

@@ -1,3 +1,7 @@
+---
+features: [hapi fhir, fhir client, maven, patient creation, java client]
+languages: [java]
+---
 # Using HAPI Java client with Aidbox FHIR Server
 
 This example demonstrates how to use the HAPI FHIR Java client library to create a patient resource in Aidbox.
