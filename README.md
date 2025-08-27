@@ -2,36 +2,56 @@
 
 A collection of examples on top of Aidbox FHIR platform
 
-## Examples
+## Aidbox Forms
 
-- [Implementation of International Patient Summary Implementation Guide](ips_ig/)
-- [Aidbox Forms Builder with Flutter web](aidbox-forms-builder-flutter-web/)
-- [Aidbox Forms Builder with Angular.js](aidbox-forms-builder-angular/)
-- [Aidbox Forms Builder with Angular.js in controlled mode](aidbox-forms-builder-angular-controlled/)
-- [Aidbox Forms Renderer with Angular.js](aidbox-forms-renderer-angular/)
-- [Multiple instances Aidbox Forms Renderer with Angular.js](aidbox-forms-two-renderers-angular/)
-- [Aidbox Forms Renderer with Angular.js in controlled mode](aidbox-forms-renderer-angular-controlled/)
-- [Aidbox Forms Renderer with React.js](aidbox-forms-renderer-react/)
-- [Aidbox Forms Renderer with React.js in controlled mode](aidbox-forms-renderer-react-controlled/)
-- [Aidbox Forms Smart App Launch](aidbox-forms-smart-launch-2/)
-- [Aidbox Notify via Custom Resources](aidbox-notify-via-custom-resources/)
-- [Topic-Based Subscription to Kafka](aidbox-subscriptions-to-kafka/)
-- [SMART App Launch with Aidbox and Keycloak](smart-app-launch/)
-- [SMART App Launch with Smartbox and Keycloak](smart-app-launch-smartbox/)
-- [IPS $summary implementation](ips-ig/)
-- [IPS Chile $summary implementation](ips-ig-cl/)
-- [IPS $summary implementation with FHIR Topic-Based Subscriptions](ips-subscriptions/)
-- [IPS $summary implementation with Aidbox Topic-Based Subscriptions](ips-subscriptions-no-zen/)
-- [CQL Java engine integration](cql-java-engine-integration)
-- [AWS S3 Aidbox integration](aws-s3-aidbox-integration)
-- [FHIR SDC API in AIdbox](fhir-sdc-api/)
-- [OpenTelemetry](OpenTelemetry/)
-- [FHIRPath Editor](fhirpath-editor/)
-- [Organization-Based Access Control (OrgBAC) Practitioner Application](orgbac-practitioner-application/)
-- [Agentic FHIR Implementation Guide Development](agentic-coding-ig-development/)
-- [Aidbox HAPI FHIR Client](aidbox-hapi-client/)
-- [Aidbox Firely .NET Client](aidbox-firely-dotnet-client/)
-- [Aidbox Health Card Issue](aidbox-health-card-issue/)
+- [Aidbox Forms Builder with Angular.js](aidbox-forms/aidbox-forms-builder-angular/)
+- [Aidbox Forms Builder with Angular.js in controlled mode](aidbox-forms/aidbox-forms-builder-angular-controlled/)
+- [Aidbox Forms Builder with custom renderer](aidbox-forms/aidbox-forms-builder-custom-renderer/)
+- [Aidbox Forms Builder with Flutter web](aidbox-forms/aidbox-forms-builder-flutter-web/)
+- [Aidbox Forms external attachment viewer](aidbox-forms/aidbox-forms-external-attachment-viewer/)
+- [Aidbox Forms Renderer with Angular.js](aidbox-forms/aidbox-forms-renderer-angular/)
+- [Aidbox Forms Renderer with Angular.js in controlled mode](aidbox-forms/aidbox-forms-renderer-angular-controlled/)
+- [Aidbox Forms Renderer with React.js](aidbox-forms/aidbox-forms-renderer-react/)
+- [Aidbox Forms Renderer with React.js in controlled mode](aidbox-forms/aidbox-forms-renderer-react-controlled/)
+- [Aidbox Forms Smart App Launch](aidbox-forms/aidbox-forms-smart-launch-2/)
+- [Multiple instances Aidbox Forms Renderer with Angular.js](aidbox-forms/aidbox-forms-two-renderers-angular/)
+- [FHIRPath Editor](aidbox-forms/fhirpath-editor/)
+- [FHIR SDC API in Aidbox](aidbox-forms/fhir-sdc-api/)
+
+## Aidbox Custom Operations
+
+- [Health Cards Issue operation](aidbox-custom-operations/aidbox-health-card-issue/)
+- [CQL Java engine integration](aidbox-custom-operations/cql-java-engine-integration/)
+- [$purge operation implementation](aidbox-custom-operations/dollar-purge-operation/)
+- [FHIR API override example](aidbox-custom-operations/fhir-api-override/)
+- [IPS $summary implementation](aidbox-custom-operations/ips-ig/)
+- [IPS Chile $summary implementation](aidbox-custom-operations/ips-ig-cl/)
+- [IPS $summary implementation with FHIR Topic-Based Subscriptions](aidbox-custom-operations/ips-subscriptions/)
+- [IPS $summary implementation with Aidbox Topic-Based Subscriptions](aidbox-custom-operations/ips-subscriptions-no-zen/)
+
+## Aidbox Integrations
+
+- [BedaEMR integration](aidbox-integrations/BedaEmr/)
+- [FHIR Analytics](aidbox-integrations/fhir-analytics/)
+
+## Aidbox Features
+
+- [Aidbox Notify via Custom Resources](aidbox-features/aidbox-notify-via-custom-resources/)
+- [Topic-Based Subscription to Kafka](aidbox-features/aidbox-subscriptions-to-kafka/)
+- [Aidbox with read-only replica](aidbox-features/aidbox-with-ro-replica/)
+- [AWS S3 Aidbox integration](aidbox-features/aws-s3-aidbox-integration/)
+- [Init bundle with environment template](aidbox-features/init-bundle-env-template/)
+- [OpenTelemetry](aidbox-features/OpenTelemetry/)
+- [Organization-Based Access Control (OrgBAC) Practitioner Application](aidbox-features/orgbac-practitioner-application/)
+- [SMART App Launch with Aidbox and Keycloak](aidbox-features/smart-app-launch/)
+- [SMART App Launch with Smartbox and Keycloak](aidbox-features/smart-app-launch-smartbox/)
+- [SMART App Launch with subscriptions](aidbox-features/smart-app-launch-subscriptions/)
+
+## Developer Experience
+
+- [Agentic FHIR Implementation Guide Development](developer-experience/agentic-coding-ig-development/)
+- [Aidbox Firely .NET Client](developer-experience/aidbox-firely-dotnet-client/)
+- [Aidbox HAPI FHIR Client](developer-experience/aidbox-hapi-client/)
 
 ## Documentation
 
