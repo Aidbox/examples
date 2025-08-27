@@ -1,3 +1,6 @@
+---
+tags: [s3, storage, typescript]
+---
 # AWS S3 Aidbox integration example
 ![image](https://github.com/user-attachments/assets/fb3026ef-be1f-4ef8-845e-064e463adb0f)
 This guide demonstrates how to integrate [S3-compatible storage with Aidbox](https://docs.aidbox.app/storage-1/s3-compatible-storages/aws-s3) using local [min.io](https://github.com/minio/minio) and a front-end application exclusively. 
