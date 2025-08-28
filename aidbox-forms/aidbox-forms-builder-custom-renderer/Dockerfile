@@ -5,7 +5,7 @@ COPY Caddyfile /etc/caddy/Caddyfile
 
 # Copy the HTML and JS files to caddy directory
 WORKDIR /srv
-COPY simple-questionnaire-renderer.js /srv/
+COPY ./smartforms-component/dist/aidbox-forms-renderer-csiro-webcomponent.js /srv/
 
 # Expose port 80
 EXPOSE 80

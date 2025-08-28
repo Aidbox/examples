@@ -67,7 +67,7 @@ services:
     ports:
       - "8081:80"
     volumes:
-      - ./simple-questionnaire-renderer.js:/srv/simple-questionnaire-renderer.js      
+      - ./smartforms-component/dist/aidbox-forms-renderer-csiro-webcomponent.js:/srv/aidbox-forms-renderer-csiro-webcomponent.js
     depends_on:
       - aidbox
     healthcheck:

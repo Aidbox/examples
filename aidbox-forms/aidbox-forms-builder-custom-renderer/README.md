@@ -31,12 +31,20 @@ The Aidbox Forms Builder allows you to use custom renderers to display questionn
    # Add your AIDBOX_LICENSE to .env
    ```
 
-2. **Start services:**
+2. **Build the smartforms component:**
+   ```bash
+   cd smartforms-component
+   npm install
+   npm run build
+   cd ..
+   ```
+
+3. **Start services:**
    ```bash
    docker-compose up -d
    ```
 
-3. **Access the services:**
+4. **Access the services:**
    - Aidbox: http://localhost:8080
    - Custom renderer demo: http://localhost:8081
 
@@ -88,10 +96,12 @@ In this tutorial we create a simple web server to host your renderer:
 
 ```dockerfile
 # Dockerfile
-FROM nginx:alpine
-COPY simple-questionnaire-renderer.js /usr/share/nginx/html/
+FROM caddy:alpine
+COPY Caddyfile /etc/caddy/Caddyfile
+WORKDIR /srv
+COPY ./smartforms-component/dist/aidbox-forms-renderer-csiro-webcomponent.js /srv/
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
 ```
 
 ### Step 4: Configure Aidbox
