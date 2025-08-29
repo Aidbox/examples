@@ -9,9 +9,9 @@
       "id" : "custom-renderer-config",
       "builder": {
         "custom-renderers": [{
-          "name" : "simple-questionnaire-renderer",
-          "source" : "http://localhost:8081/simple-questionnaire-renderer.js",
-          "title" : "Simple Questionnaire Renderer"
+          "name" : "aidbox-form-csiro-renderer",
+          "source" : "http://localhost:8081/aidbox-forms-renderer-csiro-webcomponent.js",
+          "title" : "CSIRO"
         }]
       }
     },
