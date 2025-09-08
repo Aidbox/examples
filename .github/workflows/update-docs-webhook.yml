@@ -34,39 +34,11 @@ jobs:
           cat examples-metadata.json | jq '.features_list | length' | xargs -I {} echo "  - {} unique features"
           cat examples-metadata.json | jq '.languages_list | length' | xargs -I {} echo "  - {} programming languages"
 
-      - name: Send webhook to documentation
-        env:
-          WEBHOOK_URL: https://aidbox.requestcatcher.com/test
-        run: |
-          if [ -z "$WEBHOOK_URL" ]; then
-            echo "Error: DOCS_WEBHOOK_URL secret is not set"
-            echo "Please add the webhook URL to repository secrets"
-            exit 1
-          fi
-
-          echo "Sending webhook to documentation server..."
-
-          # Send the webhook with the generated JSON
-          response=$(curl -X POST "$WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -d @examples-metadata.json \
-            --fail \
-            --show-error \
-            --write-out "\n%{http_code}" \
-            --silent \
-            --output -)
-
-          http_code=$(echo "$response" | tail -n 1)
-          body=$(echo "$response" | head -n -1)
-
-          if [ "$http_code" = "200" ]; then
-            echo "✓ Webhook sent successfully"
-            echo "Response: $body"
-          else
-            echo "✗ Webhook failed with HTTP $http_code"
-            echo "Response: $body"
-            exit 1
-          fi
+      - name: Upload examples metadata as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples-metadata
+          path: examples-metadata.json
 
       - name: Summary
         run: |
