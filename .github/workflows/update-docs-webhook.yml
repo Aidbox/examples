@@ -1,0 +1,90 @@
+name: Update Documentation Examples
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Generate examples metadata
+        run: |
+          echo "Generating examples metadata..."
+          python .github/scripts/generate_examples_metadata.py
+
+          # Check if the file was generated
+          if [ ! -f examples-metadata.json ]; then
+            echo "Error: examples-metadata.json was not generated"
+            exit 1
+          fi
+
+          echo "Generated metadata:"
+          cat examples-metadata.json | jq '.examples | length' | xargs -I {} echo "  - {} examples found"
+          cat examples-metadata.json | jq '.features_list | length' | xargs -I {} echo "  - {} unique features"
+          cat examples-metadata.json | jq '.languages_list | length' | xargs -I {} echo "  - {} programming languages"
+
+      - name: Send webhook to documentation
+        env:
+          WEBHOOK_URL: https://aidbox.requestcatcher.com/test
+        run: |
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "Error: DOCS_WEBHOOK_URL secret is not set"
+            echo "Please add the webhook URL to repository secrets"
+            exit 1
+          fi
+
+          echo "Sending webhook to documentation server..."
+
+          # Send the webhook with the generated JSON
+          response=$(curl -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d @examples-metadata.json \
+            --fail \
+            --show-error \
+            --write-out "\n%{http_code}" \
+            --silent \
+            --output -)
+
+          http_code=$(echo "$response" | tail -n 1)
+          body=$(echo "$response" | head -n -1)
+
+          if [ "$http_code" = "200" ]; then
+            echo "✓ Webhook sent successfully"
+            echo "Response: $body"
+          else
+            echo "✗ Webhook failed with HTTP $http_code"
+            echo "Response: $body"
+            exit 1
+          fi
+
+      - name: Upload metadata as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: examples-metadata
+          path: examples-metadata.json
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "## Examples Metadata Update" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Successfully updated documentation examples" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- Examples: $(cat examples-metadata.json | jq '.examples | length')" >> $GITHUB_STEP_SUMMARY
+          echo "- Features: $(cat examples-metadata.json | jq '.features_list | length')" >> $GITHUB_STEP_SUMMARY
+          echo "- Languages: $(cat examples-metadata.json | jq '.languages_list | length')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Languages" >> $GITHUB_STEP_SUMMARY
+          cat examples-metadata.json | jq -r '.languages_list | join(", ")' >> $GITHUB_STEP_SUMMARY
