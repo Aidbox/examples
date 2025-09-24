@@ -1,6 +1,6 @@
 ---
-features: [firely sdk, fhir client, patient creation, dotnet, sdk integration]
-languages: [csharp]
+features: [Firely SDK, FHIR client, Patient creation, .NET, SDK integration]
+languages: [C#]
 ---
 # Using Firely .NET SDK with Aidbox FHIR Server
 

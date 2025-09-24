@@ -1,6 +1,6 @@
 ---
-features: [forms renderer, controlled, questionnaire, react, web components]
-languages: [html]
+features: [Forms renderer, Controlled, Questionnaire, React, Web components]
+languages: [HTML]
 ---
 # aidbox-forms-renderer-react-controlled
 

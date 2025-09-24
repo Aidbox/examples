@@ -1,6 +1,6 @@
 ---
-features: [forms renderer, controlled, questionnaire, angular, web components]
-languages: [html]
+features: [Forms renderer, Controlled, Questionnaire, Angular, Web components]
+languages: [HTML]
 ---
 # aidbox-forms-renderer-angular-controlled
 

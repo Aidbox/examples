@@ -1,6 +1,6 @@
 ---
-features: [purge operation, custom operations, async operations, data deletion, fhir operations]
-languages: [typescript]
+features: [Purge operation, Custom operations, Async operations, Data deletion, FHIR operations]
+languages: [TypeScript]
 ---
 # FHIR $purge Operation with Aidbox
 

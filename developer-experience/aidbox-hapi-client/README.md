@@ -1,6 +1,6 @@
 ---
-features: [hapi fhir, fhir client, maven, patient creation, java client]
-languages: [java]
+features: [HAPI FHIR, FHIR client, Maven, Patient creation, Java client]
+languages: [Java]
 ---
 # Using HAPI Java client with Aidbox FHIR Server
 

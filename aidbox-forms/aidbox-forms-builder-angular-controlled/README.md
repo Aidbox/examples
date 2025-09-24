@@ -1,6 +1,6 @@
 ---
-features: [forms builder, controlled, questionnaire, angular, web components]
-languages: [html]
+features: [Forms builder, Controlled, Questionnaire, Angular, Web components]
+languages: [HTML]
 ---
 # aidbox-forms-builder-angular-controlled
 

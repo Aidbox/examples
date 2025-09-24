@@ -1,6 +1,6 @@
 ---
-features: [forms builder, flutter, web, questionnaire, cross platform]
-languages: [dart]
+features: [Forms builder, Flutter, Web, Questionnaire, Cross-platform]
+languages: [Dart]
 ---
 # aidbox-forms-flutter-web
 

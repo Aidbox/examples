@@ -1,6 +1,6 @@
 ---
-features: [cql, custom operations, spring boot, fhir operations, clinical decision support]
-languages: [java]
+features: [CQL, Custom operations, Spring Boot, FHIR operations, Clinical decision support]
+languages: [Java]
 ---
 # Aidbox CQL Integration with Spring Boot Example
 
