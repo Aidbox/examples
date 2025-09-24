@@ -105,8 +105,15 @@ def generate_examples_metadata():
         # Skip hidden directories, scripts, and node_modules
         dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ['scripts', 'node_modules']]
         
+        # Check for README.md or README.MD
+        readme_file = None
         if 'README.md' in files:
-            readme_path = os.path.join(root, 'README.md')
+            readme_file = 'README.md'
+        elif 'README.MD' in files:
+            readme_file = 'README.MD'
+
+        if readme_file:
+            readme_path = os.path.join(root, readme_file)
             
             # Skip root README
             if readme_path == './README.md':
