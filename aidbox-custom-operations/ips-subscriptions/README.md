@@ -1,6 +1,6 @@
 ---
-features: [ips, subscriptions, zen schemas, event driven, international patient summary]
-languages: [typescript]
+features: [IPS, Subscriptions, International  Patient Summary]
+languages: [TypeScript]
 ---
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
