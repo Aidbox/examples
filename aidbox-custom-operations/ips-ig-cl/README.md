@@ -1,6 +1,6 @@
 ---
-features: [ips, chile localization, fhir ig, international patient summary, narrative generation]
-languages: [typescript]
+features: [IPS, Chile localization, FHIR IG, International Patient Summary, Narrative generation]
+languages: [TypeScript]
 ---
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 

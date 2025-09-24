@@ -1,6 +1,6 @@
 ---
-features: [ips, international patient summary, fhir ig, summary operation, narrative generation]
-languages: [typescript]
+features: [IPS, International Patient Summary, FHIR IG, Summary operation, Narrative generation]
+languages: [TypeScript]
 ---
 # Implementation of IPS FHIR IG on Aidbox FHIR platform
 
