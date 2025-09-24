@@ -1,6 +1,6 @@
 ---
-features: [fhirpath, editor, query language, expression, testing]
-languages: [html]
+features: [FHIRPath, Editor, Query language, Expression, Testing]
+languages: [HTML]
 ---
 # FHIRPath Editor - Moved
 

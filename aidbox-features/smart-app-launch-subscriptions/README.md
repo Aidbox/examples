@@ -1,6 +1,6 @@
 ---
-features: [smart on fhir, subscriptions, react, nestjs, real time updates]
-languages: [typescript]
+features: [SMART on FHIR, Subscriptions, React, NestJS, Real-time updates]
+languages: [TypeScript]
 ---
 # Smart App Launch Subscriptions
 

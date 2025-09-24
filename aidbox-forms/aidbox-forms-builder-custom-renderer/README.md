@@ -1,6 +1,6 @@
 ---
-features: [custom renderer, forms builder, questionnaire, template, customization]
-languages: [javascript]
+features: [Custom renderer, Forms builder, Questionnaire, Template, Customization]
+languages: [JavaScript]
 ---
 # Custom Renderer Tutorial for Aidbox Forms Builder
 

@@ -1,6 +1,6 @@
 ---
-features: [attachments, dicom, external viewer, multimedia, forms]
-languages: [html]
+features: [Attachments, DICOM, External viewer, Multimedia, Forms]
+languages: [HTML]
 ---
 # Integrating external attachment preview tool
 

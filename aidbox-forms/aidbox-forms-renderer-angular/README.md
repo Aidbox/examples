@@ -1,6 +1,6 @@
 ---
-features: [forms renderer, questionnaire, angular, web components, fhir forms]
-languages: [html]
+features: [Forms renderer, Questionnaire, Angular, Web components, FHIR forms]
+languages: [HTML]
 ---
 # aidbox-forms-renderer-angular
 

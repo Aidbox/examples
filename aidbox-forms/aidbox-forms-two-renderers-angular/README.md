@@ -1,6 +1,6 @@
 ---
-features: [forms renderer, multiple renderers, questionnaire, angular, comparison]
-languages: [html]
+features: [Forms renderer, Multiple renderers, Questionnaire, Angular, Comparison]
+languages: [HTML]
 ---
 # aidbox-forms-renderer-angular
 

@@ -1,6 +1,6 @@
 ---
-features: [orgbac, jwt auth, practitioner app, nextjs, role based access]
-languages: [typescript]
+features: [OrgBAC, JWT auth, Practitioner app, Next.js, Role-based access]
+languages: [TypeScript]
 ---
 # Aidbox Organization-Based Access Control (OrgBAC) Practitioner Application
 

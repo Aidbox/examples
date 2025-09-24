@@ -1,6 +1,6 @@
 ---
-features: [configuration, init bundle, environment variables, templating, setup]
-languages: [yaml]
+features: [Configuration, Init bundle, Environment variables, Templating, Setup]
+languages: [YAML]
 ---
 # Init Bundle Environment Template
 

@@ -1,6 +1,6 @@
 ---
-features: [analytics, metabase, sql on fhir, data visualization, risk assessment]
-languages: [yaml]
+features: [Analytics, Metabase, SQL on FHIR, Data visualization, Risk assessment]
+languages: [YAML]
 ---
 # FHIR Analytics with Aidbox and Metabase
 

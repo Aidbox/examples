@@ -1,6 +1,6 @@
 ---
-features: [fhir sdc, structured data capture, questionnaire, api, forms]
-languages: [yaml]
+features: [FHIR SDC, Structured data capture, Questionnaire, API, Forms]
+languages: [YAML]
 ---
 # FHIR SDC API in Aidbox
 

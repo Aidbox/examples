@@ -1,6 +1,6 @@
 ---
-features: [smart health cards, custom operations, jwks, jws signing, fhir operations]
-languages: [typescript]
+features: [SMART health cards, Custom operations, JWKS, JWS signing, FHIR operations]
+languages: [TypeScript]
 ---
 # SMART Health Cards Issue Operation
 

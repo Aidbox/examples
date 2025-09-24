@@ -1,6 +1,6 @@
 ---
-features: [smart on fhir, keycloak, growth chart, ehr launch, patient launch]
-languages: [yaml]
+features: [SMART on FHIR, Keycloak, Growth chart, EHR launch, Patient launch]
+languages: [YAML]
 ---
 # SMART App Launch with Aidbox and Keycloak
 

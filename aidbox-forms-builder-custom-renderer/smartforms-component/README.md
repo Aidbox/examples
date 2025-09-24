@@ -1,3 +1,7 @@
+---
+features: [Custom renderer, Forms builder, Questionnaire, SmartForms, Web components]
+languages: [TypeScript]
+---
 # smartforms-component
 
 To install dependencies:

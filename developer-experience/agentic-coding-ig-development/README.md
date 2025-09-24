@@ -1,6 +1,6 @@
 ---
-features: [fhir ig, ai assisted, claude code, implementation guide, markdown]
-languages: [markdown]
+features: [FHIR IG, AI assisted, Claude Code, Implementation guide, Markdown]
+languages: [Markdown]
 ---
 # Agentic FHIR Implementation Guide Development
 

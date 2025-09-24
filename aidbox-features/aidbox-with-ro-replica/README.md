@@ -1,6 +1,6 @@
 ---
-features: [postgresql, read replica, performance, scalability, database]
-languages: [bash]
+features: [PostgreSQL, Read replica, Performance, Scalability, Database]
+languages: [Bash]
 ---
 # PostgreSQL Read-Only Replica for Aidbox
 

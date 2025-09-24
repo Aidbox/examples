@@ -1,6 +1,6 @@
 ---
-features: [smart on fhir, growth chart, aidbox only, app launch, fhir client]
-languages: [yaml]
+features: [SMART on FHIR, Growth chart, Aidbox only, App launch, FHIR client]
+languages: [YAML]
 ---
 # Example: SMART App Launch using Smartbox and Keycloak
 

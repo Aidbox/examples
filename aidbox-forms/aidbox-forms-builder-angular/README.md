@@ -1,6 +1,6 @@
 ---
-features: [forms builder, questionnaire, angular, web components, fhir forms]
-languages: [html]
+features: [Forms builder, Questionnaire, Angular, Web components, FHIR forms]
+languages: [HTML]
 ---
 # aidbox-forms-builder-angular
 
