@@ -84,7 +84,7 @@ For example, a request to `GET /fhir/Observation` with scope `user/Observation.r
 
 Learn more about [SMART scopes in Aidbox](https://www.health-samurai.io/docs/aidbox/access-control/authorization/smart-on-fhir/smart-scopes-for-limiting-access).
 
-## Getting Started
+## Running the example
 
 ### Prerequisites
 
