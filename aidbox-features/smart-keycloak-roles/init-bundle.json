@@ -1,0 +1,181 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/keycloack-policy"
+      },
+      "resource": {
+        "engine": "json-schema",
+        "schema": {
+          "required": ["jwt"],
+          "properties": {
+            "jwt": {
+              "required": ["iss"],
+              "properties": {
+                "iss": {
+                  "constant": "http://localhost:8888/realms/master"
+                }
+              }
+            }
+          }
+        },
+        "id": "keycloack",
+        "resourceType": "AccessPolicy"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/TokenIntrospector/keycloack-introspector"
+      },
+      "resource": {
+        "jwt": {
+          "iss": "http://localhost:8888/realms/master"
+        },
+        "type": "jwt",
+        "jwks_uri": "http://keycloak:8888/realms/master/protocol/openid-connect/certs",
+        "id": "external-auth-server",
+        "resourceType": "TokenIntrospector"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Patient/example-patient"
+      },
+      "resource": {
+        "id": "example-patient",
+        "name": [
+          {
+            "family": "Doe",
+            "given": ["John"]
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Observation/lab-result-1"
+      },
+      "resource": {
+        "resourceType": "Observation",
+        "id": "lab-result-1",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "718-7",
+              "display": "Hemoglobin [Mass/volume] in Blood"
+            }
+          ],
+          "text": "Hemoglobin"
+        },
+        "subject": {
+          "reference": "Patient/example-patient",
+          "display": "John Doe"
+        },
+        "effectiveDateTime": "2025-10-05T08:30:00Z",
+        "issued": "2025-10-05T09:00:00Z",
+        "valueQuantity": {
+          "value": 13.5,
+          "unit": "g/dL",
+          "system": "http://unitsofmeasure.org",
+          "code": "g/dL"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Observation/vitals-bp-1"
+      },
+      "resource": {
+        "resourceType": "Observation",
+        "id": "vitals-bp-1",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "85354-9",
+              "display": "Blood pressure panel with all children optional"
+            }
+          ],
+          "text": "Blood Pressure"
+        },
+        "subject": {
+          "reference": "Patient/example-patient",
+          "display": "Jane Doe"
+        },
+        "effectiveDateTime": "2025-10-05T07:45:00Z",
+        "issued": "2025-10-05T08:00:00Z",
+        "component": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8480-6",
+                  "display": "Systolic blood pressure"
+                }
+              ],
+              "text": "Systolic Blood Pressure"
+            },
+            "valueQuantity": {
+              "value": 118,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://loinc.org",
+                  "code": "8462-4",
+                  "display": "Diastolic blood pressure"
+                }
+              ],
+              "text": "Diastolic Blood Pressure"
+            },
+            "valueQuantity": {
+              "value": 76,
+              "unit": "mmHg",
+              "system": "http://unitsofmeasure.org",
+              "code": "mm[Hg]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

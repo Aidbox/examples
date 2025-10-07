@@ -46,6 +46,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [SMART App Launch with Aidbox and Keycloak](aidbox-features/smart-app-launch/)
 - [SMART App Launch with Smartbox and Keycloak](aidbox-features/smart-app-launch-smartbox/)
 - [SMART App Launch with subscriptions](aidbox-features/smart-app-launch-subscriptions/)
+- [Managing user Roles in Keycloak using SMART on FHIR V2 scopes](aidbox-features/smart-keycloak-roles/)
 
 ## Developer Experience
 
