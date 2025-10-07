@@ -1,0 +1,19 @@
+{
+  "name": "keycloak-aidbox-app",
+  "version": "1.0.0",
+  "description": "Bun app for Keycloak authentication and Aidbox FHIR API integration",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "bun run --watch index.ts",
+    "start": "bun run index.ts",
+    "build": "bun build index.ts --outdir ./dist"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@hono/node-server": "^1.8.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "type": "module"
+}
