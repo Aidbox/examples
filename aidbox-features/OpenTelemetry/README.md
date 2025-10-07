@@ -1,6 +1,6 @@
 ---
 features: [observability, opentelemetry, monitoring, logs, metrics]
-languages: [yaml]
+languages: [YAML]
 ---
 # OpenTelemetry
 

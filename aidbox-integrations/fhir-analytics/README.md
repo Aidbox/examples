@@ -14,7 +14,7 @@ Use SQL on FHIR on sample risk assessment form with Aidbox and visualize data wi
 
 ```
 git clone https://github.com/Aidbox/examples.git
-cd examples/fhir-analytics
+cd examples/aidbox-integrations/fhir-analytics
 ```
 
 ## Run Aidbox and Metabase
