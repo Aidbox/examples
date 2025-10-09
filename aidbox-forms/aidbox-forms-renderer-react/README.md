@@ -6,7 +6,7 @@ languages: [HTML]
 
 Example of integration Aidbox Forms Renderer with React.js
 
-[Demo](https://aidbox.github.io/examples/aidbox-forms-renderer-react/)
+[Demo](https://aidbox.github.io/examples/aidbox-forms/aidbox-forms-renderer-react/)
 
 ## Example
 
