@@ -8,18 +8,10 @@
         "url": "/AccessPolicy/keycloack-policy"
       },
       "resource": {
-        "engine": "json-schema",
-        "schema": {
-          "required": ["jwt"],
-          "properties": {
-            "jwt": {
-              "required": ["iss"],
-              "properties": {
-                "iss": {
-                  "constant": "http://localhost:8888/realms/master"
-                }
-              }
-            }
+        "engine": "matcho",
+        "matcho": {
+          "jwt": {
+            "iss": "http://localhost:8888/realms/master"
           }
         },
         "id": "keycloack",
