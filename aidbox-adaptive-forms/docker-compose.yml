@@ -1,0 +1,102 @@
+volumes:
+  aidbox_pg_data: {}
+
+services:
+  aidbox_db:
+    image: healthsamurai/aidboxdb:17
+    volumes:
+      - aidbox_pg_data:/var/lib/postgresql/data:delegated
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: M3ya7uZxdJ
+
+  aidbox:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    pull_policy: always
+    image: healthsamurai/aidboxone:edge
+    depends_on:
+      - aidbox_db
+    ports:
+      - 8888:8888
+    environment:
+      BOX_ADMIN_PASSWORD: password
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: "#{:fhir-datetime}"
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_HOST: aidbox_db
+      BOX_DB_PASSWORD: M3ya7uZxdJ
+      BOX_DB_PORT: "5432"
+      BOX_DB_USER: aidbox
+      BOX_FHIR_COMPLIANT_MODE: true
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: true
+      BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
+      BOX_FHIR_SCHEMA_VALIDATION: true
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: true
+      BOX_FHIR_SEARCH_CHAIN_SUBSELECT: true
+      BOX_FHIR_SEARCH_COMPARISONS: true
+      BOX_FHIR_TERMINOLOGY_ENGINE: hybrid
+      BOX_FHIR_TERMINOLOGY_ENGINE_HYBRID_EXTERNAL_TX_SERVER: https://tx.health-samurai.io/fhir
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
+      BOX_INIT_BUNDLE: file:///app/init-bundle.json
+      BOX_MODULE_SDC_STRICT_ACCESS_CONTROL: false
+      BOX_ROOT_CLIENT_SECRET: BQuJmUG7N6
+      BOX_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_SECURITY_DEV_MODE: true
+      BOX_SETTINGS_MODE: read-write
+      BOX_WEB_BASE_URL: http://localhost:8888
+      BOX_WEB_PORT: 8888
+      BOX_AUTH_KEYS_PUBLIC: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkOTNRyU491tDI3dBPlnW
+        Mi90Gj0kVM7lt/9KXVNjUK6MJfb9e44pAL58lzmLhZxk9u/jMvITkG/mFNMELgk8
+        ki1SYbOTCfF1eEK8EbmQPOsFHvL9REY1uJukEzJC2Pr1xd1lvO3KbWHnpOvhFV9M
+        xeECbxQQ/3ho3J1PnMhUdXWCDPoVwb6WKuhGsxkKIC6cCg6MXd47ZUdJeQyImMds
+        sTBoMb/r3arSbIrsh1piDKgkwDXeFMWOvK+G4xC3AqiARjgSAXrzWDPP/AFsIVCJ
+        e3T25j9P/lrCBooyocbhkXNfFstyUxXKSsUQxc8b5dtpfNiev0VJl3a9THZfIU/1
+        CwIDAQAB
+        -----END PUBLIC KEY-----
+      BOX_AUTH_KEYS_PRIVATE: |
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEogIBAAKCAQEAkOTNRyU491tDI3dBPlnWMi90Gj0kVM7lt/9KXVNjUK6MJfb9
+        e44pAL58lzmLhZxk9u/jMvITkG/mFNMELgk8ki1SYbOTCfF1eEK8EbmQPOsFHvL9
+        REY1uJukEzJC2Pr1xd1lvO3KbWHnpOvhFV9MxeECbxQQ/3ho3J1PnMhUdXWCDPoV
+        wb6WKuhGsxkKIC6cCg6MXd47ZUdJeQyImMdssTBoMb/r3arSbIrsh1piDKgkwDXe
+        FMWOvK+G4xC3AqiARjgSAXrzWDPP/AFsIVCJe3T25j9P/lrCBooyocbhkXNfFsty
+        UxXKSsUQxc8b5dtpfNiev0VJl3a9THZfIU/1CwIDAQABAoIBADU6B/rpvpqHiQtf
+        RLVt9RSsf/8flNgexR6phpzwBBzgchWEPSwFViSy1TwMZKepgyF/kDvn164InUHr
+        Hq72r6yXP5sqh4pwjBGomkP8ofLu9wuegdFx5UwyyLxQi2QAFQchxLz5sZIrFBhu
+        mlnqj15lwSoi+fePOR5KH7Pdl8Ep4xjS0OADzdyY+g/m4ELzdZZVfbtoUAI8qdW7
+        NyC85zI6l2fMsxkfmNLEmc5V3IYGj0IqeuIJIVNRMgLzODwf123tan1DRpuuC//7
+        +8b+FURRVdv/94yA4lH+afpVrWHjkc0ddGWo6sb44acpwrDugNKVDGfKZgGuJEn1
+        ipPibPkCgYEAxTsPTAO/Y1VkJTIiRRJ8091UOXCbXUJaHNlxi0Y03u/QcyofuDZd
+        usPUESerNVegX7gB6imNkOUEGCQkToS817Fe0b+LWjD1mq7CcwY9qKnQuqDbtzu4
+        aczVLPZPiATUwiVL7DFMDHle+4eSTx1kN0GvZucOF8soHDxZ+TsrfOcCgYEAvBFu
+        fINo+H6nPwCQ222W+t3Trxk4J8nVFrxTaCAS7pJIFsayaEUHuG7HYAw/SoZGNMgg
+        7dd2LsXU8+KxH/JotmWQOg0RqJU3uafitZKzjqvde+XhoQcxp0Eh0Co94QuP45hj
+        IJIggXP/jzKRdwRcmA5U8WZYHihDduEHItcK/j0CgYAwQbINdEFIqaT2IN0Xr11R
+        bS7lWvL4j3qC4oUQgZ4ACgcjlmPqa4rlXnKtu9n9FDKOGPSG+aHEmPQ2f+lOONYH
+        pENB6K7M43vEXAwBnr5JXTtP3nnDzF3jrRVfieiNrDjuQ7fe03T6/FtMCbC3oMZb
+        arvi3pepJLDsr6uH+n06cwKBgBc347cVljEPmeBKVpfwiLJCDq9QYsFuxpL+/yEc
+        zJmNj77YGxCKbTCU5KJ0AKBXwXUkvAQBFMMjg230r79s8waJtWulT2fLvEx8cJ3Q
+        FcDocPip4dg6hiPLA7yqamdNQR9tIdfUkpTI2GU6bgEOlcvkARKoevqGKAYWNAZW
+        HDJVAoGAL67j03Syb6qcExKv1mUNFImWmLQOMP2RRHumO9zcBU45BEgGP3g7e9XG
+        Oy1JeGxMUvo9/OAUGM696x0yaXNMfTB9qrSBZI+T6wTVh1ueDnuEgA0Va8JoAQUT
+        0dLbbVOhDx4vg0WExVqkvoAAoOrSzL3n8hWosUdqCE+zhH7b+18=
+        -----END RSA PRIVATE KEY-----
+    volumes:
+      - ./init-bundle.json:/app/init-bundle.json:ro
+
+  adaptive-forms-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      - aidbox

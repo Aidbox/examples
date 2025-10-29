@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.git
+.gitignore
+README.md
+docker-compose.yml
+Dockerfile
+init-bundle.json
