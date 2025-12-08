@@ -1,4 +1,4 @@
-# hl7-converter
+# FHIR -> HL7v2 BAR
 
 This is a demo project for creation of HL7 BAR messages from Aidbox resources.
 It listens to Aidbox `Invoice` creation and formats BAR-s from the related data.
