@@ -10,12 +10,12 @@ accept: application/json
     ]
   },
   "kind": "webhook-at-least-once",
-  "id": "webhook-destination",
+  "id": "hl7-v2-webhook-destination",
   "topic": "http://example.org/FHIR/R5/SubscriptionTopic/Invoice-topic",
   "parameter": [
     {
       "name": "endpoint",
-      "valueUrl": "PUT_APP_ENDPOINT_URL_HERE/webhook-test"
+      "valueUrl": "PUT_APP_ENDPOINT_URL_HERE/webhook"
     },
     {
       "name": "timeout",
@@ -28,6 +28,10 @@ accept: application/json
     {
       "name": "header",
       "valueString": "User-Agent: Aidbox Server"
+    },
+    {
+      "name": "header",
+      "valueString": "Authorization: PUT_SECRET_HERE"
     }
   ]
 }

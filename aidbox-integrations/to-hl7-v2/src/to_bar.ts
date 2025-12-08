@@ -556,8 +556,33 @@ export function to_BAR(invoice: Invoice, bundle: Bundle) {
                 'SEL',
                 date_to_hl7(date_from_fhir(patient?.birthDate)),
                 extended_address_from_fhir(patient?.address?.[0]),
-                
+                '', '', '', // Coordination and Assignment of Benefits
+                date_to_hl7(date_from_fhir(invoice.date)),
+                // Verification By..Insured's Employment Status
+                ...repeat_strings('', 13),
+                // TODO: There's only gender in FHIR, so this mapping is imperfect
+                gender_from_fhir(patient?.gender),
+                //  Insured's Employer's Address.. Insured's Employer's Address
+                '', '', '',
+                // TODO: Coverage Type must be inferrable from Invoice/Coverage, but it's not obvious
+                '',
+                '', // Handicap
+                // TODO: Insured's ID Number should be fetchable from Patient
+                '',
+                ...repeat_strings('', 4)
             ]])
        ]
        return BAR
+}
+
+export function stringify_message(message: Array<Array<string | undefined | Array<string | undefined>>>): string {
+    return message.map(segment => {
+        return segment.map(field => {
+            if (Array.isArray(field)) {
+                return field.join('^')
+            } else if (typeof field === 'string') {
+                return field
+            }
+        }).join('|')
+    }).join('\r')
 }

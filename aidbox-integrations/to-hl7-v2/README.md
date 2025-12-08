@@ -35,16 +35,25 @@ Environment variables for running the project are:
 <dl>
 <dt> PORT (optional)
 <dd> Port to run the server on. Defaults to 3000
+
+<dt> SECRET (required)
+<dd>
+    Authorization secret to be passed to APIs.
+    Without it, requests will be denied.
+    Ensure that it's also added to topic-destination.http (see below) headers.
+
+
 <dt> AIDBOX_BASE_URL (required)
 <dd>
     Host+port for the location Aidbox is deployed on.
     For local development, <code>http://127.0.0.1:8789</code> is recommented, unless you changed the port in docker-compose.yml or environment (<code>AIDBOX_PORT</code>, see below)
+
 <dt> AIDBOX_CREDENTIALS (required)
 <dd>
     Credentials for Aidbox app.
     Base64-encoded <code>id:secret</code> string.
     <code>id</code> should be <code>hl7-app</code> or the client name you set up when creating the App (via <a href=resources/aidbox-app.yaml>resources/aidbox-app.yaml</a>, for example)
-    <code>secret</code> should be the secure password/secret provided on App creation
+    <code>secret</code> should be the secure password/secret provided on App creation (<code>PUT_SECRET_HERE</code>), see the aidbox-app.yaml below.
 
 <dt> AIDBOX_LICENSE (required)
 <dd> Aidbox license you got from <a href=https://aidbox.app/ui/portal>Aidbox portal</a>
@@ -65,7 +74,7 @@ Environment variables for running the project are:
 <dd> The host to sent MLLP request with final message to. Without the `http://` part. E.g. `127.0.0.1` for local development.
 
 <dt> MLLP_RECEIVER_PORT (optional)
-<dd> MLLP_RECEIVER_HOST port for MLLP messages. Defaults to 2575.
+<dd> <code>MLLP_RECEIVER_HOST</code>'s port for MLLP messages. Defaults to 2575.
 </dl>
 
 ### Setup: App and SearchParameters
@@ -90,12 +99,14 @@ contents of the file...
 <dd>
     <code>AidboxSubscriptionTopic</code> to track <code>Invoice</code> resources created in Aidbox.
     Can be posted directly to Aidbox in REST Console.
+    See <a href="https://www.health-samurai.io/docs/aidbox/modules/topic-based-subscriptions/aidbox-topic-based-subscriptions#aidboxsubscriptiontopic">Aidbox documentation</a> for possible values.
 
 <dt> <a href=resources/topic-destination.http>topic-destination.http</a>
 <dd>
-    <code>AidboxTopicdestination</code> to send created <code>Invoice</code>-s as a WebHook to this server
+    <code>AidboxTopicDestination</code> to send created <code>Invoice</code>-s as a WebHook to this server
     Requires <code>parameter</code> > <code>endpoint</code> > <code>valueUrl</code> to refer to the full location this server is deployed in.
     Can be posted directly to Aidbox in REST Console after substituting the endpoint location.
+    <code>PUT_SECRET_HERE</code> should match the <code>SECRET</code> environment variable
 
 <dt> <a href=resources/invoice-charge-item.http>invoice-charge-item.http</a>
 <dd>
