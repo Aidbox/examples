@@ -1,0 +1,64 @@
+resourceType: App
+id: hl7-app
+apiVersion: 1
+type: app
+endpoint:
+  url: PUT_APP_ENDPOINT_URL_HERE/
+  type: http-rpc
+
+resources:
+  Client:
+    hl7-app:
+      secret: PUT_SECRET_HERE
+      grant_types:
+        - basic
+
+  AccessPolicy:
+    hl7-app-policy:
+      engine: matcho
+      link:
+        - id: hl7-app
+          resourceType: Client
+      matcho:
+        $one-of:
+          - request-method: post
+            uri: /
+
+          - request-method: post
+            uri: /fhir/
+
+          - request-method: get
+            uri: /$config
+
+          - request-method: get
+            uri: /Client/hl7-app
+          - request-method: get
+            uri: /fhir/Client/hl7-app
+
+          - request-method: get
+            uri: /App/ePrescription-app
+          - request-method: get
+            uri: /fhir/App/hl7-app
+
+          - request-method: get
+            params:
+              resource/type: AccessPolicy
+              _ilike: hl7-app
+
+          - request-method: get
+            params:
+              resource/type:
+                $enum:
+                  - Invoice
+                  - Patient
+                  - Practitioner
+                  - PractitionerRole
+                  - Condition
+                  - Procedure
+                  - Practitioner
+                  - Encounter
+                  - EpisodeOfCare
+                  - Coverage
+                  - Location
+                  - ChargeItem
+                  - Organization

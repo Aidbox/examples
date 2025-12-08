@@ -1,0 +1,29 @@
+{
+  "name": "hl7-converter",
+  "module": "index.ts",
+  "devDependencies": {
+    "@types/body-parser": "^1.19.6",
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.10.1",
+    "@types/swagger-ui-express": "^4.1.8"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "express": "^5.2.1",
+    "mllp-node-sl7": "^2.1.6",
+    "morgan": "^1.10.1",
+    "npx": "^10.2.2",
+    "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.21.0"
+  },
+  "scripts": {
+    "dev": "npx tsx --env-file='.env' --watch index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc"
+  }
+}

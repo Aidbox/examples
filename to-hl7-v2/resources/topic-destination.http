@@ -1,0 +1,33 @@
+POST /fhir/AidboxTopicDestination
+content-type: application/json
+accept: application/json
+
+{
+  "resourceType": "AidboxTopicDestination",
+  "meta": {
+    "profile": [
+      "http://aidbox.app/StructureDefinition/aidboxtopicdestination-webhook-at-least-once"
+    ]
+  },
+  "kind": "webhook-at-least-once",
+  "id": "webhook-destination",
+  "topic": "http://example.org/FHIR/R5/SubscriptionTopic/Invoice-topic",
+  "parameter": [
+    {
+      "name": "endpoint",
+      "valueUrl": "PUT_APP_ENDPOINT_URL_HERE/webhook-test"
+    },
+    {
+      "name": "timeout",
+      "valueUnsignedInt": 30
+    },
+    {
+      "name": "maxMessagesInBatch",
+      "valueUnsignedInt": 1
+    },
+    {
+      "name": "header",
+      "valueString": "User-Agent: Aidbox Server"
+    }
+  ]
+}
