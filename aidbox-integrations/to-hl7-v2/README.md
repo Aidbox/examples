@@ -19,7 +19,7 @@ docker compose up
 
 In case you need to extend/develop the project, you can start it with NPM.
 Notice that Aidbox instance is still necessary for it.
-So either deploy your own Aidbox or use the one provided in docker-compose.yml:
+So either deploy your own Aidbox (and set the necessary environment variables below) or use the one provided in docker-compose.yml:
 
 ```bash
 # To run aidbox and its dependencies
@@ -123,3 +123,24 @@ contents of the file...
 
 Open the `http://LOCATION/api-docs` to get access to Swagger docs for the server.
 These list all the available endpoints and their parameters.
+
+Once all the necessary resources are set up, creating a new `Invoice` resource should sent it to the `/webhook` endpoint.
+Which, in turn, will send the resulting message to the hospital.
+If you want to test the output before sending it to the hospital, use the `/test` endpoint:
+
+```json
+POST /test
+
+{
+    "resourceType": "Bundle",
+    "type": "history",
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "Invoice"
+                // ....
+            }
+        }
+    ]
+}
+```
