@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:18-alpine AS base
+FROM node:24-alpine AS base
 
 # Stage 1: Dependencies
 FROM base AS deps
@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@9.15.2 --activate
+RUN corepack enable && corepack prepare pnpm@10.25.0 --activate
 
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
