@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'aidbox-forms-smart-launch-2/**'
+      - 'aidbox-forms/aidbox-forms-smart-launch-2/**'
 
 jobs:
   deploy:
