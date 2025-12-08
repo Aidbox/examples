@@ -1,13 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React from "react";
+import "react";
 
-// declare module "react" {
-//   interface CSSProperties {
-//     "--sidebar-width"?: string;
-//   }
-// }
-
-declare global {
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "aidbox-form-renderer": React.DetailedHTMLProps<
@@ -17,11 +10,13 @@ declare global {
         questionnaire?: string;
         "questionnaire-response"?: string;
         config?: string;
+        "hide-footer"?: boolean;
       };
       "aidbox-form-builder": React.DetailedHTMLProps<
         React.IframeHTMLAttributes<HTMLIFrameElement>,
         HTMLIFrameElement
       > & {
+        "enable-fetch-proxy"?: boolean;
         "hide-back"?: boolean;
         "show-share"?: boolean;
         "hide-population"?: boolean;
@@ -33,6 +28,7 @@ declare global {
         "hide-convert"?: boolean;
         "hide-save"?: boolean;
         "disable-save"?: boolean;
+        "form-id"?: string;
         value?: string;
       };
     }

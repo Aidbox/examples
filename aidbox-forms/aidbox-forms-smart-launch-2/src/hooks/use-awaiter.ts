@@ -11,7 +11,7 @@ type Awaiter = {
   resolve?: () => void;
 };
 
-export const useAwaiter = (ref: RefObject<HTMLIFrameElement | undefined>) => {
+export const useAwaiter = (ref: RefObject<HTMLIFrameElement | null>) => {
   const [, triggerLoad] = useState(false);
   const awaiter = useRef<Awaiter | null>(null);
 
