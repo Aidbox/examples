@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { useAwaiter } from "@/hooks/use-awaiter";
 import { Questionnaire, QuestionnaireResponse } from "fhir/r4";

@@ -54,7 +54,7 @@ export function QuestionnairesActions({
   const [viewing, setViewing] = useState(false);
   const [running, setRunning] = useState(false);
   const { toast } = useToast();
-  const notSavedToast = useRef<ReturnType<typeof toast> | undefined>();
+  const notSavedToast = useRef<ReturnType<typeof toast> | undefined>(undefined);
 
   function withRunning<T>(promise: Promise<T>): Promise<T> {
     setRunning(true);
