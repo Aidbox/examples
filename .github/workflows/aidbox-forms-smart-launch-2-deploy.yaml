@@ -32,6 +32,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           platforms: linux/amd64,linux/arm64
-          context: aidbox-forms-smart-launch-2
+          context: aidbox-forms//aidbox-forms-smart-launch-2
           tags: ghcr.io/${{ env.IMAGE }}
           push: true
