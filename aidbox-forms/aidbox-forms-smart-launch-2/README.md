@@ -2,7 +2,7 @@
 features: [SMART on FHIR, Forms, Questionnaire, Next.js, EHR integration]
 languages: [TypeScript]
 ---
-This is a Aidbox Forms Smart Launch project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a Aidbox Forms Smart Launch project bootstrapped with [Next.js](https://nextjs.org/).
 
 You can use this project as a starting point for building your own Aidbox Forms Smart App. 
 It is intentionally kept simple to help you understand how to integrate Aidbox Forms adapt it to your needs.
