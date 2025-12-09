@@ -11,7 +11,7 @@ import { HumanName } from '../types/hl7-fhir-r4-core/HumanName'
 import { Location, Organization, Practitioner, PractitionerRole, Procedure } from '../types/hl7-fhir-r4-core'
 import { Address } from '../types/hl7-fhir-r4-core/Address'
 
-function find_in_bundle_by_reference<T extends Resource>(bundle: Bundle, reference: Reference<T['resourceType']> | undefined, resourceTypes: string[]): T | undefined {
+function findInBundleByReference<T extends Resource>(bundle: Bundle, reference: Reference<T['resourceType']> | undefined, resourceTypes: string[]): T | undefined {
     if (reference === undefined)
         return undefined
     let [_type, id] = reference.reference!.split('/')
@@ -23,13 +23,13 @@ function find_in_bundle_by_reference<T extends Resource>(bundle: Bundle, referen
     return undefined
 }
 
-function find_in_bundle_by_type<T extends Resource>(bundle: Bundle, type: string): Array<T> | undefined {
+function findInBundleByType<T extends Resource>(bundle: Bundle, type: string): Array<T> | undefined {
     return (bundle.entry as BundleEntry[])
         .filter((res: BundleEntry) => res.resource?.resourceType as any === type)
         .map((res: BundleEntry) => res.resource) as any
 }
 
-function date_to_hl7(date: number | undefined, date_only?: boolean) {
+function dateToHL7(date: number | undefined, date_only?: boolean) {
     if (date === undefined)
         return ''
     let formatter = Intl.DateTimeFormat('en-us', {
@@ -60,20 +60,20 @@ function date_to_hl7(date: number | undefined, date_only?: boolean) {
         return `${year}${month}${day}${hour}${minute}${second}`
 }
 
-function date_from_fhir(date: string | undefined): number | undefined {
+function dateFromFHIR(date: string | undefined): number | undefined {
     if (date === undefined)
         return undefined
     return Date.parse(date)
 }
 
-function repeat_strings(str: string, times: number) {
+function repeatStrings(str: string, times: number) {
     let strings = [];
     for (let i = 0; i < times; i++)
         strings.push(str)
     return strings
 }
 
-function name_from_fhir (name: HumanName | undefined): Array<string | undefined> | undefined {
+function nameFromFHIR (name: HumanName | undefined): Array<string | undefined> | undefined {
     if (name === undefined)
         return undefined
     let given = name?.given?.[0]
@@ -105,10 +105,10 @@ function name_from_fhir (name: HumanName | undefined): Array<string | undefined>
             type = 'M'
             break
     }
-    return [family, given, other_given, suffix, prefix, '', type, ...repeat_strings('', 7)]
+    return [family, given, other_given, suffix, prefix, '', type, ...repeatStrings('', 7)]
 }
 
-function gender_from_fhir(gender: string | undefined): string {
+function genderFromFHIR(gender: string | undefined): string {
     let patient_gender: string = 'U'
     switch (gender) {
         case 'male':
@@ -129,7 +129,7 @@ function gender_from_fhir(gender: string | undefined): string {
     return patient_gender
 }
 
-function patient_class_from_fhir(code: string | undefined): string {
+function patientClassFromFHIR(code: string | undefined): string {
     switch(code){
         case 'IMP':
             return 'I'
@@ -148,7 +148,7 @@ function patient_class_from_fhir(code: string | undefined): string {
 // unit -> Nursing unit
 // hospital -> Clinic
 // lab -> Department
-var location_types_from_fhir: Record<string,string> = {
+var locationTypesFromFHIR: Record<string,string> = {
     'DX': 'N',
     'CVDX': 'N',
     'CATH': 'D',
@@ -264,17 +264,17 @@ var location_types_from_fhir: Record<string,string> = {
     'PTRES': 'H'
 }
 
-function location_from_fhir(location: Location | undefined): Array<string> | undefined {
+function locationFromFHIR(location: Location | undefined): Array<string> | undefined {
     if (location == undefined)
         return undefined
     return ['', '', '', '', '',
         // FIXME: This ! is a lie to silent the TypeScript compiler
-        (location_types_from_fhir[location?.type?.[0]?.coding?.[0]?.code!] || 'D'),
-        ...repeat_strings('', 5)
+        (locationTypesFromFHIR[location?.type?.[0]?.coding?.[0]?.code!] || 'D'),
+        ...repeatStrings('', 5)
     ]
 }
 
-var admission_types_from_fhir: Record<string, string> = {
+var admissionTypesFromFHIR: Record<string, string> = {
         'EL': 'C',
         'EM': 'C',
         'R': 'R',
@@ -283,21 +283,21 @@ var admission_types_from_fhir: Record<string, string> = {
         'UR': 'U'
 }
 
-function admission_type_from_fhir(code: string | undefined): string {
+function admissionTypeFromFHIR(code: string | undefined): string {
     if (code === undefined)
         return ''
-    return (admission_types_from_fhir[code] || '')
+    return (admissionTypesFromFHIR[code] || '')
 }
 
-function find_encounter_practitioner(bundle: Bundle, encounter: Encounter | undefined): Practitioner | undefined {
+function findEncounterPractitioner(bundle: Bundle, encounter: Encounter | undefined): Practitioner | undefined {
     if (encounter === undefined)
         return undefined
     for (const participant of encounter.participant || []) {
-        let individual = find_in_bundle_by_reference(bundle, participant.individual, ['Practitioner', 'PractitionerRole'])
+        let individual = findInBundleByReference(bundle, participant.individual, ['Practitioner', 'PractitionerRole'])
         if (individual?.resourceType === 'Practitioner') {
             return individual as Practitioner
         } else if (individual?.resourceType === 'PractitionerRole') {
-            let prac = find_in_bundle_by_reference(bundle, (individual as PractitionerRole).practitioner, ['Practitioner']) as Practitioner | undefined
+            let prac = findInBundleByReference(bundle, (individual as PractitionerRole).practitioner, ['Practitioner']) as Practitioner | undefined
             if (prac)
                 return prac
         }
@@ -305,21 +305,21 @@ function find_encounter_practitioner(bundle: Bundle, encounter: Encounter | unde
     return undefined
 }
 
-function composite_name_from_fhir(practitioner: Practitioner | undefined): Array<string | undefined> | undefined {
+function compositeNameFromFHIR(practitioner: Practitioner | undefined): Array<string | undefined> | undefined {
     if (practitioner === undefined)
         return undefined
-    let [family, given, other_given, suffix, prefix, _, type] = name_from_fhir(practitioner.name?.[0]) || []
+    let [family, given, other_given, suffix, prefix, _, type] = nameFromFHIR(practitioner.name?.[0]) || []
     return [practitioner?.identifier?.[0]?.value, family, given, other_given, suffix, prefix,
             '', '',
             // TODO: Process qualification.issuer into authority?
             '',
             type,
             // TODO: More bindings (which ones?)
-            ...repeat_strings('', 13)
+            ...repeatStrings('', 13)
     ]
 }
 
-var diagnosis_types_from_fhir: Record<string,string> = {
+var diagnosisTypesFromFHIR: Record<string,string> = {
     'unconfirmed': 'W',
     'provisional': 'W',
     'differential': 'W',
@@ -329,14 +329,14 @@ var diagnosis_types_from_fhir: Record<string,string> = {
     'entered-in-error': 'F'
 }
 
-function diagnosis_type_from_fhir(code: string | undefined): string | undefined {
+function diagnosisTypeFromFHIR(code: string | undefined): string | undefined {
     if (code === undefined)
         return undefined
-    return diagnosis_types_from_fhir[code];
+    return diagnosisTypesFromFHIR[code];
 
 }
 
-var diagnosis_action_codes_from_fhir: Record<string,string> = {
+var diagnosisActionCodesFromFHIR: Record<string,string> = {
     'unconfirmed': 'A',
     'provisional': 'A',
     'differential': 'A',
@@ -345,31 +345,31 @@ var diagnosis_action_codes_from_fhir: Record<string,string> = {
     'entered-in-error': 'D'
 }
 
-function diagnosis_action_code_from_fhir(code: string | undefined): string | undefined {
+function diagnosisActionCodeFromFHIR(code: string | undefined): string | undefined {
     if (code === undefined)
         return undefined
-    return diagnosis_action_codes_from_fhir[code]
+    return diagnosisActionCodesFromFHIR[code]
 }
 
-var procedure_types_from_fhir: Record<string,string> = {
+var procedureTypesFromFHIR: Record<string,string> = {
     '103693007': 'D'
 }
 
-function procedure_type_from_fhir(code: string | undefined): string {
+function procedureTypeFromFHIR(code: string | undefined): string {
     if (code === undefined)
         return ''
-    return procedure_types_from_fhir[code] || 'P'
+    return procedureTypesFromFHIR[code] || 'P'
 }
 
-function find_procedure_practitioner(bundle: Bundle, procedure: Procedure | undefined): Practitioner | undefined {
+function findProcedurePractitioner(bundle: Bundle, procedure: Procedure | undefined): Practitioner | undefined {
     if (procedure === undefined)
         return undefined
     for (const participant of procedure.performer || []) {
-        let actor = find_in_bundle_by_reference(bundle, participant.actor, ['Practitioner', 'PractitionerRole'])
+        let actor = findInBundleByReference(bundle, participant.actor, ['Practitioner', 'PractitionerRole'])
         if (actor?.resourceType === 'Practitioner') {
             return actor as Practitioner
         } else if (actor?.resourceType === 'PractitionerRole') {
-            let prac = find_in_bundle_by_reference(bundle, (actor as PractitionerRole).practitioner, ['Practitioner']) as Practitioner | undefined
+            let prac = findInBundleByReference(bundle, (actor as PractitionerRole).practitioner, ['Practitioner']) as Practitioner | undefined
             if (prac)
                 return prac
         }
@@ -377,22 +377,22 @@ function find_procedure_practitioner(bundle: Bundle, procedure: Procedure | unde
     return undefined
 }
 
-var procedure_actions_from_fhir: Record<string,string> = {
+var procedureActionsFromFHIR: Record<string,string> = {
     'entered-in-error': 'D',
     'stopped': 'D'
 }
 
-function composite_org_name_from_fhir(org: Organization | undefined): Array<string | undefined> | undefined {
+function compositeOrgNameFromFHIR(org: Organization | undefined): Array<string | undefined> | undefined {
     if (org === undefined)
         return undefined
     return [org?.name,
         'L', // Is there a better type code for organization names?
-        ...repeat_strings('', 7),
+        ...repeatStrings('', 7),
         org?.identifier?.[0]?.id
     ]
 }
 
-var addr_uses_from_fhir: Record<string,string> = {
+var addrUsesFromFHIR: Record<string,string> = {
     'home': 'H',
     'work': 'O',
     'temp': 'C',
@@ -400,7 +400,7 @@ var addr_uses_from_fhir: Record<string,string> = {
     'billing': 'L'
 }
 
-function extended_address_from_fhir(addr: Address | undefined): Array<string | undefined> | undefined {
+function extendedAddressFromFHIR(addr: Address | undefined): Array<string | undefined> | undefined {
     if (addr === undefined)
         return undefined
     return [addr.line?.[0], '',
@@ -408,20 +408,20 @@ function extended_address_from_fhir(addr: Address | undefined): Array<string | u
         addr.state,
         addr.postalCode,
         addr.country,
-        addr.use ? addr_uses_from_fhir[addr.use] : '',
+        addr.use ? addrUsesFromFHIR[addr.use] : '',
         '', '', '', '', '',
-        date_to_hl7(date_from_fhir(addr.period?.start)),
-        date_to_hl7(date_from_fhir(addr.period?.end))
+        dateToHL7(dateFromFHIR(addr.period?.start)),
+        dateToHL7(dateFromFHIR(addr.period?.end))
     ]
 }
 
-var telecom_uses_from_fhir: Record<string,string> = {
+var telecomUsesFromFHIR: Record<string,string> = {
     'home': 'PRN',
     'work': 'WPN',
     'temp': 'ORN'
 }
 
-var telecom_equipment_from_fhir: Record<string,string> = {
+var telecomEquipmentFromFHIR: Record<string,string> = {
     'home': 'PH',
     'work': 'PH',
     'temp': 'PH',
@@ -429,35 +429,35 @@ var telecom_equipment_from_fhir: Record<string,string> = {
     'mobile': 'CP'
 }
 
-function telecommunication_from_fhir(cps: ContactPoint[] | undefined): Array<string | undefined> | undefined {
+function telecommunicationFromFHIR(cps: ContactPoint[] | undefined): Array<string | undefined> | undefined {
     if (cps === undefined)
         return undefined
     let typed: Record<string,ContactPoint> = {}
     for (const cp of cps)
         typed[cp.system!] = cp
     return [typed['phone']?.value,
-        telecom_uses_from_fhir[typed['phone']?.use!],
-        telecom_equipment_from_fhir[typed['phone']?.use!],
+        telecomUsesFromFHIR[typed['phone']?.use!],
+        telecomEquipmentFromFHIR[typed['phone']?.use!],
         typed['email']?.value,
-        ...repeat_strings('', 7),
+        ...repeatStrings('', 7),
         typed['phone']?.value
     ]
 }
 
-export function to_BAR(invoice: Invoice, bundle: Bundle) {
-    let patient = find_in_bundle_by_reference(bundle, invoice!.subject as Reference<'Patient'>, ['Patient']) as Patient | undefined
-    let coverage = find_in_bundle_by_type(bundle, 'Coverage')?.[0] as Coverage | undefined
-    let encounter = find_in_bundle_by_type(bundle, 'Encounter')?.[0] as Encounter | undefined
-    let conditions = find_in_bundle_by_type(bundle, 'Condition') as Condition[] | undefined
-    let procedures = find_in_bundle_by_type(bundle, 'Procedure') as Procedure[] | undefined
-    let insurer = find_in_bundle_by_reference(bundle, coverage?.policyHolder as Reference<'Organization'>, ['Organization']) as Organization | undefined
+export function toBAR(invoice: Invoice, bundle: Bundle) {
+    let patient = findInBundleByReference(bundle, invoice!.subject as Reference<'Patient'>, ['Patient']) as Patient | undefined
+    let coverage = findInBundleByType(bundle, 'Coverage')?.[0] as Coverage | undefined
+    let encounter = findInBundleByType(bundle, 'Encounter')?.[0] as Encounter | undefined
+    let conditions = findInBundleByType(bundle, 'Condition') as Condition[] | undefined
+    let procedures = findInBundleByType(bundle, 'Procedure') as Procedure[] | undefined
+    let insurer = findInBundleByReference(bundle, coverage?.policyHolder as Reference<'Organization'>, ['Organization']) as Organization | undefined
     let insurer_contact = undefined
     if (insurer && insurer.contact && insurer.contact.filter(x => x.purpose?.coding?.[0]?.code === 'PAYOR'))
         insurer_contact = insurer.contact.filter(x => x.purpose?.coding?.[0]?.code === 'PAYOR')[0]
-    let date_string = date_to_hl7(Date.now())
-    let patient_class = patient_class_from_fhir(encounter?.class.code)
-    let encounter_location = find_in_bundle_by_reference(bundle, encounter?.location?.[0]?.location as Reference<'Location'>, ['Location']) as Location | undefined
-    let encounter_practitioner = find_encounter_practitioner(bundle, encounter)
+    let date_string = dateToHL7(Date.now())
+    let patient_class = patientClassFromFHIR(encounter?.class.code)
+    let encounter_location = findInBundleByReference(bundle, encounter?.location?.[0]?.location as Reference<'Location'>, ['Location']) as Location | undefined
+    let encounter_practitioner = findEncounterPractitioner(bundle, encounter)
     let inpatient_class = encounter?.classHistory?.filter((c) => c.class.code === 'IMP')[0]
     let inpatient_period = inpatient_class?.period
     // TODO: 'DotBase', 'CSP', '050^00001', 'P', and '2.5' should be configurable
@@ -467,20 +467,20 @@ export function to_BAR(invoice: Invoice, bundle: Bundle) {
        ['PID', '', '',
         patient?.id!,
         '',
-        name_from_fhir(patient?.name?.[0]),
+        nameFromFHIR(patient?.name?.[0]),
         '',
-        date_to_hl7(date_from_fhir(patient?.birthDate), true) || '',
+        dateToHL7(dateFromFHIR(patient?.birthDate), true) || '',
         // TODO other fields: https://hl7-definition.caristix.com/v2/HL7v2.5.1/Segments/PID
-        gender_from_fhir(patient?.gender),
-        ...repeat_strings('', 31)],
+        genderFromFHIR(patient?.gender),
+        ...repeatStrings('', 31)],
        ['PV1', '',
         patient_class,
-        location_from_fhir(encounter_location),
-        admission_type_from_fhir(encounter?.priority?.coding?.[0]?.code),
+        locationFromFHIR(encounter_location),
+        admissionTypeFromFHIR(encounter?.priority?.coding?.[0]?.code),
         '',
-        // TODO: Prior location (also location_from_fhir call with status awareness)
+        // TODO: Prior location (also location_fromFHIR call with status awareness)
         '',
-        composite_name_from_fhir(encounter_practitioner),
+        compositeNameFromFHIR(encounter_practitioner),
         // TODO: Referring and consulting doctor
         '', '',
         'MED',
@@ -490,16 +490,16 @@ export function to_BAR(invoice: Invoice, bundle: Bundle) {
         // Admit source, ambulatory status, VIP
         '', '', '',
         // Admitting doctor, same as attending for now
-        composite_name_from_fhir(encounter_practitioner),
+        compositeNameFromFHIR(encounter_practitioner),
         '', encounter?.identifier?.[0]?.value, // Visit number
         '', '', '', '',
         // Contract
-        '', date_to_hl7(date_from_fhir(invoice.date), true), invoice.totalGross?.value?.toString(), '',
-        ... repeat_strings('', 16),
+        '', dateToHL7(dateFromFHIR(invoice.date), true), invoice.totalGross?.value?.toString(), '',
+        ... repeatStrings('', 16),
         // Dates: admission and discharge
-        date_to_hl7(date_from_fhir(inpatient_period?.start)),
-        date_to_hl7(date_from_fhir(inpatient_period?.end)),
-        ...repeat_strings('', 7)
+        dateToHL7(dateFromFHIR(inpatient_period?.start)),
+        dateToHL7(dateFromFHIR(inpatient_period?.end)),
+        ...repeatStrings('', 7)
         ],
         ...(conditions as Condition[]).map((condition: Condition) => {
                 return ['DG1',
@@ -507,8 +507,8 @@ export function to_BAR(invoice: Invoice, bundle: Bundle) {
                         // TODO: Diagnosis coding method, code, and description
                         '', '', '',
                         date_string,
-                        diagnosis_type_from_fhir(condition.verificationStatus?.coding?.[0]?.code),
-                        ...repeat_strings('', 8),
+                        diagnosisTypeFromFHIR(condition.verificationStatus?.coding?.[0]?.code),
+                        ...repeatStrings('', 8),
                         // DG1.15 is Priority according to the spec, but DotBase use it as Related Diagnose
                         '',
                         '', '', '',
@@ -516,24 +516,24 @@ export function to_BAR(invoice: Invoice, bundle: Bundle) {
                         // Opting for date here, because Procedures might not be available here
                         date_string,
                         '',
-                        diagnosis_action_code_from_fhir(condition.verificationStatus?.coding?.[0]?.code)
+                        diagnosisActionCodeFromFHIR(condition.verificationStatus?.coding?.[0]?.code)
                 ]}),
         ...(procedures as Procedure[]).map((procedure: Procedure) => {
-            let practitioner = find_procedure_practitioner(bundle, procedure)
+            let practitioner = findProcedurePractitioner(bundle, procedure)
             return ['PR1',
                     procedures!.length.toString(),
                     // Coding method, code, and description
                     '', '', '',
                     // Procedure date
                     date_string,
-                    procedure_type_from_fhir(procedure.category?.coding?.[0]?.code),
+                    procedureTypeFromFHIR(procedure.category?.coding?.[0]?.code),
                     '', '', '', '',
                     // Standard says PR1.11 is a surgeon, but DotBase use PR1.11 for their own field
                     'BAPIDOTBASE^^^MRD-MRN',
-                    composite_name_from_fhir(practitioner),
-                    ...repeat_strings('', 6),
+                    compositeNameFromFHIR(practitioner),
+                    ...repeatStrings('', 6),
                     procedure.identifier?.[0]?.value,
-                    procedure_actions_from_fhir[procedure.status] || 'A'
+                    procedureActionsFromFHIR[procedure.status] || 'A'
             ]
         }),
         ...(!coverage
@@ -541,27 +541,27 @@ export function to_BAR(invoice: Invoice, bundle: Bundle) {
             : [['IN1',
                 coverage?.identifier?.[0]?.id,
                 insurer?.identifier?.[0]?.id,
-                composite_org_name_from_fhir(insurer),
-                extended_address_from_fhir(insurer?.address?.[0]),
-                name_from_fhir(insurer_contact?.name),
+                compositeOrgNameFromFHIR(insurer),
+                extendedAddressFromFHIR(insurer?.address?.[0]),
+                nameFromFHIR(insurer_contact?.name),
                 // TODO: Might need to preprocess this to an HL7-friendly format
                 // But the requirements are pretty relaxed in HL7
-                telecommunication_from_fhir(insurer_contact?.telecom),
+                telecommunicationFromFHIR(insurer_contact?.telecom),
                 // TODO: Get group IDs from somewhere
                 '', '', '', '',
-                date_to_hl7(date_from_fhir(coverage.period?.start)),
-                date_to_hl7(date_from_fhir(coverage.period?.end)),
+                dateToHL7(dateFromFHIR(coverage.period?.start)),
+                dateToHL7(dateFromFHIR(coverage.period?.end)),
                 '', '',
-                name_from_fhir(patient?.name?.[0]),
+                nameFromFHIR(patient?.name?.[0]),
                 'SEL',
-                date_to_hl7(date_from_fhir(patient?.birthDate)),
-                extended_address_from_fhir(patient?.address?.[0]),
+                dateToHL7(dateFromFHIR(patient?.birthDate)),
+                extendedAddressFromFHIR(patient?.address?.[0]),
                 '', '', '', // Coordination and Assignment of Benefits
-                date_to_hl7(date_from_fhir(invoice.date)),
+                dateToHL7(dateFromFHIR(invoice.date)),
                 // Verification By..Insured's Employment Status
-                ...repeat_strings('', 13),
+                ...repeatStrings('', 13),
                 // TODO: There's only gender in FHIR, so this mapping is imperfect
-                gender_from_fhir(patient?.gender),
+                genderFromFHIR(patient?.gender),
                 //  Insured's Employer's Address.. Insured's Employer's Address
                 '', '', '',
                 // TODO: Coverage Type must be inferrable from Invoice/Coverage, but it's not obvious
@@ -569,13 +569,13 @@ export function to_BAR(invoice: Invoice, bundle: Bundle) {
                 '', // Handicap
                 // TODO: Insured's ID Number should be fetchable from Patient
                 '',
-                ...repeat_strings('', 4)
+                ...repeatStrings('', 4)
             ]])
        ]
        return BAR
 }
 
-export function stringify_message(message: Array<Array<string | undefined | Array<string | undefined>>>): string {
+export function stringifyMessage(message: Array<Array<string | undefined | Array<string | undefined>>>): string {
     return message.map(segment => {
         return segment.map(field => {
             if (Array.isArray(field)) {

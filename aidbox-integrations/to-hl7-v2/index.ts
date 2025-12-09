@@ -1,11 +1,11 @@
-import { to_BAR, stringify_message } from './src/to_bar.js'
+import { toBAR, stringifyMessage } from './src/to_bar.js'
 import express, { Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import swaggerUi from 'swagger-ui-express'
 import morgan from 'morgan'
 import { swaggerDocument } from './src/swagger.js'
 import { BundleEntry } from './types/hl7-fhir-r4-core/Bundle.js'
-import { get_invoice_resources } from './src/aidbox.js'
+import { getInvoiceResources } from './src/aidbox.js'
 import { MLLPServer } from 'mllp-node-sl7'
 
 // Create a new express application instance
@@ -14,8 +14,8 @@ const app = express()
 // Set network envs
 const port = process.env.PORT || 3000
 const secret = process.env.SECRET
-const receiver_port = process.env.MLLP_RECEIVER_PORT || 2575
-const receiver_host = process.env.MLLP_RECEIVER_HOST
+const receiverPort = process.env.MLLP_RECEIVER_PORT || 2575
+const receiverHost = process.env.MLLP_RECEIVER_HOST
 
 // Define the root path with a greeting message
 app.get("/ping", (req: Request, res: Response) => {
@@ -32,21 +32,21 @@ app.use((req, res, next) => {
     res.status(403).send('Authentication required.')
 })
 
-let mllp_server = new MLLPServer('0.0.0.0', 2575)
+let mllpServer = new MLLPServer('0.0.0.0', 2575)
 
-mllp_server.on('hl7', (data) => {
+mllpServer.on('hl7', (data) => {
     console.log('Received HL7 message: \n' + data)
 })
 
 app.post('/webhook', async (req, res) => {
     let invoice = req.body.entry.filter((x: BundleEntry) => x.resource?.resourceType === 'Invoice')[0].resource
-    let resources = await get_invoice_resources(invoice)
+    let resources = await getInvoiceResources(invoice)
     let status = 200
     let body: Record<string,any> = {}
-    console.log(stringify_message(to_BAR(invoice, resources)))
-    mllp_server.send(receiver_host!,
-        receiver_port as number,
-        stringify_message(to_BAR(invoice, resources)),
+    console.log(stringifyMessage(toBAR(invoice, resources)))
+    mllpServer.send(receiverHost!,
+        receiverPort as number,
+        stringifyMessage(toBAR(invoice, resources)),
         (err, data) => {
             if (err) {
                 status = 500
@@ -63,9 +63,9 @@ app.post('/webhook', async (req, res) => {
 
 app.post('/test', async (req, res) => {
     let invoice = req.body.entry.filter((x: BundleEntry) => x.resource?.resourceType === 'Invoice')[0].resource
-    let resources = await get_invoice_resources(invoice)
+    let resources = await getInvoiceResources(invoice)
     let status = 200
-    let body: string = stringify_message(to_BAR(invoice, resources))
+    let body: string = stringifyMessage(toBAR(invoice, resources))
     console.log('Test BAR message: ' + body)
     res.status(status).send(body)
 })
