@@ -3,7 +3,7 @@ import { Invoice } from "../types/hl7-fhir-r4-core"
 const base_url = process.env.AIDBOX_BASE_URL
 const creds = process.env.AIDBOX_CREDENTIALS
 
-export async function get_invoice_resources(invoice: Invoice){
+export async function getInvoiceResources(invoice: Invoice){
     let res = await fetch([base_url,
         '/fhir/Invoice',
         `?_id=${invoice.id}`,
