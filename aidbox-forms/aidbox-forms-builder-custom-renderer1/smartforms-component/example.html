@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartForms Component Test</title>
+</head>
+<body>
+    <h1>SmartForms Web Component Test</h1>
+
+    <aidbox-form-csiro-renderer id="smartforms"></aidbox-form-csiro-renderer>
+
+    <script type="module">
+        import './dist/aidbox-forms-renderer-csiro-webcomponent.js';
+
+        const component = document.getElementById('smartforms');
+
+        // Example questionnaire (minimal structure)
+        const sampleQuestionnaire = {
+            "resourceType": "Questionnaire",
+            "id": "test-questionnaire",
+            "status": "active",
+            "item": [
+                {
+                    "linkId": "1",
+                    "text": "What is your name?",
+                    "type": "string"
+                },
+                {
+                    "linkId": "2",
+                    "text": "How old are you?",
+                    "type": "integer"
+                },
+                {
+                    "linkId": "group",
+                    "text": "Patient Info",
+                    "type": "group",
+                    "item": [
+                        {"type": "string",
+                         "linkId": "str",
+                         "text": "Name"}
+                    ]
+                },
+                {
+                    "linkId": "3",
+                    "text": "Do you have any allergies?",
+                    "type": "dateTime"
+                }
+            ]
+        };
+
+        // Set questionnaire via property
+        component.questionnaire = sampleQuestionnaire;
+
+        // Listen for response changes
+        component.addEventListener('questionnaire-response-change', (event) => {
+            console.log('Questionnaire response changed:', event.detail.response);
+        });
+    </script>
+</body>
+</html>
