@@ -121,7 +121,7 @@ contents of the file...
 
 ## Usage
 
-Open the `http://LOCATION/api-docs` to get access to Swagger docs for the server.
+Open the `http://localhost:3000/api-docs` (when ran on `localhost`, replace with your location when necessary) to get access to Swagger docs for the server.
 These list all the available endpoints and their parameters.
 
 Once all the necessary resources are set up, creating a new `Invoice` resource should sent it to the `/webhook` endpoint.
