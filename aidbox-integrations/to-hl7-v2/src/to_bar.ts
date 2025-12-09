@@ -462,7 +462,7 @@ export function toBAR(invoice: Invoice, bundle: Bundle) {
     let inpatient_period = inpatient_class?.period
     // TODO: 'DotBase', 'CSP', '050^00001', 'P', and '2.5' should be configurable
     let BAR: Array<Array<string | undefined | Array<string | undefined>>>
-    = [['MSH', '^~\\&', 'DotBase', 'DotBase', 'CSP', '050^0001', date_string, '', 'BAR^P12', 'TODO', 'P', '2.5', '', '', 'AL'],
+    = [['MSH', '^~\\&', 'DotBase', 'DotBase', 'CSP', ['050', '0001'], date_string, '', ['BAR', 'P12'], 'TODO', 'P', '2.5', '', '', 'AL'],
        ['EVN', 'P12', date_string, ''],
        ['PID', '', '',
         patient?.id!,
