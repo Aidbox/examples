@@ -1,0 +1,25 @@
+{
+  "name": "smartforms-component",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6"
+  },
+  "scripts": {
+    "build": "bun run build.js",
+    "dev": "bun run build.js --watch",
+    "install-aidbox": "cp dist/aidbox-forms-renderer-csiro-webcomponent.js ../../sansara/box/resources/public/aidbox-forms-renderer-csiro-webcomponent.js"
+  },
+  "dependencies": {
+    "@aehrc/smart-forms-renderer": "^1.0.0-alpha.75",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.2.0",
+    "@mui/system": "^7.2.0",
+    "lodash": "^4.17.21",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}
