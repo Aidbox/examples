@@ -1,0 +1,55 @@
+slice_name: Average visit duration by type
+description: null
+certified_by: null
+certification_details: null
+viz_type: pie
+params:
+  datasource: 2__table
+  viz_type: pie
+  groupby:
+  - type
+  metric:
+    expressionType: SQL
+    sqlExpression: avg(dateDiff('minute', period_start, period_end))
+    column: null
+    aggregate: null
+    datasourceWarning: false
+    hasCustomLabel: false
+    label: avg(dateDiff('minute', period_start, period_end))
+    optionName: metric_kvrqanfdxy_02njn2ocekzq
+  adhoc_filters:
+  - clause: WHERE
+    subject: period_start
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    expressionType: SIMPLE
+  row_limit: 100
+  sort_by_metric: true
+  color_scheme: supersetColors
+  show_labels_threshold: 5
+  show_legend: true
+  legendType: scroll
+  legendOrientation: top
+  label_type: key
+  number_format: SMART_NUMBER
+  date_format: smart_date
+  show_labels: true
+  labels_outside: true
+  outerRadius: 70
+  innerRadius: 30
+  extra_form_data: {}
+  dashboards:
+  - 1
+query_context: '{"datasource":{"id":2,"type":"table"},"force":false,"queries":[{"filters":[{"col":"period_start","op":"TEMPORAL_RANGE","val":"No
+  filter"}],"extras":{"having":"","where":""},"applied_time_extras":{},"columns":["type"],"metrics":[{"expressionType":"SQL","sqlExpression":"avg(dateDiff(''minute'',
+  period_start, period_end))","column":null,"aggregate":null,"datasourceWarning":false,"hasCustomLabel":false,"label":"avg(dateDiff(''minute'',
+  period_start, period_end))","optionName":"metric_kvrqanfdxy_02njn2ocekzq"}],"orderby":[[{"expressionType":"SQL","sqlExpression":"avg(dateDiff(''minute'',
+  period_start, period_end))","column":null,"aggregate":null,"datasourceWarning":false,"hasCustomLabel":false,"label":"avg(dateDiff(''minute'',
+  period_start, period_end))","optionName":"metric_kvrqanfdxy_02njn2ocekzq"},false]],"annotation_layers":[],"row_limit":100,"series_limit":0,"order_desc":true,"url_params":{},"custom_params":{},"custom_form_data":{}}],"form_data":{"datasource":"2__table","viz_type":"pie","groupby":["type"],"metric":{"expressionType":"SQL","sqlExpression":"avg(dateDiff(''minute'',
+  period_start, period_end))","column":null,"aggregate":null,"datasourceWarning":false,"hasCustomLabel":false,"label":"avg(dateDiff(''minute'',
+  period_start, period_end))","optionName":"metric_kvrqanfdxy_02njn2ocekzq"},"adhoc_filters":[{"clause":"WHERE","subject":"period_start","operator":"TEMPORAL_RANGE","comparator":"No
+  filter","expressionType":"SIMPLE"}],"row_limit":100,"sort_by_metric":true,"color_scheme":"supersetColors","show_labels_threshold":5,"show_legend":true,"legendType":"scroll","legendOrientation":"top","label_type":"key","number_format":"SMART_NUMBER","date_format":"smart_date","show_labels":true,"labels_outside":true,"outerRadius":70,"innerRadius":30,"extra_form_data":{},"dashboards":[1],"force":false,"result_format":"json","result_type":"full"},"result_format":"json","result_type":"full"}'
+cache_timeout: null
+uuid: 5f997d69-04ed-4eb2-9d1a-eb37c8cf0504
+version: 1.0.0
+dataset_uuid: ed499ee9-93f0-4946-a779-fb7fa7d5475b
