@@ -1,4 +1,4 @@
-import type { Encounter, EncounterParticipant } from './fhir.r4.sdk/types/hl7-fhir-r4-core/Encounter';
+import type { Encounter, EncounterParticipant } from './fhir-r4/fhir-types/hl7-fhir-r4-core/Encounter';
 import type { AidboxClient } from './client';
 
 // Helper functions for random data generation

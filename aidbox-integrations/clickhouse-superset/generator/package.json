@@ -8,5 +8,8 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@atomic-ehr/codegen": "^0.0.4"
   }
 }

@@ -1,4 +1,4 @@
-import type { Appointment, AppointmentParticipant } from './fhir.r4.sdk/types/hl7-fhir-r4-core/Appointment';
+import type { Appointment, AppointmentParticipant } from './fhir-r4/fhir-types/hl7-fhir-r4-core/Appointment';
 import type { AidboxClient } from './client';
 
 // Helper functions for random data generation
