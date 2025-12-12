@@ -11,7 +11,7 @@ position:
     children: []
     id: CHART-explore-2-1
     meta:
-      chartId: 5
+      chartId: 4
       height: 72
       sliceName: Number of visits by type (per day)
       uuid: c3e30e6f-5ffc-4b50-b49c-7439657d9cec
@@ -25,7 +25,7 @@ position:
     children: []
     id: CHART-explore-3-1
     meta:
-      chartId: 3
+      chartId: 2
       height: 72
       sliceName: Average visit duration by type
       uuid: 5f997d69-04ed-4eb2-9d1a-eb37c8cf0504
@@ -39,7 +39,7 @@ position:
     children: []
     id: CHART-explore-4-1
     meta:
-      chartId: 2
+      chartId: 1
       height: 72
       sliceName: Ratio of cancellations
       uuid: d11389c1-82d0-4ad9-be7f-7f95d2de1ead
@@ -53,7 +53,7 @@ position:
     children: []
     id: CHART-explore-5-1
     meta:
-      chartId: 4
+      chartId: 5
       height: 72
       sliceName: Cancelation reasons
       uuid: 17794cd6-8bde-4855-aa3a-f4af206f79d3
@@ -67,7 +67,7 @@ position:
     children: []
     id: CHART-explore-6-1
     meta:
-      chartId: 6
+      chartId: 3
       height: 72
       sliceName: Practitioner workload 2
       uuid: e165d022-3ccf-483e-ae56-1d34d1189b37
@@ -226,5 +226,5 @@ metadata:
   timed_refresh_immune_slices: []
   cross_filters_enabled: true
   native_filter_configuration: []
-  default_filters: '{}'
+theme_uuid: null
 version: 1.0.0

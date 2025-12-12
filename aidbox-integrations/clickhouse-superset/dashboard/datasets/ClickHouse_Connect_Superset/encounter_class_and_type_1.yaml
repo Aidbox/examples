@@ -1,4 +1,4 @@
-table_name: practitioner_workload_view
+table_name: encounter_class_and_type
 main_dttm_col: period_start
 description: null
 default_endpoint: null
@@ -14,7 +14,8 @@ fetch_values_predicate: null
 extra: null
 normalize_columns: false
 always_filter_main_dttm: false
-uuid: 36291e62-2562-49d5-88e4-9d22f8d0284a
+folders: null
+uuid: ed499ee9-93f0-4946-a779-fb7fa7d5475b
 metrics:
 - metric_name: count
   verbose_name: COUNT(*)
@@ -26,18 +27,6 @@ metrics:
   extra: null
   warning_text: null
 columns:
-- column_name: concat(given, ' ', family)
-  verbose_name: null
-  is_dttm: false
-  is_active: true
-  type: NULLABLE(STRING)
-  advanced_data_type: null
-  groupby: true
-  filterable: true
-  expression: null
-  description: null
-  python_date_format: null
-  extra: null
 - column_name: period_start
   verbose_name: null
   is_dttm: true
@@ -62,11 +51,11 @@ columns:
   description: null
   python_date_format: null
   extra: null
-- column_name: class
+- column_name: cts
   verbose_name: null
-  is_dttm: false
+  is_dttm: true
   is_active: true
-  type: NULLABLE(STRING)
+  type: DATETIME64(3)
   advanced_data_type: null
   groupby: true
   filterable: true
@@ -74,7 +63,19 @@ columns:
   description: null
   python_date_format: null
   extra: null
-- column_name: patient
+- column_name: ts
+  verbose_name: null
+  is_dttm: true
+  is_active: true
+  type: DATETIME64(3)
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: null
+  description: null
+  python_date_format: null
+  extra: null
+- column_name: status
   verbose_name: null
   is_dttm: false
   is_active: true
@@ -91,6 +92,18 @@ columns:
   is_dttm: false
   is_active: true
   type: NULLABLE(STRING)
+  advanced_data_type: null
+  groupby: true
+  filterable: true
+  expression: null
+  description: null
+  python_date_format: null
+  extra: null
+- column_name: is_deleted
+  verbose_name: null
+  is_dttm: false
+  is_active: true
+  type: UINT8
   advanced_data_type: null
   groupby: true
   filterable: true

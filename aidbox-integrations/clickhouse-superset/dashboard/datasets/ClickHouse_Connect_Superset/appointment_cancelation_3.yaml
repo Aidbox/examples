@@ -1,5 +1,5 @@
-table_name: encounter_class_and_type
-main_dttm_col: period_start
+table_name: appointment_cancelation
+main_dttm_col: cts
 description: null
 default_endpoint: null
 offset: 0
@@ -14,7 +14,8 @@ fetch_values_predicate: null
 extra: null
 normalize_columns: false
 always_filter_main_dttm: false
-uuid: ed499ee9-93f0-4946-a779-fb7fa7d5475b
+folders: null
+uuid: 5691da0a-f958-4cdf-8bdf-8eb413d2689e
 metrics:
 - metric_name: count
   verbose_name: COUNT(*)
@@ -26,30 +27,6 @@ metrics:
   extra: null
   warning_text: null
 columns:
-- column_name: period_start
-  verbose_name: null
-  is_dttm: true
-  is_active: true
-  type: NULLABLE(DATETIME64(3))
-  advanced_data_type: null
-  groupby: true
-  filterable: true
-  expression: null
-  description: null
-  python_date_format: null
-  extra: null
-- column_name: period_end
-  verbose_name: null
-  is_dttm: true
-  is_active: true
-  type: NULLABLE(DATETIME64(3))
-  advanced_data_type: null
-  groupby: true
-  filterable: true
-  expression: null
-  description: null
-  python_date_format: null
-  extra: null
 - column_name: cts
   verbose_name: null
   is_dttm: true
@@ -74,7 +51,7 @@ columns:
   description: null
   python_date_format: null
   extra: null
-- column_name: status
+- column_name: cancelationReason
   verbose_name: null
   is_dttm: false
   is_active: true
@@ -86,7 +63,7 @@ columns:
   description: null
   python_date_format: null
   extra: null
-- column_name: type
+- column_name: status
   verbose_name: null
   is_dttm: false
   is_active: true
