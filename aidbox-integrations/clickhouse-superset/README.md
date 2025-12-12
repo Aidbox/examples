@@ -22,15 +22,6 @@ flowchart TB
 
     subgraph Superset["Superset (Visualization)"]
         SupersetApp[Superset App<br/>:8088]
-        SupersetWorker[Celery Worker]
-        SupersetBeat[Celery Beat]
-        SupersetDB[(PostgreSQL)]
-        Redis[(Redis)]
-
-        SupersetApp --> SupersetDB
-        SupersetApp --> Redis
-        SupersetWorker --> Redis
-        SupersetBeat --> Redis
     end
 
     AidboxDB -->|Topic Destination| ClickHouse

@@ -33,6 +33,7 @@ A collection of examples on top of Aidbox FHIR platform
 
 - [BedaEMR integration](aidbox-integrations/BedaEmr/)
 - [FHIR Analytics](aidbox-integrations/fhir-analytics/)
+- [Real-Time Analytics with Aidbox, ClickHouse, and Superset](aidbox-integrations/clickhouse-superset/)
 
 ## Aidbox Features
 
