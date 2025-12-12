@@ -11,7 +11,7 @@ position:
     children: []
     id: CHART-explore-2-1
     meta:
-      chartId: 2
+      chartId: 5
       height: 72
       sliceName: Number of visits by type (per day)
       uuid: c3e30e6f-5ffc-4b50-b49c-7439657d9cec
@@ -19,7 +19,7 @@ position:
     parents:
     - ROOT_ID
     - GRID_ID
-    - ROW-2iGbVXPiNGbVPJHXZCjE-
+    - ROW-OWURrWyW-NTJNVXUJ_kGi
     type: CHART
   CHART-explore-3-1:
     children: []
@@ -39,11 +39,11 @@ position:
     children: []
     id: CHART-explore-4-1
     meta:
-      chartId: 4
-      height: 70
+      chartId: 2
+      height: 72
       sliceName: Ratio of cancellations
       uuid: d11389c1-82d0-4ad9-be7f-7f95d2de1ead
-      width: 3
+      width: 4
     parents:
     - ROOT_ID
     - GRID_ID
@@ -53,29 +53,29 @@ position:
     children: []
     id: CHART-explore-5-1
     meta:
-      chartId: 5
-      height: 70
+      chartId: 4
+      height: 72
       sliceName: Cancelation reasons
       uuid: 17794cd6-8bde-4855-aa3a-f4af206f79d3
-      width: 3
+      width: 5
     parents:
     - ROOT_ID
     - GRID_ID
-    - ROW-HeLeoidc3wtpRDg__Qnuk
+    - ROW-2iGbVXPiNGbVPJHXZCjE-
     type: CHART
-  CHART-lOshNfWGBAQR8s8IiXAm_:
+  CHART-explore-6-1:
     children: []
-    id: CHART-lOshNfWGBAQR8s8IiXAm_
+    id: CHART-explore-6-1
     meta:
-      chartId: 1
-      height: 70
-      sliceName: Practitioner workload
-      uuid: 71e51a5c-6ad1-4b15-8ee2-d612468f7da1
+      chartId: 6
+      height: 72
+      sliceName: Practitioner workload 2
+      uuid: e165d022-3ccf-483e-ae56-1d34d1189b37
       width: 6
     parents:
     - ROOT_ID
     - GRID_ID
-    - ROW-OWURrWyW-NTJNVXUJ_kGi
+    - ROW-AErOppoTlATzy7ivh8ppP
     type: CHART
   DASHBOARD_VERSION_KEY: v2
   GRID_ID:
@@ -98,8 +98,9 @@ position:
     type: ROOT
   ROW-2iGbVXPiNGbVPJHXZCjE-:
     children:
-    - CHART-explore-2-1
     - CHART-explore-3-1
+    - CHART-explore-4-1
+    - CHART-explore-5-1
     id: ROW-2iGbVXPiNGbVPJHXZCjE-
     meta:
       '0': ROOT_ID
@@ -110,9 +111,8 @@ position:
     type: ROW
   ROW-OWURrWyW-NTJNVXUJ_kGi:
     children:
-    - CHART-lOshNfWGBAQR8s8IiXAm_
-    - CHART-explore-4-1
-    - CHART-explore-5-1
+    - CHART-explore-2-1
+    - CHART-explore-6-1
     id: ROW-OWURrWyW-NTJNVXUJ_kGi
     meta:
       background: BACKGROUND_TRANSPARENT
@@ -122,332 +122,107 @@ position:
     type: ROW
 metadata:
   chart_configuration:
-    '1':
-      id: 1
-      crossFilters:
-        scope: global
-        chartsInScope:
-        - 2
-        - 3
-        - 4
-        - 5
     '2':
       id: 2
       crossFilters:
         scope: global
         chartsInScope:
-        - 1
         - 3
         - 4
         - 5
+        - 6
     '3':
       id: 3
       crossFilters:
         scope: global
         chartsInScope:
-        - 1
         - 2
         - 4
         - 5
+        - 6
     '4':
       id: 4
       crossFilters:
         scope: global
         chartsInScope:
-        - 1
         - 2
         - 3
         - 5
+        - 6
     '5':
       id: 5
       crossFilters:
         scope: global
         chartsInScope:
-        - 1
         - 2
         - 3
         - 4
+        - 6
+    '6':
+      id: 6
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 2
+        - 3
+        - 4
+        - 5
   global_chart_configuration:
     scope:
       rootPath:
       - ROOT_ID
       excluded: []
     chartsInScope:
-    - 1
     - 2
     - 3
     - 4
     - 5
+    - 6
   map_label_colors:
-    Emergency Room Admission: '#1FA8C9'
-    Encounter for problem: '#454E7C'
-    Periodic reevaluation and management of healthy individual (procedure): '#5AC189'
-    Emergency Encounter: '#FF7F44'
-    Encounter Inpatient: '#666666'
-    Admission to surgical department: '#E04355'
-    Non-urgent orthopedic admission: '#FCC700'
-    Gynecology service (qualifier value): '#A868B7'
-    Screening surveillance (regime/therapy): '#3CCCCB'
-    Admission to thoracic surgery department: '#A38F79'
-    Hospital admission: '#8FD3E4'
-    Inpatient stay (finding): '#A1A6BD'
-    Encounter for symptom (procedure): '#ACE1C4'
-    Drug rehabilitation and detoxification: '#FEC0A1'
-    Encounter for symptom: '#B2B2B2'
-    Emergency room admission (procedure): '#EFA1AA'
-    Prenatal initial visit: '#FDE380'
-    Obstetric emergency hospital admission: '#D3B3DA'
-    Encounter for Problem: '#9EE5E5'
-    Emergency hospital admission for asthma: '#D1C6BC'
-    Prenatal visit: '#454E7C'
-    Outpatient procedure: '#5AC189'
-    Allergic disorder initial assessment: '#FF7F44'
-    Patient-initiated encounter: '#666666'
-    Postnatal visit: '#E04355'
-    Encounter for 'check-up': '#FCC700'
-    Allergic disorder follow-up assessment: '#A868B7'
-    Patient encounter procedure: '#3CCCCB'
-    Domiciliary or rest home patient evaluation and management: '#A38F79'
-    Encounter for check up (procedure): '#8FD3E4'
-    Consultation for treatment: '#A1A6BD'
-    Hypertension follow-up encounter: '#ACE1C4'
-    Encounter for problem (procedure): '#FEC0A1'
-    Postoperative follow-up visit (procedure): '#B2B2B2'
-    Urgent care clinic (procedure): '#EFA1AA'
-    Discussion about treatment (procedure): '#FDE380'
-    Follow-up encounter: '#D3B3DA'
-    Death Certification: '#9EE5E5'
-    Office Visit: '#D1C6BC'
-    Asthma follow-up: '#D1C6BC'
     COUNT(id): '#1FA8C9'
-    0000016c-6b59-d6fd-0000-000000016508: '#454E7C'
-    0000016c-6b59-d6fd-0000-000000016116: '#5AC189'
-    0000016c-6b59-d6fd-0000-000000013006: '#FF7F44'
-    0000016c-6b59-d6fd-0000-000000012908: '#666666'
-    0000016c-6b59-d6fd-0000-000000012688: '#E04355'
-    0000016c-6b59-d6fd-0000-000000012336: '#FCC700'
-    0000016c-6b59-d6fd-0000-000000012232: '#A868B7'
-    0000016c-6b59-d6fd-0000-000000011558: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-000000009998: '#A38F79'
-    0000016c-6b59-d6fd-0000-000000009362: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-000000008386: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-000000007558: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-000000004560: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-000000003430: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-000000002512: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-00000001667a: '#FDE380'
-    0000016c-6b59-d6fd-0000-00000001613e: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-00000001578e: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-00000001467c: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-00000001429e: '#454E7C'
-    0000016c-6b59-d6fd-0000-000000001162: '#5AC189'
-    0000016c-6b59-d6fd-0000-00000000993e: '#FF7F44'
-    0000016c-6b59-d6fd-0000-00000000938a: '#666666'
-    0000016c-6b59-d6fd-0000-00000000821e: '#E04355'
-    0000016c-6b59-d6fd-0000-00000000468c: '#FCC700'
-    0000016c-6b59-d6fd-0000-00000000465a: '#A868B7'
-    0000016c-6b59-d6fd-0000-000000000424: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-000000000262: '#A38F79'
-    0000016c-6b59-d6fd-0000-000000000258: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-000000000226: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-000000000212: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-000000000208: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-00000000201c: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-000000000186: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-000000000172: '#FDE380'
-    0000016c-6b59-d6fd-0000-000000000168: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-0000000164fe: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-0000000156d0: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-0000000154a0: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-000000000154: '#454E7C'
-    0000016c-6b59-d6fd-0000-0000000152ac: '#5AC189'
-    0000016c-6b59-d6fd-0000-000000000140: '#FF7F44'
-    0000016c-6b59-d6fd-0000-000000000136: '#666666'
-    0000016c-6b59-d6fd-0000-0000000134a2: '#E04355'
-    0000016c-6b59-d6fd-0000-0000000133e4: '#FCC700'
-    0000016c-6b59-d6fd-0000-0000000130ec: '#A868B7'
-    0000016c-6b59-d6fd-0000-0000000121ec: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-0000000120de: '#A38F79'
-    0000016c-6b59-d6fd-0000-000000000118: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-0000000112ec: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-0000000110a8: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-0000000105a4: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-0000000103f6: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-000000000096: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-0000000092d6: '#FDE380'
-    0000016c-6b59-d6fd-0000-0000000088e0: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-000000000082: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-000000000078: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-0000000075bc: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-000000000064: '#454E7C'
-    0000016c-6b59-d6fd-0000-0000000055aa: '#5AC189'
-    0000016c-6b59-d6fd-0000-000000000050: '#FF7F44'
-    0000016c-6b59-d6fd-0000-0000000048e4: '#666666'
-    0000016c-6b59-d6fd-0000-000000000046: '#E04355'
-    0000016c-6b59-d6fd-0000-0000000040a6: '#FCC700'
-    0000016c-6b59-d6fd-0000-0000000039da: '#A868B7'
-    0000016c-6b59-d6fd-0000-000000000032: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-000000000028: '#A38F79'
-    0000016c-6b59-d6fd-0000-00000000026c: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-00000000024e: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-0000000024cc: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-0000000022a6: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-00000000021c: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-00000000019a: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-00000000017c: '#FDE380'
-    0000016c-6b59-d6fd-0000-000000016d96: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-000000016d64: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-000000016d50: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-000000016d46: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-000000016d32: '#454E7C'
-    0000016c-6b59-d6fd-0000-000000016d14: '#5AC189'
-    0000016c-6b59-d6fd-0000-000000016ce2: '#FF7F44'
-    0000016c-6b59-d6fd-0000-000000016cd8: '#666666'
-    0000016c-6b59-d6fd-0000-000000016cba: '#E04355'
-    0000016c-6b59-d6fd-0000-000000016cb0: '#FCC700'
-    0000016c-6b59-d6fd-0000-000000016c74: '#A868B7'
-    0000016c-6b59-d6fd-0000-000000016c60: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-000000016c9c: '#A38F79'
-    0000016c-6b59-d6fd-0000-000000016c6a: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-000000016bf2: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-000000015f86: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-000000015e0a: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-00000000015e: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-000000015b6c: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-000000014e06: '#FDE380'
-    0000016c-6b59-d6fd-0000-000000014dde: '#FDE380'
-    0000016c-6b59-d6fd-0000-00000000014a: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-000000000014: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-000000013bb4: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-000000012ff2: '#454E7C'
-    0000016c-6b59-d6fd-0000-000000012e94: '#5AC189'
-    0000016c-6b59-d6fd-0000-000000012d36: '#FF7F44'
-    0000016c-6b59-d6fd-0000-00000000012c: '#666666'
-    0000016c-6b59-d6fd-0000-00000000010e: '#E04355'
-    0000016c-6b59-d6fd-0000-000000010b08: '#FCC700'
-    0000016c-6b59-d6fd-0000-000000010a68: '#A868B7'
-    0000016c-6b59-d6fd-0000-0000000010a4: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-000000009f56: '#A38F79'
-    0000016c-6b59-d6fd-0000-000000008e94: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-000000008dc2: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-00000000008c: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-000000007fee: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-000000006ee6: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-000000006ab8: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-000000006a54: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-000000005e10: '#FDE380'
-    0000016c-6b59-d6fd-0000-0000000005aa: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-000000003ef8: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-000000003d54: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-00000000003c: '#454E7C'
-    0000016c-6b59-d6fd-0000-000000003b74: '#5AC189'
-    0000016c-6b59-d6fd-0000-0000000003ac: '#FF7F44'
-    0000016c-6b59-d6fd-0000-0000000001fe: '#666666'
-    0000016c-6b59-d6fd-0000-000000001fc2: '#E04355'
-    0000016c-6b59-d6fd-0000-0000000001f4: '#FCC700'
-    0000016c-6b59-d6fd-0000-000000001ed2: '#A868B7'
-    0000016c-6b59-d6fd-0000-0000000001e0: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-00000000001e: '#A38F79'
-    0000016c-6b59-d6fd-0000-0000000001d6: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-0000000001c2: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-0000000001ae: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-0000000001a4: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-00000000f776: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-00000000f65e: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-00000000f41a: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-00000000f9c4: '#FDE380'
-    0000016c-6b59-d6fd-0000-00000000f6fe: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-000000000f5a: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-0000000000f0: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-00000000ef7e: '#454E7C'
-    0000016c-6b59-d6fd-0000-00000000e538: '#5AC189'
-    0000016c-6b59-d6fd-0000-00000000e92a: '#FF7F44'
-    0000016c-6b59-d6fd-0000-00000000e9fc: '#666666'
-    0000016c-6b59-d6fd-0000-00000000e6fa: '#E04355'
-    0000016c-6b59-d6fd-0000-0000000000e6: '#FCC700'
-    0000016c-6b59-d6fd-0000-00000000e5d8: '#A868B7'
-    0000016c-6b59-d6fd-0000-00000000e2b8: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-00000000dc64: '#A38F79'
-    0000016c-6b59-d6fd-0000-0000000000dc: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-000000000db6: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-00000000d994: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-00000000d480: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-00000000d430: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-00000000d6a6: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-0000000000d2: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-00000000cf9e: '#FDE380'
-    0000016c-6b59-d6fd-0000-00000000cdfa: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-00000000cd32: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-00000000c382: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-00000000c120: '#454E7C'
-    0000016c-6b59-d6fd-0000-00000000c35a: '#5AC189'
-    0000016c-6b59-d6fd-0000-0000000000c8: '#FF7F44'
-    0000016c-6b59-d6fd-0000-00000000c7f6: '#666666'
-    0000016c-6b59-d6fd-0000-00000000c5b2: '#E04355'
-    0000016c-6b59-d6fd-0000-00000000c2ba: '#FCC700'
-    0000016c-6b59-d6fd-0000-00000000bf40: '#A868B7'
-    0000016c-6b59-d6fd-0000-0000000000be: '#3CCCCB'
-    0000016c-6b59-d6fd-0000-00000000bd38: '#A38F79'
-    0000016c-6b59-d6fd-0000-00000000bb1c: '#8FD3E4'
-    0000016c-6b59-d6fd-0000-00000000baae: '#A1A6BD'
-    0000016c-6b59-d6fd-0000-00000000b752: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-00000000b694: '#ACE1C4'
-    0000016c-6b59-d6fd-0000-00000000b450: '#FEC0A1'
-    0000016c-6b59-d6fd-0000-00000000b64e: '#B2B2B2'
-    0000016c-6b59-d6fd-0000-00000000b7a2: '#EFA1AA'
-    0000016c-6b59-d6fd-0000-0000000000b4: '#FDE380'
-    0000016c-6b59-d6fd-0000-0000000000aa: '#D3B3DA'
-    0000016c-6b59-d6fd-0000-00000000a7bc: '#9EE5E5'
-    0000016c-6b59-d6fd-0000-0000000000a0: '#D1C6BC'
-    0000016c-6b59-d6fd-0000-00000000000a: '#454E7C'
-    0000016c-6b59-d6fd-0000-000000000000: '#5AC189'
-    <NULL>: '#FF7F44'
+    Tim88 Langosh790: '#454E7C'
+    Naomi520 Champlin946: '#5AC189'
+    Monte325 Bode78: '#FF7F44'
+    Lorena247 Zambrano764: '#666666'
+    Cortez851 Windler79: '#E04355'
+    Cornell131 Bechtelar572: '#FCC700'
+    Chadwick722 Frami345: '#A868B7'
+    Carey440 Weissnat378: '#3CCCCB'
+    Alec433 Walter473: '#A38F79'
+    Al123 Walsh511: '#8FD3E4'
+    Encounter for check up: '#1FA8C9'
+    Follow-up encounter: '#D3B3DA'
+    Patient encounter procedure: '#3CCCCB'
+    Patient-initiated encounter: '#666666'
+    Encounter for problem: '#454E7C'
+    'Other: Silent Walk In Error': '#1FA8C9'
+    'Other: No Interpreter Available': '#454E7C'
+    'Other: Financial': '#5AC189'
+    'Other: Schedule Order Error': '#FF7F44'
+    Other: '#666666'
+    'Other: Error': '#E04355'
+    Equipment Maintenance/Repair: '#FCC700'
+    'Other: CMS Therapy Cap Service Not Available': '#A868B7'
+    'Other: Room/Resource Maintenance': '#3CCCCB'
+    Patient: '#A38F79'
+    'Other: Improper IV Access/Infiltrate IV': '#8FD3E4'
+    Preparation Incomplete: '#A1A6BD'
+    'Other: Prep/Med Incomplete': '#ACE1C4'
+    Provider: '#FEC0A1'
+    'Other: Weather': '#B2B2B2'
+    arrived: '#1FA8C9'
+    cancelled: '#454E7C'
   color_scheme: ''
   refresh_frequency: 0
   color_scheme_domain: []
   expanded_slices: {}
   label_colors: {}
   shared_label_colors:
-  - Admission to surgical department
-  - Admission to thoracic surgery department
-  - Allergic disorder follow-up assessment
-  - Allergic disorder initial assessment
-  - Asthma follow-up
-  - Consultation for treatment
-  - Death Certification
-  - Discussion about treatment (procedure)
-  - Domiciliary or rest home patient evaluation and management
-  - Drug rehabilitation and detoxification
-  - Emergency Encounter
-  - Emergency Room Admission
-  - Emergency hospital admission for asthma
-  - Emergency room admission (procedure)
-  - Encounter Inpatient
-  - Encounter for 'check-up'
-  - Encounter for Problem
-  - Encounter for check up (procedure)
+  - Encounter for check up
   - Encounter for problem
-  - Encounter for problem (procedure)
-  - Encounter for symptom
-  - Encounter for symptom (procedure)
   - Follow-up encounter
-  - Gynecology service (qualifier value)
-  - Hospital admission
-  - Hypertension follow-up encounter
-  - Inpatient stay (finding)
-  - Non-urgent orthopedic admission
-  - Obstetric emergency hospital admission
-  - Office Visit
-  - Outpatient procedure
   - Patient encounter procedure
   - Patient-initiated encounter
-  - Periodic reevaluation and management of healthy individual (procedure)
-  - Postnatal visit
-  - Postoperative follow-up visit (procedure)
-  - Prenatal initial visit
-  - Prenatal visit
-  - Screening surveillance (regime/therapy)
-  - Urgent care clinic (procedure)
   timed_refresh_immune_slices: []
   cross_filters_enabled: true
   native_filter_configuration: []

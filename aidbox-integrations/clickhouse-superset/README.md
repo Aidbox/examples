@@ -86,6 +86,28 @@ ORDER BY (id)
 SETTINGS min_age_to_force_merge_seconds = 30;
 ```
 
+```sql
+CREATE TABLE IF NOT EXISTS practitioner_flat
+(
+  `id` String,
+  `given` Nullable(String),
+  `family` Nullable(String),
+  `cts` DateTime64,
+  `ts` DateTime64,
+  `is_deleted` UInt8 default 0
+)
+ENGINE = ReplacingMergeTree(ts, is_deleted)
+ORDER BY (id)
+SETTINGS min_age_to_force_merge_seconds = 30;
+```
+
+```sql
+CREATE or replace VIEW practitioner_workload_view AS 
+SELECT id, type, class, period_start, period_end, patient, concat(given, ' ', family)
+FROM encounter_patient_and_practitioner LEFT JOIN practitioner_flat
+ON encounter_patient_and_practitioner.practitioner = practitioner_flat.id
+```
+
 ### 3. Configure Aidbox Resources
 
 1. Navigate to `http://localhost:8888/ui/console#/notebooks`

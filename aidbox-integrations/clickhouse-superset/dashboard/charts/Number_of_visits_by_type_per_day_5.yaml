@@ -1,0 +1,88 @@
+slice_name: Number of visits by type (per day)
+description: null
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_bar
+params:
+  datasource: 2__table
+  viz_type: echarts_timeseries_bar
+  x_axis:
+    label: ''
+    sqlExpression: toDate(period_start)
+    expressionType: SQL
+  time_grain_sqla: P1D
+  x_axis_sort_asc: true
+  x_axis_sort_series: name
+  x_axis_sort_series_ascending: true
+  metrics:
+  - count
+  groupby:
+  - type
+  adhoc_filters:
+  - clause: WHERE
+    subject: period_start
+    operator: TEMPORAL_RANGE
+    comparator: No filter
+    expressionType: SIMPLE
+  order_desc: true
+  row_limit: 10000
+  truncate_metric: true
+  show_empty_columns: true
+  comparison_type: values
+  annotation_layers: []
+  forecastPeriods: 10
+  forecastInterval: 0.8
+  orientation: vertical
+  x_axis_title_margin: 15
+  y_axis_title_margin: 30
+  y_axis_title_position: Left
+  sort_series_type: sum
+  color_scheme: supersetColors
+  time_shift_color: true
+  only_total: true
+  show_legend: true
+  legendType: scroll
+  legendOrientation: top
+  x_axis_time_format: smart_date
+  y_axis_format: SMART_NUMBER
+  y_axis_bounds:
+  - null
+  - null
+  truncateXAxis: true
+  rich_tooltip: true
+  showTooltipTotal: true
+  tooltipTimeFormat: smart_date
+  extra_form_data: {}
+  dashboards:
+  - 1
+query_context: '{"datasource": {"id": 2, "type": "table"}, "force": false, "queries":
+  [{"filters": [{"col": "period_start", "op": "TEMPORAL_RANGE", "val": "No filter"}],
+  "extras": {"time_grain_sqla": "P1D", "having": "", "where": ""}, "applied_time_extras":
+  {}, "columns": [{"timeGrain": "P1D", "columnType": "BASE_AXIS", "label": "", "sqlExpression":
+  "toDate(period_start)", "expressionType": "SQL"}, "type"], "metrics": ["count"],
+  "orderby": [["count", false]], "annotation_layers": [], "row_limit": 10000, "series_columns":
+  ["type"], "series_limit": 0, "order_desc": true, "url_params": {}, "custom_params":
+  {}, "custom_form_data": {}, "time_offsets": [], "post_processing": [{"operation":
+  "pivot", "options": {"index": ["toDate(period_start)"], "columns": ["type"], "aggregates":
+  {"count": {"operator": "mean"}}, "drop_missing_columns": false}}, {"operation":
+  "rename", "options": {"columns": {"count": null}, "level": 0, "inplace": true}},
+  {"operation": "flatten"}]}], "form_data": {"datasource": "2__table", "viz_type":
+  "echarts_timeseries_bar", "x_axis": {"label": "", "sqlExpression": "toDate(period_start)",
+  "expressionType": "SQL"}, "time_grain_sqla": "P1D", "x_axis_sort_asc": true, "x_axis_sort_series":
+  "name", "x_axis_sort_series_ascending": true, "metrics": ["count"], "groupby": ["type"],
+  "adhoc_filters": [{"clause": "WHERE", "subject": "period_start", "operator": "TEMPORAL_RANGE",
+  "comparator": "No filter", "expressionType": "SIMPLE"}], "order_desc": true, "row_limit":
+  10000, "truncate_metric": true, "show_empty_columns": true, "comparison_type": "values",
+  "annotation_layers": [], "forecastPeriods": 10, "forecastInterval": 0.8, "orientation":
+  "vertical", "x_axis_title_margin": 15, "y_axis_title_margin": 30, "y_axis_title_position":
+  "Left", "sort_series_type": "sum", "color_scheme": "supersetColors", "time_shift_color":
+  true, "only_total": true, "show_legend": true, "legendType": "scroll", "legendOrientation":
+  "top", "x_axis_time_format": "smart_date", "y_axis_format": "SMART_NUMBER", "y_axis_bounds":
+  [null, null], "truncateXAxis": true, "rich_tooltip": true, "showTooltipTotal": true,
+  "tooltipTimeFormat": "smart_date", "extra_form_data": {}, "dashboards": [1], "force":
+  false, "result_format": "json", "result_type": "full"}, "result_format": "json",
+  "result_type": "full"}'
+cache_timeout: null
+uuid: c3e30e6f-5ffc-4b50-b49c-7439657d9cec
+version: 1.0.0
+dataset_uuid: ed499ee9-93f0-4946-a779-fb7fa7d5475b
