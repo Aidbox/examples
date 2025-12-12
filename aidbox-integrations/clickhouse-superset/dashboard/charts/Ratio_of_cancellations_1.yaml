@@ -1,0 +1,77 @@
+slice_name: Ratio of cancellations
+description: null
+certified_by: null
+certification_details: null
+viz_type: pie
+params:
+  datasource: 3__table
+  viz_type: pie
+  slice_id: 2
+  groupby:
+  - status
+  metric: count
+  adhoc_filters:
+  - clause: WHERE
+    comparator: No filter
+    datasourceWarning: false
+    expressionType: SIMPLE
+    filterOptionName: filter_0fl5sewqrowt_h9y3lzq9dl
+    isExtra: false
+    isNew: false
+    operator: TEMPORAL_RANGE
+    sqlExpression: null
+    subject: cts
+  - clause: WHERE
+    comparator: null
+    datasourceWarning: false
+    expressionType: SQL
+    filterOptionName: filter_6o65ggm2nis_6q0d1ohh4y4
+    isExtra: false
+    isNew: false
+    operator: null
+    sqlExpression: status = 'arrived' or status = 'cancelled'
+    subject: null
+  row_limit: 100
+  sort_by_metric: true
+  color_scheme: supersetColors
+  show_labels_threshold: 5
+  show_legend: true
+  legendType: scroll
+  legendOrientation: top
+  label_type: key_percent
+  number_format: SMART_NUMBER
+  date_format: smart_date
+  show_labels: true
+  labels_outside: true
+  show_total: true
+  outerRadius: 70
+  donut: true
+  innerRadius: 30
+  extra_form_data: {}
+  dashboards:
+  - 1
+  annotation_layers: []
+query_context: '{"datasource": {"id": 3, "type": "table"}, "force": false, "queries":
+  [{"filters": [{"col": "cts", "op": "TEMPORAL_RANGE", "val": "No filter"}], "extras":
+  {"having": "", "where": "(status = ''arrived'' or status = ''cancelled'')"}, "applied_time_extras":
+  {}, "columns": ["status"], "metrics": ["count"], "orderby": [["count", false]],
+  "annotation_layers": [], "row_limit": 100, "series_limit": 0, "order_desc": true,
+  "url_params": {}, "custom_params": {}, "custom_form_data": {}}], "form_data": {"datasource":
+  "3__table", "viz_type": "pie", "slice_id": 2, "groupby": ["status"], "metric": "count",
+  "adhoc_filters": [{"clause": "WHERE", "comparator": "No filter", "datasourceWarning":
+  false, "expressionType": "SIMPLE", "filterOptionName": "filter_0fl5sewqrowt_h9y3lzq9dl",
+  "isExtra": false, "isNew": false, "operator": "TEMPORAL_RANGE", "sqlExpression":
+  null, "subject": "cts"}, {"clause": "WHERE", "comparator": null, "datasourceWarning":
+  false, "expressionType": "SQL", "filterOptionName": "filter_6o65ggm2nis_6q0d1ohh4y4",
+  "isExtra": false, "isNew": false, "operator": null, "sqlExpression": "status = ''arrived''
+  or status = ''cancelled''", "subject": null}], "row_limit": 100, "sort_by_metric":
+  true, "color_scheme": "supersetColors", "show_labels_threshold": 5, "show_legend":
+  true, "legendType": "scroll", "legendOrientation": "top", "label_type": "key_percent",
+  "number_format": "SMART_NUMBER", "date_format": "smart_date", "show_labels": true,
+  "labels_outside": true, "show_total": true, "outerRadius": 70, "donut": true, "innerRadius":
+  30, "extra_form_data": {}, "dashboards": [1], "force": false, "result_format": "json",
+  "result_type": "full"}, "result_format": "json", "result_type": "full"}'
+cache_timeout: null
+uuid: d11389c1-82d0-4ad9-be7f-7f95d2de1ead
+version: 1.0.0
+dataset_uuid: 5691da0a-f958-4cdf-8bdf-8eb413d2689e

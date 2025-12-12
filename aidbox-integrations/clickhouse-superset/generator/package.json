@@ -1,0 +1,15 @@
+{
+  "name": "generator",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@atomic-ehr/codegen": "^0.0.4"
+  }
+}
