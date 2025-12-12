@@ -6,6 +6,40 @@ languages: [Markdown]
 
 This example demonstrates how to use SQL on FHIR with Aidbox, integrate it with ClickHouse for analytics, and visualize data using Superset.
 
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Aidbox["Aidbox (FHIR Server)"]
+        AidboxApp[Aidbox<br/>:8888]
+        AidboxDB[(PostgreSQL)]
+        AidboxApp --> AidboxDB
+    end
+
+    subgraph Analytics["Analytics Layer"]
+        ClickHouse[(ClickHouse<br/>:8123)]
+    end
+
+    subgraph Superset["Superset (Visualization)"]
+        SupersetApp[Superset App<br/>:8088]
+        SupersetWorker[Celery Worker]
+        SupersetBeat[Celery Beat]
+        SupersetDB[(PostgreSQL)]
+        Redis[(Redis)]
+
+        SupersetApp --> SupersetDB
+        SupersetApp --> Redis
+        SupersetWorker --> Redis
+        SupersetBeat --> Redis
+    end
+
+    AidboxDB -->|Topic Destination| ClickHouse
+    SupersetApp -->|SQL Queries| ClickHouse
+
+    User((User)) -->|FHIR API| AidboxApp
+    User -->|Dashboards| SupersetApp
+```
+
 ## Prerequisites
 
 1. Docker
