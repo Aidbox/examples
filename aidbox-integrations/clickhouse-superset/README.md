@@ -9,7 +9,7 @@ This example demonstrates how to use SQL on FHIR with Aidbox, integrate it with 
 ## Architecture
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph Aidbox["Aidbox (FHIR Server)"]
         AidboxApp[Aidbox<br/>:8888]
         AidboxDB[(PostgreSQL)]
@@ -24,11 +24,11 @@ flowchart TB
         SupersetApp[Superset App<br/>:8088]
     end
 
-    AidboxDB -->|Topic Destination| ClickHouse
-    SupersetApp -->|SQL Queries| ClickHouse
+    AidboxDB -->|Topic Destination<br>Streaming| ClickHouse
+    ClickHouse -->|SQL Queries| SupersetApp
 
-    User((User)) -->|FHIR API| AidboxApp
-    User -->|Dashboards| SupersetApp
+    Source((FHIR Data)) -->|FHIR API| AidboxApp
+    SupersetApp -->|Dashboards| User(["👤 User"])
 ```
 
 ## Prerequisites
@@ -53,7 +53,7 @@ Update the `docker/.env` file with your desired configuration (passwords, creden
 Then start all services:
 
 ```bash
-docker compose --env-file docker/.env up 
+docker compose --env-file docker/.env up
 ```
 
 ### 2. Create ClickHouse Tables
@@ -127,7 +127,7 @@ SETTINGS min_age_to_force_merge_seconds = 30;
 ```
 
 ```sql
-CREATE or replace VIEW practitioner_workload_view AS 
+CREATE or replace VIEW practitioner_workload_view AS
 SELECT id, type, class, period_start, period_end, patient, concat(given, ' ', family)
 FROM encounter_patient_and_practitioner LEFT JOIN practitioner_flat
 ON encounter_patient_and_practitioner.practitioner = practitioner_flat.id
@@ -135,9 +135,11 @@ ON encounter_patient_and_practitioner.practitioner = practitioner_flat.id
 
 ### 3. Configure Aidbox Resources
 
-1. Navigate to `http://localhost:8888/ui/console#/notebooks`
-2. Upload the notebook `prepare for analytics.html`
-3. Execute each step in the notebook
+
+1. Navigate to [Aidbox UI](http://localhost:8888) and [initialize](https://docs.aidbox.app/getting-started/run-aidbox-locally#id-4.-activate-your-aidbox-instance) the Aidbox instance.
+2. Navigate to `http://localhost:8888/ui/console#/notebooks`
+3. Upload the notebook `prepare for analytics.html`
+4. Execute each step in the notebook
 
 > **Note:** When creating `TopicDestination` resources, use the ClickHouse credentials (`CLICKHOUSE_USER` and `CLICKHOUSE_PASSWORD`) configured in your `.env` file.
 
