@@ -3,7 +3,7 @@ features: [Kafka, Subscriptions, Event streaming, Questionnaire response, Topic-
 languages: [YAML]
 ---
 # Topic-based Subscriptions to Kafka
-[Demo](#demo) | [Documentation](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=app-examples&utm_medium=readme)
+[Documentation](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=app-examples&utm_medium=readme)
 
 This example showcases [Aidbox SubscriptionTopic](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) producing data to Kafka.
 
@@ -348,13 +348,3 @@ You can also find an example of k8s deployment:
 - Also, you need to pass secrets for Aidbox and Database. See details: [Deploy Aidbox with Helm Charts](https://docs.aidbox.app/getting-started/run-aidbox-in-kubernetes/deploy-aidbox-with-helm-charts). We recommend using helm.
 - Configuration resource examples: [k8s_resources](k8s_resources.html)
 
-## Demo
-
-A deployed and configured [Aidbox](https://subscriptions.hz.aidbox.dev/) instance with [Kafka](https://kafka-ui-subscriptions.hz.aidbox.dev/) is available for you to explore how Aidbox's SubscriptionTopic works. The SubscriptionTopic in Aidbox is set up to send `QuestionnaireResponse` events in the `completed` and `amended` status to Kafka.
-
-To try it out:
-
-1. Open <a href="https://subscriptions.hz.aidbox.dev/ui/sdc#/?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJxIjp7ImlkIjoiOTVhMmE5MzctMWY4NC00MTJiLTkyMDktNmY5ZTM4NWI0NGE4IiwidXJsIjoiaHR0cDovL2xvaW5jLm9yZy9xLzEwMDEwOS04IiwiY2Fub25pY2FsIjoiaHR0cDovL2xvaW5jLm9yZy9xLzEwMDEwOS04In0sInFyIjp7ImlkIjoiM2NiN2IzNDUtNWFjMy00ZTdlLTgwYjctZjg2MTNhNDBlZDM3In0sImFsbG93LWFtZW5kIjpudWxsLCJjb25maWciOm51bGwsImlzcyI6IlNEQ1JTQVNoYXJlZExpbmtJc3N1ZXIiLCJleHAiOjc3NzU5OTI4MDAsInJlZGlyZWN0LW9uLXN1Ym1pdCI6bnVsbCwiYXBwLW5hbWUiOm51bGwsInRoZW1lIjpudWxsLCJ1c2VyLXRva2VuIjpudWxsLCJvcGVyYXRpb25zIjpbImZoaXItcHJvY2Vzcy1yZXNwb25zZSIsInByb2Nlc3MtcmVzcG9uc2UiXSwicmVhZC1vbmx5IjpudWxsLCJyZWRpcmVjdC1vbi1zYXZlIjpudWxsfQ.rQcRFt-lr06qtJCGC12KiIRRWkoYzWHGXXbLb8g85GYvooyZVfi9NwMLFUjcHOWE751zXV1edtTBh12RM9xJkCeucocLmTvGpjQjKthMBcYjJKB6F6RGhPtDALuhdJ_oakAcsle8LSwWpwkvTyxUGrO_n9Dqn3_56GWCTRF6oVwwNzqUHZATrNvghH5T8t-60mYviSYxB72A0GnGJIxdyu8p1ND7XJvIjQWBxHNicPZw4VlkL7dIO6-IKdLIbNhAAgVdKLebQFyHFdZBwEjoov2h3qIKa77rDVoKK2e0OuBM2Y14DoR3jZcbWy1lR3bX2vozKKi8US1rXWGnY6KoWw" target="_blank">Aidbox Forms</a>
-2. Share form, copy the link.
-3. Open the link and fill form.
-4. Open the <a href="https://kafka-ui-subscriptions.hz.aidbox.dev/ui/clusters/local/all-topics" target="_blank">Kafka UI</a> to view your `QuestionnaireResponse` in the Kafka messages tab.
