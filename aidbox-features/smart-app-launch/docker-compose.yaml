@@ -31,14 +31,14 @@ services:
       - ./launcher.html:/usr/share/nginx/html/launcher.html:r
 
   aidbox_db:
-    image: healthsamurai/aidboxdb:17
+    image: postgres:17
     pull_policy: always
     volumes:
-    - aidbox_pg_data:/data:delegated
+      - aidbox_pg_data:/data:delegated
     environment:
       PGDATA: /data
       POSTGRES_USER: aidbox
-      POSTGRES_PORT: '5432'
+      POSTGRES_PORT: "5432"
       POSTGRES_DB: aidbox
       POSTGRES_PASSWORD: nP0s8ALcTk
 

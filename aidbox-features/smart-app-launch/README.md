@@ -4,17 +4,17 @@ languages: [YAML]
 ---
 # SMART App Launch with Aidbox and Keycloak
 
-This demo showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html). 
+This demo showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html).
 
 ## Components
 
-1. [Aidbox](https://docs.aidbox.app/modules/security-and-access-control/smart-on-fhir) 
+1. [Aidbox](https://docs.aidbox.app/modules/security-and-access-control/smart-on-fhir)
     FHIR server with SMART-on-FHIR support.
-2. [Keycloak](https://www.keycloak.org/)   
+2. [Keycloak](https://www.keycloak.org/)
     Identity and Access Management solution that integrates with Aidbox through the [IdentityProvider](https://docs.aidbox.app/modules/security-and-access-control/set-up-external-identity-provider) resource.
-3. [Growth Chart Smart App](https://github.com/smart-on-fhir/growth-chart-app)    
+3. [Growth Chart Smart App](https://github.com/smart-on-fhir/growth-chart-app)
     A SMART pediatric web application that displays patient growth charts based on their observations.
-4. **Demo Launcher Page**  
+4. **Demo Launcher Page**
    A web page that emulates EHR patient context selection.
 
 ## Prerequisites
@@ -26,7 +26,7 @@ This demo showcases the Smart App EHR and Patient [launch flows](https://hl7.org
 To clone the repository and navigate to the `smart-app-launch` directory, run:
 
 ``` sh
-git clone git@github.com:Aidbox/examples.git && cd examples/smart-app-launch 
+git clone git@github.com:Aidbox/examples.git && cd examples/aidbox-features/smart-app-launch
 ```
 
 ## Step 1: Run Demo Components
