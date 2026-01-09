@@ -4,58 +4,49 @@ languages: [JavaScript]
 ---
 # Custom Renderer Tutorial for Aidbox Forms Builder
 
-This tutorial demonstrates how connect a custom renderer to the Aidbox Forms Builder preview.
+This tutorial demonstrates how to connect a custom renderer to the Aidbox Forms Builder preview.
 
 ## Overview
 
 The Aidbox Forms Builder allows you to use custom renderers to display questionnaires with your own UI components. This example shows how to:
 
-1. Wrap your renderer to webcomponent
+1. Wrap your renderer as a web component
 2. Host and configure it with Aidbox
 3. Use it in the Forms Builder preview
 
-## Quick Start
-
-### Prerequisites
+## Prerequisites
 
 - Docker and Docker Compose
 - Aidbox license (get one from [Aidbox Console](https://aidbox.io))
 
-### Setup
+## Tutorial
 
-1. **Clone and configure:**
-   ```bash
-   git clone <this-repo>
-   cd aidbox-forms-builder-custom-renderer
-   cp .env.example .env
-   # Add your AIDBOX_LICENSE to .env
-   ```
+### Step 1: Clone and Configure
 
-2. **Build the smartforms component:**
-   ```bash
-   cd smartforms-component
-   npm install
-   npm run build
-   cd ..
-   ```
+```bash
+git clone <this-repo>
+cd aidbox-forms-builder-custom-renderer
+cp .env.example .env
+# Add your AIDBOX_LICENSE to .env
+```
 
-3. **Start services:**
-   ```bash
-   docker-compose up -d
-   ```
+### Step 2: Build the Smartforms Component
 
-4. **Access the services:**
-   - Aidbox: http://localhost:8080
-   - Custom renderer demo: http://localhost:8081
+This example includes a CSIRO Smartforms renderer wrapped as a web component. Build it first:
 
-## Tutorial Steps
+```bash
+cd smartforms-component
+npm install
+npm run build
+cd ..
+```
 
-### Step 2. Wrap your renderer for Forms Builder Compatibility
+### Step 3: Wrap Your Renderer for Forms Builder Compatibility
 
-The Forms Builder expects a specific web component structure. Use the provided template:
+The Forms Builder expects a specific web component structure. Use the provided template `custom-renderer.template.js`:
 
 ```javascript
-// wrapped-questionnaire-renderer.js
+// custom-renderer.template.js
 if(!customElements.get("questionnaire-custom-renderer")) {
 
 class QuestionnaireCustomRenderer extends HTMLElement {
@@ -67,13 +58,37 @@ class QuestionnaireCustomRenderer extends HTMLElement {
     this._onQuestionnaireResponseChange = null;
   }
 
-  // Must implement these exact methods:
+  static get observedAttributes() {
+    return ['questionnaire', 'questionnaire-response'];
+  }
+
+  // Handle attribute updates from Forms Builder
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (!this.shadowRoot || oldValue === newValue) return;
+
+    try {
+      const parsed = newValue ? JSON.parse(newValue) : null;
+      if (name === 'questionnaire') this._questionnaire = parsed;
+      if (name === 'questionnaire-response') this._questionnaireResponse = parsed;
+      this.render();
+    } catch (e) {
+      console.error(`Invalid JSON for ${name}:`, e);
+    }
+  }
+
+  // Property accessors
+  get questionnaire() { return this._questionnaire; }
+  set questionnaire(value) { this._questionnaire = value; this.render(); }
+
+  get questionnaireResponse() { return this._questionnaireResponse; }
+  set questionnaireResponse(value) { this._questionnaireResponse = value; this.render(); }
+
   set onQuestionnaireResponseChange(callback) {
     this._onQuestionnaireResponseChange = callback;
   }
 
-  // Your custom rendering logic goes in render()
   render() {
+    if (!this.shadowRoot) return;
     // Implement your questionnaire rendering here
   }
 }
@@ -84,15 +99,13 @@ customElements.define('questionnaire-custom-renderer', QuestionnaireCustomRender
 
 The only required attribute is `questionnaire`. 
 Support `questionnaire-response` to receive populated QuestionnaireResponse.
-Support `onQuestionnaireResponseChange` if you want to send QuestionnaireResponse back to builder. 
+Support `onQuestionnaireResponseChange` if you want to send QuestionnaireResponse back to the builder. 
 
-In this tutorial we will use `simple-questionnaire-renderer.js`
+This tutorial includes `simple-questionnaire-renderer.js`, a reference implementation that renders FHIR Questionnaires using native HTML inputs.
 
-### Step 3: Host Your Renderer
+### Step 4: Host Your Renderer
 
-Webcomponent should be accessible publicly. 
-
-In this tutorial we create a simple web server to host your renderer:
+The web component must be accessible via URL. This tutorial uses Caddy to serve the renderer files:
 
 ```dockerfile
 # Dockerfile
@@ -100,18 +113,23 @@ FROM caddy:alpine
 COPY Caddyfile /etc/caddy/Caddyfile
 WORKDIR /srv
 COPY ./smartforms-component/dist/aidbox-forms-renderer-csiro-webcomponent.js /srv/
+COPY ./simple-questionnaire-renderer.js /srv/
 EXPOSE 80
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
 ```
 
-### Step 4: Configure Aidbox
+### Step 5: Configure Aidbox
 
-To tell aidbox forms there are other renderers update the SDCConfif resource.
+To register custom renderers with Aidbox Forms, update the `SDCConfig` resource.
 
-Create an initialization bundle to configure the custom renderer:
+Each renderer in the `custom-renderers` array requires:
+- **`name`** - The HTML tag name of your web component (e.g., `simple-questionnaire-renderer`)
+- **`source`** - URL where the renderer JavaScript file is hosted
+- **`title`** - Display name shown in the Forms Builder renderer dropdown
 
-```yaml
-# init-bundle.yaml
+Create an initialization bundle (`init-bundle.json`) to configure the custom renderers:
+
+```json
 {
   "resourceType" : "Bundle",
   "type" : "transaction",
@@ -122,11 +140,18 @@ Create an initialization bundle to configure the custom renderer:
       "default": true,
       "id" : "custom-renderer-config",
       "builder": {
-        "custom-renderers": [{
-          "name" : "simple-questionnaire-renderer",
-          "source" : "http://localhost:8081/simple-questionnaire-renderer.js",
-          "title" : "Simple Questionnaire Renderer"
-        }]
+        "custom-renderers": [
+          {
+            "name" : "aidbox-form-csiro-renderer",
+            "source" : "http://localhost:8081/aidbox-forms-renderer-csiro-webcomponent.js",
+            "title" : "CSIRO"
+          },
+          {
+            "name" : "simple-questionnaire-renderer",
+            "source" : "http://localhost:8081/simple-questionnaire-renderer.js",
+            "title" : "Simple Questionnaire Renderer"
+          }
+        ]
       }
     },
     "request" : {
@@ -137,13 +162,22 @@ Create an initialization bundle to configure the custom renderer:
 }
 ```
 
-## Using in Forms Builder
+### Step 6: Start Services
+
+```bash
+docker-compose up -d --pull always --build
+```
+
+### Step 7: Use in Forms Builder
 
 1. **Access Forms Builder:** Go to http://localhost:8080 and navigate to Forms Builder
 2. **Create/Edit Questionnaire:** Use the visual editor to build your form
 3. **Preview with Custom Renderer:** In the preview section, select your custom renderer from the dropdown
 4. **Test:** The preview will use your custom renderer instead of the default one
 
+**Service URLs:**
+- Aidbox: http://localhost:8080
+- Custom renderer demo: http://localhost:8081
 
 ## Troubleshooting
 
@@ -167,8 +201,7 @@ Create an initialization bundle to configure the custom renderer:
 
 1. Check Aidbox logs: `docker-compose logs aidbox`
 2. Verify SDCConfig: `GET http://localhost:8080/SDCConfig/custom-renderer-config`
-3. Test renderer directly: http://localhost:8081/wrapped-questionnaire-renderer.js
+3. Test renderer directly: http://localhost:8081/simple-questionnaire-renderer.js
 4. Check browser console in Forms Builder for errors
-
 
 This example provides a complete foundation for integrating custom renderers that work seamlessly with the Aidbox Forms Builder.

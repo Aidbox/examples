@@ -1,53 +1,68 @@
 {
-  "resourceType" : "Bundle",
-  "type" : "transaction",
-  "entry" : [ {
-    "resource" : {
-      "resourceType" : "SDCConfig",
-      "name": "custom-renderers-config",
-      "default": true,
-      "id" : "custom-renderer-config",
-      "builder": {
-        "custom-renderers": [{
-          "name" : "aidbox-form-csiro-renderer",
-          "source" : "http://localhost:8081/aidbox-forms-renderer-csiro-webcomponent.js",
-          "title" : "CSIRO"
-        }]
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "SDCConfig",
+        "name": "custom-renderers-config",
+        "default": true,
+        "id": "custom-renderer-config",
+        "builder": {
+          "custom-renderers": [
+            {
+              "name": "aidbox-form-csiro-renderer",
+              "source": "http://localhost:8081/aidbox-forms-renderer-csiro-webcomponent.js",
+              "title": "CSIRO"
+            },
+            {
+              "name": "simple-questionnaire-renderer",
+              "source": "http://localhost:8081/simple-questionnaire-renderer.js",
+              "title": "Simple Questionnaire Renderer"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "SDCConfig/custom-renderer-config"
       }
     },
-    "request" : {
-      "method" : "PUT",
-      "url" : "SDCConfig/custom-renderer-config"
+    {
+      "resource": {
+        "resourceType": "Questionnaire",
+        "id": "sample-questionnaire",
+        "url": "http://example.org/questionnaire/sample",
+        "title": "Sample Patient Registration",
+        "status": "active",
+        "item": [
+          {
+            "linkId": "name",
+            "type": "string",
+            "text": "Full Name",
+            "required": true
+          },
+          {
+            "linkId": "age",
+            "type": "integer",
+            "text": "Age"
+          },
+          {
+            "linkId": "consent",
+            "type": "boolean",
+            "text": "I consent to treatment"
+          },
+          {
+            "linkId": "email",
+            "type": "string",
+            "text": "Email Address"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "/Questionnaire/sample-questionnaire"
+      }
     }
-  }, {
-    "resource" : {
-      "resourceType" : "Questionnaire",
-      "id" : "sample-questionnaire",
-      "url" : "http://example.org/questionnaire/sample",
-      "title" : "Sample Patient Registration",
-      "status" : "active",
-      "item" : [ {
-        "linkId" : "name",
-        "type" : "string",
-        "text" : "Full Name",
-        "required" : true
-      }, {
-        "linkId" : "age",
-        "type" : "integer",
-        "text" : "Age"
-      }, {
-        "linkId" : "consent",
-        "type" : "boolean",
-        "text" : "I consent to treatment"
-      }, {
-        "linkId" : "email",
-        "type" : "string",
-        "text" : "Email Address"
-      } ]
-    },
-    "request" : {
-      "method" : "PUT",
-      "url" : "/Questionnaire/sample-questionnaire"
-    }
-  } ]
+  ]
 }
