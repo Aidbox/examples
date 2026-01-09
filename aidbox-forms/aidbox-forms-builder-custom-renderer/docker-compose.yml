@@ -68,6 +68,7 @@ services:
       - "8081:80"
     volumes:
       - ./smartforms-component/dist/aidbox-forms-renderer-csiro-webcomponent.js:/srv/aidbox-forms-renderer-csiro-webcomponent.js
+      - ./simple-questionnaire-renderer.js:/srv/simple-questionnaire-renderer.js
     depends_on:
       - aidbox
     healthcheck:
