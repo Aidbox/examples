@@ -46,10 +46,10 @@ cd ..
 The Forms Builder expects a specific web component structure. Use the provided template `custom-renderer.template.js`:
 
 ```javascript
-// custom-renderer.template.js
-if(!customElements.get("questionnaire-custom-renderer")) {
+// simple-questionnaire-renderer.js
+if(!customElements.get("simple-questionnaire-renderer")) {
 
-class QuestionnaireCustomRenderer extends HTMLElement {
+class SimpleQuestionnaireRenderer extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -93,7 +93,7 @@ class QuestionnaireCustomRenderer extends HTMLElement {
   }
 }
 
-customElements.define('questionnaire-custom-renderer', QuestionnaireCustomRenderer);
+customElements.define('simple-questionnaire-renderer', SimpleQuestionnaireRenderer);
 }
 ```
 
