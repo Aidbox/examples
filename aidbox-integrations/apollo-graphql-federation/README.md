@@ -26,8 +26,14 @@ cd examples/aidbox-integrations/apollo-graphql-federation
 ## Run Aidbox and Apollo gateway
 
 ```bash
-AIDBOX_LICENSE="your aidbox license key" docker compose up -d
+docker compose up
 ```
+
+## Activate your Aidbox
+
+Visit to http://localhost:8080 and activate your Aidbox instance
+
+Now you can access to apollo router http://localhost:4000/
 
 ## How Federation Works
 
