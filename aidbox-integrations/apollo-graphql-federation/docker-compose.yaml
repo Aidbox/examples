@@ -24,7 +24,6 @@ services:
       - "8080:8080"
     environment:
       BOX_MODULE_GRAPHQL_FEDERATION_SUPPORT: "true"
-      AIDBOX_LICENSE: "$AIDBOX_LICENSE"
       BOX_ADMIN_PASSWORD: password
       BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
       BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
