@@ -1,6 +1,7 @@
 ---
 features: [Graphql, Federation, Apollo]
 languages: [YAML, JavaScript]
+render_with_liquid: false
 ---
 # Apollo Federation with Aidbox
 
