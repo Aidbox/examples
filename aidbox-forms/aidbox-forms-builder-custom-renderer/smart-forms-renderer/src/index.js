@@ -8,8 +8,6 @@ import {
   useQuestionnaireResponseStore,
 } from "@aehrc/smart-forms-renderer";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import createCache from "@emotion/cache";
-import { CacheProvider } from "@emotion/react";
 
 const statusEl = document.getElementById("status");
 const rootEl = document.getElementById("root");
@@ -66,12 +64,6 @@ if (!messagingHandle || !messagingOrigin) {
 
 setStatus("Waiting for questionnaire…");
 
-const cache = createCache({
-  key: "css",
-  prepend: true,
-  container: rootEl || document.head,
-});
-
 const theme = createTheme(rendererThemeOptions);
 const themeOverrides = rendererThemeComponentOverrides(theme);
 
@@ -100,12 +92,8 @@ theme.components = {
   },
 };
 
-const ShadowThemeProvider = ({ children }) =>
-  React.createElement(
-    CacheProvider,
-    { value: cache },
-    React.createElement(ThemeProvider, { theme }, children)
-  );
+const ThemeWrapper = ({ children }) =>
+  React.createElement(ThemeProvider, { theme }, children);
 
 const RendererWrapper = ({ questionnaire, questionnaireResponse }) => {
   const updatableResponse =
@@ -139,7 +127,7 @@ function render() {
   if (!root) return;
   root.render(
     React.createElement(
-      ShadowThemeProvider,
+      ThemeWrapper,
       null,
       React.createElement(RendererWrapper, {
         questionnaire: currentQuestionnaire,
