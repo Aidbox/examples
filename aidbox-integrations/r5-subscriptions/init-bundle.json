@@ -1,0 +1,135 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "AidboxSubscriptionTopic",
+        "id": "pas-claim-response",
+        "url": "http://example.org/SubscriptionTopic/pas-claim-response",
+        "status": "active",
+        "trigger": [
+          {
+            "resource": "ClaimResponse",
+            "fhirPathCriteria": "status = 'active'",
+            "canFilterBy": [
+              {
+                "description": "Filter by insurer organization",
+                "filterParameter": "orgIdentifier",
+                "filterDefinitionFhirPathExpression": "insurer",
+                "comparator": [
+                  "eq"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "/AidboxSubscriptionTopic",
+        "ifNoneExist": "_id=pas-claim-response"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AidboxTopicDestination",
+        "id": "pas-claim-response-destination",
+        "meta": {
+          "profile": [
+            "http://aidbox.app/StructureDefinition/aidboxtopicdestination-fhir-native-topic-based-subscription"
+          ]
+        },
+        "kind": "fhir-native-topic-based-subscription",
+        "topic": "http://example.org/SubscriptionTopic/pas-claim-response",
+        "status": "active",
+        "content": "full-resource",
+        "parameter": [
+          {
+            "name": "subscription-specification-version",
+            "valueString": "R5"
+          },
+          {
+            "name": "fhir-topic",
+            "valueCanonical": "http://hl7.org/fhir/us/davinci-pas/SubscriptionTopic/PASSubscriptionTopic"
+          },
+          {
+            "name": "number-of-deliverer",
+            "valueUnsignedInt": 2
+          },
+          {
+            "name": "keep-events-for-period",
+            "valueUnsignedInt": 86400
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "/AidboxTopicDestination",
+        "ifNoneExist": "_id=pas-claim-response-destination"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "org-1",
+        "name": "Example Insurance Company"
+      },
+      "request": {
+        "method": "POST",
+        "url": "/Organization",
+        "ifNoneExist": "_id=org-1"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "example",
+        "name": [
+          {
+            "family": "Test",
+            "given": [
+              "Patient"
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "/Patient",
+        "ifNoneExist": "_id=example"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Subscription",
+        "status": "requested",
+        "reason": "Receive notifications about claim responses for my organization.",
+        "topic": "http://hl7.org/fhir/us/davinci-pas/SubscriptionTopic/PASSubscriptionTopic",
+        "filterBy": [
+          {
+            "filterParameter": "orgIdentifier",
+            "comparator": "eq",
+            "value": "Organization/org-1"
+          }
+        ],
+        "channelType": {
+          "system": "http://terminology.hl7.org/CodeSystem/subscription-channel-type",
+          "code": "rest-hook"
+        },
+        "endpoint": "http://echo-server:9090/webhook",
+        "heartbeatPeriod": 60,
+        "timeout": 30,
+        "id": "pas-subscription-r5",
+        "contentType": "application/fhir+json",
+        "content": "full-resource",
+        "maxCount": 10
+      },
+      "request": {
+        "method": "POST",
+        "url": "/Subscription",
+        "ifNoneExist": "_id=pas-subscription-r5"
+      }
+    }
+  ]
+}
