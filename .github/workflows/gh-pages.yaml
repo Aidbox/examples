@@ -91,9 +91,9 @@ jobs:
           pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer build
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer build
-          mkdir -p examples/renderers/csiro examples/renderers/smart-forms
-          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer/dist/* examples/renderers/csiro/
-          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/dist/* examples/renderers/smart-forms/
+          mkdir -p renderers/csiro renderers/smart-forms
+          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer/dist/* renderers/csiro/
+          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/dist/* renderers/smart-forms/
 
       - name: Publish
         uses: JamesIves/github-pages-deploy-action@v4
