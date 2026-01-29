@@ -10,14 +10,13 @@ This tutorial demonstrates how to connect a custom renderer to the Aidbox Forms 
 
 The Aidbox Forms Builder allows you to use custom renderers to display questionnaires with your own UI components. This example shows how to:
 
-1. Wrap your renderer as a web component
-2. Host and configure it with Aidbox
-3. Use it in the Forms Builder preview
+1. Host a renderer page that speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging)
+2. Register renderer URLs in Aidbox
+3. Use them in the Forms Builder preview
 
 ## Prerequisites
 
-- Docker and Docker Compose
-- Aidbox license (get one from [Aidbox Console](https://aidbox.io))
+- Running Aidbox
 
 ## Tutorial
 
@@ -30,145 +29,54 @@ cp .env.example .env
 # Add your AIDBOX_LICENSE to .env
 ```
 
-### Step 2: Build the Smartforms Component
+### Step 2: Pick a Renderer and Build It (Vite)
 
-This example includes a CSIRO Smartforms renderer wrapped as a web component. Build it first:
+This repo includes two renderer pages: `csiro-renderer` and `smart-forms-renderer`. Pick the renderer you want and build it.
 
 ```bash
-cd smartforms-component
-npm install
-npm run build
-cd ..
+cd csiro-renderer
+pnpm install
+pnpm build
 ```
 
-### Step 3: Wrap Your Renderer for Forms Builder Compatibility
+If you want the other renderer later, repeat the same steps in `smart-forms-renderer`.
 
-The Forms Builder expects a specific web component structure. Use the provided template `custom-renderer.template.js`:
+### Step 3: Use Renderer Pages (SDC SWM)
 
-```javascript
-// simple-questionnaire-renderer.js
-if(!customElements.get("simple-questionnaire-renderer")) {
+The Forms Builder loads a renderer by URL. The renderer page must implement [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging) and respond to `postMessage` requests from the host.
 
-class SimpleQuestionnaireRenderer extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this._questionnaire = null;
-    this._questionnaireResponse = null;
-    this._onQuestionnaireResponseChange = null;
-  }
-
-  static get observedAttributes() {
-    return ['questionnaire', 'questionnaire-response'];
-  }
-
-  // Handle attribute updates from Forms Builder
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (!this.shadowRoot || oldValue === newValue) return;
-
-    try {
-      const parsed = newValue ? JSON.parse(newValue) : null;
-      if (name === 'questionnaire') this._questionnaire = parsed;
-      if (name === 'questionnaire-response') this._questionnaireResponse = parsed;
-      this.render();
-    } catch (e) {
-      console.error(`Invalid JSON for ${name}:`, e);
-    }
-  }
-
-  // Property accessors
-  get questionnaire() { return this._questionnaire; }
-  set questionnaire(value) { this._questionnaire = value; this.render(); }
-
-  get questionnaireResponse() { return this._questionnaireResponse; }
-  set questionnaireResponse(value) { this._questionnaireResponse = value; this.render(); }
-
-  set onQuestionnaireResponseChange(callback) {
-    this._onQuestionnaireResponseChange = callback;
-  }
-
-  render() {
-    if (!this.shadowRoot) return;
-    // Implement your questionnaire rendering here
-  }
-}
-
-customElements.define('simple-questionnaire-renderer', SimpleQuestionnaireRenderer);
-}
-```
-
-The only required attribute is `questionnaire`. 
-Support `questionnaire-response` to receive populated QuestionnaireResponse.
-Support `onQuestionnaireResponseChange` if you want to send QuestionnaireResponse back to the builder. 
-
-This tutorial includes `simple-questionnaire-renderer.js`, a reference implementation that renders FHIR Questionnaires using native HTML inputs.
+Each renderer page in this repo is a Vite app (`index.html` + `src/index.js`) that builds to a static `dist/` folder, mounts the SmartForms renderer, and bridges messages to the host.
 
 ### Step 4: Host Your Renderer
 
-The web component must be accessible via URL. This tutorial uses Caddy to serve the renderer files:
+The renderer page must be accessible via URL. You can use either:
 
-```dockerfile
-# Dockerfile
-FROM caddy:alpine
-COPY Caddyfile /etc/caddy/Caddyfile
-WORKDIR /srv
-COPY ./smartforms-component/dist/aidbox-forms-renderer-csiro-webcomponent.js /srv/
-COPY ./simple-questionnaire-renderer.js /srv/
-EXPOSE 80
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
-```
-
-### Step 5: Configure Aidbox
-
-To register custom renderers with Aidbox Forms, update the `SDCConfig` resource.
-
-Each renderer in the `custom-renderers` array requires:
-- **`name`** - The HTML tag name of your web component (e.g., `simple-questionnaire-renderer`)
-- **`source`** - URL where the renderer JavaScript file is hosted
-- **`title`** - Display name shown in the Forms Builder renderer dropdown
-
-Create an initialization bundle (`init-bundle.json`) to configure the custom renderers:
-
-```json
-{
-  "resourceType" : "Bundle",
-  "type" : "transaction",
-  "entry" : [ {
-    "resource" : {
-      "resourceType" : "SDCConfig",
-      "name": "custom-renderers-config",
-      "default": true,
-      "id" : "custom-renderer-config",
-      "builder": {
-        "custom-renderers": [
-          {
-            "name" : "aidbox-form-csiro-renderer",
-            "source" : "http://localhost:8081/aidbox-forms-renderer-csiro-webcomponent.js",
-            "title" : "CSIRO"
-          },
-          {
-            "name" : "simple-questionnaire-renderer",
-            "source" : "http://localhost:8081/simple-questionnaire-renderer.js",
-            "title" : "Simple Questionnaire Renderer"
-          }
-        ]
-      }
-    },
-    "request" : {
-      "method" : "PUT",
-      "url" : "SDCConfig/custom-renderer-config"
-    }
-  }]
-}
-```
-
-### Step 6: Start Services
+1) Vite dev server (local testing):
 
 ```bash
-docker-compose up -d --pull always --build
+cd csiro-renderer
+pnpm dev
 ```
 
-### Step 7: Use in Forms Builder
+If you chose `smart-forms-renderer`, run the same command from that folder instead.
+
+2) Built files hosted anywhere (for preview):
+
+```bash
+pnpm build
+```
+
+Then host the resulting `dist/` folder with any static hosting.
+
+### Step 5: Add the Renderer in Forms Builder
+
+Open Forms Builder and use the renderer switcher (eye icon near the theme selector).
+
+1) Click **Add custom renderer**  
+2) Enter a name and the renderer URL (for example `http://localhost:5173`)  
+3) Save
+
+### Step 6: Use in Forms Builder
 
 1. **Access Forms Builder:** Go to http://localhost:8080 and navigate to Forms Builder
 2. **Create/Edit Questionnaire:** Use the visual editor to build your form
@@ -177,21 +85,20 @@ docker-compose up -d --pull always --build
 
 **Service URLs:**
 - Aidbox: http://localhost:8080
-- Custom renderer demo: http://localhost:8081
+- Renderer dev server: http://localhost:5173 (default Vite port)
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Renderer not appearing in Forms Builder:**
-   - Check SDCConfig is properly loaded
-   - Verify renderer URL is accessible
+   - Verify the renderer URL is reachable
    - Check browser console for loading errors
 
 2. **Response not updating:**
-   - Ensure `onQuestionnaireResponseChange` callback is called
-   - Check QuestionnaireResponse structure matches FHIR spec
-   - Verify event listeners are attached to form inputs
+   - Check browser console for postMessage errors
+   - Confirm renderer page receives `sdc.displayQuestionnaire`
+   - Verify the renderer sends `sdc.ui.changedQuestionnaireResponse`
 
 3. **CORS issues:**
    - Ensure renderer URL is accessible from Forms Builder domain
@@ -199,9 +106,7 @@ docker-compose up -d --pull always --build
 
 ### Debug Steps
 
-1. Check Aidbox logs: `docker-compose logs aidbox`
-2. Verify SDCConfig: `GET http://localhost:8080/SDCConfig/custom-renderer-config`
-3. Test renderer directly: http://localhost:8081/simple-questionnaire-renderer.js
+1. Test renderer directly: http://localhost:5173
 4. Check browser console in Forms Builder for errors
 
 This example provides a complete foundation for integrating custom renderers that work seamlessly with the Aidbox Forms Builder.

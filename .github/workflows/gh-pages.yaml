@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: '9'
+
       - name: Create redirect page for fhirpath-editor
         run: |
           mkdir -p fhirpath-editor
@@ -79,6 +84,16 @@ jobs:
           </body>
           </html>
           EOF
+
+      - name: Build Aidbox Forms renderers
+        run: |
+          pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer
+          pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer build
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer build
+          mkdir -p examples/renderers/csiro examples/renderers/smart-forms
+          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer/dist/* examples/renderers/csiro/
+          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/dist/* examples/renderers/smart-forms/
 
       - name: Publish
         uses: JamesIves/github-pages-deploy-action@v4
