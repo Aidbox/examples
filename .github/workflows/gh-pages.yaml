@@ -94,6 +94,7 @@ jobs:
           mkdir -p renderers/csiro renderers/smart-forms
           cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer/dist/* renderers/csiro/
           cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/dist/* renderers/smart-forms/
+          rm aidbox-integrations/apollo-graphql-federation/README.md
 
       - name: Publish
         uses: JamesIves/github-pages-deploy-action@v4
