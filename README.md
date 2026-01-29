@@ -35,6 +35,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [FHIR Analytics](aidbox-integrations/fhir-analytics/)
 - [Real-Time Analytics with Aidbox, ClickHouse, and Superset](aidbox-integrations/clickhouse-superset/)
 - [GraphQL Federation](aidbox-integrations/apollo-graphql-federation/)
+- [FHIR R5 Topic-Based Subscriptions](aidbox-integrations/r5-subscriptions/)
 
 ## Aidbox Features
 
