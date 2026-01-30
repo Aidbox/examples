@@ -30,6 +30,18 @@ let currentQuestionnaire = null;
 let currentQuestionnaireResponse = null;
 let notifyHostResponseChange = null;
 
+// Replace the loading placeholder with a readable error message.
+function showError(message) {
+  if (!rootEl) return;
+  rootEl.innerHTML = "";
+  const box = document.createElement("div");
+  box.style.fontFamily = "system-ui, -apple-system, sans-serif";
+  box.style.padding = "8px";
+  box.style.color = "#b42318";
+  box.textContent = message;
+  rootEl.appendChild(box);
+}
+
 // -----------------------------------------------------------------------------
 // Messaging helpers
 // -----------------------------------------------------------------------------
@@ -135,6 +147,7 @@ function resolveQuestionnaireResponse(payload) {
 // -----------------------------------------------------------------------------
 
 if (!messagingHandle || !messagingOrigin) {
+  showError("Missing SDC SWM parameters.");
   throw new Error("Missing SDC SWM parameters");
 }
 
@@ -240,6 +253,7 @@ window.addEventListener("message", (event) => {
           "error",
           "Missing questionnaire in sdc.displayQuestionnaire."
         );
+        showError("Missing questionnaire in sdc.displayQuestionnaire.");
         return;
       }
       currentQuestionnaire = resolvedQuestionnaire;
@@ -261,6 +275,9 @@ window.addEventListener("message", (event) => {
           "sdc.displayQuestionnaireResponse",
           message.messageId,
           "error",
+          "Missing questionnaireResponse in sdc.displayQuestionnaireResponse."
+        );
+        showError(
           "Missing questionnaireResponse in sdc.displayQuestionnaireResponse."
         );
         return;
