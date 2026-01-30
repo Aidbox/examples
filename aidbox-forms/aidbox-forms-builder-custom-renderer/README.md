@@ -31,7 +31,7 @@ cp .env.example .env
 
 ### Step 2: Pick a Renderer and Build It (Vite)
 
-This repo includes a renderer page: `smart-forms-renderer`.
+This repo includes renderer pages: `smart-forms-renderer` and `lhc-forms-renderer`.
 
 ```bash
 cd smart-forms-renderer
@@ -39,13 +39,15 @@ pnpm install
 pnpm build
 ```
 
+For LHC-Forms, run the same commands from `lhc-forms-renderer`.
+
 If you want to host the renderer elsewhere, repeat the same steps in that environment.
 
 ### Step 3: Use Renderer Pages (SDC SWM)
 
 The Forms Builder loads a renderer by URL. The renderer page must implement [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging) and respond to `postMessage` requests from the host.
 
-Each renderer page in this repo is a Vite app (`index.html` + `src/index.js`) that builds to a static `dist/` folder, mounts the SmartForms renderer, and bridges messages to the host.
+Each renderer page in this repo is a Vite app (`index.html` + `src/index.js`) that builds to a static `dist/` folder, mounts a renderer (SmartForms or LHC-Forms), and bridges messages to the host.
 
 ### Step 4: Host Your Renderer
 
@@ -58,7 +60,7 @@ cd smart-forms-renderer
 pnpm dev
 ```
 
-If you are using a different folder, run the same command from there instead.
+If you are using a different folder (e.g. `lhc-forms-renderer`), run the same command from there instead.
 
 2) Built files hosted anywhere (for preview):
 
