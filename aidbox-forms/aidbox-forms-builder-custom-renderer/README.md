@@ -31,15 +31,15 @@ cp .env.example .env
 
 ### Step 2: Pick a Renderer and Build It (Vite)
 
-This repo includes two renderer pages: `csiro-renderer` and `smart-forms-renderer`. Pick the renderer you want and build it.
+This repo includes a renderer page: `smart-forms-renderer`.
 
 ```bash
-cd csiro-renderer
+cd smart-forms-renderer
 pnpm install
 pnpm build
 ```
 
-If you want the other renderer later, repeat the same steps in `smart-forms-renderer`.
+If you want to host the renderer elsewhere, repeat the same steps in that environment.
 
 ### Step 3: Use Renderer Pages (SDC SWM)
 
@@ -54,11 +54,11 @@ The renderer page must be accessible via URL. You can use either:
 1) Vite dev server (local testing):
 
 ```bash
-cd csiro-renderer
+cd smart-forms-renderer
 pnpm dev
 ```
 
-If you chose `smart-forms-renderer`, run the same command from that folder instead.
+If you are using a different folder, run the same command from there instead.
 
 2) Built files hosted anywhere (for preview):
 

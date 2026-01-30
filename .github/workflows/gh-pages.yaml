@@ -87,12 +87,9 @@ jobs:
 
       - name: Build Aidbox Forms renderers
         run: |
-          pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer
           pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer
-          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer build
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer build
-          mkdir -p renderers/csiro renderers/smart-forms
-          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/csiro-renderer/dist/* renderers/csiro/
+          mkdir -p renderers/smart-forms
           cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/dist/* renderers/smart-forms/
           rm aidbox-integrations/apollo-graphql-federation/README.md
 
