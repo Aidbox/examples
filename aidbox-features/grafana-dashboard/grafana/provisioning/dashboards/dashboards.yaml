@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: default
+    type: file
+    options:
+      path: /etc/grafana/dashboards
+    editable: true
+    allowUiUpdates: true
+    updateIntervalSeconds: 60
