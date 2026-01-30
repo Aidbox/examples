@@ -1,22 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import {
-  SmartFormsRenderer,
-  useQuestionnaireResponseStore,
-} from "@aehrc/smart-forms-renderer";
-
 // -----------------------------------------------------------------------------
-// SDC SMART Web Messaging (SWM) renderer host page
-//
-// This file implements a minimal renderer that can be embedded in a host app.
-// It follows the SDC SMART Web Messaging protocol:
-// - Performs the SWM handshake.
-// - Accepts Questionnaire/QuestionnaireResponse payloads.
-// - Renders the form using SmartFormsRenderer.
-// - Notifies the host when the response changes.
+// LHC-Forms renderer with SDC SMART Web Messaging (SWM)
 // -----------------------------------------------------------------------------
 
-// Root element where the renderer is mounted.
 const rootEl = document.getElementById("root");
 
 // SWM parameters are passed in the URL.
@@ -29,6 +14,7 @@ const hostWindow = window.opener || window.parent;
 let currentQuestionnaire = null;
 let currentQuestionnaireResponse = null;
 let notifyHostResponseChange = null;
+let changeTimer = null;
 
 // -----------------------------------------------------------------------------
 // Messaging helpers
@@ -43,8 +29,6 @@ function postToHost(message) {
   hostWindow.postMessage(message, messagingOrigin);
 }
 
-// Log messages in a flat format. Only the payload is logged as an object
-// to make it easy to inspect in devtools.
 function logMessage(direction, info, payload) {
   const messageType = info.messageType || "response";
   const messageId = info.messageId || "-";
@@ -62,7 +46,6 @@ function logMessage(direction, info, payload) {
   );
 }
 
-// Send a SWM request message (renderer -> host). Used for events.
 function sendEvent(messageType, payload) {
   const message = {
     messagingHandle,
@@ -74,8 +57,6 @@ function sendEvent(messageType, payload) {
   postToHost(message);
 }
 
-// Send a SWM response message (renderer -> host). Must include the same
-// messageType as the request being answered.
 function sendResponse(messageType, responseToMessageId, payload) {
   const message = {
     messagingHandle,
@@ -88,7 +69,6 @@ function sendResponse(messageType, responseToMessageId, payload) {
   postToHost(message);
 }
 
-// Helpers to produce consistent OperationOutcome payloads.
 function buildOutcome(severity, code, diagnostics) {
   return {
     resourceType: "OperationOutcome",
@@ -111,23 +91,90 @@ function sendStatus(messageType, responseToMessageId, status, diagnostics) {
 }
 
 // -----------------------------------------------------------------------------
-// Payload normalization helpers
+// LHC-Forms integration helpers
 // -----------------------------------------------------------------------------
-// The protocol allows either a full resource payload or an object containing
-// { questionnaire, questionnaireResponse }. These helpers normalize both.
 
-function resolveQuestionnaire(payload) {
-  if (!payload) return null;
-  if (payload.resourceType === "Questionnaire") return payload;
-  const candidate = payload.questionnaire;
-  if (candidate && candidate.resourceType === "Questionnaire") return candidate;
+function lformsUtil() {
+  return window.LForms && window.LForms.Util ? window.LForms.Util : null;
+}
+
+function clearRoot() {
+  if (rootEl) rootEl.innerHTML = "";
+}
+
+function convertQuestionnaire(questionnaire) {
+  const util = lformsUtil();
+  if (!util) return questionnaire;
+  if (typeof util.convertFHIRQuestionnaireToLForms === "function") {
+    return util.convertFHIRQuestionnaireToLForms(questionnaire);
+  }
+  return questionnaire;
+}
+
+function applyQuestionnaireResponse(formDef, questionnaireResponse) {
+  const util = lformsUtil();
+  if (!util || !questionnaireResponse) return formDef;
+
+  if (typeof util.mergeFHIRQuestionnaireResponse === "function") {
+    return util.mergeFHIRQuestionnaireResponse(formDef, questionnaireResponse);
+  }
+  if (typeof util.mergeFHIRDataIntoLForms === "function") {
+    return util.mergeFHIRDataIntoLForms(formDef, questionnaireResponse);
+  }
+  if (typeof util.setFHIRQuestionnaireResponse === "function") {
+    util.setFHIRQuestionnaireResponse(questionnaireResponse);
+  }
+
+  return formDef;
+}
+
+function renderLForms(questionnaire, questionnaireResponse) {
+  const util = lformsUtil();
+  if (!util || !rootEl) return false;
+
+  const baseForm = convertQuestionnaire(questionnaire);
+  const mergedForm = applyQuestionnaireResponse(
+    baseForm,
+    questionnaireResponse
+  );
+
+  clearRoot();
+  if (typeof util.addFormToPage === "function") {
+    const containerId = rootEl.id || "root";
+    util.addFormToPage(mergedForm, containerId);
+    return true;
+  }
+
+  return false;
+}
+
+function getCurrentQuestionnaireResponse() {
+  const util = lformsUtil();
+  if (!util) return null;
+
+  if (typeof util.getFormFHIRData === "function") {
+    return util.getFormFHIRData("QuestionnaireResponse", "R4");
+  }
+  if (typeof util.getFormData === "function") {
+    return util.getFormData();
+  }
+
   return null;
 }
 
-function resolveQuestionnaireResponse(payload) {
-  if (!payload) return null;
-  if (payload.resourceType === "QuestionnaireResponse") return payload;
-  return payload.questionnaireResponse || null;
+function scheduleChangeNotification() {
+  if (!notifyHostResponseChange) return;
+  if (changeTimer) clearTimeout(changeTimer);
+  changeTimer = setTimeout(() => {
+    const response = getCurrentQuestionnaireResponse();
+    if (response) notifyHostResponseChange(response);
+  }, 50);
+}
+
+function attachChangeListeners() {
+  if (!rootEl) return;
+  rootEl.addEventListener("change", scheduleChangeNotification, true);
+  rootEl.addEventListener("input", scheduleChangeNotification, true);
 }
 
 // -----------------------------------------------------------------------------
@@ -139,51 +186,17 @@ if (!messagingHandle || !messagingOrigin) {
 }
 
 // -----------------------------------------------------------------------------
-// Renderer component
+// Renderer lifecycle
 // -----------------------------------------------------------------------------
 
-const RendererWrapper = ({ questionnaire, questionnaireResponse }) => {
-  const updatableResponse =
-    useQuestionnaireResponseStore.use.updatableResponse();
-
-  React.useEffect(() => {
-    if (notifyHostResponseChange && updatableResponse) {
-      notifyHostResponseChange(updatableResponse);
-    }
-  }, [updatableResponse]);
-
-  if (!questionnaire || questionnaire.resourceType !== "Questionnaire") {
-    return null;
-  }
-  if (!Array.isArray(questionnaire.item)) {
-    return null;
-  }
-
-  return React.createElement(SmartFormsRenderer, {
-    questionnaire,
-    questionnaireResponse,
-  });
-};
-
-const root = rootEl ? ReactDOM.createRoot(rootEl) : null;
-
-function render() {
-  if (!root) return;
-  root.render(
-    React.createElement(RendererWrapper, {
-      questionnaire: currentQuestionnaire,
-      questionnaireResponse: currentQuestionnaireResponse,
-    })
-  );
-}
-
-// Notify host when the response changes.
 notifyHostResponseChange = (response) => {
   currentQuestionnaireResponse = response;
   sendEvent("sdc.ui.changedQuestionnaireResponse", {
     questionnaireResponse: response,
   });
 };
+
+attachChangeListeners();
 
 // Start the protocol by announcing ourselves.
 sendEvent("status.handshake", {
@@ -213,8 +226,8 @@ window.addEventListener("message", (event) => {
     case "status.handshake":
       sendResponse("status.handshake", message.messageId, {
         application: {
-          name: "SmartForms",
-          publisher: "Australian e-Health Research Centre",
+          name: "LHC-Forms",
+          publisher: "NLM Lister Hill National Center for Biomedical Communications",
         },
         capabilities: {
           extraction: false,
@@ -232,8 +245,12 @@ window.addEventListener("message", (event) => {
       return;
 
     case "sdc.displayQuestionnaire": {
-      const resolvedQuestionnaire = resolveQuestionnaire(message.payload);
-      if (!resolvedQuestionnaire) {
+      const questionnaire =
+        message.payload && message.payload.questionnaire
+          ? message.payload.questionnaire
+          : message.payload;
+
+      if (!questionnaire || questionnaire.resourceType !== "Questionnaire") {
         sendStatus(
           "sdc.displayQuestionnaire",
           message.messageId,
@@ -242,21 +259,51 @@ window.addEventListener("message", (event) => {
         );
         return;
       }
-      currentQuestionnaire = resolvedQuestionnaire;
-      const resolvedResponse = resolveQuestionnaireResponse(message.payload);
-      if (resolvedResponse) {
-        currentQuestionnaireResponse = resolvedResponse;
+
+      if (!window.LForms) {
+        sendStatus(
+          "sdc.displayQuestionnaire",
+          message.messageId,
+          "error",
+          "LHC-Forms script not loaded."
+        );
+        return;
       }
-      render();
+
+      currentQuestionnaire = questionnaire;
+      currentQuestionnaireResponse =
+        message.payload && message.payload.questionnaireResponse
+          ? message.payload.questionnaireResponse
+          : currentQuestionnaireResponse;
+
+      const rendered = renderLForms(
+        currentQuestionnaire,
+        currentQuestionnaireResponse
+      );
+      if (!rendered) {
+        sendStatus(
+          "sdc.displayQuestionnaire",
+          message.messageId,
+          "error",
+          "LHC-Forms renderer is not available."
+        );
+        return;
+      }
+
       sendStatus("sdc.displayQuestionnaire", message.messageId, "success");
       return;
     }
 
     case "sdc.displayQuestionnaireResponse": {
-      currentQuestionnaireResponse = resolveQuestionnaireResponse(
-        message.payload
-      );
-      if (!currentQuestionnaireResponse) {
+      const questionnaireResponse =
+        message.payload && message.payload.questionnaireResponse
+          ? message.payload.questionnaireResponse
+          : message.payload;
+
+      if (
+        !questionnaireResponse ||
+        questionnaireResponse.resourceType !== "QuestionnaireResponse"
+      ) {
         sendStatus(
           "sdc.displayQuestionnaireResponse",
           message.messageId,
@@ -265,11 +312,51 @@ window.addEventListener("message", (event) => {
         );
         return;
       }
-      const resolvedQuestionnaire = resolveQuestionnaire(message.payload);
-      if (resolvedQuestionnaire) {
-        currentQuestionnaire = resolvedQuestionnaire;
+
+      if (!window.LForms) {
+        sendStatus(
+          "sdc.displayQuestionnaireResponse",
+          message.messageId,
+          "error",
+          "LHC-Forms script not loaded."
+        );
+        return;
       }
-      render();
+
+      currentQuestionnaireResponse = questionnaireResponse;
+      const questionnaire =
+        message.payload && message.payload.questionnaire
+          ? message.payload.questionnaire
+          : currentQuestionnaire;
+
+      if (questionnaire && questionnaire.resourceType === "Questionnaire") {
+        currentQuestionnaire = questionnaire;
+      }
+
+      if (!currentQuestionnaire) {
+        sendStatus(
+          "sdc.displayQuestionnaireResponse",
+          message.messageId,
+          "error",
+          "Questionnaire is required to render QuestionnaireResponse."
+        );
+        return;
+      }
+
+      const rendered = renderLForms(
+        currentQuestionnaire,
+        currentQuestionnaireResponse
+      );
+      if (!rendered) {
+        sendStatus(
+          "sdc.displayQuestionnaireResponse",
+          message.messageId,
+          "error",
+          "LHC-Forms renderer is not available."
+        );
+        return;
+      }
+
       sendStatus(
         "sdc.displayQuestionnaireResponse",
         message.messageId,
@@ -278,12 +365,13 @@ window.addEventListener("message", (event) => {
       return;
     }
 
-    case "sdc.requestCurrentQuestionnaireResponse":
-      if (currentQuestionnaireResponse) {
+    case "sdc.requestCurrentQuestionnaireResponse": {
+      const response = getCurrentQuestionnaireResponse();
+      if (response) {
         sendResponse(
           "sdc.requestCurrentQuestionnaireResponse",
           message.messageId,
-          { questionnaireResponse: currentQuestionnaireResponse }
+          { questionnaireResponse: response }
         );
         return;
       }
@@ -295,6 +383,7 @@ window.addEventListener("message", (event) => {
         ),
       });
       return;
+    }
 
     case "sdc.requestExtract":
       sendResponse("sdc.requestExtract", message.messageId, {
