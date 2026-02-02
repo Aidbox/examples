@@ -23,6 +23,9 @@ importers:
       '@mui/system':
         specifier: ^7.3.7
         version: 7.3.7(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1)
+      '@tanstack/react-query':
+        specifier: ^5.90.20
+        version: 5.90.20(react@18.3.1)
       lodash:
         specifier: ^4.17.23
         version: 4.17.23
