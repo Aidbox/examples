@@ -1,5 +1,5 @@
 {
-  "name": "smart-forms-renderer",
+  "name": "beda-renderer",
   "type": "module",
   "private": true,
   "scripts": {
@@ -8,14 +8,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aehrc/smart-forms-renderer": "^1.2.12",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/material": "^7.3.7",
-    "@mui/system": "^7.3.7",
-    "lodash": "^4.17.23",
+    "@beda.software/fhir-questionnaire": "github:beda-software/fhir-questionnaire",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sdc-qrf": "1.0.0-beta.13",
+    "tslib": "^2.7.0"
   },
   "devDependencies": {
     "@types/fhir": "^0.0.41",

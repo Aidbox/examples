@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -88,12 +90,18 @@ jobs:
       - name: Build Aidbox Forms renderers
         run: |
           pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer
-          pnpm install --dir aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer
+          pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer
+          pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer
+          pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer build
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer build
-          mkdir -p renderers/smart-forms renderers/lhc-forms
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer build
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer build
+          mkdir -p renderers/smart-forms renderers/lhc-forms renderers/beda renderers/refero
           cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/dist/* renderers/smart-forms/
           cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer/dist/* renderers/lhc-forms/
+          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer/dist/* renderers/beda/
+          cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer/dist/* renderers/refero/
           rm aidbox-integrations/apollo-graphql-federation/README.md
 
       - name: Publish
