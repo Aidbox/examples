@@ -4,7 +4,7 @@ languages: [TypeScript]
 ---
 # smart-forms-renderer
 
-This package builds a static renderer page (`index.html` + `src/index.js`) that mounts the SmartForms renderer and speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging).
+This package builds a static renderer page (`index.html` + `src/index.ts`) that mounts the SmartForms renderer and speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging).
 
 Renderer source: https://github.com/aehrc/smart-forms
 

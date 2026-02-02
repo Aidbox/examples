@@ -1,0 +1,47 @@
+{
+  "name": "sdc-swm-protocol",
+  "version": "1.0.0",
+  "description": "SDC extensions to SMART Web Messaging - TypeScript definitions and protocol documentation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "docs/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "dev": "tsc --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FHIR/sdc-smart-web-messaging.git"
+  },
+  "keywords": [
+    "sdc",
+    "smart",
+    "web-messaging",
+    "fhir",
+    "questionnaire",
+    "typescript"
+  ],
+  "author": "HL7 FHIR",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/FHIR/sdc-smart-web-messaging/issues"
+  },
+  "homepage": "https://github.com/FHIR/sdc-smart-web-messaging#readme",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@types/fhir": "^0.0.41"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

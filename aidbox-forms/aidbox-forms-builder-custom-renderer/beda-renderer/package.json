@@ -1,0 +1,30 @@
+{
+  "name": "beda-renderer",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@beda.software/fhir-questionnaire": "github:beda-software/fhir-questionnaire",
+    "lodash": "^4.17.23",
+    "property-expr": "^2.0.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sdc-qrf": "1.0.0-beta.13",
+    "toposort": "^2.0.2",
+    "tiny-case": "^1.0.3",
+    "tslib": "^2.7.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "@types/fhir": "^0.0.41",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

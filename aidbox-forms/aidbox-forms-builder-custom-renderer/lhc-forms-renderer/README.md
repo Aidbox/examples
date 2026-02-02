@@ -1,6 +1,6 @@
 # lhc-forms-renderer
 
-This package builds a static renderer page (`index.html` + `src/index.js`) that
+This package builds a static renderer page (`index.html` + `src/index.ts`) that
 mounts LHC-Forms and speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging).
 
 Official renderer site: https://lhncbc.github.io/lforms/

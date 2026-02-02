@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SDC SWM Host</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+      }
+      #renderer {
+        width: 100vw;
+        height: 100vh;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="renderer" title="Renderer"></iframe>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const rendererPath = params.get("rendererPath") || "/";
+        const messagingHandle = params.get("handle") || "test-handle";
+        const messagingOrigin = window.location.origin;
+        const rendererUrl = new URL(rendererPath, messagingOrigin);
+        rendererUrl.searchParams.set("messaging_handle", messagingHandle);
+        rendererUrl.searchParams.set("messaging_origin", messagingOrigin);
+
+        const iframe = document.getElementById("renderer");
+        const state = { messages: [] };
+
+        function randomId() {
+          return Math.random().toString(36).slice(2, 10);
+        }
+
+        function record(direction, message) {
+          state.messages.push({
+            direction,
+            message,
+            timestamp: Date.now(),
+          });
+        }
+
+        function post(message) {
+          if (!iframe.contentWindow) return;
+          iframe.contentWindow.postMessage(message, messagingOrigin);
+          record("out", message);
+        }
+
+        function sendRequest(messageType, payload) {
+          const messageId = randomId();
+          post({
+            messagingHandle,
+            messageId,
+            messageType,
+            payload,
+          });
+          return messageId;
+        }
+
+        function sendResponse(messageType, responseToMessageId, payload) {
+          post({
+            messageId: randomId(),
+            responseToMessageId,
+            messageType,
+            payload,
+          });
+        }
+
+        window.__swmHost = {
+          messages: state.messages,
+          sendRequest,
+          sendResponse,
+          handle: messagingHandle,
+          origin: messagingOrigin,
+        };
+
+        window.addEventListener("message", (event) => {
+          if (event.origin !== messagingOrigin) return;
+          const message = event.data ?? {};
+          record("in", message);
+
+          if (message?.messageType === "status.handshake" && message?.messageId) {
+            sendResponse("status.handshake", message.messageId, {
+              application: {
+                name: "Test Host",
+              },
+            });
+          }
+        });
+
+        iframe.src = rendererUrl.toString();
+      })();
+    </script>
+  </body>
+</html>

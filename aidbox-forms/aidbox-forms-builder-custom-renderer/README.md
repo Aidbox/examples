@@ -1,10 +1,10 @@
 ---
-features: [Custom renderer, Forms builder, Questionnaire, Template, Customization]
-languages: [JavaScript]
+features: [Custom renderer, Forms builder, Questionnaire, Template, Customization, SMART Web Messaging]
+languages: [TypeScript]
 ---
 # Custom Renderer Tutorial for Aidbox Forms Builder
 
-This tutorial demonstrates how to connect a custom renderer to the Aidbox Forms Builder preview.
+This tutorial demonstrates how to connect custom renderers to the Aidbox Forms Builder preview.
 
 ## Overview
 
@@ -25,13 +25,17 @@ The Aidbox Forms Builder allows you to use custom renderers to display questionn
 ```bash
 git clone <this-repo>
 cd aidbox-forms-builder-custom-renderer
-cp .env.example .env
-# Add your AIDBOX_LICENSE to .env
+git submodule update --init --recursive
 ```
 
 ### Step 2: Pick a Renderer and Build It (Vite)
 
-This repo includes renderer pages: `smart-forms-renderer` and `lhc-forms-renderer`.
+This repo includes renderer pages:
+
+- `smart-forms-renderer` (Smart Forms)
+- `lhc-forms-renderer` (LHC-Forms via hosted build)
+- `beda-renderer` (Beda FHIR Questionnaire renderer)
+- `refero-renderer` (Refero)
 
 ```bash
 cd smart-forms-renderer
@@ -39,7 +43,7 @@ pnpm install
 pnpm build
 ```
 
-For LHC-Forms, run the same commands from `lhc-forms-renderer`.
+For other renderers, run the same commands from their folders.
 
 If you want to host the renderer elsewhere, repeat the same steps in that environment.
 
@@ -47,7 +51,7 @@ If you want to host the renderer elsewhere, repeat the same steps in that enviro
 
 The Forms Builder loads a renderer by URL. The renderer page must implement [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging) and respond to `postMessage` requests from the host.
 
-Each renderer page in this repo is a Vite app (`index.html` + `src/index.js`) that builds to a static `dist/` folder, mounts a renderer (SmartForms or LHC-Forms), and bridges messages to the host.
+Each renderer page in this repo is a Vite app (`index.html` + `src/index.tsx`/`src/index.ts`) that builds to a static `dist/` folder, mounts a renderer (Smart Forms, LHC-Forms, Beda, or Refero), and bridges messages to the host.
 
 ### Step 4: Host Your Renderer
 

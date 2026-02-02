@@ -1,0 +1,33 @@
+{
+  "name": "refero-renderer",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@helsenorge/autosuggest": "^37.0.0",
+    "@helsenorge/datepicker": "^13.0.0",
+    "@helsenorge/designsystem-react": "^13.0.0",
+    "@helsenorge/file-upload": "^37.0.0",
+    "@helsenorge/refero": "^22.2.1",
+    "@reduxjs/toolkit": "^2.2.7",
+    "dompurify": "3.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-redux": "^9.0.0",
+    "redux": "^5.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "@types/fhir": "^0.0.41",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "sass-embedded": "^1.97.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
