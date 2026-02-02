@@ -87,12 +87,26 @@ jobs:
           </html>
           EOF
 
-      - name: Build Aidbox Forms renderers
+      - name: Install renderer dependencies
         run: |
           pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer
           pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer
           pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer
           pnpm install --frozen-lockfile --dir aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer
+
+      - name: Install Playwright browsers
+        run: |
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer exec playwright install --with-deps
+
+      - name: Run SWM protocol tests
+        run: |
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer exec playwright test --reporter=line
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer exec playwright test --reporter=line
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer exec playwright test --reporter=line
+          pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer exec playwright test --reporter=line
+
+      - name: Build Aidbox Forms renderers
+        run: |
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer build
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer build
           pnpm --dir aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer build
