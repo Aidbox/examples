@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test"
   },
   "dependencies": {
     "@helsenorge/autosuggest": "^37.0.0",
@@ -21,6 +22,7 @@
     "redux": "^5.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@types/fhir": "^0.0.41",
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.3.7",

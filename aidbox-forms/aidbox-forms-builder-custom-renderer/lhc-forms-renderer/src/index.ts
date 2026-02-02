@@ -58,7 +58,6 @@ const hostWindow = window.opener || window.parent;
 let currentQuestionnaire: fhir4.Questionnaire | null = null;
 let currentQuestionnaireResponse: fhir4.QuestionnaireResponse | null = null;
 let currentContext: QuestionnaireContext | null = null;
-let currentConfig: SdcConfigureRequest["payload"] | null = null;
 let notifyHostResponseChange:
   | ((response: fhir4.QuestionnaireResponse) => void)
   | null = null;
@@ -93,10 +92,6 @@ function postToHost(message: AnyOutgoingMessage) {
   hostWindow.postMessage(message, messagingOrigin);
 }
 
-type LoggableMessage = Partial<
-  SmartWebMessagingRequest<unknown> & SmartWebMessagingResponse<unknown>
->;
-
 const sdcMessageTypes: SdcMessageType[] = [
   "status.handshake",
   "sdc.configure",
@@ -110,27 +105,6 @@ const sdcMessageTypes: SdcMessageType[] = [
   "ui.done",
 ];
 
-function logMessage(
-  direction: "in" | "out",
-  info: LoggableMessage,
-  payload?: unknown
-) {
-  const messageType = info.messageType || "response";
-  const messageId = info.messageId || "-";
-  const responseToMessageId = info.responseToMessageId || "-";
-  const handle = info.messagingHandle || "-";
-  if (payload === undefined) {
-    console.log(
-      `[${direction}] type=${messageType} id=${messageId} respTo=${responseToMessageId} handle=${handle}`
-    );
-    return;
-  }
-  console.log(
-    `[${direction}] type=${messageType} id=${messageId} respTo=${responseToMessageId} handle=${handle}`,
-    payload
-  );
-}
-
 function sendEvent<TPayload extends SdcEventPayload>(
   messageType: SdcMessageType,
   payload: TPayload
@@ -141,7 +115,6 @@ function sendEvent<TPayload extends SdcEventPayload>(
     messageType,
     payload,
   } as SmartWebMessagingEvent<TPayload>;
-  logMessage("out", message, payload);
   postToHost(message);
 }
 
@@ -157,7 +130,6 @@ function sendResponse<TPayload extends SdcResponsePayload>(
     responseToMessageId,
     payload,
   } as SmartWebMessagingResponse<TPayload>;
-  logMessage("out", message, payload);
   postToHost(message);
 }
 
@@ -502,7 +474,6 @@ window.addEventListener("message", (event) => {
   if (event.origin !== messagingOrigin) return;
 
   const message = event.data ?? {};
-  logMessage("in", message, message.payload);
 
   if (isResponse(message)) {
     return;
@@ -543,7 +514,6 @@ window.addEventListener("message", (event) => {
         );
         return;
       }
-      currentConfig = message.payload;
       sendStatus("sdc.configure", message.messageId, "success");
       return;
 

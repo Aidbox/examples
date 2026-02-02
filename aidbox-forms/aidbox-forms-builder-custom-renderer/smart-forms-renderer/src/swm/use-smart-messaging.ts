@@ -23,9 +23,7 @@ import {
 } from "./guards";
 import { buildOutcome, StatusPayload } from "./outcome";
 import { useLatestRef } from "../hooks/use-latest-ref";
-import { createLogger, createMessenger } from "./transport";
-
-const DEBUG_SW_MESSAGING = import.meta.env.VITE_SDC_SWM_DEBUG === "true";
+import { createMessenger } from "./transport";
 
 type UseSmartMessagingOptions = {
   application: {
@@ -48,17 +46,16 @@ type UseSmartMessagingResult = {
   context: QuestionnaireContext | null;
   config: SdcConfigureRequest["payload"] | null;
   error: string | null;
-  renderKey: number;
   sendResponseChanged: (response: fhir4.QuestionnaireResponse) => void;
 };
 
 export function useSmartMessaging(
   options: UseSmartMessagingOptions
 ): UseSmartMessagingResult {
-  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const params = new URLSearchParams(window.location.search);
   const messagingHandle = params.get("messaging_handle");
   const messagingOrigin = params.get("messaging_origin");
-  const hostWindow = useMemo(() => window.opener || window.parent, []);
+  const hostWindow = window.opener || window.parent;
 
   const [questionnaire, setQuestionnaireState] =
     useState<fhir4.Questionnaire | null>(null);
@@ -69,19 +66,10 @@ export function useSmartMessaging(
     null
   );
   const [error, setError] = useState<string | null>(null);
-  const [renderKey, setRenderKey] = useState(0);
 
-  const questionnaireRef = useRef(questionnaire);
   const responseRef = useRef(questionnaireResponse);
-  const contextRef = useRef(context);
-  const configRef = useRef(config);
   const handshakeSent = useRef(false);
   const optionsRef = useLatestRef(options);
-
-  const setQuestionnaire = useCallback((value: fhir4.Questionnaire | null) => {
-    questionnaireRef.current = value;
-    setQuestionnaireState(value);
-  }, []);
 
   const setQuestionnaireResponse = useCallback(
     (value: fhir4.QuestionnaireResponse | null) => {
@@ -91,26 +79,14 @@ export function useSmartMessaging(
     []
   );
 
-  const setContext = useCallback((value: QuestionnaireContext | null) => {
-    contextRef.current = value;
-    setContextState(value);
-  }, []);
-
-  const setConfig = useCallback((value: SdcConfigureRequest["payload"] | null) => {
-    configRef.current = value;
-    setConfigState(value);
-  }, []);
-
-  const logger = useMemo(() => createLogger(DEBUG_SW_MESSAGING), []);
   const { sendEvent, sendResponse } = useMemo(
     () =>
       createMessenger({
         messagingHandle,
         messagingOrigin,
         hostWindow,
-        log: logger,
       }),
-    [hostWindow, logger, messagingHandle, messagingOrigin]
+    [hostWindow, messagingHandle, messagingOrigin]
   );
 
   const sendStatus = useCallback(
@@ -131,13 +107,13 @@ export function useSmartMessaging(
 
   const sendResponseChanged = useCallback(
     (response: fhir4.QuestionnaireResponse) => {
-      setQuestionnaireResponse(response);
+      responseRef.current = response;
       const payload: SdcUiChangedQuestionnaireResponsePayload = {
         questionnaireResponse: response,
       };
       sendEvent("sdc.ui.changedQuestionnaireResponse", payload);
     },
-    [sendEvent, setQuestionnaireResponse]
+    [sendEvent]
   );
 
   useEffect(() => {
@@ -161,7 +137,6 @@ export function useSmartMessaging(
       if (event.origin !== messagingOrigin) return;
 
       const message = event.data ?? {};
-      logger("in", message, message.payload);
 
       if (isResponse(message)) {
         return;
@@ -196,7 +171,7 @@ export function useSmartMessaging(
             );
             return;
           }
-          setConfig(message.payload);
+          setConfigState(message.payload);
           sendStatus("sdc.configure", message.messageId, "success");
           return;
         }
@@ -211,7 +186,7 @@ export function useSmartMessaging(
             );
             return;
           }
-          setContext(message.payload.context ?? null);
+          setContextState(message.payload.context ?? null);
           sendStatus("sdc.configureContext", message.messageId, "success");
           return;
         }
@@ -239,13 +214,14 @@ export function useSmartMessaging(
             return;
           }
           setError(null);
-          setContext(mergeContext(contextRef.current, getContextFromPayload(message.payload)));
-          setQuestionnaire(resolvedQuestionnaire);
+          setContextState(
+            mergeContext(context, getContextFromPayload(message.payload))
+          );
+          setQuestionnaireState(resolvedQuestionnaire);
           const resolvedResponse = resolveQuestionnaireResponse(message.payload);
           if (resolvedResponse) {
             setQuestionnaireResponse(resolvedResponse);
           }
-          setRenderKey((value) => value + 1);
           sendStatus("sdc.displayQuestionnaire", message.messageId, "success");
           return;
         }
@@ -277,9 +253,9 @@ export function useSmartMessaging(
           setQuestionnaireResponse(resolvedResponse);
           const resolvedQuestionnaire = resolveQuestionnaire(message.payload);
           if (resolvedQuestionnaire) {
-            setQuestionnaire(resolvedQuestionnaire);
+            setQuestionnaireState(resolvedQuestionnaire);
           }
-          if (!questionnaireRef.current && !resolvedQuestionnaire) {
+          if (!questionnaire && !resolvedQuestionnaire) {
             sendStatus(
               "sdc.displayQuestionnaireResponse",
               message.messageId,
@@ -290,7 +266,6 @@ export function useSmartMessaging(
             return;
           }
           setError(null);
-          setRenderKey((value) => value + 1);
           sendStatus("sdc.displayQuestionnaireResponse", message.messageId, "success");
           return;
         }
@@ -369,16 +344,14 @@ export function useSmartMessaging(
     return () => window.removeEventListener("message", handler);
   }, [
     hostWindow,
-    logger,
-    messagingHandle,
-    messagingOrigin,
     sendResponse,
     sendStatus,
     sendEvent,
-    setConfig,
-    setContext,
-    setQuestionnaire,
     setQuestionnaireResponse,
+    messagingHandle,
+    messagingOrigin,
+    context,
+    questionnaire,
   ]);
 
   return {
@@ -387,7 +360,6 @@ export function useSmartMessaging(
     context,
     config,
     error,
-    renderKey,
     sendResponseChanged,
   };
 }

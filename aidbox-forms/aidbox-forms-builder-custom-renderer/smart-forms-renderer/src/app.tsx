@@ -7,6 +7,7 @@ export const App = () => {
   const {
     questionnaire,
     questionnaireResponse,
+    config,
     error,
     sendResponseChanged,
   } = useSmartMessaging({
@@ -36,6 +37,7 @@ export const App = () => {
       questionnaire={questionnaire}
       questionnaireResponse={questionnaireResponse}
       onResponseChange={sendResponseChanged}
+      terminologyServerUrl={config?.terminologyServer}
     />
   );
 };

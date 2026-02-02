@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test"
   },
-  "dependencies": {},
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@types/fhir": "^0.0.41",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"

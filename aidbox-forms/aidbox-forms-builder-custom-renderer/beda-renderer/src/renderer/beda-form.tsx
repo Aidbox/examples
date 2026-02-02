@@ -13,7 +13,6 @@ import {
   findAnswersForQuestion,
   getAnswerValues,
   useQuestionnaireResponseFormContext,
-  wrapAnswerValue,
 } from "sdc-qrf";
 import type { AnswerValue, FormItems, QuestionItemProps } from "sdc-qrf";
 import type { QuestionnaireContext } from "sdc-swm-protocol/src";
@@ -24,6 +23,30 @@ type BedaFormProps = {
   context: QuestionnaireContext | null;
   onResponseChange: (response: fhir4.QuestionnaireResponse) => void;
 };
+
+type AnswerValueType = QuestionItemProps["questionItem"]["type"];
+
+function wrapAnswerValue(type: AnswerValueType, value: unknown): AnswerValue | null {
+  if (type === "choice" || type === "open-choice") {
+    if (value && typeof value === "object") {
+      return { Coding: value as AnswerValue["Coding"] };
+    }
+    return { string: String(value) };
+  }
+  if (type === "text") {
+    return { string: String(value) };
+  }
+  if (type === "attachment") {
+    return { Attachment: value as AnswerValue["Attachment"] };
+  }
+  if (type === "reference") {
+    return { Reference: value as AnswerValue["Reference"] };
+  }
+  if (type === "quantity") {
+    return { Quantity: value as AnswerValue["Quantity"] };
+  }
+  return { [type]: value } as AnswerValue;
+}
 
 function toR4bQuestionnaire(value: fhir4.Questionnaire): fhir4b.Questionnaire {
   return value as unknown as fhir4b.Questionnaire;

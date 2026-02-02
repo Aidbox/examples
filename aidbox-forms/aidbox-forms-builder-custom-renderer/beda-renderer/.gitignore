@@ -31,3 +31,8 @@ logs
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Playwright
+playwright-report
+test-results
+.playwright

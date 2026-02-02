@@ -2,6 +2,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import { Refero } from "@helsenorge/refero";
 import { store, type RootState } from "./store";
+import { referoResources } from "./refero-resources";
 
 const RESPONSE_DEBOUNCE_MS = 50;
 
@@ -66,6 +67,7 @@ export const ReferoView = ({
       <Refero
         questionnaire={questionnaire}
         questionnaireResponse={questionnaireResponse ?? undefined}
+        resources={referoResources}
         onSubmit={handleSubmit}
         onSave={handleSave}
         onCancel={() => {}}
