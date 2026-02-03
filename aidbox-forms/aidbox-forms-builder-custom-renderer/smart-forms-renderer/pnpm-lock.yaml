@@ -26,6 +26,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@18.3.1)
+      aidbox-swm:
+        specifier: file:../swm
+        version: file:../swm(react@18.3.1)
       lodash:
         specifier: ^4.17.23
         version: 4.17.23
@@ -1517,6 +1520,11 @@ packages:
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
+
+  aidbox-swm@file:../swm:
+    resolution: {directory: ../swm, type: directory}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
 
   anser@1.4.10:
     resolution: {integrity: sha512-hCv9AqTQ8ycjpSd3upOJd7vFwW1JaoYQ7tpham03GJ1ca8/65rqn0RpaWpItOAd6ylW9wAw6luXYPJIyPFVOww==}
@@ -5907,6 +5915,10 @@ snapshots:
 
   agent-base@7.1.4:
     optional: true
+
+  aidbox-swm@file:../swm(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   anser@1.4.10:
     optional: true

@@ -7,7 +7,7 @@ export default defineConfig({
     alias: {
       "sdc-swm-protocol/src": resolve(
         __dirname,
-        "vendor/sdc-smart-web-messaging/src/index.ts"
+        "../swm/vendor/sdc-smart-web-messaging/src/index.ts"
       ),
     },
   },

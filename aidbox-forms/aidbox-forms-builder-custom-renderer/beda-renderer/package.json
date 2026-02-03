@@ -9,6 +9,7 @@
     "test": "playwright test"
   },
   "dependencies": {
+    "aidbox-swm": "file:../swm",
     "@beda.software/fhir-questionnaire": "github:beda-software/fhir-questionnaire",
     "lodash": "^4.17.23",
     "property-expr": "^2.0.6",

@@ -1,6 +1,6 @@
 import React from "react";
 import "@helsenorge/refero/index.css";
-import { useSmartMessaging } from "./swm/use-smart-messaging";
+import { useSmartMessaging } from "aidbox-swm";
 import { ErrorView } from "./ui/error-view";
 import { ReferoView } from "./renderer/refero-view";
 

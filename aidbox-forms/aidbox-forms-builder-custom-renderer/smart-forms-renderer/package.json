@@ -9,6 +9,7 @@
     "test": "playwright test"
   },
   "dependencies": {
+    "aidbox-swm": "file:../swm",
     "@aehrc/smart-forms-renderer": "^1.2.12",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

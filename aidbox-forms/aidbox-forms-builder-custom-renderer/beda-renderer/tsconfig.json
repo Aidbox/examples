@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "types": ["vite/client", "@types/fhir"],
     "paths": {
-      "sdc-swm-protocol/src": ["vendor/sdc-smart-web-messaging/src/index.ts"]
+      "sdc-swm-protocol/src": ["../swm/vendor/sdc-smart-web-messaging/src/index.ts"]
     }
   },
   "include": ["src"]

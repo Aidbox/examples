@@ -26,6 +26,9 @@ importers:
       '@reduxjs/toolkit':
         specifier: ^2.2.7
         version: 2.11.2(react-redux@9.2.0(@types/react@18.3.27)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
+      aidbox-swm:
+        specifier: file:../swm
+        version: file:../swm(react@18.3.1)
       dompurify:
         specifier: 3.3.0
         version: 3.3.0
@@ -562,6 +565,11 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
+
+  aidbox-swm@file:../swm:
+    resolution: {directory: ../swm, type: directory}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
 
   antlr4@4.9.3:
     resolution: {integrity: sha512-qNy2odgsa0skmNMCuxzXhM4M8J1YDaPv3TI+vCdnOAanu0N982wBrSqziDKRDctEZLZy9VffqIZXc0UGjjSP/g==}
@@ -1416,6 +1424,10 @@ snapshots:
     optional: true
 
   '@types/use-sync-external-store@0.0.6': {}
+
+  aidbox-swm@file:../swm(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   antlr4@4.9.3: {}
 

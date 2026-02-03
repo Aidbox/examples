@@ -1,12 +1,3 @@
-[submodule "aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/vendor/sdc-smart-web-messaging"]
-	path = aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/vendor/sdc-smart-web-messaging
-	url = https://github.com/brianpos/sdc-smart-web-messaging.git
-[submodule "aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer/vendor/sdc-smart-web-messaging"]
-	path = aidbox-forms/aidbox-forms-builder-custom-renderer/lhc-forms-renderer/vendor/sdc-smart-web-messaging
-	url = https://github.com/brianpos/sdc-smart-web-messaging.git
-[submodule "aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer/vendor/sdc-smart-web-messaging"]
-	path = aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer/vendor/sdc-smart-web-messaging
-	url = https://github.com/brianpos/sdc-smart-web-messaging.git
-[submodule "aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer/vendor/sdc-smart-web-messaging"]
-	path = aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer/vendor/sdc-smart-web-messaging
+[submodule "aidbox-forms/aidbox-forms-builder-custom-renderer/swm/vendor/sdc-smart-web-messaging"]
+	path = aidbox-forms/aidbox-forms-builder-custom-renderer/swm/vendor/sdc-smart-web-messaging
 	url = https://github.com/brianpos/sdc-smart-web-messaging.git

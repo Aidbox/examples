@@ -22,12 +22,10 @@ import {
   resolveQuestionnaireResponse,
 } from "./guards";
 import { buildOutcome, StatusPayload } from "./outcome";
-import { useLatestRef } from "../hooks/use-latest-ref";
-import { createLogger, createMessenger } from "./transport";
+import { useLatestRef } from "./hooks/use-latest-ref";
+import { createMessenger } from "./transport";
 
-const DEBUG_SW_MESSAGING = import.meta.env.VITE_SDC_SWM_DEBUG === "true";
-
-type UseSmartMessagingOptions = {
+export type UseSmartMessagingOptions = {
   application: {
     name: string;
     publisher?: string;
@@ -42,7 +40,7 @@ type UseSmartMessagingOptions = {
   ) => Promise<SdcRequestExtractResponse["payload"]> | SdcRequestExtractResponse["payload"];
 };
 
-type UseSmartMessagingResult = {
+export type UseSmartMessagingResult = {
   questionnaire: fhir4.Questionnaire | null;
   questionnaireResponse: fhir4.QuestionnaireResponse | null;
   context: QuestionnaireContext | null;
@@ -101,16 +99,14 @@ export function useSmartMessaging(
     setConfigState(value);
   }, []);
 
-  const logger = useMemo(() => createLogger(DEBUG_SW_MESSAGING), []);
   const { sendEvent, sendResponse } = useMemo(
     () =>
       createMessenger({
         messagingHandle,
         messagingOrigin,
         hostWindow,
-        log: logger,
       }),
-    [hostWindow, logger, messagingHandle, messagingOrigin]
+    [hostWindow, messagingHandle, messagingOrigin]
   );
 
   const sendStatus = useCallback(
@@ -161,7 +157,6 @@ export function useSmartMessaging(
       if (event.origin !== messagingOrigin) return;
 
       const message = event.data ?? {};
-      logger("in", message, message.payload);
 
       if (isResponse(message)) {
         return;
@@ -369,7 +364,6 @@ export function useSmartMessaging(
     return () => window.removeEventListener("message", handler);
   }, [
     hostWindow,
-    logger,
     messagingHandle,
     messagingOrigin,
     sendResponse,

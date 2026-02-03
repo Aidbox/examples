@@ -9,6 +9,7 @@
     "test": "playwright test"
   },
   "dependencies": {
+    "aidbox-swm": "file:../swm",
     "@helsenorge/autosuggest": "^37.0.0",
     "@helsenorge/datepicker": "^13.0.0",
     "@helsenorge/designsystem-react": "^13.0.0",

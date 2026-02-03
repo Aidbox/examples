@@ -1,5 +1,5 @@
 import React from "react";
-import { useSmartMessaging } from "./swm/use-smart-messaging";
+import { useSmartMessaging } from "aidbox-swm";
 import { ErrorView } from "./ui/error-view";
 import { SmartFormsView } from "./renderer/smart-forms-view";
 
