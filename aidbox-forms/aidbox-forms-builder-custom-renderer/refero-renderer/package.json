@@ -6,10 +6,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "playwright test"
+    "test": "playwright test",
+    "lint": "biome lint .",
+    "format": "biome format .",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "aidbox-swm": "file:../swm",
     "@helsenorge/autosuggest": "^37.0.0",
     "@helsenorge/datepicker": "^13.0.0",
     "@helsenorge/designsystem-react": "^13.0.0",
@@ -20,9 +22,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.0.0",
-    "redux": "^5.0.0"
+    "redux": "^5.0.0",
+    "sdc-smart-web-messaging-react": "1.0.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.14",
     "@playwright/test": "^1.58.1",
     "@types/fhir": "^0.0.41",
     "@types/react": "^18.3.27",

@@ -1,19 +1,27 @@
 import type {
   LaunchContextItem,
   QuestionnaireContext,
-  SdcConfigureContextRequest,
-  SdcConfigureRequest,
-  SdcDisplayQuestionnaireRequest,
-  SdcDisplayQuestionnaireResponseRequest,
   SdcUiChangedQuestionnaireResponsePayload,
   SmartWebMessagingEvent,
   SmartWebMessagingRequest,
   SmartWebMessagingResponse,
+  SdcRequestPayload,
   SdcResponsePayload,
   SdcEventPayload,
   SdcMessageType,
-} from "sdc-swm-protocol/src";
-import { isRequest, isResponse } from "sdc-swm-protocol/src";
+} from "sdc-smart-web-messaging-react";
+import {
+  getContextFromPayload,
+  isDisplayQuestionnairePayload,
+  isDisplayQuestionnaireResponsePayload,
+  isRecord,
+  isRequest,
+  isResponse,
+  isSdcConfigureContextPayload,
+  isSdcConfigurePayload,
+  resolveQuestionnaire,
+  resolveQuestionnaireResponse,
+} from "sdc-smart-web-messaging-react";
 
 type LFormsUtil = {
   convertFHIRQuestionnaireToLForms?: (q: fhir4.Questionnaire) => unknown;
@@ -39,6 +47,9 @@ declare global {
     LForms?: {
       Util?: LFormsUtil;
     };
+    __rendererMetrics?: {
+      renders: number;
+    };
   }
 }
 
@@ -62,6 +73,13 @@ let notifyHostResponseChange:
   | ((response: fhir4.QuestionnaireResponse) => void)
   | null = null;
 let changeTimer: number | null = null;
+let renderCount = 0;
+
+function recordRender() {
+  if (!import.meta.env.DEV) return;
+  renderCount += 1;
+  window.__rendererMetrics = { renders: renderCount };
+}
 
 // Replace the loading placeholder with a readable error message.
 function showError(message: string) {
@@ -105,7 +123,9 @@ const sdcMessageTypes: SdcMessageType[] = [
   "ui.done",
 ];
 
-function sendEvent<TPayload extends SdcEventPayload>(
+type OutgoingRequestPayload = SdcRequestPayload | SdcEventPayload;
+
+function sendEvent<TPayload extends OutgoingRequestPayload>(
   messageType: SdcMessageType,
   payload: TPayload
 ) {
@@ -172,145 +192,8 @@ function sendStatus(
 // Payload normalization helpers
 // -----------------------------------------------------------------------------
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
 function isSdcMessageType(value: string): value is SdcMessageType {
   return sdcMessageTypes.includes(value as SdcMessageType);
-}
-
-function isQuestionnaire(value: unknown): value is fhir4.Questionnaire {
-  return isRecord(value) && value.resourceType === "Questionnaire";
-}
-
-function isQuestionnaireResponse(
-  value: unknown
-): value is fhir4.QuestionnaireResponse {
-  return isRecord(value) && value.resourceType === "QuestionnaireResponse";
-}
-
-function resolveQuestionnaire(payload: unknown) {
-  if (!isRecord(payload)) return null;
-  if (isQuestionnaire(payload)) return payload;
-  const candidate = payload.questionnaire;
-  if (isQuestionnaire(candidate)) return candidate;
-  return null;
-}
-
-function resolveQuestionnaireResponse(payload: unknown) {
-  if (!isRecord(payload)) return null;
-  if (isQuestionnaireResponse(payload)) return payload;
-  const candidate = payload.questionnaireResponse;
-  if (isQuestionnaireResponse(candidate)) return candidate;
-  return null;
-}
-
-function isLaunchContextItem(value: unknown): value is LaunchContextItem {
-  if (!isRecord(value)) return false;
-  if (typeof value.name !== "string") return false;
-  if (
-    value.contentReference !== undefined &&
-    !isRecord(value.contentReference)
-  ) {
-    return false;
-  }
-  if (value.contentResource !== undefined && !isRecord(value.contentResource)) {
-    return false;
-  }
-  return true;
-}
-
-function isQuestionnaireContext(value: unknown): value is QuestionnaireContext {
-  if (!isRecord(value)) return false;
-  if (value.subject !== undefined && !isRecord(value.subject)) return false;
-  if (value.author !== undefined && !isRecord(value.author)) return false;
-  if (value.encounter !== undefined && !isRecord(value.encounter)) return false;
-  if (value.launchContext !== undefined) {
-    if (!Array.isArray(value.launchContext)) return false;
-    if (!value.launchContext.every(isLaunchContextItem)) return false;
-  }
-  return true;
-}
-
-function isSdcConfigurePayload(
-  value: unknown
-): value is SdcConfigureRequest["payload"] {
-  if (!isRecord(value)) return false;
-  if (
-    value.terminologyServer !== undefined &&
-    typeof value.terminologyServer !== "string"
-  ) {
-    return false;
-  }
-  if (value.dataServer !== undefined && typeof value.dataServer !== "string") {
-    return false;
-  }
-  if (value.configuration !== undefined && !isRecord(value.configuration)) {
-    return false;
-  }
-  return true;
-}
-
-function isSdcConfigureContextPayload(
-  value: unknown
-): value is SdcConfigureContextRequest["payload"] {
-  if (!isRecord(value)) return false;
-  if (value.context !== undefined && !isQuestionnaireContext(value.context)) {
-    return false;
-  }
-  return true;
-}
-
-type DisplayQuestionnairePayload =
-  | SdcDisplayQuestionnaireRequest["payload"]
-  | fhir4.Questionnaire;
-
-function isDisplayQuestionnairePayload(
-  value: unknown
-): value is DisplayQuestionnairePayload {
-  if (isQuestionnaire(value)) return true;
-  if (!isRecord(value)) return false;
-  if (value.questionnaire !== undefined && !isQuestionnaire(value.questionnaire)) {
-    return false;
-  }
-  if (
-    value.questionnaireResponse !== undefined &&
-    !isQuestionnaireResponse(value.questionnaireResponse)
-  ) {
-    return false;
-  }
-  if (value.context !== undefined && !isQuestionnaireContext(value.context)) {
-    return false;
-  }
-  return true;
-}
-
-type DisplayQuestionnaireResponsePayload =
-  | SdcDisplayQuestionnaireResponseRequest["payload"]
-  | fhir4.QuestionnaireResponse;
-
-function isDisplayQuestionnaireResponsePayload(
-  value: unknown
-): value is DisplayQuestionnaireResponsePayload {
-  if (isQuestionnaireResponse(value)) return true;
-  if (!isRecord(value)) return false;
-  if (
-    value.questionnaireResponse !== undefined &&
-    !isQuestionnaireResponse(value.questionnaireResponse)
-  ) {
-    return false;
-  }
-  if (value.questionnaire !== undefined && !isQuestionnaire(value.questionnaire)) {
-    return false;
-  }
-  return true;
-}
-
-function getContextFromPayload(payload: unknown) {
-  if (!isRecord(payload)) return undefined;
-  const context = payload.context;
-  return isQuestionnaireContext(context) ? context : undefined;
 }
 
 function mergeLaunchContext(
@@ -348,7 +231,7 @@ function mergeContext(
 // -----------------------------------------------------------------------------
 
 function lformsUtil(): LFormsUtil | null {
-  return window.LForms && window.LForms.Util ? window.LForms.Util : null;
+  return window.LForms?.Util ? window.LForms.Util : null;
 }
 
 function clearRoot() {
@@ -401,6 +284,7 @@ function renderLForms(
   if (typeof util.addFormToPage === "function") {
     const containerId = rootEl.id || "root";
     util.addFormToPage(mergedForm, containerId);
+    recordRender();
     return true;
   }
 
@@ -422,11 +306,12 @@ function getCurrentQuestionnaireResponse() {
 }
 
 function scheduleChangeNotification() {
-  if (!notifyHostResponseChange) return;
+  const notify = notifyHostResponseChange;
+  if (!notify) return;
   if (changeTimer) window.clearTimeout(changeTimer);
   changeTimer = window.setTimeout(() => {
     const response = getCurrentQuestionnaireResponse();
-    if (response) notifyHostResponseChange(response);
+    if (response) notify(response);
   }, 50);
 }
 

@@ -15,7 +15,7 @@ import {
   useQuestionnaireResponseFormContext,
 } from "sdc-qrf";
 import type { AnswerValue, FormItems, QuestionItemProps } from "sdc-qrf";
-import type { QuestionnaireContext } from "sdc-swm-protocol/src";
+import type { QuestionnaireContext } from "sdc-smart-web-messaging-react";
 
 type BedaFormProps = {
   questionnaire: fhir4.Questionnaire;
@@ -72,7 +72,7 @@ function buildLaunchContextParameters(
     if (item.contentResource) {
       return {
         name: item.name,
-        resource: item.contentResource as fhir4b.Resource,
+        resource: item.contentResource as fhir4b.FhirResource,
       };
     }
     if (item.contentReference) {
@@ -103,7 +103,7 @@ function GroupItem({ questionItem, children, addItem }: GroupItemProps) {
   );
 }
 
-function useAnswerValue(
+function getAnswerValue(
   questionItem: QuestionItemProps["questionItem"],
   parentPath: string[],
   formValues: FormItems
@@ -123,7 +123,7 @@ function QuestionField({ questionItem, context, parentPath }: QuestionItemProps)
   void context;
   if (!questionItem.linkId) return null;
 
-  const answerValue = useAnswerValue(questionItem, parentPath, formValues);
+  const answerValue = getAnswerValue(questionItem, parentPath, formValues);
   const fieldPath = [...parentPath, questionItem.linkId];
   const isReadOnly = Boolean(questionItem.readOnly);
 
@@ -272,18 +272,21 @@ function QuestionField({ questionItem, context, parentPath }: QuestionItemProps)
         </label>
       );
     }
-    case "string":
-    case "text":
     default: {
       const value = answerValue?.string ?? "";
       const isMultiline = questionItem.type === "text";
+      const inputId = `field-${questionItem.linkId}`;
       return (
-        <label style={{ display: "block", marginBottom: "12px" }}>
-          <div style={{ fontWeight: 600, marginBottom: "4px" }}>
+        <div style={{ display: "block", marginBottom: "12px" }}>
+          <label
+            htmlFor={inputId}
+            style={{ display: "block", fontWeight: 600, marginBottom: "4px" }}
+          >
             {questionItem.text}
-          </div>
+          </label>
           {isMultiline ? (
             <textarea
+              id={inputId}
               value={value}
               disabled={isReadOnly}
               onChange={(event) =>
@@ -294,6 +297,7 @@ function QuestionField({ questionItem, context, parentPath }: QuestionItemProps)
             />
           ) : (
             <input
+              id={inputId}
               type="text"
               value={value}
               disabled={isReadOnly}
@@ -304,7 +308,7 @@ function QuestionField({ questionItem, context, parentPath }: QuestionItemProps)
               }
             />
           )}
-        </label>
+        </div>
       );
     }
   }

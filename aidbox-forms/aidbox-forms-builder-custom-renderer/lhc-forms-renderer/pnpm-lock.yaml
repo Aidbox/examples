@@ -7,7 +7,14 @@ settings:
 importers:
 
   .:
+    dependencies:
+      sdc-smart-web-messaging-react:
+        specifier: 1.0.3
+        version: 1.0.3(@types/fhir@0.0.41)(react@19.2.4)
     devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.3.14
+        version: 2.3.14
       '@playwright/test':
         specifier: ^1.58.1
         version: 1.58.1
@@ -22,6 +29,59 @@ importers:
         version: 7.3.1
 
 packages:
+
+  '@biomejs/biome@2.3.14':
+    resolution: {integrity: sha512-QMT6QviX0WqXJCaiqVMiBUCr5WRQ1iFSjvOLoTk6auKukJMvnMzWucXpwZB0e8F00/1/BsS9DzcKgWH+CLqVuA==}
+    engines: {node: '>=14.21.3'}
+    hasBin: true
+
+  '@biomejs/cli-darwin-arm64@2.3.14':
+    resolution: {integrity: sha512-UJGPpvWJMkLxSRtpCAKfKh41Q4JJXisvxZL8ChN1eNW3m/WlPFJ6EFDCE7YfUb4XS8ZFi3C1dFpxUJ0Ety5n+A==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@biomejs/cli-darwin-x64@2.3.14':
+    resolution: {integrity: sha512-PNkLNQG6RLo8lG7QoWe/hhnMxJIt1tEimoXpGQjwS/dkdNiKBLPv4RpeQl8o3s1OKI3ZOR5XPiYtmbGGHAOnLA==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@biomejs/cli-linux-arm64-musl@2.3.14':
+    resolution: {integrity: sha512-LInRbXhYujtL3sH2TMCH/UBwJZsoGwfQjBrMfl84CD4hL/41C/EU5mldqf1yoFpsI0iPWuU83U+nB2TUUypWeg==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@biomejs/cli-linux-arm64@2.3.14':
+    resolution: {integrity: sha512-KT67FKfzIw6DNnUNdYlBg+eU24Go3n75GWK6NwU4+yJmDYFe9i/MjiI+U/iEzKvo0g7G7MZqoyrhIYuND2w8QQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@biomejs/cli-linux-x64-musl@2.3.14':
+    resolution: {integrity: sha512-KQU7EkbBBuHPW3/rAcoiVmhlPtDSGOGRPv9js7qJVpYTzjQmVR+C9Rfcz+ti8YCH+zT1J52tuBybtP4IodjxZQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+
+  '@biomejs/cli-linux-x64@2.3.14':
+    resolution: {integrity: sha512-ZsZzQsl9U+wxFrGGS4f6UxREUlgHwmEfu1IrXlgNFrNnd5Th6lIJr8KmSzu/+meSa9f4rzFrbEW9LBBA6ScoMA==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [linux]
+
+  '@biomejs/cli-win32-arm64@2.3.14':
+    resolution: {integrity: sha512-+IKYkj/pUBbnRf1G1+RlyA3LWiDgra1xpS7H2g4BuOzzRbRB+hmlw0yFsLprHhbbt7jUzbzAbAjK/Pn0FDnh1A==}
+    engines: {node: '>=14.21.3'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@biomejs/cli-win32-x64@2.3.14':
+    resolution: {integrity: sha512-oizCjdyQ3WJEswpb3Chdngeat56rIdSYK12JI3iI11Mt5T5EXcZ7WLuowzEaFPNJ3zmOQFliMN8QY1Pi+qsfdQ==}
+    engines: {node: '>=14.21.3'}
+    cpu: [x64]
+    os: [win32]
 
   '@esbuild/aix-ppc64@0.27.2':
     resolution: {integrity: sha512-GZMB+a0mOMZs4MpDbj8RJp4cw+w1WV5NYD6xzgvzUJ5Ek2jerwfO2eADyI6ExDSUED+1X8aMbegahsJi+8mgpw==}
@@ -365,10 +425,20 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
+  react@19.2.4:
+    resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
+    engines: {node: '>=0.10.0'}
+
   rollup@4.57.1:
     resolution: {integrity: sha512-oQL6lgK3e2QZeQ7gcgIkS2YZPg5slw37hYufJ3edKlfQSGGm8ICoxswK15ntSzF/a8+h7ekRy7k7oWc3BQ7y8A==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  sdc-smart-web-messaging-react@1.0.3:
+    resolution: {integrity: sha512-1U0xe2pVn4Qv0Yn3UNaeaxkOBuXaZhpwvXhlKVx5DmXV89CogGo/k+ehfbkPFaE8nh3xU5gwPrci3+AgLn6vwQ==}
+    peerDependencies:
+      '@types/fhir': ^0.0.41
+      react: ^18.0.0 || ^19.0.0
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -424,6 +494,41 @@ packages:
         optional: true
 
 snapshots:
+
+  '@biomejs/biome@2.3.14':
+    optionalDependencies:
+      '@biomejs/cli-darwin-arm64': 2.3.14
+      '@biomejs/cli-darwin-x64': 2.3.14
+      '@biomejs/cli-linux-arm64': 2.3.14
+      '@biomejs/cli-linux-arm64-musl': 2.3.14
+      '@biomejs/cli-linux-x64': 2.3.14
+      '@biomejs/cli-linux-x64-musl': 2.3.14
+      '@biomejs/cli-win32-arm64': 2.3.14
+      '@biomejs/cli-win32-x64': 2.3.14
+
+  '@biomejs/cli-darwin-arm64@2.3.14':
+    optional: true
+
+  '@biomejs/cli-darwin-x64@2.3.14':
+    optional: true
+
+  '@biomejs/cli-linux-arm64-musl@2.3.14':
+    optional: true
+
+  '@biomejs/cli-linux-arm64@2.3.14':
+    optional: true
+
+  '@biomejs/cli-linux-x64-musl@2.3.14':
+    optional: true
+
+  '@biomejs/cli-linux-x64@2.3.14':
+    optional: true
+
+  '@biomejs/cli-win32-arm64@2.3.14':
+    optional: true
+
+  '@biomejs/cli-win32-x64@2.3.14':
+    optional: true
 
   '@esbuild/aix-ppc64@0.27.2':
     optional: true
@@ -645,6 +750,8 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
+  react@19.2.4: {}
+
   rollup@4.57.1:
     dependencies:
       '@types/estree': 1.0.8
@@ -675,6 +782,11 @@ snapshots:
       '@rollup/rollup-win32-x64-gnu': 4.57.1
       '@rollup/rollup-win32-x64-msvc': 4.57.1
       fsevents: 2.3.3
+
+  sdc-smart-web-messaging-react@1.0.3(@types/fhir@0.0.41)(react@19.2.4):
+    dependencies:
+      '@types/fhir': 0.0.41
+      react: 19.2.4
 
   source-map-js@1.2.1: {}
 

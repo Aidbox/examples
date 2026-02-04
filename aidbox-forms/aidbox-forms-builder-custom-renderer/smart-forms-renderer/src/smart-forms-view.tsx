@@ -21,39 +21,50 @@ export const SmartFormsView = ({
   onResponseChange,
   terminologyServerUrl,
 }: SmartFormsViewProps) => {
+  const lastSentResponseRef = React.useRef<fhir4.QuestionnaireResponse | null>(
+    null
+  );
+  const [buildResponse, setBuildResponse] = React.useState<
+    fhir4.QuestionnaireResponse | undefined
+  >(questionnaireResponse ?? undefined);
   const updatableResponse =
     useQuestionnaireResponseStore.use.updatableResponse() as
       | fhir4.QuestionnaireResponse
       | null;
 
+  React.useEffect(() => {
+    if (questionnaireResponse === lastSentResponseRef.current) {
+      return;
+    }
+    setBuildResponse(questionnaireResponse ?? undefined);
+  }, [questionnaireResponse]);
+
   const isBuilding = useBuildForm({
     questionnaire,
-    questionnaireResponse: questionnaireResponse ?? undefined,
+    questionnaireResponse: buildResponse,
     terminologyServerUrl,
   });
   const queryClient = useRendererQueryClient();
 
   React.useEffect(() => {
     if (updatableResponse) {
+      if (updatableResponse === lastSentResponseRef.current) {
+        return;
+      }
+      lastSentResponseRef.current = updatableResponse;
       onResponseChange(updatableResponse);
     }
   }, [onResponseChange, updatableResponse]);
 
   if (isBuilding) {
-    return (
-      <>
-        <div>Loading questionnaire...</div>
-      </>
-    );
+    return <div>Loading questionnaire...</div>;
   }
 
   return (
-    <>
-      <RendererThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <BaseRenderer />
-        </QueryClientProvider>
-      </RendererThemeProvider>
-    </>
+    <RendererThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BaseRenderer />
+      </QueryClientProvider>
+    </RendererThemeProvider>
   );
 };

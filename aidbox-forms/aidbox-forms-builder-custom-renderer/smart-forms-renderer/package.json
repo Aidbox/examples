@@ -6,10 +6,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "playwright test"
+    "test": "playwright test",
+    "lint": "biome lint .",
+    "format": "biome format .",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "aidbox-swm": "file:../swm",
     "@aehrc/smart-forms-renderer": "^1.2.12",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -18,9 +20,11 @@
     "@tanstack/react-query": "^5.90.20",
     "lodash": "^4.17.23",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "sdc-smart-web-messaging-react": "1.0.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.14",
     "@playwright/test": "^1.58.1",
     "@types/fhir": "^0.0.41",
     "@types/react": "^18.3.27",
