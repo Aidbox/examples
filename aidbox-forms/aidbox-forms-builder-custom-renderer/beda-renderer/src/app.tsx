@@ -1,16 +1,32 @@
 import React from "react";
-import { useSmartMessaging } from "./swm/use-smart-messaging";
-import { ErrorView } from "./ui/error-view";
-import { BedaForm } from "./renderer/beda-form";
+import {
+  SmartMessagingPhase,
+  useSmartMessaging,
+} from "sdc-smart-web-messaging-react";
+import { ErrorView } from "./error-view";
+import { BedaForm } from "./beda-form";
+
+declare global {
+  interface Window {
+    __rendererMetrics?: {
+      renders: number;
+    };
+  }
+}
 
 export const App = () => {
+  const renderCountRef = React.useRef(0);
+  if (import.meta.env.DEV) {
+    renderCountRef.current += 1;
+    window.__rendererMetrics = { renders: renderCountRef.current };
+  }
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const {
     questionnaire,
     questionnaireResponse,
     context,
-    error,
-    renderKey,
-    sendResponseChanged,
+    phase,
+    onQuestionnaireResponseChange,
   } = useSmartMessaging({
     application: {
       name: "Beda",
@@ -20,10 +36,18 @@ export const App = () => {
       extraction: false,
       focusChangeNotifications: false,
     },
+    onError: (error) => {
+      const suffix = error.messageType ? ` (${error.messageType})` : "";
+      setErrorMessage(`${error.message}${suffix}`);
+    },
   });
 
-  if (error) {
-    return <ErrorView message={error} />;
+  if (phase === SmartMessagingPhase.Disabled) {
+    return <ErrorView message="Missing SDC SWM parameters." />;
+  }
+
+  if (errorMessage) {
+    return <ErrorView message={errorMessage} />;
   }
 
   if (!questionnaire) {
@@ -32,11 +56,10 @@ export const App = () => {
 
   return (
     <BedaForm
-      key={renderKey}
       questionnaire={questionnaire}
       questionnaireResponse={questionnaireResponse}
       context={context}
-      onResponseChange={sendResponseChanged}
+      onResponseChange={onQuestionnaireResponseChange}
     />
   );
 };

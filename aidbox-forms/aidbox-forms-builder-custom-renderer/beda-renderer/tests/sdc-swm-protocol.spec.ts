@@ -6,13 +6,21 @@ declare global {
     __swmHost: {
       messages: Array<{
         direction: "in" | "out";
-        message: Record<string, unknown>;
+        message: SwmMessage;
       }>;
       handle: string;
       sendRequest: (messageType: string, payload: Record<string, unknown>) => string;
     };
   }
 }
+
+type SwmMessage = {
+  messageType?: string;
+  responseToMessageId?: string;
+  messagingHandle?: string;
+  messageId?: string;
+  payload?: unknown;
+};
 
 async function waitForMessage(
   page: Page,
@@ -37,13 +45,30 @@ async function waitForMessage(
           return false;
         }
         if (!containsValue) return true;
-        const response = message.payload?.questionnaireResponse;
+        if (!message.payload || typeof message.payload !== "object") return false;
+        const response = (message.payload as {
+          questionnaireResponse?: {
+            item?: Array<{
+              answer?: Array<{ valueString?: string }>;
+              item?: unknown[];
+            }>;
+          };
+        }).questionnaireResponse;
         if (!response?.item) return false;
-        const stack = [...response.item];
+        type QuestionnaireResponseItem = {
+          answer?: Array<{ valueString?: string }>;
+          item?: QuestionnaireResponseItem[];
+        };
+        const stack: QuestionnaireResponseItem[] = Array.isArray(response.item)
+          ? [...(response.item as QuestionnaireResponseItem[])]
+          : [];
         while (stack.length > 0) {
           const item = stack.pop();
           if (!item) continue;
-          if (item.answer?.some((answer) => answer.valueString === containsValue)) {
+          if (
+            Array.isArray(item.answer) &&
+            item.answer.some((answer) => answer?.valueString === containsValue)
+          ) {
             return true;
           }
           if (item.item) {
@@ -60,6 +85,20 @@ async function waitForMessage(
   return handle.jsonValue();
 }
 
+function requireMessage(message: SwmMessage | null, label: string) {
+  if (!message) {
+    throw new Error(`Expected ${label} message.`);
+  }
+  return message;
+}
+
+function requirePayload<T extends object>(message: SwmMessage, label: string) {
+  if (!message.payload || typeof message.payload !== "object") {
+    throw new Error(`Expected ${label} payload.`);
+  }
+  return message.payload as T;
+}
+
 async function sendRequest(
   page: Page,
   messageType: string,
@@ -73,6 +112,15 @@ async function sendRequest(
   );
 }
 
+async function getRendererRenderCount(page: Page) {
+  return page.evaluate(() => {
+    const frame = document.querySelector("#renderer");
+    if (!(frame instanceof HTMLIFrameElement)) return null;
+    const metrics = frame?.contentWindow?.__rendererMetrics;
+    return typeof metrics?.renders === "number" ? metrics.renders : null;
+  });
+}
+
 test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
   if (!baseURL) throw new Error("Missing baseURL");
 
@@ -84,8 +132,12 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     handle: await page.evaluate(() => window.__swmHost.handle),
   });
 
-  expect(handshake).toBeTruthy();
-  expect(handshake.payload?.protocolVersion).toBe("1.0");
+  const handshakeMessage = requireMessage(handshake, "handshake");
+  const handshakePayload = requirePayload<{ protocolVersion?: string }>(
+    handshakeMessage,
+    "handshake"
+  );
+  expect(handshakePayload.protocolVersion).toBe("1.0");
 
   const hostHandshakeId = await sendRequest(page, "status.handshake", {
     protocolVersion: "1.0",
@@ -97,7 +149,14 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     responseToMessageId: hostHandshakeId,
   });
 
-  expect(hostHandshakeResponse.payload?.application?.name).toBeTruthy();
+  const hostHandshakeMessage = requireMessage(
+    hostHandshakeResponse,
+    "host handshake response"
+  );
+  const hostHandshakePayload = requirePayload<{
+    application?: { name?: string };
+  }>(hostHandshakeMessage, "host handshake response");
+  expect(hostHandshakePayload.application?.name).toBeTruthy();
 
   const configureId = await sendRequest(page, "sdc.configure", {});
 
@@ -106,7 +165,15 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     responseToMessageId: configureId,
   });
 
-  expect(configureResponse.payload?.status).toBe("success");
+  const configureMessage = requireMessage(
+    configureResponse,
+    "sdc.configure response"
+  );
+  const configurePayload = requirePayload<{ status?: string }>(
+    configureMessage,
+    "sdc.configure response"
+  );
+  expect(configurePayload.status).toBe("success");
 
   const contextId = await sendRequest(page, "sdc.configureContext", {
     context: {
@@ -120,7 +187,15 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     responseToMessageId: contextId,
   });
 
-  expect(contextResponse.payload?.status).toBe("success");
+  const contextMessage = requireMessage(
+    contextResponse,
+    "sdc.configureContext response"
+  );
+  const contextPayload = requirePayload<{ status?: string }>(
+    contextMessage,
+    "sdc.configureContext response"
+  );
+  expect(contextPayload.status).toBe("success");
 
   const displayId = await sendRequest(page, "sdc.displayQuestionnaire", {
     questionnaire: {
@@ -147,12 +222,30 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     responseToMessageId: displayId,
   });
 
-  expect(displayResponse.payload?.status).toBe("success");
+  const displayMessage = requireMessage(
+    displayResponse,
+    "sdc.displayQuestionnaire response"
+  );
+  const displayPayload = requirePayload<{ status?: string }>(
+    displayMessage,
+    "sdc.displayQuestionnaire response"
+  );
+  expect(displayPayload.status).toBe("success");
 
   const inputField = page
     .frameLocator("#renderer")
     .getByLabel("Name", { exact: false });
   await expect(inputField).toBeVisible({ timeout: 30000 });
+  const initialRenderCount = await getRendererRenderCount(page);
+  if (initialRenderCount === null) {
+    throw new Error("Renderer metrics were not reported.");
+  }
+  await page.waitForTimeout(2000);
+  const laterRenderCount = await getRendererRenderCount(page);
+  if (laterRenderCount === null) {
+    throw new Error("Renderer metrics were not reported.");
+  }
+  expect(laterRenderCount).toBeLessThanOrEqual(initialRenderCount + 1);
   await inputField.fill("Alice");
 
   const changeMessage = await waitForMessage(page, {
@@ -160,7 +253,14 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     containsValue: "Alice",
   });
 
-  const changedResponse = changeMessage.payload?.questionnaireResponse;
+  const changeEvent = requireMessage(
+    changeMessage,
+    "sdc.ui.changedQuestionnaireResponse"
+  );
+  const changePayload = requirePayload<{
+    questionnaireResponse?: fhir4.QuestionnaireResponse;
+  }>(changeEvent, "sdc.ui.changedQuestionnaireResponse");
+  const changedResponse = changePayload.questionnaireResponse;
 
   expect(changedResponse?.resourceType).toBe("QuestionnaireResponse");
 
@@ -175,14 +275,20 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     responseToMessageId: currentResponseId,
   });
 
-  if (currentResponse.payload?.questionnaireResponse) {
-    expect(currentResponse.payload.questionnaireResponse.resourceType).toBe(
+  const currentMessage = requireMessage(
+    currentResponse,
+    "sdc.requestCurrentQuestionnaireResponse response"
+  );
+  const currentPayload = requirePayload<{
+    questionnaireResponse?: fhir4.QuestionnaireResponse;
+    outcome?: fhir4.OperationOutcome;
+  }>(currentMessage, "sdc.requestCurrentQuestionnaireResponse response");
+  if (currentPayload.questionnaireResponse) {
+    expect(currentPayload.questionnaireResponse.resourceType).toBe(
       "QuestionnaireResponse"
     );
   } else {
-    expect(currentResponse.payload?.outcome?.resourceType).toBe(
-      "OperationOutcome"
-    );
+    expect(currentPayload.outcome?.resourceType).toBe("OperationOutcome");
   }
 
   const extractId = await sendRequest(page, "sdc.requestExtract", {});
@@ -191,7 +297,12 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
     responseToMessageId: extractId,
   });
 
-  expect(extractResponse.payload?.outcome?.resourceType).toBe(
-    "OperationOutcome"
+  const extractMessage = requireMessage(
+    extractResponse,
+    "sdc.requestExtract response"
   );
+  const extractPayload = requirePayload<{
+    outcome?: fhir4.OperationOutcome;
+  }>(extractMessage, "sdc.requestExtract response");
+  expect(extractPayload.outcome?.resourceType).toBe("OperationOutcome");
 });

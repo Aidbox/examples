@@ -9,10 +9,6 @@ export default defineConfig({
         __dirname,
         "node_modules/@helsenorge/refero/index.css"
       ),
-      "sdc-swm-protocol/src": resolve(
-        __dirname,
-        "vendor/sdc-smart-web-messaging/src/index.ts"
-      ),
     },
   },
 });

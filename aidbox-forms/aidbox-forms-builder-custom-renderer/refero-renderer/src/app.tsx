@@ -1,16 +1,32 @@
 import React from "react";
 import "@helsenorge/refero/index.css";
-import { useSmartMessaging } from "./swm/use-smart-messaging";
-import { ErrorView } from "./ui/error-view";
-import { ReferoView } from "./renderer/refero-view";
+import {
+  SmartMessagingPhase,
+  useSmartMessaging,
+} from "sdc-smart-web-messaging-react";
+import { ErrorView } from "./error-view";
+import { ReferoView } from "./refero-view";
+
+declare global {
+  interface Window {
+    __rendererMetrics?: {
+      renders: number;
+    };
+  }
+}
 
 export const App = () => {
+  const renderCountRef = React.useRef(0);
+  if (import.meta.env.DEV) {
+    renderCountRef.current += 1;
+    window.__rendererMetrics = { renders: renderCountRef.current };
+  }
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const {
     questionnaire,
     questionnaireResponse,
-    error,
-    renderKey,
-    sendResponseChanged,
+    phase,
+    onQuestionnaireResponseChange,
   } = useSmartMessaging({
     application: {
       name: "Refero",
@@ -20,10 +36,18 @@ export const App = () => {
       extraction: false,
       focusChangeNotifications: false,
     },
+    onError: (error) => {
+      const suffix = error.messageType ? ` (${error.messageType})` : "";
+      setErrorMessage(`${error.message}${suffix}`);
+    },
   });
 
-  if (error) {
-    return <ErrorView message={error} />;
+  if (phase === SmartMessagingPhase.Disabled) {
+    return <ErrorView message="Missing SDC SWM parameters." />;
+  }
+
+  if (errorMessage) {
+    return <ErrorView message={errorMessage} />;
   }
 
   if (!questionnaire) {
@@ -32,10 +56,9 @@ export const App = () => {
 
   return (
     <ReferoView
-      key={renderKey}
       questionnaire={questionnaire}
       questionnaireResponse={questionnaireResponse}
-      onResponseChange={sendResponseChanged}
+      onResponseChange={onQuestionnaireResponseChange}
     />
   );
 };

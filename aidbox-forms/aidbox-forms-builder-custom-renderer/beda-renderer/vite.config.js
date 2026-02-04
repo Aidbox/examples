@@ -5,13 +5,9 @@ export default defineConfig({
   base: "./",
   resolve: {
     alias: {
-      "sdc-swm-protocol/src": resolve(
-        __dirname,
-        "vendor/sdc-smart-web-messaging/src/index.ts"
-      ),
       "aidbox-react/lib/services/service": resolve(
         __dirname,
-        "src/shims/aidbox-service.ts"
+        "src/aidbox-service.ts"
       ),
     },
   },
