@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       sdc-smart-web-messaging-react:
-        specifier: 1.0.3
-        version: 1.0.3(@types/fhir@0.0.41)(react@19.2.4)
+        specifier: 1.0.4
+        version: 1.0.4(@types/fhir@0.0.41)(react@19.2.4)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.14
@@ -434,8 +434,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  sdc-smart-web-messaging-react@1.0.3:
-    resolution: {integrity: sha512-1U0xe2pVn4Qv0Yn3UNaeaxkOBuXaZhpwvXhlKVx5DmXV89CogGo/k+ehfbkPFaE8nh3xU5gwPrci3+AgLn6vwQ==}
+  sdc-smart-web-messaging-react@1.0.4:
+    resolution: {integrity: sha512-QGPmbSteWX7LpI1wsb7qKO/ZxxYWTETDQXTFVMmP0EP3NlaofnZQ1+d1dgPEUfJBuaBOcZ2Z4NwywxvwN9e1MA==}
     peerDependencies:
       '@types/fhir': ^0.0.41
       react: ^18.0.0 || ^19.0.0
@@ -783,7 +783,7 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.57.1
       fsevents: 2.3.3
 
-  sdc-smart-web-messaging-react@1.0.3(@types/fhir@0.0.41)(react@19.2.4):
+  sdc-smart-web-messaging-react@1.0.4(@types/fhir@0.0.41)(react@19.2.4):
     dependencies:
       '@types/fhir': 0.0.41
       react: 19.2.4

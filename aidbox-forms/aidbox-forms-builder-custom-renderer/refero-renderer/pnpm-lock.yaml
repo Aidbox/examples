@@ -42,8 +42,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.1
       sdc-smart-web-messaging-react:
-        specifier: 1.0.3
-        version: 1.0.3(@types/fhir@0.0.41)(react@18.3.1)
+        specifier: 1.0.4
+        version: 1.0.4(@types/fhir@0.0.41)(react@18.3.1)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.14
@@ -1009,8 +1009,8 @@ packages:
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
-  sdc-smart-web-messaging-react@1.0.3:
-    resolution: {integrity: sha512-1U0xe2pVn4Qv0Yn3UNaeaxkOBuXaZhpwvXhlKVx5DmXV89CogGo/k+ehfbkPFaE8nh3xU5gwPrci3+AgLn6vwQ==}
+  sdc-smart-web-messaging-react@1.0.4:
+    resolution: {integrity: sha512-QGPmbSteWX7LpI1wsb7qKO/ZxxYWTETDQXTFVMmP0EP3NlaofnZQ1+d1dgPEUfJBuaBOcZ2Z4NwywxvwN9e1MA==}
     peerDependencies:
       '@types/fhir': ^0.0.41
       react: ^18.0.0 || ^19.0.0
@@ -1898,7 +1898,7 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
-  sdc-smart-web-messaging-react@1.0.3(@types/fhir@0.0.41)(react@18.3.1):
+  sdc-smart-web-messaging-react@1.0.4(@types/fhir@0.0.41)(react@18.3.1):
     dependencies:
       '@types/fhir': 0.0.41
       react: 18.3.1
