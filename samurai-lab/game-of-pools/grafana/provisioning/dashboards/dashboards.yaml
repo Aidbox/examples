@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: default
+    type: file
+    options:
+      path: /tmp/aidbox.json
+    editable: true
+    allowUiUpdates: true
+    updateIntervalSeconds: 60
