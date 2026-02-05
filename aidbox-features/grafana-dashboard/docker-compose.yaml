@@ -67,7 +67,7 @@ services:
     command:
       - -c
       - |
-        curl -o /etc/grafana/dashboards/aidbox.json https://grafana.com/api/dashboards/24752/revisions/3/download && exec /run.sh
+        curl -o /etc/grafana/dashboards/aidbox.json https://grafana.com/api/dashboards/24752/revisions/latest/download && exec /run.sh
     environment:
       V: v5
       GF_SECURITY_ADMIN_USER: admin
