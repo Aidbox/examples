@@ -1,0 +1,18 @@
+{
+    "type": "transaction",
+    "resourceType": "Bundle",
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "AccessPolicy",
+                "id": "public",
+                "engine": "allow"
+            },
+            "request": {
+                "method": "POST",
+                "url": "/AccessPolicy",
+                "ifNoneExist": "_id=public"
+            }
+        }
+    ]
+}
