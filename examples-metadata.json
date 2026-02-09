@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-09T12:30:14.028086Z",
+  "timestamp": "2026-02-09T12:44:42.827349Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-ig-development",
@@ -227,11 +227,11 @@
       "title": "Aidbox: Override default FHIR endpoint",
       "description": "This example demonstrates how to use the Aidbox FHIR server to replace the default behavior of FHIR endpoints with your own custom logic. Aidbox provides the [\"App\" functionality](https://docs.aidbox.app/app-development/aidbox-sdk/apps), which allows you to create an App entity and define new operations or override existing ones for any FHIR resource. With this approach, you can implement and manage custom logic for standard FHIR operations directly within your service.",
       "features": [
-        "api override",
-        "custom operations",
-        "fastify",
-        "app framework",
-        "fhir extensions"
+        "API override",
+        "Custom operations",
+        "Fastify",
+        "App framework",
+        "FHIR extensions"
       ],
       "languages": [
         "TypeScript"
@@ -278,11 +278,11 @@
       "title": "BedaEMR",
       "description": "Runs on [Aidbox FHIR platform](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo)",
       "features": [
-        "beda emr",
-        "ehr integration",
-        "electronic medical record",
-        "healthcare",
-        "integration"
+        "Beda EMR",
+        "EHR integration",
+        "Electronic medical record",
+        "Healthcare",
+        "Integration"
       ],
       "languages": [
         "YAML"
@@ -407,15 +407,35 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/fhirpath-editor/README.md"
     },
     {
+      "id": "samurai-lab-game-of-pools",
+      "title": "Game of Pools - Aidbox Performance Testing Framework",
+      "description": "A comprehensive automated performance testing framework for Aidbox FHIR server that systematically tests different configurations of CPU limits, web threads, and database connection pool sizes.",
+      "features": [
+        "Performance testing",
+        "Connection pooling",
+        "K6",
+        "Docker",
+        "Grafana",
+        "Prometheus",
+        "Benchmarking"
+      ],
+      "languages": [
+        "Python",
+        "JavaScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/samurai-lab/game-of-pools",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/samurai-lab/game-of-pools/README.md"
+    },
+    {
       "id": "aidbox-features-grafana-dashboard",
       "title": "Grafana dashboard for Aidbox metrics",
       "description": "This example demonstrates how to set up Grafana with Prometheus to visualize Aidbox metrics.",
       "features": [
-        "observability",
-        "monitoring",
-        "metrics",
-        "grafana",
-        "prometheus"
+        "Observability",
+        "Monitoring",
+        "Metrics",
+        "Grafana",
+        "Prometheus"
       ],
       "languages": [
         "YAML"
@@ -447,7 +467,7 @@
       "features": [
         "IPS",
         "Subscriptions",
-        "International  Patient Summary"
+        "International Patient Summary"
       ],
       "languages": [
         "TypeScript"
@@ -541,11 +561,11 @@
       "title": "OpenTelemetry",
       "description": "This demo helps you to launch and explore the Aidbox observability features locally.",
       "features": [
-        "observability",
-        "opentelemetry",
-        "monitoring",
-        "logs",
-        "metrics"
+        "Observability",
+        "OpenTelemetry",
+        "Monitoring",
+        "Logs",
+        "Metrics"
       ],
       "languages": [
         "YAML"
@@ -745,13 +765,17 @@
     ".NET",
     "AI assisted",
     "API",
+    "API override",
     "Aidbox only",
     "Analytics",
     "Angular",
+    "App framework",
     "App launch",
     "Async operations",
     "Attachments",
     "Automation",
+    "Beda EMR",
+    "Benchmarking",
     "CQL",
     "Chile localization",
     "Claude Code",
@@ -759,6 +783,7 @@
     "Clinical decision support",
     "Comparison",
     "Configuration",
+    "Connection pooling",
     "Controlled",
     "Cross-platform",
     "Custom operations",
@@ -769,9 +794,11 @@
     "Data deletion",
     "Data visualization",
     "Database",
+    "Docker",
     "EHR integration",
     "EHR launch",
     "Editor",
+    "Electronic medical record",
     "Environment variables",
     "Event streaming",
     "Expression",
@@ -780,31 +807,39 @@
     "FHIR R5",
     "FHIR SDC",
     "FHIR client",
+    "FHIR extensions",
     "FHIR forms",
     "FHIR operations",
     "FHIR schema",
     "FHIRPath",
+    "Fastify",
     "Firely SDK",
     "Flutter",
     "Forms",
     "Forms builder",
     "Forms renderer",
+    "Grafana",
     "Growth chart",
     "HAPI FHIR",
+    "Healthcare",
     "IPS",
     "Implementation guide",
     "Init bundle",
-    "International  Patient Summary",
+    "Integration",
     "International Patient Summary",
     "JWKS",
     "JWS signing",
     "JWT auth",
     "Java client",
+    "K6",
     "Kafka",
     "Keycloak",
+    "Logs",
     "Markdown",
     "Maven",
     "Metabase",
+    "Metrics",
+    "Monitoring",
     "Multimedia",
     "Multiple renderers",
     "Narrative generation",
@@ -812,13 +847,17 @@
     "Network",
     "Next.js",
     "Notifications",
+    "Observability",
+    "OpenTelemetry",
     "OrgBAC",
     "Patient creation",
     "Patient launch",
     "Performance",
+    "Performance testing",
     "PostgreSQL",
     "Practitioner app",
     "Presigned URLs",
+    "Prometheus",
     "Proxy",
     "Purge operation",
     "Query language",
@@ -853,24 +892,7 @@
     "Topic-based",
     "Web",
     "Web components",
-    "Workflow",
-    "api override",
-    "app framework",
-    "beda emr",
-    "custom operations",
-    "ehr integration",
-    "electronic medical record",
-    "fastify",
-    "fhir extensions",
-    "grafana",
-    "healthcare",
-    "integration",
-    "logs",
-    "metrics",
-    "monitoring",
-    "observability",
-    "opentelemetry",
-    "prometheus"
+    "Workflow"
   ],
   "languages_list": [
     "Bash",
@@ -880,6 +902,7 @@
     "Java",
     "JavaScript",
     "Markdown",
+    "Python",
     "TypeScript",
     "YAML"
   ]

@@ -1,3 +1,7 @@
+---
+features: [Performance testing, Connection pooling, K6, Docker, Grafana, Prometheus, Benchmarking]
+languages: [Python, JavaScript]
+---
 # Game of Pools - Aidbox Performance Testing Framework
 
 A comprehensive automated performance testing framework for Aidbox FHIR server that systematically tests different configurations of CPU limits, web threads, and database connection pool sizes.

@@ -1,5 +1,5 @@
 ---
-features: [beda emr, ehr integration, electronic medical record, healthcare, integration]
+features: [Beda EMR, EHR integration, Electronic medical record, Healthcare, Integration]
 languages: [YAML]
 ---
 # BedaEMR
