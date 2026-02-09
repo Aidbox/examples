@@ -1,0 +1,886 @@
+{
+  "timestamp": "2026-02-09T12:30:14.028086Z",
+  "examples": [
+    {
+      "id": "developer-experience-agentic-coding-ig-development",
+      "title": "Agentic FHIR Implementation Guide Development",
+      "description": "Traditional FHIR Implementation Guide development is complex and time-consuming. Creating and validating FHIR StructureDefinition resources and terminology resources requires deep technical expertise, which led to the development of additional tooling like the FSH (FHIR Shorthand) language.",
+      "features": [
+        "FHIR IG",
+        "AI assisted",
+        "Claude Code",
+        "Implementation guide",
+        "Markdown"
+      ],
+      "languages": [
+        "Markdown"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/developer-experience/agentic-coding-ig-development",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/developer-experience/agentic-coding-ig-development/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-cql-java-engine-integration",
+      "title": "Aidbox CQL Integration with Spring Boot Example",
+      "description": "This Spring Boot sample application uses the [CQL Java engine](https://github.com/cqframework/clinical_quality_language) and implements the [$evaluate](https://build.fhir.org/ig/HL7/cql-ig/OperationDefinition-cql-library-evaluate.html) operation.",
+      "features": [
+        "CQL",
+        "Custom operations",
+        "Spring Boot",
+        "FHIR operations",
+        "Clinical decision support"
+      ],
+      "languages": [
+        "Java"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/cql-java-engine-integration",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/cql-java-engine-integration/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-smart-launch-2",
+      "title": "Aidbox Forms Smart Launch 2",
+      "description": "First, copy `.env.example` to `.env` and set the correct values:",
+      "features": [
+        "SMART on FHIR",
+        "Forms",
+        "Questionnaire",
+        "Next.js",
+        "EHR integration"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-smart-launch-2",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-smart-launch-2/README.md"
+    },
+    {
+      "id": "aidbox-features-aidbox-notify-via-custom-resources",
+      "title": "Aidbox Notify via Custom Resources",
+      "description": "[Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)",
+      "features": [
+        "Custom resources",
+        "Notifications",
+        "FHIR schema",
+        "Workflow",
+        "Automation"
+      ],
+      "languages": [
+        "JavaScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aidbox-notify-via-custom-resources",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aidbox-notify-via-custom-resources/README.md"
+    },
+    {
+      "id": "aidbox-features-orgbac-practitioner-application",
+      "title": "Aidbox Organization-Based Access Control (OrgBAC) Practitioner Application",
+      "description": "This is a complete example application demonstrating how to build a practitioner-facing healthcare application using Aidbox with Organization-Based Access Control (OrgBAC). The application showcases JWT authentication, organization-scoped data access, and FHIR R4 resource management.",
+      "features": [
+        "OrgBAC",
+        "JWT auth",
+        "Practitioner app",
+        "Next.js",
+        "Role-based access"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/orgbac-practitioner-application",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/orgbac-practitioner-application/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-builder-angular",
+      "title": "aidbox-forms-builder-angular",
+      "description": "Example of integration Aidbox Forms Builder with Angular.js",
+      "features": [
+        "Forms builder",
+        "Questionnaire",
+        "Angular",
+        "Web components",
+        "FHIR forms"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-angular",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-angular/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-builder-angular-controlled",
+      "title": "aidbox-forms-builder-angular-controlled",
+      "description": "In controlled mode, integrating the Aidbox Forms Builder with Angular.js",
+      "features": [
+        "Forms builder",
+        "Controlled",
+        "Questionnaire",
+        "Angular",
+        "Web components"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-angular-controlled",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-angular-controlled/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-builder-flutter-web",
+      "title": "aidbox-forms-flutter-web",
+      "description": "Example of integration Aidbox Forms Builder with Flutter Web",
+      "features": [
+        "Forms builder",
+        "Flutter",
+        "Web",
+        "Questionnaire",
+        "Cross-platform"
+      ],
+      "languages": [
+        "Dart"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-flutter-web",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-flutter-web/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-renderer-angular",
+      "title": "aidbox-forms-renderer-angular",
+      "description": "Example of integration Aidbox Forms Renderer with Angular.js",
+      "features": [
+        "Forms renderer",
+        "Questionnaire",
+        "Angular",
+        "Web components",
+        "FHIR forms"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-angular",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-angular/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-two-renderers-angular",
+      "title": "aidbox-forms-renderer-angular",
+      "description": "Example of integration multiple instances Aidbox Forms Renderer on the same page with Angular.js",
+      "features": [
+        "Forms renderer",
+        "Multiple renderers",
+        "Questionnaire",
+        "Angular",
+        "Comparison"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-two-renderers-angular",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-two-renderers-angular/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-renderer-angular-controlled",
+      "title": "aidbox-forms-renderer-angular-controlled",
+      "description": "In controlled mode, integrating the Aidbox Forms Renderer with Angular.js",
+      "features": [
+        "Forms renderer",
+        "Controlled",
+        "Questionnaire",
+        "Angular",
+        "Web components"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-angular-controlled",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-angular-controlled/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-renderer-react",
+      "title": "aidbox-forms-renderer-react",
+      "description": "Example of integration Aidbox Forms Renderer with React.js",
+      "features": [
+        "Forms renderer",
+        "Questionnaire",
+        "React",
+        "Web components",
+        "FHIR forms"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-react",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-react/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-renderer-react-controlled",
+      "title": "aidbox-forms-renderer-react-controlled",
+      "description": "In controlled mode, integrating the Aidbox Forms Renderer with React involves",
+      "features": [
+        "Forms renderer",
+        "Controlled",
+        "Questionnaire",
+        "React",
+        "Web components"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-react-controlled",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-react-controlled/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-fhir-api-override",
+      "title": "Aidbox: Override default FHIR endpoint",
+      "description": "This example demonstrates how to use the Aidbox FHIR server to replace the default behavior of FHIR endpoints with your own custom logic. Aidbox provides the [\"App\" functionality](https://docs.aidbox.app/app-development/aidbox-sdk/apps), which allows you to create an App entity and define new operations or override existing ones for any FHIR resource. With this approach, you can implement and manage custom logic for standard FHIR operations directly within your service.",
+      "features": [
+        "api override",
+        "custom operations",
+        "fastify",
+        "app framework",
+        "fhir extensions"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/fhir-api-override",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/fhir-api-override/README.md"
+    },
+    {
+      "id": "aidbox-features-aws-s3-aidbox-integration",
+      "title": "AWS S3 Aidbox integration example",
+      "description": "![image](https://github.com/user-attachments/assets/fb3026ef-be1f-4ef8-845e-064e463adb0f)",
+      "features": [
+        "S3",
+        "Storage",
+        "Attachments",
+        "Next.js",
+        "Presigned URLs"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aws-s3-aidbox-integration",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aws-s3-aidbox-integration/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-builder-custom-renderer-beda-renderer",
+      "title": "beda-renderer",
+      "description": "This package builds a static renderer page (`index.html` + `src/index.tsx`) that mounts the Beda FHIR Questionnaire renderer and speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging).",
+      "features": [
+        "Custom renderer",
+        "Forms builder",
+        "Questionnaire",
+        "SDC QRF",
+        "SMART Web Messaging"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-custom-renderer/beda-renderer/README.md"
+    },
+    {
+      "id": "aidbox-integrations-BedaEmr",
+      "title": "BedaEMR",
+      "description": "Runs on [Aidbox FHIR platform](https://docs.aidbox.app/getting-started/run-aidbox-locally-with-docker?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo)",
+      "features": [
+        "beda emr",
+        "ehr integration",
+        "electronic medical record",
+        "healthcare",
+        "integration"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/BedaEmr",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/BedaEmr/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-builder-custom-renderer",
+      "title": "Custom Renderer Tutorial for Aidbox Forms Builder",
+      "description": "This tutorial demonstrates how to connect custom renderers to the Aidbox Forms Builder preview.",
+      "features": [
+        "Custom renderer",
+        "Forms builder",
+        "Questionnaire",
+        "Template",
+        "Customization",
+        "SMART Web Messaging"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-custom-renderer",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-custom-renderer/README.md"
+    },
+    {
+      "id": "aidbox-features-smart-app-launch-smartbox",
+      "title": "Example: SMART App Launch using Smartbox and Keycloak",
+      "description": "This example showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html).",
+      "features": [
+        "SMART on FHIR",
+        "Growth chart",
+        "Aidbox only",
+        "App launch",
+        "FHIR client"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/smart-app-launch-smartbox",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/smart-app-launch-smartbox/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-dollar-purge-operation",
+      "title": "FHIR $purge Operation with Aidbox",
+      "description": "This example demonstrates the implementation of the [FHIR $purge operation](https://build.fhir.org/patient-operation-purge.html) using TypeScript and Aidbox. The $purge operation removes all current and historical versions of resources associated with a specific patient.",
+      "features": [
+        "Purge operation",
+        "Custom operations",
+        "Async operations",
+        "Data deletion",
+        "FHIR operations"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/dollar-purge-operation",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/dollar-purge-operation/README.md"
+    },
+    {
+      "id": "aidbox-integrations-fhir-analytics",
+      "title": "FHIR Analytics with Aidbox and Metabase",
+      "description": "Use SQL on FHIR on sample risk assessment form with Aidbox and visualize data with Metabase.",
+      "features": [
+        "Analytics",
+        "Metabase",
+        "SQL on FHIR",
+        "Data visualization",
+        "Risk assessment"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/fhir-analytics",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/fhir-analytics/README.md"
+    },
+    {
+      "id": "aidbox-integrations-r5-subscriptions",
+      "title": "FHIR R5 Topic-Based Subscriptions",
+      "description": "This example demonstrates how to implement FHIR R5 topic-based subscriptions in Aidbox.",
+      "features": [
+        "Analytics",
+        "Subscriptions",
+        "FHIR R5"
+      ],
+      "languages": [],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/r5-subscriptions",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/r5-subscriptions/README.md"
+    },
+    {
+      "id": "aidbox-forms-fhir-sdc-api",
+      "title": "FHIR SDC API in Aidbox",
+      "description": "This demo shows how to use [FHIR SDC Api](https://hl7.org/fhir/uv/sdc/) in Aidbox via Aidbox Forms module.",
+      "features": [
+        "FHIR SDC",
+        "Structured data capture",
+        "Questionnaire",
+        "API",
+        "Forms"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/fhir-sdc-api",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/fhir-sdc-api/README.md"
+    },
+    {
+      "id": "aidbox-forms-fhirpath-editor",
+      "title": "FHIRPath Editor - Moved",
+      "description": "This project has been moved to its own repository.",
+      "features": [
+        "FHIRPath",
+        "Editor",
+        "Query language",
+        "Expression",
+        "Testing"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/fhirpath-editor",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/fhirpath-editor/README.md"
+    },
+    {
+      "id": "aidbox-features-grafana-dashboard",
+      "title": "Grafana dashboard for Aidbox metrics",
+      "description": "This example demonstrates how to set up Grafana with Prometheus to visualize Aidbox metrics.",
+      "features": [
+        "observability",
+        "monitoring",
+        "metrics",
+        "grafana",
+        "prometheus"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/grafana-dashboard",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/grafana-dashboard/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-ig-cl",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.",
+      "features": [
+        "IPS",
+        "Chile localization",
+        "FHIR IG",
+        "International Patient Summary",
+        "Narrative generation"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig-cl",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig-cl/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-subscriptions",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
+      "features": [
+        "IPS",
+        "Subscriptions",
+        "International  Patient Summary"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-ig",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "[Demo](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)",
+      "features": [
+        "IPS",
+        "International Patient Summary",
+        "FHIR IG",
+        "Summary operation",
+        "Narrative generation"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
+      "features": [
+        "IPS",
+        "Subscriptions",
+        "International Patient Summary"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
+    },
+    {
+      "id": "aidbox-features-init-bundle-env-template",
+      "title": "Init Bundle Environment Template",
+      "description": "This example demonstrates how to dynamically template Aidbox init bundles using environment variables in Docker Compose by overriding the container entrypoint.",
+      "features": [
+        "Configuration",
+        "Init bundle",
+        "Environment variables",
+        "Templating",
+        "Setup"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/init-bundle-env-template",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/init-bundle-env-template/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-external-attachment-viewer",
+      "title": "Integrating external attachment preview tool",
+      "description": "Example of integration Aidbox Forms Renderer with React.js",
+      "features": [
+        "Attachments",
+        "DICOM",
+        "External viewer",
+        "Multimedia",
+        "Forms"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-external-attachment-viewer",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-external-attachment-viewer/README.md"
+    },
+    {
+      "id": "aidbox-features-smart-keycloak-roles",
+      "title": "Managing user Roles in Keycloak using SMART on FHIR V2 scopes",
+      "description": "This example demonstrates how to implement role-based access control (RBAC) for FHIR resources using Keycloak and SMART on FHIR V2 scopes.",
+      "features": [
+        "SMART on FHIR",
+        "Keycloak",
+        "Role-based access"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/smart-keycloak-roles",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/smart-keycloak-roles/README.md"
+    },
+    {
+      "id": "aidbox-features-OpenTelemetry",
+      "title": "OpenTelemetry",
+      "description": "This demo helps you to launch and explore the Aidbox observability features locally.",
+      "features": [
+        "observability",
+        "opentelemetry",
+        "monitoring",
+        "logs",
+        "metrics"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/OpenTelemetry",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/OpenTelemetry/README.md"
+    },
+    {
+      "id": "aidbox-features-aidbox-with-ro-replica",
+      "title": "PostgreSQL Read-Only Replica for Aidbox",
+      "description": "This guide demonstrates how to set up Aidbox with a PostgreSQL primary database and read-only replica, and how to configure Aidbox to direct read-only queries to the replica.",
+      "features": [
+        "PostgreSQL",
+        "Read replica",
+        "Performance",
+        "Scalability",
+        "Database"
+      ],
+      "languages": [
+        "Bash"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aidbox-with-ro-replica",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aidbox-with-ro-replica/README.md"
+    },
+    {
+      "id": "aidbox-integrations-clickhouse-superset",
+      "title": "Real-Time Analytics with Aidbox, ClickHouse, and Superset",
+      "description": "This example demonstrates how to use SQL on FHIR with Aidbox, integrate it with ClickHouse for analytics, and visualize data using Superset.",
+      "features": [
+        "Analytics",
+        "Clickhouse",
+        "Superset",
+        "SQL on FHIR",
+        "Data visualization"
+      ],
+      "languages": [
+        "Markdown"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/clickhouse-superset",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/clickhouse-superset/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-builder-custom-renderer-refero-renderer",
+      "title": "refero-renderer",
+      "description": "This package builds a static renderer page (`index.html` + `src/index.tsx`) that mounts Refero and speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging).",
+      "features": [
+        "Custom renderer",
+        "Forms builder",
+        "Questionnaire",
+        "Refero",
+        "SMART Web Messaging"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer/README.md"
+    },
+    {
+      "id": "aidbox-features-smart-app-launch-subscriptions",
+      "title": "Smart App Launch Subscriptions",
+      "description": "The Smart App Launch Subscriptions is a fullstack application which allows to integrate widget into your EHR UI.",
+      "features": [
+        "SMART on FHIR",
+        "Subscriptions",
+        "React",
+        "NestJS",
+        "Real-time updates"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/smart-app-launch-subscriptions",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/smart-app-launch-subscriptions/README.md"
+    },
+    {
+      "id": "aidbox-features-smart-app-launch",
+      "title": "SMART App Launch with Aidbox and Keycloak",
+      "description": "This demo showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html).",
+      "features": [
+        "SMART on FHIR",
+        "Keycloak",
+        "Growth chart",
+        "EHR launch",
+        "Patient launch"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/smart-app-launch",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/smart-app-launch/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-aidbox-health-card-issue",
+      "title": "SMART Health Cards Issue Operation",
+      "description": "A minimal TypeScript implementation of the FHIR `$health-cards-issue` operation that integrates with Aidbox to generate SMART Health Cards from patient health data.",
+      "features": [
+        "SMART health cards",
+        "Custom operations",
+        "JWKS",
+        "JWS signing",
+        "FHIR operations"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/aidbox-health-card-issue",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/aidbox-health-card-issue/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-builder-custom-renderer-smart-forms-renderer",
+      "title": "smart-forms-renderer",
+      "description": "This package builds a static renderer page (`index.html` + `src/index.ts`) that mounts the SmartForms renderer and speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging).",
+      "features": [
+        "Custom renderer",
+        "Forms builder",
+        "Questionnaire",
+        "SmartForms",
+        "SMART Web Messaging"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-custom-renderer/smart-forms-renderer/README.md"
+    },
+    {
+      "id": "aidbox-features-aidbox-subscriptions-to-kafka",
+      "title": "Topic-based Subscriptions to Kafka",
+      "description": "[Documentation](https://docs.aidbox.app/modules-1/topic-based-subscriptions/wip-dynamic-subscriptiontopic-with-destinations?utm_source=app-examples&utm_medium=readme)",
+      "features": [
+        "Kafka",
+        "Subscriptions",
+        "Event streaming",
+        "Questionnaire response",
+        "Topic-based"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aidbox-subscriptions-to-kafka",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aidbox-subscriptions-to-kafka/README.md"
+    },
+    {
+      "id": "aidbox-features-aidbox-outbound-proxy",
+      "title": "Using Aidbox with Outbound Proxy",
+      "description": "This guide demonstrates how to configure Aidbox to route outbound HTTPS traffic through a proxy server (Squid). This is useful in enterprise environments where all external traffic must go through a corporate proxy for security, compliance, or monitoring purposes.",
+      "features": [
+        "Proxy",
+        "Security",
+        "Network",
+        "Configuration",
+        "Environment variables"
+      ],
+      "languages": [
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aidbox-outbound-proxy",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aidbox-outbound-proxy/README.md"
+    },
+    {
+      "id": "developer-experience-aidbox-firely-dotnet-client",
+      "title": "Using Firely .NET SDK with Aidbox FHIR Server",
+      "description": "This example demonstrates how to use the Firely .NET SDK to create a patient resource in Aidbox.",
+      "features": [
+        "Firely SDK",
+        "FHIR client",
+        "Patient creation",
+        ".NET",
+        "SDK integration"
+      ],
+      "languages": [
+        "C#"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/developer-experience/aidbox-firely-dotnet-client",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/developer-experience/aidbox-firely-dotnet-client/README.md"
+    },
+    {
+      "id": "developer-experience-aidbox-hapi-client",
+      "title": "Using HAPI Java client with Aidbox FHIR Server",
+      "description": "This example demonstrates how to use the HAPI FHIR Java client library to create a patient resource in Aidbox.",
+      "features": [
+        "HAPI FHIR",
+        "FHIR client",
+        "Maven",
+        "Patient creation",
+        "Java client"
+      ],
+      "languages": [
+        "Java"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/developer-experience/aidbox-hapi-client",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/developer-experience/aidbox-hapi-client/README.md"
+    }
+  ],
+  "features_list": [
+    ".NET",
+    "AI assisted",
+    "API",
+    "Aidbox only",
+    "Analytics",
+    "Angular",
+    "App launch",
+    "Async operations",
+    "Attachments",
+    "Automation",
+    "CQL",
+    "Chile localization",
+    "Claude Code",
+    "Clickhouse",
+    "Clinical decision support",
+    "Comparison",
+    "Configuration",
+    "Controlled",
+    "Cross-platform",
+    "Custom operations",
+    "Custom renderer",
+    "Custom resources",
+    "Customization",
+    "DICOM",
+    "Data deletion",
+    "Data visualization",
+    "Database",
+    "EHR integration",
+    "EHR launch",
+    "Editor",
+    "Environment variables",
+    "Event streaming",
+    "Expression",
+    "External viewer",
+    "FHIR IG",
+    "FHIR R5",
+    "FHIR SDC",
+    "FHIR client",
+    "FHIR forms",
+    "FHIR operations",
+    "FHIR schema",
+    "FHIRPath",
+    "Firely SDK",
+    "Flutter",
+    "Forms",
+    "Forms builder",
+    "Forms renderer",
+    "Growth chart",
+    "HAPI FHIR",
+    "IPS",
+    "Implementation guide",
+    "Init bundle",
+    "International  Patient Summary",
+    "International Patient Summary",
+    "JWKS",
+    "JWS signing",
+    "JWT auth",
+    "Java client",
+    "Kafka",
+    "Keycloak",
+    "Markdown",
+    "Maven",
+    "Metabase",
+    "Multimedia",
+    "Multiple renderers",
+    "Narrative generation",
+    "NestJS",
+    "Network",
+    "Next.js",
+    "Notifications",
+    "OrgBAC",
+    "Patient creation",
+    "Patient launch",
+    "Performance",
+    "PostgreSQL",
+    "Practitioner app",
+    "Presigned URLs",
+    "Proxy",
+    "Purge operation",
+    "Query language",
+    "Questionnaire",
+    "Questionnaire response",
+    "React",
+    "Read replica",
+    "Real-time updates",
+    "Refero",
+    "Risk assessment",
+    "Role-based access",
+    "S3",
+    "SDC QRF",
+    "SDK integration",
+    "SMART Web Messaging",
+    "SMART health cards",
+    "SMART on FHIR",
+    "SQL on FHIR",
+    "Scalability",
+    "Security",
+    "Setup",
+    "SmartForms",
+    "Spring Boot",
+    "Storage",
+    "Structured data capture",
+    "Subscriptions",
+    "Summary operation",
+    "Superset",
+    "Template",
+    "Templating",
+    "Testing",
+    "Topic-based",
+    "Web",
+    "Web components",
+    "Workflow",
+    "api override",
+    "app framework",
+    "beda emr",
+    "custom operations",
+    "ehr integration",
+    "electronic medical record",
+    "fastify",
+    "fhir extensions",
+    "grafana",
+    "healthcare",
+    "integration",
+    "logs",
+    "metrics",
+    "monitoring",
+    "observability",
+    "opentelemetry",
+    "prometheus"
+  ],
+  "languages_list": [
+    "Bash",
+    "C#",
+    "Dart",
+    "HTML",
+    "Java",
+    "JavaScript",
+    "Markdown",
+    "TypeScript",
+    "YAML"
+  ]
+}
