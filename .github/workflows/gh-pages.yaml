@@ -118,6 +118,9 @@ jobs:
           cp -R aidbox-forms/aidbox-forms-builder-custom-renderer/refero-renderer/dist/* renderers/refero/
           rm aidbox-integrations/apollo-graphql-federation/README.md
 
+      - name: Generate examples metadata
+        run: python3 .github/scripts/generate_examples_metadata.py
+
       - name: Publish
         uses: JamesIves/github-pages-deploy-action@v4
         with:
