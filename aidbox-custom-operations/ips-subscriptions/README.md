@@ -1,5 +1,5 @@
 ---
-features: [IPS, Subscriptions, International  Patient Summary]
+features: [IPS, Subscriptions, International Patient Summary]
 languages: [TypeScript]
 ---
 # Implementation of IPS FHIR IG on Aidbox FHIR platform

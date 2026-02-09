@@ -1,5 +1,5 @@
 ---
-features: [api override, custom operations, fastify, app framework, fhir extensions]
+features: [API override, Custom operations, Fastify, App framework, FHIR extensions]
 languages: [TypeScript]
 ---
 # Aidbox: Override default FHIR endpoint

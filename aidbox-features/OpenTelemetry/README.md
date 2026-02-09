@@ -1,5 +1,5 @@
 ---
-features: [observability, opentelemetry, monitoring, logs, metrics]
+features: [Observability, OpenTelemetry, Monitoring, Logs, Metrics]
 languages: [YAML]
 ---
 # OpenTelemetry

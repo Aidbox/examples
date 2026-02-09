@@ -1,5 +1,5 @@
 ---
-features: [observability, monitoring, metrics, grafana, prometheus]
+features: [Observability, Monitoring, Metrics, Grafana, Prometheus]
 languages: [YAML]
 ---
 # Grafana dashboard for Aidbox metrics
