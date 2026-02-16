@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "PUT",
+    "url": "/AccessPolicy/basic-transaction-policy"
+  },
+  "resource": {
+    "resourceType": "AccessPolicy",
+    "id": "basic-transaction-policy",
+    "engine": "matcho",
+    "link": [{ "reference": "Client/basic" }],
+    "matcho": {
+      "operation": {
+        "id": "FhirTransaction"
+      }
+    }
+  }
+}

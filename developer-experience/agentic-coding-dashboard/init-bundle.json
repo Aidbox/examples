@@ -24,12 +24,49 @@
       "resource": {
         "resourceType": "AccessPolicy",
         "id": "basic-policy",
-        "engine": "allow",
+        "engine": "matcho",
         "link": [
           {
             "reference": "Client/basic"
           }
-        ]
+        ],
+        "matcho": {
+          "params": {
+            "resource/type": {
+              "$enum": [
+                "Patient",
+                "Observation"
+              ]
+            }
+          },
+          "request-method": {
+            "$enum": [
+              "get",
+              "put"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/basic-transaction-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "basic-transaction-policy",
+        "engine": "matcho",
+        "link": [
+          {
+            "reference": "Client/basic"
+          }
+        ],
+        "matcho": {
+          "operation": {
+            "id": "FhirTransaction"
+          }
+        }
       }
     },
     {

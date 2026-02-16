@@ -3,7 +3,9 @@ name: aidbox-dashboard
 description: Creating dashboards on top of Aidbox FHIR Server using ViewDefinitions
 ---
 
-# Aidbox FHIR Server
+# Aidbox Dashboard
+
+## Aidbox FHIR Server
 
 Aidbox runs locally on port 8080 via Docker Compose. All FHIR API requests use the `/fhir/` prefix.
 

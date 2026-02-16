@@ -6,7 +6,17 @@
   "resource": {
     "resourceType": "AccessPolicy",
     "id": "basic-policy",
-    "engine": "allow",
-    "link": [{ "reference": "Client/basic" }]
+    "engine": "matcho",
+    "link": [{ "reference": "Client/basic" }],
+    "matcho": {
+      "params": {
+        "resource/type": {
+          "$enum": ["Patient", "Observation"]
+        }
+      },
+      "request-method": {
+        "$enum": ["get", "put"]
+      }
+    }
   }
 }
