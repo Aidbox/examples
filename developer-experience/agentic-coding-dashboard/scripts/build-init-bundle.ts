@@ -24,6 +24,20 @@ for (const file of files) {
   }
 }
 
+// Add $materialize entries for each ViewDefinition so they are materialized on startup
+for (const id of viewDefinitionIds) {
+  entries.push({
+    request: {
+      method: "POST",
+      url: `/ViewDefinition/${id}/$materialize`,
+    },
+    resource: {
+      resourceType: "Parameters",
+      parameter: [{ name: "type", valueCode: "view" }],
+    },
+  });
+}
+
 const bundle = {
   type: "batch",
   resourceType: "Bundle",
@@ -60,7 +74,7 @@ if (process.argv.includes("--upload")) {
       headers: { "Content-Type": "application/json", Authorization: auth },
       body: JSON.stringify({
         resourceType: "Parameters",
-        parameter: [{ name: "type", valueCode: "table" }],
+        parameter: [{ name: "type", valueCode: "view" }],
       }),
     });
 

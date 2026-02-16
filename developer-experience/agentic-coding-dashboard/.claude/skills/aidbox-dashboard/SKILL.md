@@ -12,7 +12,7 @@ Aidbox runs locally on port 8080 via Docker Compose. All FHIR API requests use t
 Dashboards are built using the **SQL on FHIR** approach:
 
 1. **Define a ViewDefinition** — a FHIR resource that describes how to flatten a FHIR resource into tabular columns
-2. **Upload and materialize** — run `bun run build:init-bundle -- --upload` to rebuild the init bundle, upload it to Aidbox, and materialize all ViewDefinitions into SQL tables in the `sof` schema
+2. **Upload and materialize** — run `bun run build:init-bundle --upload` to rebuild the init bundle, upload it to Aidbox, and materialize all ViewDefinitions into SQL tables in the `sof` schema
 3. **Query with SQL** — the app uses `Bun.SQL` to connect directly to PostgreSQL and queries `sof.<view_name>` for dashboard data
 4. **Render a chart** — add a Chart.js chart component in `src/index.ts` and wire it into the appropriate route handler
 
@@ -59,7 +59,7 @@ Each file is a bundle entry with a PUT request:
 After creating or editing a ViewDefinition file, run:
 
 ```sh
-bun run build:init-bundle -- --upload
+bun run build:init-bundle --upload
 ```
 
 This single command:
@@ -307,7 +307,7 @@ Files are sorted by filename, so use numeric prefixes to control order (e.g., `0
 
 ```sh
 # Rebuild, upload, and materialize ViewDefinitions in one step
-bun run build:init-bundle -- --upload
+bun run build:init-bundle --upload
 
 # Rebuild only (no upload)
 bun run build:init-bundle

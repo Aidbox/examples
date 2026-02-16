@@ -6,6 +6,7 @@
     "dev": "bun run --watch src/index.ts",
     "generate-types": "bun run scripts/generate-types.ts",
     "build:init-bundle": "bun run scripts/build-init-bundle.ts",
+    "build:init-bundle --upload": "bun run scripts/build-init-bundle.ts --upload",
     "seed": "bun run scripts/seed.ts"
   },
   "dependencies": {

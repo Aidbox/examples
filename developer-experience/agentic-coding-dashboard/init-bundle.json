@@ -79,6 +79,21 @@
           }
         ]
       }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/ViewDefinition/body-weight/$materialize"
+      },
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          {
+            "name": "type",
+            "valueCode": "view"
+          }
+        ]
+      }
     }
   ]
 }
