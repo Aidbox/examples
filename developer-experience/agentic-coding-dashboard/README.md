@@ -104,15 +104,14 @@ agentic-coding-dashboard/
 
 A [ViewDefinition](fhir/definitions/view-definitions/01-body-weight.json) declaratively maps FHIR Observation resources (filtered by LOINC code `29463-7` for body weight) into a flat SQL table:
 
-```
-sof.body_weight
-├── id              (Observation ID)
-├── patient_id      (referenced Patient ID)
-├── effective_date  (observation date)
-├── weight_kg       (quantity value)
-├── unit            (quantity unit)
-└── status          (observation status)
-```
+| Column | Source |
+|--------|--------|
+| `id` | Observation ID |
+| `patient_id` | Referenced Patient ID |
+| `effective_date` | Observation date |
+| `weight_kg` | Quantity value |
+| `unit` | Quantity unit |
+| `status` | Observation status |
 
 ### 2. Materialize creates the SQL table
 
