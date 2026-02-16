@@ -1,0 +1,19 @@
+{
+  "name": "agentic-coding-dashboard",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "generate-types": "bun run scripts/generate-types.ts",
+    "build:init-bundle": "bun run scripts/build-init-bundle.ts",
+    "seed": "bun run scripts/seed.ts"
+  },
+  "dependencies": {
+    "@health-samurai/aidbox-client": "0.0.0-alpha.4"
+  },
+  "devDependencies": {
+    "@atomic-ehr/codegen": "^0.0.7",
+    "@types/bun": "latest",
+    "typescript": "^5.7.0"
+  }
+}
