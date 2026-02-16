@@ -23,7 +23,7 @@ The dashboard shows a list of patients with drill-down detail pages, including a
 
 - [Bun](https://bun.sh/) - JavaScript runtime and toolkit
 - [Docker](https://www.docker.com/) and Docker Compose - Container orchestration
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/setup) - AI-assisted development tool
+- AI coding agent with [agents.md](https://agents.md/) and skills support (e.g., [Claude Code](https://docs.anthropic.com/en/docs/claude-code/setup)) - this tutorial was tested with Claude Code but should work with any compatible agent
 - [Aidbox](https://www.health-samurai.io/docs/aidbox/getting-started/run-aidbox-locally) - Local FHIR server
 
 
