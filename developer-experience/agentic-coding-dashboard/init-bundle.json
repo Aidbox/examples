@@ -1,0 +1,136 @@
+{
+  "type": "batch",
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/Client/basic"
+      },
+      "resource": {
+        "resourceType": "Client",
+        "id": "basic",
+        "secret": "secret",
+        "grant_types": [
+          "basic"
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/basic-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "basic-policy",
+        "engine": "matcho",
+        "link": [
+          {
+            "reference": "Client/basic"
+          }
+        ],
+        "matcho": {
+          "params": {
+            "resource/type": {
+              "$enum": [
+                "Patient",
+                "Observation"
+              ]
+            }
+          },
+          "request-method": {
+            "$enum": [
+              "get",
+              "put"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/AccessPolicy/basic-transaction-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "basic-transaction-policy",
+        "engine": "matcho",
+        "link": [
+          {
+            "reference": "Client/basic"
+          }
+        ],
+        "matcho": {
+          "operation": {
+            "id": "FhirTransaction"
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/ViewDefinition/body-weight"
+      },
+      "resource": {
+        "resourceType": "ViewDefinition",
+        "id": "body-weight",
+        "name": "body_weight",
+        "status": "active",
+        "resource": "Observation",
+        "where": [
+          {
+            "path": "code.coding.where(system = 'http://loinc.org' and code = '29463-7').exists()"
+          }
+        ],
+        "select": [
+          {
+            "column": [
+              {
+                "path": "getResourceKey()",
+                "name": "id"
+              },
+              {
+                "path": "subject.getReferenceKey(Patient)",
+                "name": "patient_id"
+              },
+              {
+                "path": "effective.ofType(dateTime)",
+                "name": "effective_date"
+              },
+              {
+                "path": "value.ofType(Quantity).value",
+                "name": "weight_kg"
+              },
+              {
+                "path": "value.ofType(Quantity).unit",
+                "name": "unit"
+              },
+              {
+                "path": "status",
+                "name": "status"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/ViewDefinition/body-weight/$materialize"
+      },
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          {
+            "name": "type",
+            "valueCode": "view"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "PUT",
+    "url": "/AccessPolicy/basic-policy"
+  },
+  "resource": {
+    "resourceType": "AccessPolicy",
+    "id": "basic-policy",
+    "engine": "matcho",
+    "link": [{ "reference": "Client/basic" }],
+    "matcho": {
+      "params": {
+        "resource/type": {
+          "$enum": ["Patient", "Observation"]
+        }
+      },
+      "request-method": {
+        "$enum": ["get", "put"]
+      }
+    }
+  }
+}

@@ -1,6 +1,25 @@
 {
-  "timestamp": "2026-02-09T12:44:42.827349Z",
+  "timestamp": "2026-02-16T20:56:56.987118Z",
   "examples": [
+    {
+      "id": "developer-experience-agentic-coding-dashboard",
+      "title": "Agentic Coding: FHIR Patient Dashboard",
+      "description": "Building healthcare dashboards on top of FHIR data typically requires significant boilerplate: mapping FHIR resources to SQL, setting up charting libraries, and wiring everything together.",
+      "features": [
+        "FHIR Dashboard",
+        "AI assisted",
+        "Claude Code",
+        "SQL on FHIR",
+        "Chart.js",
+        "Bun",
+        "TypeScript"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/developer-experience/agentic-coding-dashboard",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/developer-experience/agentic-coding-dashboard/README.md"
+    },
     {
       "id": "developer-experience-agentic-coding-ig-development",
       "title": "Agentic FHIR Implementation Guide Development",
@@ -444,21 +463,19 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/grafana-dashboard/README.md"
     },
     {
-      "id": "aidbox-custom-operations-ips-ig-cl",
+      "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
       "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
       "features": [
         "IPS",
-        "Chile localization",
-        "FHIR IG",
-        "International Patient Summary",
-        "Narrative generation"
+        "Subscriptions",
+        "International Patient Summary"
       ],
       "languages": [
         "TypeScript"
       ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig-cl",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig-cl/README.md"
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
     },
     {
       "id": "aidbox-custom-operations-ips-subscriptions",
@@ -476,6 +493,23 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
     },
     {
+      "id": "aidbox-custom-operations-ips-ig-cl",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.",
+      "features": [
+        "IPS",
+        "Chile localization",
+        "FHIR IG",
+        "International Patient Summary",
+        "Narrative generation"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig-cl",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig-cl/README.md"
+    },
+    {
       "id": "aidbox-custom-operations-ips-ig",
       "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
       "description": "[Demo](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)",
@@ -491,21 +525,6 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig/README.md"
-    },
-    {
-      "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
-      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
-      "features": [
-        "IPS",
-        "Subscriptions",
-        "International Patient Summary"
-      ],
-      "languages": [
-        "TypeScript"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
     },
     {
       "id": "aidbox-features-init-bundle-env-template",
@@ -776,7 +795,9 @@
     "Automation",
     "Beda EMR",
     "Benchmarking",
+    "Bun",
     "CQL",
+    "Chart.js",
     "Chile localization",
     "Claude Code",
     "Clickhouse",
@@ -803,6 +824,7 @@
     "Event streaming",
     "Expression",
     "External viewer",
+    "FHIR Dashboard",
     "FHIR IG",
     "FHIR R5",
     "FHIR SDC",
@@ -890,6 +912,7 @@
     "Templating",
     "Testing",
     "Topic-based",
+    "TypeScript",
     "Web",
     "Web components",
     "Workflow"
