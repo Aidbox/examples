@@ -3,6 +3,8 @@ volumes:
 services:
   postgres:
     image: docker.io/library/postgres:18
+    ports:
+      - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/18/docker:delegated
     command:
