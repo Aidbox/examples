@@ -1,7 +1,20 @@
+import { SQL } from "bun";
 import { aidbox } from "./aidbox";
 import type { Patient } from "./fhir-types/hl7-fhir-r4-core/Patient";
 import type { Observation } from "./fhir-types/hl7-fhir-r4-core/Observation";
 import type { Bundle } from "./fhir-types/hl7-fhir-r4-core/Bundle";
+
+const db = new SQL({
+  url: "postgresql://aidbox:KYRMNQSitF@localhost:5432/aidbox",
+});
+
+let chartIdCounter = 0;
+
+interface BodyWeightRow {
+  effective_date: string;
+  weight_kg: number;
+  unit: string;
+}
 
 function formatPatientName(patient: Patient): string {
   const name = patient.name?.[0];
@@ -32,6 +45,7 @@ function Layout({ title, children }: { title: string; children: string }) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; color: #333; }
@@ -143,6 +157,57 @@ function ObservationTable({ observations }: { observations: Observation[] }) {
   </div>`;
 }
 
+function BodyWeightChart({ data }: { data: BodyWeightRow[] }) {
+  if (data.length === 0) {
+    return `<div class="empty">No body weight data found</div>`;
+  }
+
+  const chartId = `body-weight-chart-${++chartIdCounter}`;
+  const labels = JSON.stringify(data.map((d) => d.effective_date));
+  const values = JSON.stringify(data.map((d) => d.weight_kg));
+  const unit = data[0].unit ?? "kg";
+
+  return `<div class="card">
+    <canvas id="${chartId}"></canvas>
+    <script>
+      new Chart(document.getElementById('${chartId}'), {
+        type: 'line',
+        data: {
+          labels: ${labels},
+          datasets: [{
+            label: 'Body Weight',
+            data: ${values},
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#2563eb',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ctx.parsed.y + ' ${unit}'
+              }
+            }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Date' }, grid: { display: false } },
+            y: { title: { display: true, text: 'Weight (${unit})' }, grace: '5%' }
+          }
+        }
+      });
+    </script>
+  </div>`;
+}
+
 function html(body: string): Response {
   return new Response(body, {
     headers: { "content-type": "text/html; charset=utf-8" },
@@ -212,6 +277,11 @@ async function handlePatientDetail(id: string): Promise<Response> {
 
   const genderClass = patient.gender === "male" ? "badge-male" : patient.gender === "female" ? "badge-female" : "badge-other";
 
+  const bodyWeightData = await db.unsafe(
+    `SELECT effective_date, weight_kg, unit FROM sof.body_weight WHERE patient_id = $1 ORDER BY effective_date`,
+    [id],
+  ) as unknown as BodyWeightRow[];
+
   return html(Layout({
     title: `Patient: ${name}`,
     children: `
@@ -233,6 +303,8 @@ async function handlePatientDetail(id: string): Promise<Response> {
           <div class="detail-value">${patient.telecom?.find((t) => t.system === "email")?.value ?? "-"}</div>
         </div>
       </div>
+      <h2>Body Weight Over Time</h2>
+      ${BodyWeightChart({ data: bodyWeightData })}
       <h2>Observations (latest 10)</h2>
       ${ObservationTable({ observations })}
     `,
