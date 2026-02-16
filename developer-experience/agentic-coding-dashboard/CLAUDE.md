@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 This project is an example of a typescript application written in Bun using Aidbox FHIR Server as a backend. It serves an HTML dashboard via Elysia showing patients and their observations.

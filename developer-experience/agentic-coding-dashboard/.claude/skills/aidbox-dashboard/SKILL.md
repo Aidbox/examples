@@ -285,7 +285,7 @@ Two clients are available. Look up passwords in `docker-compose.yaml` and `fhir/
 | **Application** | `basic` | `fhir/definitions/access-control/01-client.json` (`resource.secret`) | Normal CRUD + transactions |
 | **Root** | `root` | `docker-compose.yaml` (`BOX_ROOT_CLIENT_SECRET`) | Admin operations, uploading init bundle |
 
-Use **root** when the application client gets `Forbidden`.
+The **basic** client is used by the running app (`src/aidbox.ts`) for normal FHIR CRUD operations. The **root** client is only used by `build-init-bundle` script to upload the init bundle and materialize ViewDefinitions — operations that require admin-level access.
 
 ## Querying Resources via FHIR API
 

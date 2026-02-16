@@ -13,8 +13,7 @@ The dashboard shows a list of patients with drill-down detail pages, including a
 
 ## Key Features
 
-- **SQL on FHIR ViewDefinitions**: Declarative mapping from FHIR Observations to flat SQL tables
-- **Direct SQL Queries**: `Bun.SQL` queries against materialized views in the `sof` schema
+- **SQL on FHIR ViewDefinitions**: Declarative mapping from FHIR resources to queryable SQL tables
 - **Chart.js Visualizations**: Interactive line charts showing body weight trends over time
 - **FHIR API Integration**: Patient and Observation data fetched via `@health-samurai/aidbox-client`
 - **AI-Assisted Development**: Dashboard features built entirely through Claude Code prompts using the `/aidbox-dashboard` skill
@@ -117,11 +116,11 @@ sof.body_weight
 
 ### 2. Materialize creates the SQL table
 
-Running `bun run build:init-bundle --upload` uploads the ViewDefinition to Aidbox and calls `$materialize`, which creates a real SQL table in the `sof` schema populated with data from matching FHIR resources.
+Running `bun run build:init-bundle --upload` uploads the ViewDefinition to Aidbox and calls [`$materialize`](https://www.health-samurai.io/docs/aidbox/modules/sql-on-fhir/operation-materialize), which creates a SQL table populated with data from matching FHIR resources.
 
 ### 3. The app queries SQL directly
 
-The dashboard uses `Bun.SQL` to query the materialized `sof.body_weight` table directly, bypassing the FHIR API for efficient tabular access:
+The dashboard queries the materialized table directly, bypassing the FHIR API for efficient tabular access:
 
 ```ts
 const rows = await db.unsafe(
@@ -136,6 +135,8 @@ const rows = await db.unsafe(
 ### 4. Chart.js renders the visualization
 
 Body weight data is passed to a Chart.js line chart, showing each patient's weight trend over time with interactive tooltips.
+
+![Patient detail page with body weight chart](images/image.png)
 
 
 ## Available Commands
