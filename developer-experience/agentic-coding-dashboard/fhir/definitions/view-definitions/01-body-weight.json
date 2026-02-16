@@ -1,0 +1,30 @@
+{
+  "request": {
+    "method": "PUT",
+    "url": "/ViewDefinition/body-weight"
+  },
+  "resource": {
+    "resourceType": "ViewDefinition",
+    "id": "body-weight",
+    "name": "body_weight",
+    "status": "active",
+    "resource": "Observation",
+    "where": [
+      {
+        "path": "code.coding.where(system = 'http://loinc.org' and code = '29463-7').exists()"
+      }
+    ],
+    "select": [
+      {
+        "column": [
+          { "path": "getResourceKey()", "name": "id" },
+          { "path": "subject.getReferenceKey(Patient)", "name": "patient_id" },
+          { "path": "effective.ofType(dateTime)", "name": "effective_date" },
+          { "path": "value.ofType(Quantity).value", "name": "weight_kg" },
+          { "path": "value.ofType(Quantity).unit", "name": "unit" },
+          { "path": "status", "name": "status" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "request": {
+    "method": "PUT",
+    "url": "/Client/basic"
+  },
+  "resource": {
+    "resourceType": "Client",
+    "id": "basic",
+    "secret": "secret",
+    "grant_types": ["basic"]
+  }
+}

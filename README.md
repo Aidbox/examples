@@ -53,6 +53,7 @@ A collection of examples on top of Aidbox FHIR platform
 
 ## Developer Experience
 
+- [Agentic Coding: FHIR Patient Dashboard](developer-experience/agentic-coding-dashboard/)
 - [Agentic FHIR Implementation Guide Development](developer-experience/agentic-coding-ig-development/)
 - [Aidbox Firely .NET Client](developer-experience/aidbox-firely-dotnet-client/)
 - [Aidbox HAPI FHIR Client](developer-experience/aidbox-hapi-client/)
