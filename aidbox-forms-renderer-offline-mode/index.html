@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aidbox Forms Renderer — Offline Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- <script src="https://form-builder.aidbox.app/static/aidbox-forms-renderer-webcomponent.js"></script> -->
+  <script src="[AIDBOX_BASE_URL]/static/aidbox-forms-renderer-webcomponent.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.25.7/babel.min.js"></script>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="env,react">
+
+    const AIDBOX_BASE_URL = '[AIDBOX_BASE_URL]';
+    const AIDBOX_TOKEN = '[JWT_TOKEN]';
+
+    const PATIENT_ID = 'pt-1';
+    const QR_SEARCH_PARAMS = `subject=Patient/${PATIENT_ID}&_sort=id&_count=50`;
+
+    const DEFAULT_SDC_CONFIG = {
+      resourceType: 'SDCConfig',
+      id: 'default',
+      default: true,
+      language: 'en',
+      form: {
+        'read-only': false,
+        'hide-print-button': true
+      },
+    };
+
+    const OfflineStorage = {
+      _key(type, id) { return `aidbox-offline:${type}:${id}`; },
+      _getJSON(key) { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; },
+      _setJSON(key, v) { localStorage.setItem(key, JSON.stringify(v)); },
+      _emit(name) { window.dispatchEvent(new CustomEvent(name)); },
+
+      getQuestionnaire(id)    { return this._getJSON(this._key('questionnaire', id)); },
+      setQuestionnaire(id, r) { this._setJSON(this._key('questionnaire', id), r); },
+
+      getResponse(id)    { return this._getJSON(this._key('response', id)); },
+      setResponse(id, r) { this._setJSON(this._key('response', id), r); },
+
+      getTheme(id)    { return this._getJSON(this._key('theme', id)); },
+      setTheme(id, r) { this._setJSON(this._key('theme', id), r); },
+
+      getResponseList() { return this._getJSON('aidbox-offline:response-list') || []; },
+      setResponseList(list) {
+        this._setJSON('aidbox-offline:response-list', list);
+        this._emit('offline-responses-changed');
+      },
+      updateResponseListStatus(responseId, newStatus) {
+        const list = this.getResponseList();
+        const entry = list.find(e => e.responseId === responseId);
+        if (entry) { entry.status = newStatus; this.setResponseList(list); }
+      },
+
+      getPendingOps() { return this._getJSON('aidbox-offline:pending-ops') || []; },
+      setPendingOps(ops) {
+        this._setJSON('aidbox-offline:pending-ops', ops);
+        this._emit('offline-pending-changed');
+      },
+      addPendingOp(op) {
+        let ops = this.getPendingOps();
+        if (op.responseId) {
+          ops = ops.filter(o => !(o.type === 'save-response' && o.responseId === op.responseId));
+        }
+        ops.push(op);
+        this.setPendingOps(ops);
+      },
+      removePendingOp(index) {
+        const ops = this.getPendingOps();
+        ops.splice(index, 1);
+        this.setPendingOps(ops);
+      },
+    };
+
+    async function apiFetch(path, options = {}) {
+      const url = AIDBOX_BASE_URL + path;
+      const headers = {
+        'Authorization': `Bearer ${AIDBOX_TOKEN}`,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
+      const res = await fetch(url, { ...options, headers });
+      if (!res.ok) throw new Error(`API ${options.method || 'GET'} ${path} → ${res.status}`);
+      return res;
+    }
+
+    async function loadInitialData() {
+      const res = await apiFetch(
+        `/fhir/QuestionnaireResponse?${QR_SEARCH_PARAMS}&_include=QuestionnaireResponse:questionnaire`
+      );
+      const bundle = await res.json();
+      const responseList = [];
+
+      for (const { resource } of (bundle.entry || [])) {
+        if (resource.resourceType === 'Questionnaire') {
+          const canonical = resource.version ? resource.url + '|' + resource.version : resource.url;
+          OfflineStorage.setQuestionnaire(canonical, resource);
+        } else if (resource.resourceType === 'QuestionnaireResponse') {
+          OfflineStorage.setResponse(resource.id, resource);
+          responseList.push({ responseId: resource.id, questionnaire: resource.questionnaire, status: resource.status });
+        }
+      }
+      OfflineStorage.setResponseList(responseList);
+    }
+
+    async function syncPendingChanges() {
+      let synced = 0, failed = 0;
+      while (true) {
+        const remaining = OfflineStorage.getPendingOps();
+        if (remaining.length === 0) break;
+
+        const op = remaining[0];
+        const endpoint = op.type === 'save-response' ? '$save' : '$submit';
+        try {
+          const serverRes = await apiFetch(`/fhir/QuestionnaireResponse/${endpoint}`, {
+            method: 'POST', body: JSON.stringify(op.body),
+          });
+          const serverData = await serverRes.json();
+          const serverQr = serverData.parameter?.find(p => p.name === 'response')?.resource;
+          if (serverQr) {
+            OfflineStorage.setResponse(serverQr.id, serverQr);
+            OfflineStorage.updateResponseListStatus(serverQr.id, serverQr.status);
+          }
+          OfflineStorage.removePendingOp(0);
+          synced++;
+        } catch (e) {
+          console.warn('Sync failed:', op, e);
+          failed++;
+          break;
+        }
+      }
+      return { synced, failed };
+    }
+
+    function createFetchInterceptor(questionnaire) {
+      const notFound = JSON.stringify({ resourceType: 'OperationOutcome', issue: [{ severity: 'error', code: 'not-found' }] });
+      const lastSegment = (u) => u.split('/').pop();
+
+      return async function onFetch(url, init) {
+        const tag = init?.tag;
+        const online = navigator.onLine;
+
+        if (tag === 'get-config') {
+          return new Response(JSON.stringify(DEFAULT_SDC_CONFIG), { status: 200 });
+        }
+
+        if (tag === 'get-theme') {
+          const theme = OfflineStorage.getTheme(lastSegment(url));
+          if (theme) return new Response(JSON.stringify(theme), { status: 200 });
+          return online ? null : new Response(notFound, { status: 404 });
+        }
+
+        if (tag === 'get-questionnaire') {
+          const q = OfflineStorage.getQuestionnaire(questionnaire);
+          if (q) return new Response(JSON.stringify(q), { status: 200 });
+          return online ? null : new Response(notFound, { status: 404 });
+        }
+
+        if (tag === 'get-response') {
+          const qr = OfflineStorage.getResponse(lastSegment(url));
+          if (qr) return new Response(JSON.stringify(qr), { status: 200 });
+          return online ? null : new Response(notFound, { status: 404 });
+        }
+
+        if (tag === 'save-response') {
+          const body = JSON.parse(init.body);
+          const qr = body.parameter?.find(p => p.name === 'response')?.resource;
+          if (!qr) return null;
+
+          qr.meta = { ...qr.meta, lastUpdated: new Date().toISOString() };
+          OfflineStorage.setResponse(qr.id, qr);
+
+          if (online) {
+            try {
+              const serverRes = await apiFetch('/fhir/QuestionnaireResponse/$save', { method: 'POST', body: JSON.stringify(body) });
+              const serverData = await serverRes.json();
+              const serverQr = serverData.parameter?.find(p => p.name === 'response')?.resource;
+              if (serverQr) OfflineStorage.setResponse(serverQr.id, serverQr);
+              return new Response(JSON.stringify(serverData), { status: 200 });
+            } catch (e) {
+              console.warn('Online save failed, queuing:', e);
+              OfflineStorage.addPendingOp({ type: 'save-response', responseId: qr.id, body });
+            }
+          } else {
+            OfflineStorage.addPendingOp({ type: 'save-response', responseId: qr.id, body });
+          }
+
+          return new Response(JSON.stringify({
+            resourceType: 'Parameters', parameter: [{ name: 'response', resource: qr }],
+          }), { status: 200 });
+        }
+
+        if (tag === 'submit-response') {
+          const body = JSON.parse(init.body);
+          const qr = body.parameter?.find(p => p.name === 'response')?.resource;
+          if (!qr) return null;
+
+          const serverBody = JSON.stringify(body); // NOTE: copy before modifying local copy for showing user success submit
+          qr.status = 'completed';
+          qr.meta = { ...qr.meta, lastUpdated: new Date().toISOString() };
+          OfflineStorage.setResponse(qr.id, qr);
+          OfflineStorage.updateResponseListStatus(qr.id, qr.status);
+
+          if (online) {
+            try {
+              const serverRes = await apiFetch('/fhir/QuestionnaireResponse/$submit', { method: 'POST', body: serverBody });
+              const serverData = await serverRes.json();
+              const serverQr = serverData.parameter?.find(p => p.name === 'response')?.resource;
+              if (serverQr) {
+                OfflineStorage.setResponse(serverQr.id, serverQr);
+                OfflineStorage.updateResponseListStatus(serverQr.id, serverQr.status);
+              }
+              return new Response(JSON.stringify(serverData), { status: 200 });
+            } catch (e) {
+              console.warn('Online submit failed, queuing:', e);
+              OfflineStorage.addPendingOp({ type: 'submit-response', responseId: qr.id, body: JSON.parse(serverBody) });
+            }
+          } else {
+            OfflineStorage.addPendingOp({ type: 'submit-response', responseId: qr.id, body: JSON.parse(serverBody) });
+          }
+
+          return new Response(JSON.stringify({
+            resourceType: 'Parameters',
+            parameter: [
+              { name: 'response', resource: qr },
+              { name: 'outcome', resource: { resourceType: 'Bundle', type: 'collection', entry: [] } },
+            ],
+          }), { status: 200 });
+        }
+
+        if (!online) {
+          return new Response(JSON.stringify({ resourceType: 'OperationOutcome', issue: [{ severity: 'error', code: 'transient', diagnostics: 'Offline' }] }), { status: 503 });
+        }
+        return null;
+      };
+    }
+
+    function App() {
+      const [appState, setAppState] = React.useState('loading');
+      const [errorMessage, setErrorMessage] = React.useState('');
+      const [selectedResponseId, setSelectedResponseId] = React.useState(null);
+      const [responseList, setResponseList] = React.useState([]);
+      const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+      const [pendingCount, setPendingCount] = React.useState(0);
+      const [syncMessage, setSyncMessage] = React.useState('');
+      const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+      const selectedEntry = responseList.find(e => e.responseId === selectedResponseId);
+      const questionnaire = selectedEntry?.questionnaire || '';
+
+      // All event listeners
+      React.useEffect(() => {
+        const goOnline = async () => {
+          setIsOnline(true);
+          setSyncMessage('Syncing...');
+          try {
+            const { synced } = await syncPendingChanges();
+            setSyncMessage(synced > 0 ? `Synced ${synced} change(s)` : '');
+          } catch { setSyncMessage('Sync error'); }
+          setTimeout(() => setSyncMessage(''), 3000);
+        };
+        const goOffline = () => { setIsOnline(false); setSyncMessage(''); };
+        const onPending = () => setPendingCount(OfflineStorage.getPendingOps().length);
+        const onResponses = () => setResponseList(OfflineStorage.getResponseList());
+
+        window.addEventListener('online', goOnline);
+        window.addEventListener('offline', goOffline);
+        window.addEventListener('offline-pending-changed', onPending);
+        window.addEventListener('offline-responses-changed', onResponses);
+        return () => {
+          window.removeEventListener('online', goOnline);
+          window.removeEventListener('offline', goOffline);
+          window.removeEventListener('offline-pending-changed', onPending);
+          window.removeEventListener('offline-responses-changed', onResponses);
+        };
+      }, []);
+
+      // Init
+      React.useEffect(() => {
+        let cancelled = false;
+        (async () => {
+          const hasCached = OfflineStorage.getResponseList().length > 0;
+
+          if (!navigator.onLine && !hasCached) {
+            setErrorMessage('You are offline and no cached data is available.');
+            setAppState('error');
+            return;
+          }
+
+          if (navigator.onLine) {
+            try { await loadInitialData(); } catch (e) {
+              if (!hasCached) { setErrorMessage(e.message); setAppState('error'); return; }
+            }
+          }
+
+          if (cancelled) return;
+          const list = OfflineStorage.getResponseList();
+          setResponseList(list);
+          if (list.length > 0) setSelectedResponseId(list[0].responseId);
+          setAppState('ready');
+
+          if (navigator.onLine && OfflineStorage.getPendingOps().length > 0) {
+            const { synced } = await syncPendingChanges();
+            if (synced > 0) { setSyncMessage(`Synced ${synced} change(s)`); setTimeout(() => setSyncMessage(''), 3000); }
+          }
+        })();
+        return () => { cancelled = true; };
+      }, []);
+
+      if (appState === 'loading') {
+        return <div className="flex items-center justify-center h-screen text-gray-500">Loading...</div>;
+      }
+
+      if (appState === 'error') {
+        return (
+          <div className="flex flex-col items-center justify-center h-screen gap-4 p-4 text-center">
+            <h2 className="text-xl font-semibold text-gray-800">Unable to load forms</h2>
+            <p className="text-gray-600">{errorMessage}</p>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => location.reload()}>Retry</button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex flex-col h-screen w-full">
+          <header className="flex h-14 items-center justify-between bg-white px-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <button className="md:hidden text-xl" onClick={() => setSidebarOpen(!sidebarOpen)}>&#9776;</button>
+              <span className="font-semibold">Offline Forms Demo</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm">
+              <span className={`inline-block w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-amber-500'}`} />
+              {isOnline ? 'Online' : 'Offline'}
+              {pendingCount > 0 && <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-xs">{pendingCount} pending</span>}
+              {syncMessage && <span className="text-gray-500 text-xs">{syncMessage}</span>}
+            </div>
+          </header>
+
+          <div className="flex flex-1 relative overflow-hidden">
+            <div className={`flex flex-col bg-gray-100 p-4 w-[260px] z-10 absolute md:relative top-0 bottom-0 transition-all -left-full md:left-0 ${sidebarOpen ? 'left-0 shadow-lg' : ''}`}>
+              <h3 className="text-lg font-semibold mb-3">Assigned Forms</h3>
+              <nav className="grid gap-1.5 overflow-auto">
+                {responseList.map((entry) => {
+                  const q = OfflineStorage.getQuestionnaire(entry.questionnaire);
+                  const title = q?.title || q?.name || entry.questionnaire;
+                  const active = entry.responseId === selectedResponseId;
+                  return (
+                    <button key={entry.responseId}
+                      className={`rounded-md p-2 text-sm text-left border-2 ${active ? 'bg-white border-blue-500' : 'bg-white border-transparent hover:bg-gray-200'}`}
+                      onClick={() => { setSelectedResponseId(entry.responseId); setSidebarOpen(false); }}>
+                      <span className="block font-medium">{title}</span>
+                      <span className={`text-xs ${entry.status === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>{entry.status}</span>
+                    </button>
+                  );
+                })}
+                {responseList.length === 0 && <p className="text-sm text-gray-500 p-2">No forms found.</p>}
+              </nav>
+            </div>
+
+            <main className={`flex-1 flex ${sidebarOpen ? 'brightness-50' : ''}`}>
+              {selectedResponseId && questionnaire ? (
+                <aidbox-form-renderer
+                  ref={(el) => { if (el) el.onFetch = createFetchInterceptor(questionnaire); }}
+                  token={AIDBOX_TOKEN}
+                  config={DEFAULT_SDC_CONFIG}
+                  style={{ width: '100%', border: 'none', alignSelf: 'stretch', display: 'flex' }}
+                  questionnaire-id={questionnaire}
+                  questionnaire-response-id={selectedResponseId}
+                  enable-fetch-proxy
+                />
+              ) : (
+                <div className="flex items-center justify-center flex-1 text-gray-400">Select a form</div>
+              )}
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
