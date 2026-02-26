@@ -1,6 +1,17 @@
 # aidbox-forms-renderer-offline-mode
 
-Example of using the Aidbox Forms Renderer web component with offline support via request interception (`enable-fetch-proxy` + `onFetch`).
+## Overview
+
+### What this example is
+This is a minimal, single-page demo that shows how to render and fill Aidbox Forms with offline support using the <aidbox-forms-renderer> web component and a custom fetch interceptor (`enable-fetch-proxy` + `onFetch`).
+
+### Who it’s for
+Teams building caregiver apps where a form can be opened and filled without internet, and then synced to Aidbox when connectivity returns.
+
+### Offline behavior
+Previously loaded forms can be opened from the local cache
+Changes are autosaved locally while offline
+Save and submit requests are queued and synchronized when connectivity is restored
 
 ## How it works
 
@@ -66,9 +77,14 @@ When the interceptor returns `null`, the renderer handles the request itself (us
 | `offline-pending-changed` | Pending ops queue updated |
 
 ## Prerequisites
-
-- An Aidbox instance with FHIR resources loaded (Patient, Questionnaires, and pre-created QuestionnaireResponses)
-- A JWT token with access to the FHIR and SDC APIs
+- An Aidbox instance is running localy (e.g. at `http://localhost:8081`).
+- FHIR resources (Patient, Questionnaires, and pre-created QuestionnaireResponses) are added to the Aidbox instance
+- A JWT token with access to the FHIR and SDC APIs is created (see [Aidbox Client Credentials documentation](https://www.health-samurai.io/docs/aidbox/tutorials/security-access-control-tutorials/client-credentials-grant):
+    Go to /ui/console#/iam/sandbox/client.
+    Check the JWT checkbox.
+    Specify the Client ID and Client Secret.
+    In the sandbox console, execute the API requests by clicking Run for each call sequentially.
+    Copy the JWT from the Access token field.   
 - QuestionnaireResponses must be created upfront on the server with:
   - `status: in-progress`
   - `questionnaire` reference pointing to a Questionnaire canonical URL
@@ -80,19 +96,20 @@ When the interceptor returns `null`, the renderer handles the request itself (us
 2. Set `AIDBOX_BASE_URL` to your Aidbox instance URL (e.g. `http://localhost:8081`)
 3. Set `AIDBOX_TOKEN` to a valid JWT token
 4. Set `PATIENT_ID` to the patient whose assigned forms should be loaded
-5. Load the fixture data into Aidbox:
+5. Replace `[AIDBOX_BASE_URL]` with your Aidbox instance URL in link to `renderer-webcomponent.js` (example: `http://localhost:8081/static/aidbox-forms-renderer-webcomponent.js`)
+6. Load the fixture data into Aidbox:
    ```bash
    ./fixtures/load-fixtures.sh http://localhost:8081 basic:secret
    ```
-6. Serve `index.html` via any HTTP server (e.g. `npx serve .`) and open in a browser
+7. Serve `index.html` via any HTTP server (e.g. `npx serve .`) and open generated link in a browser (e.g. `http://localhost:3000`)
 
 ## Usage
 
 1. **First load (online)** — the app fetches assigned QuestionnaireResponses and their Questionnaires, caches them in `localStorage`
-2. **Select a form** — click on a form in the sidebar; status shows "in-progress" or "completed"
+2. **Select a form in left panel** — click on a form in the sidebar; status shows "in-progress" or "completed"
 3. **Fill out forms** — changes auto-save to both `localStorage` and the server
 4. **Submit a form** — status changes to "completed" in the sidebar
-5. **Go offline** (e.g. DevTools Network → Offline) — forms render from cache; saves are queued
+5. **Go offline** (e.g. DevTools Network → Offline) — forms render from cache; saves and submits are stored locally and added to a pending queue.
 6. **Come back online** — pending changes sync automatically
 
 The header status bar shows online/offline state, pending change count, and sync progress.
@@ -110,3 +127,29 @@ The header status bar shows online/offline state, pending change count, and sync
 The `onFetch` callback is set as a JS property via the `ref` callback.
 
 See the [Aidbox Forms documentation](https://docs.aidbox.app/modules/aidbox-forms/aidbox-ui-builder-alpha/embedding-renderer) for the full list of attributes.
+
+### Limitations & data safety notes
+1. Local-only storage: this demo stores cached data and pending operations in localStorage on the current device/browser.
+2. Multiple devices: changes made on one device are not shared with another device. Only the first successful submission will be accepted — avoid filling the same form on multiple devices.
+3. Clearing browser data: if the user clears site data (history/storage) or uses private/incognito mode, offline drafts and cached forms may be lost.
+
+### Troubleshooting
+
+1. I don’t see any forms in the sidebar:
+    - Confirm fixtures are loaded and the patient has assigned QuestionnaireResponses.
+    - Confirm PATIENT_ID matches the subject.reference in those QuestionnaireResponses.
+    - Confirm your JWT token has permissions to read QuestionnaireResponses and Questionnaires.
+    - Confirm you didn't include "Bearer" to the name of the token (`Bearer <token>`).
+2. The form works online but not offline
+    - Make sure you opened the page online at least once before going offline.
+    - Open the browser devtools and check that cached resources exist in localStorage.
+    - Submission requires connectivity; go back online and click Submit again (or wait for auto-sync).
+3. The ./fixtures/load-fixtures.sh http://localhost:8081 basic:secret command stalls 
+    - Verify the client_id and the client secret in basic:secret are correct.
+    - Verify the Aidbox base URL is correct and reachable (e.g. `http://localhost:8081`).
+    - Ensure you run the script from the correct working directory — the one that contains `index.html` (so relative paths used by the script resolve correctly).
+4. The renderer doesn't load
+    - Ensure the Aidbox instance URL is correctly specified in `index.html` (line 9) and points to the renderer bundle (e.g. `http://localhost:8081/static/aidbox-forms-renderer-webcomponent.js`)
+    - Validate the URL format:
+        It should be the full absolute URL with the correct scheme (http) and port.
+        Make sure that the link to the renderer bundle contains the correct http type.
