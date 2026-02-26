@@ -181,8 +181,7 @@
         "subject": {
           "reference": "Patient/pt-1"
         },
-        "authored": "2026-02-20T10:00:00Z",
-        "item": []
+        "authored": "2026-02-20T10:00:00Z"
       },
       "request": {
         "method": "PUT",
@@ -198,8 +197,7 @@
         "subject": {
           "reference": "Patient/pt-1"
         },
-        "authored": "2026-02-20T10:05:00Z",
-        "item": []
+        "authored": "2026-02-20T10:05:00Z"
       },
       "request": {
         "method": "PUT",
@@ -215,8 +213,7 @@
         "subject": {
           "reference": "Patient/pt-1"
         },
-        "authored": "2026-02-20T10:10:00Z",
-        "item": []
+        "authored": "2026-02-20T10:10:00Z"
       },
       "request": {
         "method": "PUT",
