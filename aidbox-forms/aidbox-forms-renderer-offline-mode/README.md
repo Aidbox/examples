@@ -80,28 +80,27 @@ When the interceptor returns `null`, the renderer handles the request itself (us
 - An Aidbox instance is running localy (e.g. at `http://localhost:8081`).
 - FHIR resources (Patient, Questionnaires, and pre-created QuestionnaireResponses) are added to the Aidbox instance
 - A JWT token with access to the FHIR and SDC APIs is created (see [Aidbox Client Credentials documentation](https://www.health-samurai.io/docs/aidbox/tutorials/security-access-control-tutorials/client-credentials-grant):
-    Go to /ui/console#/iam/sandbox/client.
-    Check the JWT checkbox.
-    Specify the Client ID and Client Secret.
-    In the sandbox console, execute the API requests by clicking Run for each call sequentially.
-    Copy the JWT from the Access token field.   
+    - Go to /ui/console#/iam/sandbox/client.
+    - Check the JWT checkbox.
+    - Specify the client id and client secret. The default credentials are `client_id=basic`, `secret=secret` (you may replace them with any other valid values. Throughout the documentation, this pair is referred to as client:secret. Use the values you provided in the request)
+    - In the sandbox console, execute the API requests by clicking Run for each call sequentially.
+    - Copy the JWT from the Access token field.   
 - QuestionnaireResponses must be created upfront on the server with:
-  - `status: in-progress`
-  - `questionnaire` reference pointing to a Questionnaire canonical URL
-  - `subject` reference pointing to the patient (e.g. `Patient/pt-1`)
+    - `status: in-progress`
+    - `questionnaire` reference pointing to a Questionnaire canonical URL
+    - `subject` reference pointing to the patient (e.g. `Patient/pt-1`)
 
 ## Setup
 
 1. Open `index.html` in a text editor
-2. Set `AIDBOX_BASE_URL` to your Aidbox instance URL (e.g. `http://localhost:8081`)
+2. Set `AIDBOX_BASE_URL` to your Aidbox instance URL (e.g. `http://localhost:8081`) and adjust `renderer-webcomponent.js` link on line 9 (example: `http://localhost:8081/static/aidbox-forms-renderer-webcomponent.js`)
 3. Set `AIDBOX_TOKEN` to a valid JWT token
 4. Set `PATIENT_ID` to the patient whose assigned forms should be loaded
-5. Replace `[AIDBOX_BASE_URL]` with your Aidbox instance URL in link to `renderer-webcomponent.js` (example: `http://localhost:8081/static/aidbox-forms-renderer-webcomponent.js`)
-6. Load the fixture data into Aidbox:
+5. Load the fixture data into Aidbox:
    ```bash
-   ./fixtures/load-fixtures.sh http://localhost:8081 basic:secret
+   ./fixtures/load-fixtures.sh http://localhost:8081 client:secret
    ```
-7. Serve `index.html` via any HTTP server (e.g. `npx serve .`) and open generated link in a browser (e.g. `http://localhost:3000`)
+6. Serve `index.html` via any HTTP server (e.g. `npx serve .`) and open generated link in a browser (e.g. `http://localhost:3000`)
 
 ## Usage
 
@@ -144,8 +143,8 @@ See the [Aidbox Forms documentation](https://docs.aidbox.app/modules/aidbox-form
     - Make sure you opened the page online at least once before going offline.
     - Open the browser devtools and check that cached resources exist in localStorage.
     - Submission requires connectivity; go back online and click Submit again (or wait for auto-sync).
-3. The ./fixtures/load-fixtures.sh http://localhost:8081 basic:secret command stalls 
-    - Verify the client_id and the client secret in basic:secret are correct.
+3. The ./fixtures/load-fixtures.sh http://localhost:8081 client:secret command stalls 
+    - Verify the client_id and the client secret in client:secret are correct.
     - Verify the Aidbox base URL is correct and reachable (e.g. `http://localhost:8081`).
     - Ensure you run the script from the correct working directory — the one that contains `index.html` (so relative paths used by the script resolve correctly).
 4. The renderer doesn't load
