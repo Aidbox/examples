@@ -8,6 +8,8 @@ This example demonstrates the implementation of the [FHIR $purge operation](http
 
 The application provides a complete asynchronous implementation of patient data purging, including related resources cleanup and history removal from the database.
 
+> **Note:** Starting from Aidbox version **2602**, a built-in implementation of the `$purge` operation is available out of the box. It supports synchronous and asynchronous execution, compartment-based deletion, history cleanup, and audit trail via AuditEvent resources. If you are running Aidbox 2602 or later, consider using the [built-in $purge operation](https://www.health-samurai.io/docs/aidbox/api/bulk-api/purge) instead of this custom implementation. This example remains useful as a reference for building custom FHIR operations with Aidbox.
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/) and Docker Compose
