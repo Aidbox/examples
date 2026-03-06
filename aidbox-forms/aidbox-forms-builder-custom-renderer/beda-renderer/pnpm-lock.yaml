@@ -26,9 +26,9 @@ importers:
       sdc-qrf:
         specifier: 1.0.0-beta.13
         version: 1.0.0-beta.13(react@18.3.1)
-      sdc-smart-web-messaging-react:
-        specifier: 1.0.3
-        version: 1.0.3(@types/fhir@0.0.41)(react@18.3.1)
+      sdc-smart-web-messaging-client:
+        specifier: 1.0.1
+        version: 1.0.1(@types/fhir@0.0.41)(react@18.3.1)
       tiny-case:
         specifier: ^1.0.3
         version: 1.0.3
@@ -902,11 +902,14 @@ packages:
     peerDependencies:
       react: 18.x
 
-  sdc-smart-web-messaging-react@1.0.3:
-    resolution: {integrity: sha512-1U0xe2pVn4Qv0Yn3UNaeaxkOBuXaZhpwvXhlKVx5DmXV89CogGo/k+ehfbkPFaE8nh3xU5gwPrci3+AgLn6vwQ==}
+  sdc-smart-web-messaging-client@1.0.1:
+    resolution: {integrity: sha512-6dNIasLjIzRua1e1Bz/yS6y8ufXJdFjfuvhd8nrGT0KeF6pAjRzFryoQ1J9ovMi1dzeMTlVMfsu7FLrGpVm7Cg==}
     peerDependencies:
       '@types/fhir': ^0.0.41
       react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
@@ -1837,9 +1840,10 @@ snapshots:
       react: 18.3.1
       uuid: 11.1.0
 
-  sdc-smart-web-messaging-react@1.0.3(@types/fhir@0.0.41)(react@18.3.1):
+  sdc-smart-web-messaging-client@1.0.1(@types/fhir@0.0.41)(react@18.3.1):
     dependencies:
       '@types/fhir': 0.0.41
+    optionalDependencies:
       react: 18.3.1
 
   shebang-command@2.0.0:

@@ -2,7 +2,7 @@ import React from "react";
 import {
   SmartMessagingPhase,
   useSmartMessaging,
-} from "sdc-smart-web-messaging-react";
+} from "sdc-smart-web-messaging-client/react";
 import { ErrorView } from "./error-view";
 import { BedaForm } from "./beda-form";
 
