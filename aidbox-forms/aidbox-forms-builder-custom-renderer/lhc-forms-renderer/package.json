@@ -12,7 +12,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "sdc-smart-web-messaging-react": "1.0.4"
+    "sdc-smart-web-messaging-client": "1.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.14",

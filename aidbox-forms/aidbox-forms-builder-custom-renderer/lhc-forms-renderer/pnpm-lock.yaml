@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      sdc-smart-web-messaging-react:
-        specifier: 1.0.4
-        version: 1.0.4(@types/fhir@0.0.41)(react@19.2.4)
+      sdc-smart-web-messaging-client:
+        specifier: 1.0.1
+        version: 1.0.1(@types/fhir@0.0.41)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.14
@@ -425,20 +425,19 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  react@19.2.4:
-    resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
-    engines: {node: '>=0.10.0'}
-
   rollup@4.57.1:
     resolution: {integrity: sha512-oQL6lgK3e2QZeQ7gcgIkS2YZPg5slw37hYufJ3edKlfQSGGm8ICoxswK15ntSzF/a8+h7ekRy7k7oWc3BQ7y8A==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  sdc-smart-web-messaging-react@1.0.4:
-    resolution: {integrity: sha512-QGPmbSteWX7LpI1wsb7qKO/ZxxYWTETDQXTFVMmP0EP3NlaofnZQ1+d1dgPEUfJBuaBOcZ2Z4NwywxvwN9e1MA==}
+  sdc-smart-web-messaging-client@1.0.1:
+    resolution: {integrity: sha512-6dNIasLjIzRua1e1Bz/yS6y8ufXJdFjfuvhd8nrGT0KeF6pAjRzFryoQ1J9ovMi1dzeMTlVMfsu7FLrGpVm7Cg==}
     peerDependencies:
       '@types/fhir': ^0.0.41
       react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -750,8 +749,6 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  react@19.2.4: {}
-
   rollup@4.57.1:
     dependencies:
       '@types/estree': 1.0.8
@@ -783,10 +780,9 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.57.1
       fsevents: 2.3.3
 
-  sdc-smart-web-messaging-react@1.0.4(@types/fhir@0.0.41)(react@19.2.4):
+  sdc-smart-web-messaging-client@1.0.1(@types/fhir@0.0.41):
     dependencies:
       '@types/fhir': 0.0.41
-      react: 19.2.4
 
   source-map-js@1.2.1: {}
 

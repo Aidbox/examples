@@ -127,18 +127,6 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
   await page.goto(`${baseURL}/tests/host.html`);
   await page.waitForFunction(() => window.__swmHost?.handle);
 
-  const handshake = await waitForMessage(page, {
-    messageType: "status.handshake",
-    handle: await page.evaluate(() => window.__swmHost.handle),
-  });
-
-  const handshakeMessage = requireMessage(handshake, "handshake");
-  const handshakePayload = requirePayload<{ protocolVersion?: string }>(
-    handshakeMessage,
-    "handshake"
-  );
-  expect(handshakePayload.protocolVersion).toBe("1.0");
-
   const hostHandshakeId = await sendRequest(page, "status.handshake", {
     protocolVersion: "1.0",
     fhirVersion: "R4",

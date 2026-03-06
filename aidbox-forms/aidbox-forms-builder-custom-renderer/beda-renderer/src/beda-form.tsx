@@ -15,7 +15,7 @@ import {
   useQuestionnaireResponseFormContext,
 } from "sdc-qrf";
 import type { AnswerValue, FormItems, QuestionItemProps } from "sdc-qrf";
-import type { QuestionnaireContext } from "sdc-smart-web-messaging-react";
+import type { QuestionnaireContext } from "sdc-smart-web-messaging-client";
 
 type BedaFormProps = {
   questionnaire: fhir4.Questionnaire;
