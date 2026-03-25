@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-06T08:32:03.892585Z",
+  "timestamp": "2026-03-25T20:53:53.195007Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -308,6 +308,21 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/BedaEmr",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/BedaEmr/README.md"
+    },
+    {
+      "id": "aidbox-features-aidbox-canonical-mapping",
+      "title": "Canonical Mapping: HIS to FHIR",
+      "description": "Two architectural approaches for exposing proprietary Hospital Information System (HIS) data as FHIR R4.",
+      "features": [
+        "Canonical Mapping",
+        "FHIR Facade",
+        "FHIR Search"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aidbox-canonical-mapping",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aidbox-canonical-mapping/README.md"
     },
     {
       "id": "aidbox-forms-aidbox-forms-builder-custom-renderer",
@@ -797,6 +812,7 @@
     "Benchmarking",
     "Bun",
     "CQL",
+    "Canonical Mapping",
     "Chart.js",
     "Chile localization",
     "Claude Code",
@@ -825,9 +841,11 @@
     "Expression",
     "External viewer",
     "FHIR Dashboard",
+    "FHIR Facade",
     "FHIR IG",
     "FHIR R5",
     "FHIR SDC",
+    "FHIR Search",
     "FHIR client",
     "FHIR extensions",
     "FHIR forms",
