@@ -1,0 +1,25 @@
+{
+  "name": "aidbox-canonical-mapping",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/facade/index.ts",
+    "start:consumer": "bun run src/event-driven/consumer.ts",
+    "dev": "bun run --watch src/facade/index.ts",
+    "typecheck": "tsc --noEmit",
+    "generate-types": "bun run scripts/generate-types.ts",
+    "publish:admit": "RABBITMQ_URL=amqp://guest:guest@localhost:5672 bun run src/event-driven/publisher.ts admit",
+    "publish:discharge": "RABBITMQ_URL=amqp://guest:guest@localhost:5672 bun run src/event-driven/publisher.ts discharge",
+    "publish:transfer": "RABBITMQ_URL=amqp://guest:guest@localhost:5672 bun run src/event-driven/publisher.ts transfer"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "ioredis": "^5.9.2"
+  },
+  "devDependencies": {
+    "@atomic-ehr/codegen": "^0.0.7",
+    "@types/amqplib": "^0.10.8",
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.7.0"
+  }
+}

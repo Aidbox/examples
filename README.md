@@ -39,6 +39,7 @@ A collection of examples on top of Aidbox FHIR platform
 
 ## Aidbox Features
 
+- [Canonical Mapping: HIS to FHIR](aidbox-features/aidbox-canonical-mapping/)
 - [Aidbox Notify via Custom Resources](aidbox-features/aidbox-notify-via-custom-resources/)
 - [Topic-Based Subscription to Kafka](aidbox-features/aidbox-subscriptions-to-kafka/)
 - [Aidbox with read-only replica](aidbox-features/aidbox-with-ro-replica/)
