@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-25T20:53:53.195007Z",
+  "timestamp": "2026-04-03T14:31:01.125867Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -157,23 +157,6 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-flutter-web/README.md"
     },
     {
-      "id": "aidbox-forms-aidbox-forms-renderer-angular",
-      "title": "aidbox-forms-renderer-angular",
-      "description": "Example of integration Aidbox Forms Renderer with Angular.js",
-      "features": [
-        "Forms renderer",
-        "Questionnaire",
-        "Angular",
-        "Web components",
-        "FHIR forms"
-      ],
-      "languages": [
-        "HTML"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-angular",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-angular/README.md"
-    },
-    {
       "id": "aidbox-forms-aidbox-forms-two-renderers-angular",
       "title": "aidbox-forms-renderer-angular",
       "description": "Example of integration multiple instances Aidbox Forms Renderer on the same page with Angular.js",
@@ -189,6 +172,23 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-two-renderers-angular",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-two-renderers-angular/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-renderer-angular",
+      "title": "aidbox-forms-renderer-angular",
+      "description": "Example of integration Aidbox Forms Renderer with Angular.js",
+      "features": [
+        "Forms renderer",
+        "Questionnaire",
+        "Angular",
+        "Web components",
+        "FHIR forms"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-angular",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-angular/README.md"
     },
     {
       "id": "aidbox-forms-aidbox-forms-renderer-angular-controlled",
