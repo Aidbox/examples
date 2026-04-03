@@ -6,7 +6,7 @@ languages: [HTML]
 
 Example of integration Aidbox Forms Renderer with Angular.js
 
-[Demo](https://aidbox.github.io/examples/aidbox-forms-renderer-angular/)
+[Demo](https://aidbox.github.io/examples/aidbox-forms/aidbox-forms-renderer-angular/)
 
 ## Example
 

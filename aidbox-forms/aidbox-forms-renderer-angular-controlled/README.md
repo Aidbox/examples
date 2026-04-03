@@ -13,7 +13,7 @@ resources within the Angular.js application. This approach is
 beneficial for applications requiring custom resource handling and
 management.
 
-[Demo](https://aidbox.github.io/examples/aidbox-forms-renderer-angular-controlled/)
+[Demo](https://aidbox.github.io/examples/aidbox-forms/aidbox-forms-renderer-angular-controlled/)
 
 ## Example
 
