@@ -287,3 +287,136 @@ test("renderer speaks SDC SMART Web Messaging", async ({ page, baseURL }) => {
   }>(extractMessage, "sdc.requestExtract response");
   expect(extractPayload.outcome?.resourceType).toBe("OperationOutcome");
 });
+
+test("renderer applies a new questionnaire revision without reopening preview", async ({
+  page,
+  baseURL,
+}) => {
+  if (!baseURL) throw new Error("Missing baseURL");
+
+  await page.goto(`${baseURL}/tests/host.html`);
+  await page.waitForFunction(() => window.__swmHost?.handle);
+
+  const hostHandshakeId = await sendRequest(page, "status.handshake", {
+    protocolVersion: "1.0",
+    fhirVersion: "R4",
+  });
+
+  const hostHandshakeResponse = await waitForMessage(page, {
+    messageType: "status.handshake",
+    responseToMessageId: hostHandshakeId,
+  });
+
+  const hostHandshakeMessage = requireMessage(
+    hostHandshakeResponse,
+    "host handshake response"
+  );
+  const hostHandshakePayload = requirePayload<{
+    application?: { name?: string };
+  }>(hostHandshakeMessage, "host handshake response");
+  expect(hostHandshakePayload.application?.name).toBeTruthy();
+
+  const configureId = await sendRequest(page, "sdc.configure", {});
+  const configureResponse = await waitForMessage(page, {
+    messageType: "sdc.configure",
+    responseToMessageId: configureId,
+  });
+  const configureMessage = requireMessage(
+    configureResponse,
+    "sdc.configure response"
+  );
+  const configurePayload = requirePayload<{ status?: string }>(
+    configureMessage,
+    "sdc.configure response"
+  );
+  expect(configurePayload.status).toBe("success");
+
+  const contextId = await sendRequest(page, "sdc.configureContext", {
+    context: {
+      subject: { reference: "Patient/123" },
+      author: { reference: "Practitioner/456" },
+    },
+  });
+  const contextResponse = await waitForMessage(page, {
+    messageType: "sdc.configureContext",
+    responseToMessageId: contextId,
+  });
+  const contextMessage = requireMessage(
+    contextResponse,
+    "sdc.configureContext response"
+  );
+  const contextPayload = requirePayload<{ status?: string }>(
+    contextMessage,
+    "sdc.configureContext response"
+  );
+  expect(contextPayload.status).toBe("success");
+
+  const initialDisplayId = await sendRequest(page, "sdc.displayQuestionnaire", {
+    questionnaire: {
+      resourceType: "Questionnaire",
+      id: "revision-test-questionnaire",
+      status: "draft",
+      item: [
+        {
+          linkId: "name",
+          text: "Name",
+          type: "string",
+        },
+      ],
+    },
+  });
+
+  const initialDisplayResponse = await waitForMessage(page, {
+    messageType: "sdc.displayQuestionnaire",
+    responseToMessageId: initialDisplayId,
+  });
+  const initialDisplayMessage = requireMessage(
+    initialDisplayResponse,
+    "initial sdc.displayQuestionnaire response"
+  );
+  const initialDisplayPayload = requirePayload<{ status?: string }>(
+    initialDisplayMessage,
+    "initial sdc.displayQuestionnaire response"
+  );
+  expect(initialDisplayPayload.status).toBe("success");
+
+  const nameField = page.frameLocator("#renderer").getByLabel("Name");
+  await expect(nameField).toBeVisible({ timeout: 30000 });
+
+  const revisedDisplayId = await sendRequest(page, "sdc.displayQuestionnaire", {
+    questionnaire: {
+      resourceType: "Questionnaire",
+      id: "revision-test-questionnaire",
+      status: "draft",
+      item: [
+        {
+          linkId: "name",
+          text: "Name",
+          type: "string",
+        },
+        {
+          linkId: "nickname",
+          text: "Nickname",
+          type: "string",
+        },
+      ],
+    },
+  });
+
+  const revisedDisplayResponse = await waitForMessage(page, {
+    messageType: "sdc.displayQuestionnaire",
+    responseToMessageId: revisedDisplayId,
+  });
+  const revisedDisplayMessage = requireMessage(
+    revisedDisplayResponse,
+    "revised sdc.displayQuestionnaire response"
+  );
+  const revisedDisplayPayload = requirePayload<{ status?: string }>(
+    revisedDisplayMessage,
+    "revised sdc.displayQuestionnaire response"
+  );
+  expect(revisedDisplayPayload.status).toBe("success");
+
+  const nicknameField = page.frameLocator("#renderer").getByLabel("Nickname");
+  await expect(nicknameField).toBeVisible({ timeout: 30000 });
+});
