@@ -1,5 +1,5 @@
 ---
-features: [FHIR Orchestration, Deduplication, ConceptMap, Provenance, SMART on FHIR]
+features: [FHIR Orchestration, FHIR Facade, Deduplication, ConceptMap, Provenance, SMART on FHIR]
 languages: [TypeScript]
 ---
 
