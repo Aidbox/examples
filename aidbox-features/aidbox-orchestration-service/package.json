@@ -9,7 +9,7 @@
     "generate-types": "bun run scripts/generate-types.ts"
   },
   "devDependencies": {
-    "@atomic-ehr/codegen": "^0.0.7",
+    "@atomic-ehr/codegen": "^0.0.10",
     "@types/bun": "latest",
     "typescript": "^5.7.0"
   },

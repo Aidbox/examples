@@ -14,12 +14,9 @@ import type {
   Coding,
   ParametersParameter,
 } from "./fhir-types/hl7-fhir-r4-core";
-import type { UKCoreAllergyIntolerance } from "./fhir-types/fhir-r4-ukcore-stu2/profiles/UkcoreAllergyIntolerance";
 import {
   UKCorePatientProfile,
   UKCoreAllergyIntoleranceProfile,
-  UKCoreObservationProfile,
-  UKCoreEncounterProfile,
 } from "./fhir-types/fhir-r4-ukcore-stu2/profiles";
 import type { AuthProvider } from "./fhir-clients";
 
@@ -133,7 +130,6 @@ export async function translateCode(
 }
 
 function getAllergyCodes(allergy: AllergyIntolerance): Coding[] {
-  // Use profile to access - UKCoreAllergyIntolerance requires code
   const profile = new UKCoreAllergyIntoleranceProfile(allergy);
   const resource = profile.toResource();
   return resource.code?.coding ?? [];
@@ -161,7 +157,7 @@ function sortAllergiesByPriority(allergies: AllergyIntolerance[]): AllergyIntole
 }
 
 export interface AllergyDeduplicationResult {
-  allergies: UKCoreAllergyIntolerance[];
+  allergies: AllergyIntolerance[];
   deduplicationGroups: AllergyIntolerance[][];
 }
 
@@ -173,12 +169,12 @@ export async function deduplicateAllergies(
     return { allergies: [], deduplicationGroups: [] };
   }
   if (allergies.length === 1) {
-    const withProfile = ensureProfile(allergies[0]!, UK_CORE_ALLERGY_PROFILE) as UKCoreAllergyIntolerance;
+    const withProfile = ensureProfile(allergies[0]!, UK_CORE_ALLERGY_PROFILE) as AllergyIntolerance;
     return { allergies: [withProfile], deduplicationGroups: [[allergies[0]!]] };
   }
 
   const sorted = sortAllergiesByPriority(allergies);
-  const result: UKCoreAllergyIntolerance[] = [];
+  const result: AllergyIntolerance[] = [];
   const deduplicationGroups: AllergyIntolerance[][] = [];
   const processedCodes = new Map<string, number>();
 
@@ -216,7 +212,7 @@ export async function deduplicateAllergies(
       deduplicationGroups[matchedGroupIndex]!.push(allergy);
     } else {
       const groupIndex = deduplicationGroups.length;
-      const withProfile = ensureProfile(allergy, UK_CORE_ALLERGY_PROFILE) as UKCoreAllergyIntolerance;
+      const withProfile = ensureProfile(allergy, UK_CORE_ALLERGY_PROFILE) as AllergyIntolerance;
       result.push(withProfile);
       deduplicationGroups.push([allergy]);
 
@@ -244,9 +240,9 @@ export async function deduplicateAllergies(
 
 export function deduplicateAllergiesByExactCode(
   allergies: AllergyIntolerance[]
-): UKCoreAllergyIntolerance[] {
+): AllergyIntolerance[] {
   const seen = new Set<string>();
-  const result: UKCoreAllergyIntolerance[] = [];
+  const result: AllergyIntolerance[] = [];
 
   for (const allergy of allergies) {
     const codes = getAllergyCodes(allergy);
@@ -255,7 +251,7 @@ export function deduplicateAllergiesByExactCode(
 
     if (!isDuplicate) {
       codeKeys.forEach(key => seen.add(key));
-      const withProfile = ensureProfile(allergy, UK_CORE_ALLERGY_PROFILE) as UKCoreAllergyIntolerance;
+      const withProfile = ensureProfile(allergy, UK_CORE_ALLERGY_PROFILE) as AllergyIntolerance;
       result.push(withProfile);
     }
   }
@@ -266,8 +262,7 @@ export function deduplicateAllergiesByExactCode(
 // ============ Observation Deduplication ============
 
 function getObservationCode(obs: Observation): Coding | null {
-  const profile = new UKCoreObservationProfile(obs);
-  return profile.toResource().code?.coding?.[0] ?? null;
+  return obs.code?.coding?.[0] ?? null;
 }
 
 function getObservationDateTime(obs: Observation): Date | null {
@@ -380,7 +375,7 @@ export interface DeduplicationInput {
 
 export interface DeduplicationResult {
   patient: Patient | null;
-  allergies: UKCoreAllergyIntolerance[];
+  allergies: AllergyIntolerance[];
   observations: Observation[];
   encounters: Encounter[];
   allergyDeduplicationGroups: AllergyIntolerance[][];
@@ -443,7 +438,7 @@ export async function deduplicateResources(
   let updatedEncounters = encounters;
 
   if (mergedPatientId && oldPatientIds.length > 0) {
-    allergies = updatePatientReferences(allergies, oldPatientIds, mergedPatientId) as UKCoreAllergyIntolerance[];
+    allergies = updatePatientReferences(allergies, oldPatientIds, mergedPatientId) as AllergyIntolerance[];
     observations = updatePatientReferences(observations, oldPatientIds, mergedPatientId);
     updatedEncounters = updatePatientReferences(encounters, oldPatientIds, mergedPatientId);
   }

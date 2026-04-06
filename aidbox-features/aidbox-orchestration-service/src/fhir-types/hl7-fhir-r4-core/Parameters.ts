@@ -69,10 +69,10 @@ export type { Timing } from "../hl7-fhir-r4-core/Timing";
 export type { TriggerDefinition } from "../hl7-fhir-r4-core/TriggerDefinition";
 export type { UsageContext } from "../hl7-fhir-r4-core/UsageContext";
 
-export interface ParametersParameter extends BackboneElement {
+export interface ParametersParameter<T extends Resource = Resource> extends BackboneElement {
     name: string;
     part?: ParametersParameter[];
-    resource?: Resource;
+    resource?: T;
     valueAddress?: Address;
     valueAge?: Age;
     valueAnnotation?: Annotation;
@@ -125,7 +125,7 @@ export interface ParametersParameter extends BackboneElement {
     valueUuid?: string;
 }
 
-// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Parameters
+// CanonicalURL: http://hl7.org/fhir/StructureDefinition/Parameters (pkg: hl7.fhir.r4.core#4.0.1)
 export interface Parameters extends Resource {
     resourceType: "Parameters";
 
