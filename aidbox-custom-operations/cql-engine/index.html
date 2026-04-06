@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CQL Engine + Aidbox — Setup Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e10; --bg2: #16161a; --bg3: #1e1e24; --bg4: #26262e;
+  --fg: #e2e0e8; --fg2: #a09dac; --fg3: #6b687a;
+  --accent: #7c5cfc; --accent2: #a78bfa; --accent-bg: rgba(124,92,252,0.08);
+  --green: #34d399; --green-bg: rgba(52,211,153,0.08); --green-dim: #059669;
+  --amber: #fbbf24; --amber-bg: rgba(251,191,36,0.06);
+  --rose: #fb7185; --rose-bg: rgba(251,113,133,0.06);
+  --cyan: #22d3ee; --cyan-bg: rgba(34,211,238,0.06);
+  --line: #2a2a34; --line2: #36363f;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Outfit', system-ui, sans-serif;
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; scroll-behavior:smooth; scrollbar-color: var(--bg4) var(--bg); }
+body { font-family:var(--sans); background:var(--bg); color:var(--fg); line-height:1.7; -webkit-font-smoothing:antialiased; }
+
+/* ── Layout ── */
+.page { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+@media(max-width:900px) { .page { grid-template-columns:1fr; } .sidebar { display:none; } }
+
+/* ── Sidebar ── */
+.sidebar { position:sticky; top:0; height:100vh; background:var(--bg2); border-right:1px solid var(--line); padding:1.5rem 0; overflow-y:auto; display:flex; flex-direction:column; }
+.sidebar::-webkit-scrollbar { width:4px; } .sidebar::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:4px; }
+.brand { padding:0 1.25rem 1.25rem; border-bottom:1px solid var(--line); margin-bottom:0.75rem; }
+.brand-tag { font-family:var(--mono); font-size:0.6rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:0.25rem; }
+.brand-name { font-weight:700; font-size:1.1rem; color:var(--fg); line-height:1.3; }
+.brand-ver { font-family:var(--mono); font-size:0.68rem; color:var(--fg3); margin-top:0.15rem; }
+.nav-group { padding:0.5rem 1.25rem 0.15rem; font-family:var(--mono); font-size:0.58rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--fg3); }
+.nav-link { display:flex; align-items:center; gap:0.5rem; padding:0.3rem 1.25rem; font-size:0.8rem; color:var(--fg2); text-decoration:none; transition:all 0.15s; border-left:2px solid transparent; }
+.nav-link:hover { color:var(--fg); background:var(--accent-bg); }
+.nav-link.active { color:var(--accent2); border-left-color:var(--accent); background:var(--accent-bg); }
+.nav-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.nav-dot.green { background:var(--green); } .nav-dot.amber { background:var(--amber); } .nav-dot.rose { background:var(--rose); } .nav-dot.cyan { background:var(--cyan); }
+
+/* ── Main ── */
+main { max-width:820px; padding:3rem 3rem 6rem; }
+@media(max-width:900px) { main { padding:2rem 1.25rem 4rem; } }
+
+/* ── Typography ── */
+h1 { font-weight:700; font-size:2.2rem; line-height:1.2; margin-bottom:0.5rem; background:linear-gradient(135deg, var(--fg) 0%, var(--accent2) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.subtitle { font-size:1rem; color:var(--fg2); margin-bottom:2.5rem; max-width:600px; }
+h2 { font-weight:600; font-size:1.4rem; margin:3rem 0 1rem; padding-bottom:0.5rem; border-bottom:1px solid var(--line); color:var(--fg); }
+h2 .step-num { font-family:var(--mono); font-size:0.7rem; font-weight:600; color:var(--accent); background:var(--accent-bg); padding:0.2em 0.55em; border-radius:6px; margin-right:0.4rem; vertical-align:middle; }
+h3 { font-weight:600; font-size:1.05rem; margin:1.5rem 0 0.5rem; color:var(--fg); }
+p { color:var(--fg2); margin-bottom:0.85rem; font-size:0.92rem; }
+a { color:var(--accent2); text-decoration:none; } a:hover { text-decoration:underline; }
+ul,ol { margin:0.4rem 0 1rem 1.2rem; font-size:0.88rem; color:var(--fg2); } li { margin-bottom:0.3rem; }
+code { font-family:var(--mono); font-size:0.8em; background:var(--bg3); padding:0.15em 0.45em; border-radius:5px; color:var(--cyan); }
+
+/* ── Code blocks ── */
+.code-wrap { position:relative; margin:0.75rem 0 1.25rem; }
+.code-wrap pre { font-family:var(--mono); font-size:0.78rem; line-height:1.7; background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; overflow-x:auto; color:var(--fg2); white-space:pre-wrap; word-break:break-all; }
+.code-wrap .lang { position:absolute; top:0.5rem; left:0.9rem; font-family:var(--mono); font-size:0.55rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--fg3); }
+.copy-btn { position:absolute; top:0.45rem; right:0.55rem; font-family:var(--mono); font-size:0.62rem; font-weight:500; padding:0.25em 0.6em; border:1px solid var(--line2); border-radius:6px; background:var(--bg3); color:var(--fg3); cursor:pointer; transition:all 0.2s; }
+.copy-btn:hover { color:var(--fg); border-color:var(--fg3); background:var(--bg4); }
+.copy-btn.copied { color:var(--green); border-color:var(--green-dim); }
+
+/* ── JSON response ── */
+.json-block pre { border-left:3px solid var(--green-dim); }
+
+/* ── Tables ── */
+table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem; }
+thead th { text-align:left; font-family:var(--mono); font-weight:600; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--fg3); padding:0.6rem 0.75rem; border-bottom:2px solid var(--line2); background:var(--bg2); }
+tbody td { padding:0.5rem 0.75rem; border-bottom:1px solid var(--line); color:var(--fg2); vertical-align:top; }
+tbody td a { color:var(--accent2); }
+tbody tr:hover { background:var(--accent-bg); }
+
+/* ── Cards ── */
+.card { background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1.2rem 1.4rem; margin:1rem 0; }
+.callout { border-left:3px solid; border-radius:0 var(--radius) var(--radius) 0; padding:0.85rem 1rem; margin:1rem 0; font-size:0.85rem; }
+.callout-green { border-color:var(--green-dim); background:var(--green-bg); color:var(--fg2); }
+.callout-amber { border-color:var(--amber); background:var(--amber-bg); color:var(--fg2); }
+.callout-rose { border-color:var(--rose); background:var(--rose-bg); color:var(--fg2); }
+.callout strong { color:var(--fg); }
+
+/* ── Badges ── */
+.badge { display:inline-block; font-family:var(--mono); font-size:0.62rem; font-weight:600; padding:0.2em 0.55em; border-radius:5px; }
+.badge-green { background:var(--green-bg); color:var(--green); border:1px solid rgba(52,211,153,0.2); }
+.badge-amber { background:var(--amber-bg); color:var(--amber); border:1px solid rgba(251,191,36,0.15); }
+.badge-rose { background:var(--rose-bg); color:var(--rose); border:1px solid rgba(251,113,133,0.15); }
+
+/* ── Architecture diagram ── */
+.arch { font-family:var(--mono); font-size:0.78rem; background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1.5rem 2rem; margin:1rem 0; color:var(--fg2); line-height:2; text-align:center; }
+.arch .node { display:inline-block; background:var(--bg3); border:1px solid var(--line2); border-radius:8px; padding:0.3em 0.8em; margin:0 0.15em; color:var(--fg); font-weight:500; }
+.arch .node.highlight { border-color:var(--accent); color:var(--accent2); background:var(--accent-bg); }
+.arch .arrow { color:var(--fg3); margin:0 0.3em; }
+
+/* ── Collapsible ── */
+details { margin:0.5rem 0; }
+details summary { font-weight:600; font-size:0.9rem; color:var(--fg2); cursor:pointer; padding:0.7rem 1rem; background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); transition:all 0.2s; list-style:none; display:flex; align-items:center; gap:0.5rem; }
+details summary::-webkit-details-marker { display:none; }
+details summary::before { content:'&#9656;'; font-family:var(--mono); font-size:0.7rem; color:var(--fg3); transition:transform 0.2s; }
+details[open] summary::before { transform:rotate(90deg); }
+details summary:hover { background:var(--bg3); border-color:var(--line2); color:var(--fg); }
+details[open] summary { border-radius:var(--radius) var(--radius) 0 0; border-bottom-color:transparent; }
+details .detail-body { background:var(--bg2); border:1px solid var(--line); border-top:none; border-radius:0 0 var(--radius) var(--radius); padding:1rem 1.25rem; }
+details .detail-body p:last-child { margin-bottom:0; }
+
+/* ── Measure cards ── */
+.measure-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin:1rem 0; }
+@media(max-width:700px) { .measure-grid { grid-template-columns:1fr; } }
+.measure-card { background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.15rem; transition:border-color 0.2s; }
+.measure-card:hover { border-color:var(--accent); }
+.measure-card h4 { font-family:var(--mono); font-size:0.75rem; font-weight:600; color:var(--accent2); margin-bottom:0.15rem; }
+.measure-card .desc { font-size:0.78rem; color:var(--fg3); margin-bottom:0.5rem; }
+.measure-card .meta { font-family:var(--mono); font-size:0.68rem; color:var(--fg3); }
+
+/* ── Footer ── */
+.footer { margin-top:4rem; padding-top:1.25rem; border-top:1px solid var(--line); font-size:0.72rem; color:var(--fg3); display:flex; justify-content:space-between; }
+</style>
+</head>
+<body>
+<div class="page">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-tag">Aidbox Integration</div>
+    <div class="brand-name">CQL Engine</div>
+    <div class="brand-ver">cqframework &middot; Kotlin</div>
+  </div>
+  <nav>
+    <div class="nav-group">Getting Started</div>
+    <a href="#quick-start" class="nav-link"><span class="nav-dot green"></span>Quick Start</a>
+    <a href="#verify" class="nav-link"><span class="nav-dot green"></span>Verify Installation</a>
+    <div class="nav-group">Measures</div>
+    <a href="#load-data" class="nav-link"><span class="nav-dot cyan"></span>Load Shared Data</a>
+    <a href="#cms130" class="nav-link"><span class="nav-dot cyan"></span>CMS130</a>
+    <a href="#cms125" class="nav-link"><span class="nav-dot cyan"></span>CMS125</a>
+    <a href="#cms131" class="nav-link"><span class="nav-dot cyan"></span>CMS131</a>
+    <a href="#cms165" class="nav-link"><span class="nav-dot cyan"></span>CMS165</a>
+    <div class="nav-group">Reference</div>
+    <a href="#architecture" class="nav-link"><span class="nav-dot amber"></span>Architecture</a>
+    <a href="#adaptations" class="nav-link"><span class="nav-dot amber"></span>Aidbox Adaptations</a>
+    <a href="#limitations" class="nav-link"><span class="nav-dot rose"></span>Limitations</a>
+  </nav>
+</aside>
+
+<main>
+
+<h1>CQL Engine + Aidbox</h1>
+<p class="subtitle">Evaluate CQL quality measures via <code>Library/$evaluate</code> on Aidbox with cqframework engine. Includes sample data for CMS130, CMS125, CMS131, CMS165.</p>
+
+<table>
+  <thead><tr><th>Component</th><th>Version</th><th>Link</th></tr></thead>
+  <tbody>
+    <tr><td>CQL Engine</td><td><code>org.cqframework 4.5.0</code> (Kotlin Multiplatform)</td><td><a href="https://github.com/cqframework/clinical_quality_language" target="_blank">github.com/cqframework/clinical_quality_language</a></td></tr>
+    <tr><td>HAPI FHIR</td><td><code>8.8.0</code></td><td><a href="https://github.com/hapifhir/hapi-fhir" target="_blank">github.com/hapifhir/hapi-fhir</a></td></tr>
+    <tr><td>Spring Boot</td><td><code>3.4.1</code></td><td><a href="https://spring.io/projects/spring-boot" target="_blank">spring.io/projects/spring-boot</a></td></tr>
+    <tr><td>Aidbox</td><td><code>edge</code></td><td><a href="https://docs.aidbox.app/" target="_blank">docs.aidbox.app</a></td></tr>
+    <tr><td>CQL Specification</td><td><code>HL7</code></td><td><a href="https://build.fhir.org/ig/HL7/cql/" target="_blank">build.fhir.org/ig/HL7/cql</a></td></tr>
+    <tr><td>Library/$evaluate</td><td><code>CQL IG</code></td><td><a href="https://build.fhir.org/ig/HL7/cql-ig/OperationDefinition-cql-library-evaluate.html" target="_blank">build.fhir.org/ig/HL7/cql-ig &mdash; Library/$evaluate</a></td></tr>
+    <tr><td>CQL measures</td><td><code>dqm-content-qicore-2025</code></td><td><a href="https://github.com/cqframework/dqm-content-qicore-2025/tree/master/input/cql" target="_blank">github.com/cqframework/dqm-content-qicore-2025 &mdash; input/cql</a></td></tr>
+    <tr><td>Test data</td><td><code>dqm-content-qicore-2025</code></td><td><a href="https://github.com/cqframework/dqm-content-qicore-2025/tree/master/input/tests" target="_blank">github.com/cqframework/dqm-content-qicore-2025 &mdash; input/tests</a></td></tr>
+    <tr><td>Measure bundles</td><td><code>dqm-content-qicore-2025</code></td><td><a href="https://github.com/cqframework/dqm-content-qicore-2025/tree/master/bundles/measure" target="_blank">github.com/cqframework/dqm-content-qicore-2025 &mdash; bundles/measure</a></td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="quick-start"><span class="step-num">01</span> Quick Start</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p><strong>Prerequisites:</strong> <a href="https://docs.docker.com/get-docker/" target="_blank">Docker</a> with Docker Compose, <a href="https://curl.se/" target="_blank">curl</a>.</p>
+
+<p>Build and start the full stack:</p>
+
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>docker compose up --build</pre>
+</div>
+
+<p>This starts three containers: PostgreSQL, Aidbox (port <code>8888</code>), and the CQL app (port <code>8080</code>).</p>
+
+<h2 id="verify"><span class="step-num">02</span> Verify Installation</h2>
+
+<p><strong>Activate Aidbox</strong> — open <a href="http://localhost:8888" target="_blank">http://localhost:8888</a> and follow the activation prompt.</p>
+
+<p>Create a test patient via <a href="http://localhost:8888/ui/console" target="_blank"><strong>REST Console</strong></a>:</p>
+<div class="code-wrap">
+  <span class="lang">aidbox rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /fhir/Patient
+Content-Type: application/json
+Accept: application/json
+
+{
+  "resourceType": "Patient",
+  "gender": "male",
+  "name": [
+    {
+      "family": "Smith"
+    }
+  ]
+}</pre>
+</div>
+
+<p>Expected: <code>Status: 201</code> with Patient resource in response.</p>
+
+<p>Evaluate <code>example.cql</code>:</p>
+<div class="code-wrap">
+  <span class="lang">aidbox rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Library/example/$evaluate</pre>
+</div>
+
+<p>Expected: <code>Status: 200</code></p>
+<div class="code-wrap json-block">
+  <span class="lang">response</span>
+  <pre>{
+  "resourceType" : "Parameters",
+  "parameters" : [ {
+    "name" : "MalePatients",
+    "valueHumanName" : {
+      "family" : "Smith"
+    }
+  } ]
+}</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Baseline confirmed.</strong> If you see the response above, the CQL engine is running and connected to Aidbox.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="load-data"><span class="step-num">03</span> Load Shared Data</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>Before running CMS measures, load shared CodeSystems and stub resources (Organization + Practitioner).</p>
+
+<p>Open a second terminal (keep the first one running with <code>docker compose</code>):</p>
+<p>Navigate to the same directory where you ran <code>docker compose up</code>.</p>
+
+<p>Load CodeSystems:</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/codesystems-bundle.json</pre>
+</div>
+
+<p>Create stub resources via <a href="http://localhost:8888/ui/console" target="_blank"><strong>REST Console</strong></a> (test data references these):</p>
+<div class="code-wrap">
+  <span class="lang">aidbox rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /fhir
+Content-Type: application/json
+
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "example",
+        "name": "Example Organization"
+      },
+      "request": { "method": "PUT", "url": "Organization/example" }
+    },
+    {
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "example",
+        "name": [{ "family": "Example", "given": ["Practitioner"] }]
+      },
+      "request": { "method": "PUT", "url": "Practitioner/example" }
+    }
+  ]
+}</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="cms130"><span class="step-num">04</span> CMS130 &mdash; Colorectal Cancer Screening</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p><span class="badge badge-green">64 patients</span> <span class="badge badge-green">31 ValueSets</span></p>
+
+<p>Load data (run from the project directory):</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms130-valuesets.json
+
+curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms130-clinical-data.json</pre>
+</div>
+
+<p>Evaluate via <strong>REST Console</strong>:</p>
+<div class="code-wrap">
+  <span class="lang">aidbox rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Library/CMS130FHIRColorectalCancerScrn/$evaluate?patientId=007ec5f1-08cf-474a-a472-f6a92cca4b79</pre>
+</div>
+
+<div class="code-wrap json-block">
+  <span class="lang">response</span>
+  <pre>Initial Population:      true
+Denominator:             true
+Denominator Exclusions:  true
+Numerator:               false</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="cms125"><span class="step-num">05</span> CMS125 &mdash; Breast Cancer Screening</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p><span class="badge badge-green">66 patients</span> <span class="badge badge-green">32 ValueSets</span></p>
+
+<p>Load data:</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms125-valuesets.json
+
+curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms125-clinical-data.json</pre>
+</div>
+
+<p>Evaluate via <strong>REST Console</strong>:</p>
+<div class="code-wrap">
+  <span class="lang">aidbox rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Library/CMS125FHIRBreastCancerScreen/$evaluate?patientId=01c88972-84e2-4594-835b-924481b9990a</pre>
+</div>
+
+<div class="code-wrap json-block">
+  <span class="lang">response</span>
+  <pre>Initial Population:      true
+Denominator:             true
+Denominator Exclusions:  true
+Numerator:               false</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="cms131"><span class="step-num">06</span> CMS131 &mdash; Diabetes Eye Exam</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p><span class="badge badge-green">63 patients</span> <span class="badge badge-green">29 ValueSets</span></p>
+
+<p>Load data:</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms131-valuesets.json
+
+curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms131-clinical-data.json</pre>
+</div>
+
+<p>Evaluate via <strong>REST Console</strong>:</p>
+<div class="code-wrap">
+  <span class="lang">aidbox rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Library/CMS131FHIRDiabetesEyeExam/$evaluate?patientId=89073685-3807-41f5-bc32-2cf44c1b8227</pre>
+</div>
+
+<div class="code-wrap json-block">
+  <span class="lang">response</span>
+  <pre>Initial Population:      true
+Denominator:             true
+Denominator Exclusions:  false
+Numerator:               false</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="cms165"><span class="step-num">07</span> CMS165 &mdash; Controlling High Blood Pressure</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p><span class="badge badge-green">68 patients</span> <span class="badge badge-green">33 ValueSets</span></p>
+
+<p>Load data:</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms165-valuesets.json
+
+curl -u root:secret -X POST http://localhost:8888/fhir \
+  -H "Content-Type: application/json" -d @data/cms165-clinical-data.json</pre>
+</div>
+
+<p>Evaluate via <strong>REST Console</strong>:</p>
+<div class="code-wrap">
+  <span class="lang">aidbox rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Library/CMS165FHIRControllingHighBP/$evaluate?patientId=45e01fed-56bb-483d-a860-af3d566bda11</pre>
+</div>
+
+<div class="code-wrap json-block">
+  <span class="lang">response</span>
+  <pre>Initial Population:      true
+Denominator:             true
+Denominator Exclusions:  true
+Numerator:               false</pre>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="results" style="border-bottom:none; margin-bottom:0;">Results Summary</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<div class="measure-grid">
+  <div class="measure-card"><h4>CMS130</h4><div class="desc">Colorectal Cancer Screening</div><div class="meta">64 patients &middot; 31 VS &middot; <span style="color:var(--green)">&#10003; OK</span></div></div>
+  <div class="measure-card"><h4>CMS125</h4><div class="desc">Breast Cancer Screening</div><div class="meta">66 patients &middot; 32 VS &middot; <span style="color:var(--green)">&#10003; OK</span></div></div>
+  <div class="measure-card"><h4>CMS131</h4><div class="desc">Diabetes Eye Exam</div><div class="meta">63 patients &middot; 29 VS &middot; <span style="color:var(--green)">&#10003; OK</span></div></div>
+  <div class="measure-card"><h4>CMS165</h4><div class="desc">Controlling High Blood Pressure</div><div class="meta">68 patients &middot; 33 VS &middot; <span style="color:var(--green)">&#10003; OK</span></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="architecture"><span class="step-num">&#9881;</span> Architecture</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<div class="arch">
+  <span class="node">Client</span>
+  <span class="arrow">&rarr;</span>
+  <span class="node">Aidbox</span>
+  <span class="arrow">&rarr;</span>
+  <span class="node highlight">Spring Boot + CQL Engine</span>
+  <span class="arrow">&rarr;</span>
+  <span class="node">FHIR Data</span>
+  <br>
+  <span style="font-size:0.68rem;color:var(--fg3);">POST /Library/{name}/$evaluate &nbsp;&rarr;&nbsp; custom operation routing &nbsp;&rarr;&nbsp; cqframework evaluate &nbsp;&rarr;&nbsp; FHIR Parameters response</span>
+</div>
+
+<h3>dqm-content-qicore-2025 data structure</h3>
+
+<p>The <a href="https://github.com/cqframework/dqm-content-qicore-2025" target="_blank">dqm-content-qicore-2025</a> repository is the canonical source for CQL measures and test data. It contains:</p>
+
+<table>
+  <thead><tr><th>Path</th><th>Contents</th></tr></thead>
+  <tbody>
+    <tr><td><code>input/cql/</code></td><td>91 standalone <code>.cql</code> files &mdash; all measures + shared libraries (FHIRHelpers, Hospice, Status, etc.)</td></tr>
+    <tr><td><code>input/tests/measure/{MeasureName}/</code></td><td>Test data: one folder per patient, each containing individual FHIR resources as separate JSON files + a <code>MeasureReport</code> with the expected result (ip, den, exc, num)</td></tr>
+    <tr><td><code>bundles/measure/{MeasureName}/</code></td><td>Pre-built transaction bundles combining everything: Library (with embedded CQL+ELM), Measure, ValueSets, all test patients, and expected MeasureReports</td></tr>
+  </tbody>
+</table>
+
+<p>The <code>data/</code> directory in this example contains bundles assembled from the same source with Aidbox-specific fixes applied (see <a href="#adaptations">Aidbox Adaptations</a>).</p>
+
+<h3>Adding your own CQL library</h3>
+<ol>
+  <li>Place <code>.cql</code> file in <code>src/main/resources/</code></li>
+  <li>Rebuild: <code>docker compose build cql-app && docker compose up -d cql-app</code></li>
+  <li>Evaluate: <code>POST /Library/{library-name}/$evaluate</code></li>
+</ol>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="adaptations"><span class="step-num">&#9888;</span> Aidbox-Specific Adaptations</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>These adaptations bridge differences between Aidbox and HAPI FHIR Server (the reference test environment for cqframework):</p>
+
+<table>
+  <thead><tr><th>Adaptation</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><code>FullExpandTerminologyWrapper</code></td><td>Aidbox <code>$expand</code> may return incomplete results without explicit <code>count</code> parameter. Wrapper adds <code>count=10000</code>. HAPI FHIR returns all codes by default.</td></tr>
+    <tr><td><code>maxCodesPerQuery=64</code></td><td>Large ValueSets cause HTTP 414 (URI Too Long) when codes are inlined in FHIR search URLs.</td></tr>
+    <tr><td>QICore data provider</td><td>CMS measures use QICore profiles. Engine looks up data by model URI &mdash; without registering <code>http://hl7.org/fhir/us/qicore</code>, it silently returns no data.</td></tr>
+    <tr><td>kotlinx-io bridge</td><td>CQL engine 4.x (Kotlin) uses <code>kotlinx.io.Source</code> instead of <code>java.io.InputStream</code> for loading CQL files. Bridge code converts between the two.</td></tr>
+    <tr><td><code>buildResponse()</code></td><td>CQL engine returns Java objects. This method serializes them into a FHIR Parameters JSON response.</td></tr>
+    <tr><td><code>BOX_FHIR_TERMINOLOGY_ENGINE: hybrid</code></td><td>Aidbox requires explicit terminology engine configuration for <code>$expand</code> to work at all.</td></tr>
+    <tr><td>Stub <code>Organization/example</code> + <code>Practitioner/example</code></td><td>Test data Coverage and MedicationRequest resources reference these. Create both before loading clinical data.</td></tr>
+    <tr><td>ValueSet <code>description</code> + <code>valueDate</code> fix</td><td>Aidbox requires <code>description</code> (FHIR says optional) and rejects <code>valueDate</code> extensions.</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="limitations"><span class="step-num">&#9888;</span> Known Limitations</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<div class="callout callout-rose">
+  <strong>ToConcept(Quantity) bug</strong> &mdash; measures using <code>USCoreBMIProfile</code> fail with <code>Could not resolve call to operator 'ToConcept'</code>. Upstream cqframework issue #564, present in both 3.x and 4.x.
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="shutdown"><span class="step-num">&#9632;</span> Shutdown</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>Run from the second terminal, from the same project directory where you ran <code>docker compose up</code>. Stop all containers (data preserved in Docker volume):</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>docker compose down</pre>
+</div>
+
+<p>Or stop and <strong>delete all data</strong> (clean slate for next run):</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>docker compose down -v</pre>
+</div>
+
+<div class="footer">
+  <span>CQL Engine + Aidbox &mdash; Setup Guide</span>
+  <span>2026-04-03</span>
+</div>
+
+</main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.parentElement.querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('h2[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const target = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (target) target.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "type": "batch",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/App/com.cql.app.example"
+      },
+      "resource": {
+        "type": "app",
+        "endpoint": {
+          "url": "http://cql-app:8080",
+          "type": "http-rpc",
+          "secret": "mysecret"
+        },
+        "apiVersion": 1,
+        "operations": {
+          "cql-library-evaluate": {
+            "path": [
+              "Library",
+              { "name": "libraryName" },
+              "$evaluate"
+            ],
+            "method": "POST"
+          }
+        },
+        "resourceType": "App"
+      }
+    }
+  ]
+}
