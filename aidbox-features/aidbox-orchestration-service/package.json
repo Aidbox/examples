@@ -1,0 +1,19 @@
+{
+  "name": "aidbox-orchestration-service",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "generate-types": "bun run scripts/generate-types.ts"
+  },
+  "devDependencies": {
+    "@atomic-ehr/codegen": "^0.0.7",
+    "@types/bun": "latest",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "@health-samurai/aidbox-client": "^0.0.0-alpha.4"
+  }
+}

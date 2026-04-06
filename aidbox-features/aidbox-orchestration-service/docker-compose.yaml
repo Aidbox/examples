@@ -1,0 +1,201 @@
+volumes:
+  aidbox_data: {}
+  general_practice_data: {}
+  hospital_data: {}
+
+services:
+  # ============ Main FHIR Server (storage + ConceptMap) ============
+
+  fhir_server_db:
+    image: docker.io/library/postgres:18
+    volumes:
+      - aidbox_data:/var/lib/postgresql/18/docker:delegated
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: aidbox_secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aidbox"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  fhir_server:
+    image: docker.io/healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      fhir_server_db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      BOX_ADMIN_PASSWORD: admin
+      BOX_ROOT_CLIENT_SECRET: secret
+      BOX_DB_HOST: fhir_server_db
+      BOX_DB_PORT: "5432"
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_USER: aidbox
+      BOX_DB_PASSWORD: aidbox_secret
+      BOX_WEB_BASE_URL: http://fhir_server:8080
+      BOX_WEB_PORT: 8080
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_FHIR_COMPLIANT_MODE: "true"
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: "true"
+      BOX_FHIR_SCHEMA_VALIDATION: "true"
+      BOX_FHIR_SEARCH_COMPARISONS: "true"
+      BOX_SECURITY_DEV_MODE: "true"
+      BOX_SETTINGS_MODE: read-write
+      BOX_INIT_BUNDLE: file:///aidbox-config/init.json
+    volumes:
+      - ./aidbox-config:/aidbox-config:cached
+    healthcheck:
+      test: curl -f http://localhost:8080/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 90
+      start_period: 30s
+
+  # ============ General Practice (SMART Backend Services) ============
+
+  general_practice_db:
+    image: docker.io/library/postgres:18
+    volumes:
+      - general_practice_data:/var/lib/postgresql/18/docker:delegated
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: gp_secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aidbox"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  general_practice:
+    image: docker.io/healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      general_practice_db:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      BOX_ADMIN_PASSWORD: admin
+      BOX_ROOT_CLIENT_SECRET: secret
+      BOX_DB_HOST: general_practice_db
+      BOX_DB_PORT: "5432"
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_USER: aidbox
+      BOX_DB_PASSWORD: gp_secret
+      BOX_WEB_BASE_URL: http://general_practice:8081
+      BOX_WEB_PORT: 8081
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_FHIR_COMPLIANT_MODE: "true"
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: "true"
+      BOX_FHIR_SCHEMA_VALIDATION: "true"
+      BOX_FHIR_SEARCH_COMPARISONS: "true"
+      BOX_SECURITY_DEV_MODE: "true"
+      BOX_SETTINGS_MODE: read-write
+      BOX_INIT_BUNDLE: file:///aidbox-config/init.json
+    volumes:
+      - ./general-practice-config:/aidbox-config:cached
+    healthcheck:
+      test: curl -f http://localhost:8081/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 90
+      start_period: 30s
+
+  # ============ Hospital (Basic Auth) ============
+
+  hospital_db:
+    image: docker.io/library/postgres:18
+    volumes:
+      - hospital_data:/var/lib/postgresql/18/docker:delegated
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: hospital_secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aidbox"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  hospital:
+    image: docker.io/healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      hospital_db:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      BOX_ADMIN_PASSWORD: admin
+      BOX_ROOT_CLIENT_SECRET: secret
+      BOX_DB_HOST: hospital_db
+      BOX_DB_PORT: "5432"
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_USER: aidbox
+      BOX_DB_PASSWORD: hospital_secret
+      BOX_WEB_BASE_URL: http://hospital:8082
+      BOX_WEB_PORT: 8082
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_FHIR_COMPLIANT_MODE: "true"
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: "true"
+      BOX_FHIR_SCHEMA_VALIDATION: "true"
+      BOX_FHIR_SEARCH_COMPARISONS: "true"
+      BOX_SECURITY_DEV_MODE: "true"
+      BOX_SETTINGS_MODE: read-write
+      BOX_INIT_BUNDLE: file:///aidbox-config/init.json
+    volumes:
+      - ./hospital-config:/aidbox-config:cached
+    healthcheck:
+      test: curl -f http://localhost:8082/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 90
+      start_period: 30s
+
+  # ============ Orchestration Service ============
+
+  orchestration:
+    build: .
+    depends_on:
+      fhir_server:
+        condition: service_healthy
+      general_practice:
+        condition: service_healthy
+      hospital:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      FHIR_SERVER_URL: http://fhir_server:8080
+      GENERAL_PRACTICE_URL: http://general_practice:8081
+      HOSPITAL_URL: http://hospital:8082
+      SMART_PRIVATE_KEY: ${SMART_PRIVATE_KEY}
+      SMART_KEY_ID: ${SMART_KEY_ID:-test-key-001}
+      SMART_CLIENT_ID: ${SMART_CLIENT_ID:-orchestration-service}
+    healthcheck:
+      test: curl -f http://127.0.0.1:3000/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s

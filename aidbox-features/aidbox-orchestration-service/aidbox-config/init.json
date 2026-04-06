@@ -1,0 +1,38 @@
+{
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "ConceptMap",
+        "id": "allergy-loinc-to-snomed",
+        "url": "http://example.org/ConceptMap/allergy-loinc-to-snomed",
+        "name": "AllergyLoincToSnomed",
+        "title": "Allergy LOINC to SNOMED CT Mapping",
+        "status": "active",
+        "description": "Maps LOINC answer codes to SNOMED CT for NHS deduplication",
+        "sourceUri": "http://loinc.org",
+        "targetUri": "http://snomed.info/sct",
+        "group": [
+          {
+            "source": "http://loinc.org",
+            "target": "http://snomed.info/sct",
+            "element": [
+              {
+                "code": "LA30099-6",
+                "display": "Penicillin allergy",
+                "target": [
+                  {
+                    "code": "91936005",
+                    "display": "Allergy to penicillin",
+                    "equivalence": "equivalent"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "request": {"method": "POST", "url": "/ConceptMap"}
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Client",
+        "id": "orchestration-service",
+        "type": "bulk-api-client",
+        "active": true,
+        "auth": {
+          "client_credentials": {
+            "client_assertion_types": ["urn:ietf:params:oauth:client-assertion-type:jwt-bearer"],
+            "access_token_expiration": 300
+          }
+        },
+        "scope": ["system/*.read", "system/*.write"],
+        "grant_types": ["client_credentials"],
+        "jwks": [
+          {
+            "kty": "RSA",
+            "n": "vhH2HBgg0xkYfGrcgXDED-XobRN279OlWkAi5Prg1dPgj47C8TvuV0YgFDoPXmthrn8O9gyzaVHd9HaO3edImqpg3wv4sQstFF09FB4x0DX6lIs4SWNfwFY-B2sbmxpKSvxVXiM6QRBvC67g6hgmX5T5IwzGFU3m-hpOGZ50iyCVmROmQsFrxU_XxSPsdrH_yYacj07KJoTzeuqo2v_zFY88NB0cuDW-kjoaaxmyueX4SpHt6M_IVtmPdJ6wRJ_x1AnalfSEL2gHiiCxE8ZhGWJ54tPvSK3n4A-AMiHxUeCgjX6jxuyssSbwtaO8K3f8rlwss9N_rGY1l4ug1zO5sQ",
+            "e": "AQAB",
+            "kid": "test-key-001",
+            "alg": "RS384",
+            "use": "sig"
+          }
+        ]
+      },
+      "request": {"method": "PUT", "url": "/Client/orchestration-service"}
+    },
+    {
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "orchestration-service-policy",
+        "engine": "allow",
+        "link": [
+          {"resourceType": "Client", "id": "orchestration-service"}
+        ]
+      },
+      "request": {"method": "PUT", "url": "/AccessPolicy/orchestration-service-policy"}
+    },
+    {
+      "resource": {
+        "resourceType": "Bundle",
+        "id": "test-bundle",
+        "meta": {
+          "profile": ["https://fhir.hl7.org.uk/StructureDefinition/UKCore-Bundle"]
+        },
+        "type": "collection",
+        "entry": [
+          {
+            "resource": {
+              "resourceType": "Patient",
+              "id": "patient-smart-1",
+              "meta": {
+                "profile": ["https://fhir.hl7.org.uk/StructureDefinition/UKCore-Patient"]
+              },
+              "identifier": [
+                {
+                  "system": "https://fhir.nhs.uk/Id/nhs-number",
+                  "value": "9876543210",
+                  "extension": [
+                    {
+                      "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSNumberVerificationStatus",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "https://fhir.hl7.org.uk/CodeSystem/UKCore-NHSNumberVerificationStatusEngland",
+                            "code": "01",
+                            "display": "Number present and verified"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "name": [
+                {"use": "official", "family": "Smith", "given": ["John", "William"]}
+              ],
+              "gender": "male",
+              "birthDate": "1990-05-15",
+              "address": [
+                {
+                  "use": "home",
+                  "line": ["123 High Street"],
+                  "city": "Leeds",
+                  "postalCode": "LS1 1AA"
+                }
+              ],
+              "telecom": [
+                {"system": "phone", "value": "07700900123", "use": "mobile"}
+              ]
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "AllergyIntolerance",
+              "id": "allergy-gp-penicillin",
+              "meta": {
+                "profile": ["https://fhir.hl7.org.uk/StructureDefinition/UKCore-AllergyIntolerance"]
+              },
+              "clinicalStatus": {
+                "coding": [
+                  {"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}
+                ]
+              },
+              "verificationStatus": {
+                "coding": [
+                  {"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "code": "confirmed"}
+                ]
+              },
+              "category": ["medication"],
+              "criticality": "high",
+              "code": {
+                "coding": [
+                  {"system": "http://snomed.info/sct", "code": "91936005", "display": "Allergy to penicillin"}
+                ]
+              },
+              "patient": {"reference": "Patient/patient-smart-1"},
+              "recordedDate": "2023-01-15",
+              "reaction": [
+                {
+                  "manifestation": [
+                    {
+                      "coding": [
+                        {"system": "http://snomed.info/sct", "code": "271807003", "display": "Eruption of skin"}
+                      ]
+                    }
+                  ],
+                  "severity": "moderate"
+                }
+              ]
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "Observation",
+              "id": "obs-gp-hba1c",
+              "meta": {
+                "profile": ["https://fhir.hl7.org.uk/StructureDefinition/UKCore-Observation"]
+              },
+              "status": "final",
+              "code": {
+                "coding": [
+                  {"system": "http://loinc.org", "code": "4548-4", "display": "Hemoglobin A1c/Hemoglobin.total in Blood"}
+                ]
+              },
+              "subject": {"reference": "Patient/patient-smart-1"},
+              "effectiveDateTime": "2024-01-15T10:00:00Z",
+              "valueQuantity": {
+                "value": 7.2,
+                "unit": "%",
+                "system": "http://unitsofmeasure.org",
+                "code": "%"
+              },
+              "interpretation": [
+                {
+                  "coding": [
+                    {"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "H", "display": "High"}
+                  ]
+                }
+              ],
+              "referenceRange": [
+                {"high": {"value": 5.7, "unit": "%"}, "text": "Normal: <5.7%"}
+              ]
+            }
+          },
+          {
+            "resource": {
+              "resourceType": "Encounter",
+              "id": "encounter-smart-1",
+              "meta": {
+                "profile": ["https://fhir.hl7.org.uk/StructureDefinition/UKCore-Encounter"]
+              },
+              "identifier": [
+                {"system": "https://fhir.nhs.uk/Id/encounter", "value": "ENC-SMART-001"}
+              ],
+              "status": "finished",
+              "class": {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                "code": "AMB",
+                "display": "ambulatory"
+              },
+              "subject": {"reference": "Patient/patient-smart-1"},
+              "period": {
+                "start": "2024-01-15T10:00:00Z",
+                "end": "2024-01-15T11:00:00Z"
+              }
+            }
+          }
+        ]
+      },
+      "request": {"method": "PUT", "url": "/Bundle/test-bundle"}
+    }
+  ]
+}
