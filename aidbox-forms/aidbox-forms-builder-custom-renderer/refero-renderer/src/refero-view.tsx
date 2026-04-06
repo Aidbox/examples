@@ -1,16 +1,23 @@
 import React from "react";
+import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import { Refero } from "@helsenorge/refero";
-import { store, type RootState } from "./store";
+import { Refero, rootReducer } from "@helsenorge/refero";
 import { referoResources } from "./refero-resources";
 
 const RESPONSE_DEBOUNCE_MS = 50;
+
+function createReferoStore() {
+  return configureStore({ reducer: rootReducer });
+}
+
+type ReferoStore = ReturnType<typeof createReferoStore>;
+type RootState = ReturnType<ReferoStore["getState"]>;
 
 function getCurrentQuestionnaireResponse(state: RootState) {
   return state.refero?.form?.FormData?.Content ?? null;
 }
 
-function useReferoResponse() {
+function useReferoResponse(store: ReferoStore) {
   return React.useSyncExternalStore(
     store.subscribe,
     () => getCurrentQuestionnaireResponse(store.getState() as RootState),
@@ -24,12 +31,13 @@ type ReferoViewProps = {
   onResponseChange: (response: fhir4.QuestionnaireResponse) => void;
 };
 
-export const ReferoView = ({
+const ReferoSession = ({
   questionnaire,
   questionnaireResponse,
   onResponseChange,
 }: ReferoViewProps) => {
-  const response = useReferoResponse();
+  const [store] = React.useState(createReferoStore);
+  const response = useReferoResponse(store);
   const debounceRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
@@ -77,4 +85,13 @@ export const ReferoView = ({
       />
     </Provider>
   );
+};
+
+export const ReferoView = (props: ReferoViewProps) => {
+  const questionnaireKey = React.useMemo(
+    () => JSON.stringify(props.questionnaire),
+    [props.questionnaire]
+  );
+
+  return <ReferoSession key={questionnaireKey} {...props} />;
 };
