@@ -1,0 +1,48 @@
+volumes:
+  pg_data: {}
+services:
+  db:
+    image: healthsamurai/aidboxdb:17
+    volumes:
+      - pg_data:/var/lib/postgresql/data:delegated
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: M3ya7uZxdJ
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    depends_on:
+      - db
+    ports:
+      - 8888:8888
+    volumes:
+      - ./init.json:/tmp/init.json
+    environment:
+      BOX_FHIR_TERMINOLOGY_ENGINE: hybrid
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
+      BOX_FHIR_TERMINOLOGY_ENGINE_HYBRID_EXTERNAL_TX_SERVER: https://tx.health-samurai.io/fhir
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      AIDBOX_FHIR_SCHEMA_VALIDATION: true
+      AIDBOX_CLIENT_SECRET: secret
+      AIDBOX_ADMIN_PASSWORD: cwSgexVsRb
+      AIDBOX_COMPLIANCE: enabled
+      BOX_SEARCH_FHIR__COMPARISONS: true
+      PGHOST: db
+      PGUSER: aidbox
+      PGDATABASE: aidbox
+      PGPASSWORD: M3ya7uZxdJ
+      PGPORT: "5432"
+      AIDBOX_PORT: 8888
+      BOX_INIT_BUNDLE: file:///tmp/init.json
+      BOX_WEB_BASE_URL: http://aidbox:8888
+  cql-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      AIDBOX_URL: http://aidbox:8888/fhir
+    depends_on:
+      - aidbox
