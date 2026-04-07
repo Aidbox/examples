@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-06T10:21:15.602269Z",
+  "timestamp": "2026-04-07T10:44:34.806771Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -411,6 +411,24 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/fhir-analytics",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/fhir-analytics/README.md"
+    },
+    {
+      "id": "aidbox-features-aidbox-orchestration-service",
+      "title": "FHIR Orchestration Service",
+      "description": "Implements [`$getstructuredrecord`](https://simplifier.net/guide/gpconnect-data-model/Home/FHIR-Assets/All-assets/OperationDefinitions/OperationDefinition-GPConnect-GetStructuredRecord-Operation-1?version=current) operation that fetches patient data from multiple FHIR sources, deduplicates resources using terminology translation, and returns a merged Bundle with Provenance tracking.",
+      "features": [
+        "FHIR Orchestration",
+        "FHIR Facade",
+        "Deduplication",
+        "ConceptMap",
+        "Provenance",
+        "SMART on FHIR"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aidbox-orchestration-service",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aidbox-orchestration-service/README.md"
     },
     {
       "id": "aidbox-integrations-r5-subscriptions",
@@ -838,6 +856,7 @@
     "Clickhouse",
     "Clinical decision support",
     "Comparison",
+    "ConceptMap",
     "Configuration",
     "Connection pooling",
     "Controlled",
@@ -850,6 +869,7 @@
     "Data deletion",
     "Data visualization",
     "Database",
+    "Deduplication",
     "Docker",
     "EHR integration",
     "EHR launch",
@@ -862,6 +882,7 @@
     "FHIR Dashboard",
     "FHIR Facade",
     "FHIR IG",
+    "FHIR Orchestration",
     "FHIR R5",
     "FHIR SDC",
     "FHIR Search",
@@ -917,6 +938,7 @@
     "Practitioner app",
     "Presigned URLs",
     "Prometheus",
+    "Provenance",
     "Proxy",
     "Purge operation",
     "Quality measures",

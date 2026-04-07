@@ -1,0 +1,14 @@
+export { ExtensionUKCoreAddressKeyProfile } from "./Extension_ExtensionUKCoreAddressKey";
+export { ExtensionUKCoreAllergyIntoleranceEndProfile } from "./Extension_ExtensionUKCoreAllergyIntoleranceEnd";
+export { ExtensionUKCoreBirthSexProfile } from "./Extension_ExtensionUKCoreBirthSex";
+export { ExtensionUKCoreContactPreferenceProfile } from "./Extension_ExtensionUKCoreContactPreference";
+export { ExtensionUKCoreContactRankProfile } from "./Extension_ExtensionUKCoreContactRank";
+export { ExtensionUKCoreCopyCorrespondenceIndicatorProfile } from "./Extension_ExtensionUKCoreCopyCorrespondenceIndicator";
+export { ExtensionUKCoreDeathNotificationStatusProfile } from "./Extension_ExtensionUKCoreDeathNotificationStatus";
+export { ExtensionUKCoreEthnicCategoryProfile } from "./Extension_ExtensionUKCoreEthnicCategory";
+export { ExtensionUKCoreEvidenceProfile } from "./Extension_ExtensionUKCoreEvidence";
+export { ExtensionUKCoreNHSNumberUnavailableReasonProfile } from "./Extension_ExtensionUKCoreNHSNumberUnavailableReason";
+export { ExtensionUKCoreOtherContactSystemProfile } from "./Extension_ExtensionUKCoreOtherContactSystem";
+export { ExtensionUKCoreResidentialStatusProfile } from "./Extension_ExtensionUKCoreResidentialStatus";
+export { UKCoreAllergyIntoleranceProfile } from "./AllergyIntolerance_UKCoreAllergyIntolerance";
+export { UKCorePatientProfile } from "./Patient_UKCorePatient";
