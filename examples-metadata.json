@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-07T11:25:24.384487Z",
+  "timestamp": "2026-04-08T13:22:12.034360Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -176,23 +176,6 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-flutter-web/README.md"
     },
     {
-      "id": "aidbox-forms-aidbox-forms-two-renderers-angular",
-      "title": "aidbox-forms-renderer-angular",
-      "description": "Example of integration multiple instances Aidbox Forms Renderer on the same page with Angular.js",
-      "features": [
-        "Forms renderer",
-        "Multiple renderers",
-        "Questionnaire",
-        "Angular",
-        "Comparison"
-      ],
-      "languages": [
-        "HTML"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-two-renderers-angular",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-two-renderers-angular/README.md"
-    },
-    {
       "id": "aidbox-forms-aidbox-forms-renderer-angular",
       "title": "aidbox-forms-renderer-angular",
       "description": "Example of integration Aidbox Forms Renderer with Angular.js",
@@ -208,6 +191,23 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-angular",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-angular/README.md"
+    },
+    {
+      "id": "aidbox-forms-aidbox-forms-two-renderers-angular",
+      "title": "aidbox-forms-renderer-angular",
+      "description": "Example of integration multiple instances Aidbox Forms Renderer on the same page with Angular.js",
+      "features": [
+        "Forms renderer",
+        "Multiple renderers",
+        "Questionnaire",
+        "Angular",
+        "Comparison"
+      ],
+      "languages": [
+        "HTML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-two-renderers-angular",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-two-renderers-angular/README.md"
     },
     {
       "id": "aidbox-forms-aidbox-forms-renderer-angular-controlled",
@@ -515,21 +515,6 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/grafana-dashboard/README.md"
     },
     {
-      "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
-      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
-      "features": [
-        "IPS",
-        "Subscriptions",
-        "International Patient Summary"
-      ],
-      "languages": [
-        "TypeScript"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
-    },
-    {
       "id": "aidbox-custom-operations-ips-subscriptions",
       "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
       "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
@@ -543,23 +528,6 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
-    },
-    {
-      "id": "aidbox-custom-operations-ips-ig-cl",
-      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.",
-      "features": [
-        "IPS",
-        "Chile localization",
-        "FHIR IG",
-        "International Patient Summary",
-        "Narrative generation"
-      ],
-      "languages": [
-        "TypeScript"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig-cl",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig-cl/README.md"
     },
     {
       "id": "aidbox-custom-operations-ips-ig",
@@ -577,6 +545,38 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
+      "features": [
+        "IPS",
+        "Subscriptions",
+        "International Patient Summary"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-ig-cl",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.",
+      "features": [
+        "IPS",
+        "Chile localization",
+        "FHIR IG",
+        "International Patient Summary",
+        "Narrative generation"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig-cl",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig-cl/README.md"
     },
     {
       "id": "aidbox-features-init-bundle-env-template",
