@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-08T13:22:12.034360Z",
+  "timestamp": "2026-04-14T10:24:55.036333Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -36,25 +36,6 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/developer-experience/agentic-coding-ig-development",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/developer-experience/agentic-coding-ig-development/README.md"
-    },
-    {
-      "id": "aidbox-custom-operations-cql-engine",
-      "title": "Aidbox CQL Integration with Spring Boot",
-      "description": "This Spring Boot application integrates the [cqframework CQL engine](https://github.com/cqframework/clinical_quality_language) with Aidbox and implements the [Library/$evaluate](https://build.fhir.org/ig/HL7/cql-ig/OperationDefinition-cql-library-evaluate.html) operation.",
-      "features": [
-        "CQL",
-        "Custom operations",
-        "Spring Boot",
-        "FHIR operations",
-        "Clinical decision support",
-        "Quality measures"
-      ],
-      "languages": [
-        "Java",
-        "Kotlin"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/cql-engine",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/cql-engine/README.md"
     },
     {
       "id": "aidbox-custom-operations-cql-java-engine-integration",
@@ -342,6 +323,25 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/aidbox-canonical-mapping",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/aidbox-canonical-mapping/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-cql-engine",
+      "title": "CQL Library/$evaluate on Aidbox — cqframework 4.5.0 (Kotlin)",
+      "description": "Spring Boot application implementing FHIR [Library/$evaluate](https://build.fhir.org/ig/HL7/cql-ig/OperationDefinition-cql-library-evaluate.html) via [cqframework](https://github.com/cqframework/clinical_quality_language) 4.5.0 — the Kotlin Multiplatform port of the CQL engine. Includes Aidbox docker-compose, 4 pre-loaded CMS measures (CMS130, CMS125, CMS131, CMS165), and sample clinical data for end-to-end testing.",
+      "features": [
+        "CQL",
+        "Custom operations",
+        "Spring Boot",
+        "FHIR operations",
+        "Clinical decision support",
+        "Quality measures"
+      ],
+      "languages": [
+        "Java",
+        "Kotlin"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/cql-engine",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/cql-engine/README.md"
     },
     {
       "id": "aidbox-forms-aidbox-forms-builder-custom-renderer",
