@@ -364,8 +364,11 @@ def build_summary_report(
     den_sum = sum(r["den"] for r in results)
     exc_sum = sum(r["exc"] for r in results)
     num_sum = sum(r["num"] for r in results)
-    eligible = max(den_sum - exc_sum, 1) if den_sum > 0 else 1
-    score = round(num_sum / eligible, 4) if den_sum > 0 else None
+    eligible = den_sum - exc_sum
+    if den_sum == 0 or eligible == 0:
+        score = None
+    else:
+        score = round(num_sum / eligible, 4)
 
     return {
         "resourceType": "MeasureReport",
