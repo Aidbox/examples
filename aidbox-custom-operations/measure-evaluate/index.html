@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Measure/$evaluate via SQL — Aidbox</title>
+<title>Measure/$evaluate-measure via SQL — Aidbox</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -161,7 +161,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 <aside class="sidebar">
   <div class="brand">
     <div class="brand-tag">Aidbox Integration</div>
-    <div class="brand-name">Measure/$evaluate</div>
+    <div class="brand-name">Measure/$evaluate-measure</div>
     <div class="brand-ver">SQL on Aidbox</div>
   </div>
   <nav>
@@ -195,15 +195,15 @@ details .detail-body p:last-child { margin-bottom:0; }
 
 <main>
 
-<h1>Measure/$evaluate via SQL</h1>
-<p class="subtitle">FHIR Measure/$evaluate implemented as native PostgreSQL SQL on Aidbox. No CQL engine required. 12 CMS quality measures, 484 test patients, interactive demo.</p>
+<h1>Measure/$evaluate-measure via SQL</h1>
+<p class="subtitle">FHIR Measure/$evaluate-measure implemented as native PostgreSQL SQL on Aidbox. No CQL engine required. 12 CMS quality measures, 484 test patients, interactive demo.</p>
 
 <table>
   <thead><tr><th>Component</th><th>Version</th><th>Link</th></tr></thead>
   <tbody>
     <tr><td>Aidbox</td><td><code>edge</code></td><td><a href="https://docs.aidbox.app" target="_blank">docs.aidbox.app</a></td></tr>
     <tr><td>Python / Flask</td><td><code>3.11 / 3.x</code></td><td><a href="https://flask.palletsprojects.com/" target="_blank">flask.palletsprojects.com</a></td></tr>
-    <tr><td>Measure/$evaluate</td><td><code>FHIR R4</code></td><td><a href="https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html" target="_blank">hl7.org/fhir/R4 &mdash; $evaluate-measure</a></td></tr>
+    <tr><td>Measure/$evaluate-measure</td><td><code>FHIR R4</code></td><td><a href="https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html" target="_blank">hl7.org/fhir/R4 &mdash; $evaluate-measure</a></td></tr>
     <tr><td>CQL Specification</td><td><code>HL7</code></td><td><a href="https://build.fhir.org/ig/HL7/cql" target="_blank">build.fhir.org/ig/HL7/cql</a></td></tr>
     <tr><td>CQL measures</td><td><code>dqm-content-qicore-2025</code></td><td><a href="https://github.com/cqframework/dqm-content-qicore-2025/tree/master/input/cql" target="_blank">github.com/cqframework/dqm-content-qicore-2025 &mdash; input/cql</a></td></tr>
     <tr><td>Test data</td><td><code>dqm-content-qicore-2025</code></td><td><a href="https://github.com/cqframework/dqm-content-qicore-2025/tree/master/input/tests" target="_blank">github.com/cqframework/dqm-content-qicore-2025 &mdash; input/tests</a></td></tr>
@@ -264,7 +264,7 @@ details .detail-body p:last-child { margin-bottom:0; }
   <span class="lang">bash</span>
   <button class="copy-btn" onclick="copyCode(this)">copy</button>
   <pre>curl -u root:secret -X POST \
-  'http://localhost:8888/Measure/$evaluate?measure=cms130&subject=Patient/007ec5f1-08cf-474a-a472-f6a92cca4b79&periodStart=2026-01-01&periodEnd=2026-12-31'</pre>
+  'http://localhost:8888/Measure/$evaluate-measure?measure=cms130&subject=Patient/007ec5f1-08cf-474a-a472-f6a92cca4b79&periodStart=2026-01-01&periodEnd=2026-12-31'</pre>
 </div>
 
 <p>Response &mdash; a FHIR MeasureReport with population counts and measure score:</p>
@@ -325,7 +325,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 <div class="code-wrap">
   <span class="lang">rest console</span>
   <button class="copy-btn" onclick="copyCode(this)">copy</button>
-  <pre>POST /Measure/$evaluate?measure=cms130&amp;subject=Patient/007ec5f1-08cf-474a-a472-f6a92cca4b79</pre>
+  <pre>POST /Measure/$evaluate-measure?measure=cms130&amp;subject=Patient/007ec5f1-08cf-474a-a472-f6a92cca4b79</pre>
 </div>
 
 <h3>By canonical URL &mdash; summary (all patients)</h3>
@@ -333,7 +333,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 <div class="code-wrap">
   <span class="lang">rest console</span>
   <button class="copy-btn" onclick="copyCode(this)">copy</button>
-  <pre>POST /Measure/$evaluate?measure=https://madie.cms.gov/Measure/CMS125FHIRBreastCancerScreen</pre>
+  <pre>POST /Measure/$evaluate-measure?measure=https://madie.cms.gov/Measure/CMS125FHIRBreastCancerScreen</pre>
 </div>
 
 <h3>By alias with explicit period</h3>
@@ -341,7 +341,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 <div class="code-wrap">
   <span class="lang">rest console</span>
   <button class="copy-btn" onclick="copyCode(this)">copy</button>
-  <pre>POST /Measure/$evaluate?measure=cms165&amp;subject=Patient/045f7e0b-bfb3-4ee0-a06d-83c853f6a81e&amp;periodStart=2026-01-01&amp;periodEnd=2026-12-31</pre>
+  <pre>POST /Measure/$evaluate-measure?measure=cms165&amp;subject=Patient/045f7e0b-bfb3-4ee0-a06d-83c853f6a81e&amp;periodStart=2026-01-01&amp;periodEnd=2026-12-31</pre>
 </div>
 
 <h3>By FHIR Resource ID &mdash; individual patient</h3>
@@ -349,7 +349,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 <div class="code-wrap">
   <span class="lang">rest console</span>
   <button class="copy-btn" onclick="copyCode(this)">copy</button>
-  <pre>POST /Measure/$evaluate?measure=CMS131FHIRDiabetesEyeExam&amp;subject=Patient/01a1241d-fd97-4c72-b288-fd31c4c7ae80</pre>
+  <pre>POST /Measure/$evaluate-measure?measure=CMS131FHIRDiabetesEyeExam&amp;subject=Patient/01a1241d-fd97-4c72-b288-fd31c4c7ae80</pre>
 </div>
 
 <div class="callout callout-green">
@@ -360,7 +360,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 <h2 id="demo-app"><span class="step-num">06</span> Demo App</h2>
 <!-- ═══════════════════════════════════════════════════════════ -->
 
-<p>Start a local HTTP server from this directory (needed so the demo app can fetch SQL files):</p>
+<p>Start a local HTTP server from this directory:</p>
 
 <div class="code-wrap">
   <span class="lang">bash</span>
@@ -381,7 +381,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 </ul>
 
 <div class="callout callout-amber">
-  <strong>Note.</strong> The demo app uses the Aidbox <code>$sql</code> endpoint directly for fast batch evaluation across all patients. For production integration, use the <code>Measure/$evaluate</code> FHIR API described above.
+  <strong>Note.</strong> The demo app uses the Aidbox <code>$sql</code> endpoint directly for fast batch evaluation across all patients. For production integration, use the <code>Measure/$evaluate-measure</code> FHIR API described above.
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
@@ -441,7 +441,7 @@ details .detail-body p:last-child { margin-bottom:0; }
   <span class="arrow">&rarr;</span>
   <span class="node">MeasureReport</span>
   <br>
-  <span style="font-size:0.68rem;color:var(--fg3);">POST /Measure/$evaluate &nbsp;&rarr;&nbsp; Flask app reads SQL &nbsp;&rarr;&nbsp; executes on PostgreSQL &nbsp;&rarr;&nbsp; builds FHIR MeasureReport</span>
+  <span style="font-size:0.68rem;color:var(--fg3);">POST /Measure/$evaluate-measure &nbsp;&rarr;&nbsp; Flask app reads SQL &nbsp;&rarr;&nbsp; executes on PostgreSQL &nbsp;&rarr;&nbsp; builds FHIR MeasureReport</span>
 </div>
 
 <p>Each measure is a single SQL file (~200&ndash;400 lines) that uses shared flat views and a <code>concepts</code> table for offline terminology matching. No CQL engine, no Java, no external terminology service calls at runtime.</p>
@@ -449,7 +449,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 <h3>How it works</h3>
 
 <ol>
-  <li>Client sends <code>POST /Measure/$evaluate?measure=cms130&amp;subject=Patient/123</code></li>
+  <li>Client sends <code>POST /Measure/$evaluate-measure?measure=cms130&amp;subject=Patient/123</code></li>
   <li>Aidbox routes the custom operation to the Flask app (port <code>8090</code>)</li>
   <li>Flask app reads the measure SQL file, substitutes parameters, executes via Aidbox <code>$sql</code></li>
   <li>SQL query runs over 8 shared flat views (patient, encounter, condition, observation, etc.) and the concepts table</li>
@@ -467,7 +467,7 @@ details .detail-body p:last-child { margin-bottom:0; }
     <tr><td><code>subject</code></td><td><span class="badge badge-green">supported</span></td><td>Patient reference (e.g., <code>Patient/123</code>). Omit for summary report.</td></tr>
     <tr><td><code>periodStart</code></td><td><span class="badge badge-green">supported</span></td><td>Measurement period start. Default: <code>2026-01-01</code>.</td></tr>
     <tr><td><code>periodEnd</code></td><td><span class="badge badge-green">supported</span></td><td>Measurement period end. Default: <code>2026-12-31</code>.</td></tr>
-    <tr><td><code>reportType</code></td><td><span class="badge badge-green">supported</span></td><td><code>individual</code> (default), <code>summary</code>, or <code>subject-list</code>. Inferred from <code>subject</code> if omitted.</td></tr>
+    <tr><td><code>reportType</code></td><td><span class="badge badge-green">supported</span></td><td><code>subject</code> (default when <code>subject</code> is provided), <code>subject-list</code>, or <code>population</code> (default when no <code>subject</code>).</td></tr>
     <tr><td><code>practitioner</code></td><td><span class="badge badge-rose">not supported</span></td><td>Practitioner-scoped evaluation is out of scope for this example.</td></tr>
     <tr><td><code>lastReceivedOn</code></td><td><span class="badge badge-rose">not supported</span></td><td>Incremental reporting is out of scope for this example.</td></tr>
   </tbody>
@@ -493,7 +493,7 @@ details .detail-body p:last-child { margin-bottom:0; }
 </div>
 
 <div class="footer">
-  <span>Measure/$evaluate via SQL &mdash; Aidbox</span>
+  <span>Measure/$evaluate-measure via SQL &mdash; Aidbox</span>
   <span>2026-04-03</span>
 </div>
 

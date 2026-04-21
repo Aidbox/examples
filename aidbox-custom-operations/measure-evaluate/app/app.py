@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-SQL-based Measure/$evaluate — Aidbox custom operation handler.
+SQL-based Measure/\$evaluate-measure — Aidbox custom operation handler.
 
-Receives HTTP-RPC requests from Aidbox for POST /Measure/{measureId}/$evaluate,
+Receives HTTP-RPC requests from Aidbox for POST /Measure/{measureId}/\$evaluate-measure,
 executes the measure SQL via $sql, and returns a FHIR MeasureReport.
 """
 
@@ -213,7 +213,7 @@ def _persist_resource(resource):
 
 
 def measure_evaluate(body, persist=False):
-    """Handle Measure/$evaluate. POST persists the MeasureReport, GET does not."""
+    """Handle Measure/\$evaluate-measure. POST persists the MeasureReport, GET does not."""
     params = body.get('request', {}).get('params', {})
 
     # Resolve measure from query param (type-level invocation per FHIR spec)
@@ -409,7 +409,7 @@ def measure_evaluate(body, persist=False):
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8090))
-    print(f'SQL Measure/$evaluate service starting on port {port}')
+    print(f'SQL Measure/\$evaluate-measure service starting on port {port}')
     print(f'AIDBOX_URL: {AIDBOX_URL}')
     print(f'REPO_ROOT: {REPO_ROOT}')
     print(f'Measures available: {", ".join(sorted(MEASURES.keys()))}')

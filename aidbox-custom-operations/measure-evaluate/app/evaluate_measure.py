@@ -2,7 +2,7 @@
 """
 Evaluate a FHIR Measure via SQL and return a MeasureReport.
 
-Implements Measure/$evaluate semantics: takes measureUrl, subject, period,
+Implements Measure/\$evaluate-measure semantics: takes measureUrl, subject, period,
 runs the measure SQL via Aidbox $sql, and returns a FHIR MeasureReport.
 
 Usage:

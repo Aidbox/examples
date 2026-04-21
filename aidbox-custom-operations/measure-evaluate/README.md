@@ -6,7 +6,7 @@ languages: [Python, SQL]
 
 FHIR R4 [Measure/$evaluate-measure](https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html) implemented as native PostgreSQL SQL on Aidbox. No CQL engine required.
 
-FHIR R4 only: canonical operation name `$evaluate-measure`, `reportType` values `subject | subject-list | population`.
+FHIR R4: canonical operation name `$evaluate-measure`, `reportType` values `subject | subject-list | population`.
 
 Includes 12 CMS quality measures with sample data (484 test patients) and an interactive demo app.
 
@@ -64,7 +64,7 @@ Response: FHIR MeasureReport with population counts (initial-population, denomin
 
 ### 5. Open the demo app
 
-Start a local HTTP server from this directory (needed so the demo app can fetch SQL files — `file://` is blocked by CORS):
+Start a local HTTP server from this directory:
 
 ```bash
 python3 -m http.server 3000
