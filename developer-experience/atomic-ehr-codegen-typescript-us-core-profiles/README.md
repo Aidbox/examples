@@ -57,5 +57,5 @@ curl -u root:secret "http://localhost:8080/fhir/Observation?code=http://loinc.or
 
 - **`Row` is all strings.** The parser doesn't narrow types; each converter (`rowToPatient`, `rowToBP`) casts or converts where needed (`gender as Patient["gender"]`, `Number(row.systolic)`).
 - **Must-support base fields** (`gender`, `birthDate`) are set via `Object.assign(patient.toResource(), ...)` because US Core doesn't profile them further, so the profile class doesn't emit setters for them.
-- **`urn:uuid` reference cast.** The generated `Reference.reference` is template-typed as `` `Patient/${string}` ``. Transaction bundle placeholder references (`urn:uuid:...`) don't match that shape, so there's an inline cast. The server rewrites these to real `Patient/<id>` on commit.
+- **`urn:uuid` references work directly.** The generated `Reference.reference` is typed as a union covering every FHIR literal reference form (`Patient/${id}`, absolute `http://...`, `urn:uuid:...`, `urn:oid:...`, `#fragment`). Transaction Bundle placeholder UUIDs drop right in; the server rewrites them to real `Patient/<id>` on commit.
 - **Generator warnings** are noisy (duplicate schemas, missing fields in upstream packages). They don't block generation; the output is usable.

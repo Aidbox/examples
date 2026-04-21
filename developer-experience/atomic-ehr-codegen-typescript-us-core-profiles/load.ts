@@ -50,12 +50,10 @@ const rowToPatient = (row: Row): USCorePatientProfile => {
   return patient;
 };
 
-const rowToBP = (row: Row, patientRef: string): USCoreBloodPressureProfile => {
+const rowToBP = (row: Row, patientRef: `urn:uuid:${string}`): USCoreBloodPressureProfile => {
   const bp = USCoreBloodPressureProfile.create({
     status: "final",
-    // urn:uuid reference gets resolved to Patient/<id> by the server on transaction commit;
-    // cast here because the generated Reference type narrows to `Patient/${string}`.
-    subject: { reference: patientRef as `Patient/${string}` },
+    subject: { reference: patientRef },
   });
 
   bp
@@ -70,7 +68,7 @@ const rowToBP = (row: Row, patientRef: string): USCoreBloodPressureProfile => {
 };
 
 const rowToEntries = (row: Row): BundleEntry[] => {
-  const patientUrn = `urn:uuid:${randomUUID()}`;
+  const patientUrn: `urn:uuid:${string}` = `urn:uuid:${randomUUID()}`;
   const patient = rowToPatient(row);
   const bp = rowToBP(row, patientUrn);
 
