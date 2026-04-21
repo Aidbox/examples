@@ -1,0 +1,37 @@
+/* ═══════════════════════════════════════════════════════
+   Cool Frost — Light Theme
+   Overrides inline Warm Cream :root with cool blue-gray.
+   Loaded after inline <style>, before dark-theme.css.
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --fg: #0f172a;
+  --fg2: #334155;
+  --fg3: #64748b;
+  --bg: #f8fafc;
+  --bg2: #f1f5f9;
+  --bg3: #e2e8f0;
+  --card: #ffffff;
+  --line: #cbd5e1;
+  --teal: #0f766e;
+  --teal-bg: #e6f5f3;
+  --green: #15803d;
+  --green-bg: #dcfce7;
+  --amber: #b45309;
+  --amber-bg: #fef3c7;
+  --rose: #be123c;
+  --rose-bg: #ffe4e6;
+  --blue: #1d6fa5;
+  --blue-bg: #e0f2fe;
+  --violet: #7c3aed;
+  --violet-bg: #ede9fe;
+  --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 4px 12px rgba(15,23,42,0.04);
+}
+
+/* ── Collapsible sidebar sections ──────────────────── */
+.nav-collapse { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.nav-collapse::after { content: '\25B8'; font-size: 0.5rem; transition: transform 0.15s; }
+.nav-collapse.open::after { transform: rotate(90deg); }
+.nav-count { font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace; font-size: 0.55rem; font-weight: 400; opacity: 0.5; }
+.nav-group { display: none; }
+.nav-group.open { display: block; }

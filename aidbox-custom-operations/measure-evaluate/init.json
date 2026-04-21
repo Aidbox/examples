@@ -1,0 +1,394 @@
+{
+  "type": "batch",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/App/com.sql.evaluate.app"
+      },
+      "resource": {
+        "type": "app",
+        "endpoint": {
+          "url": "http://sql-evaluate-app:8090",
+          "type": "http-rpc",
+          "secret": "mysecret"
+        },
+        "apiVersion": 1,
+        "operations": {
+          "measure-evaluate": {
+            "path": [
+              "Measure",
+              "$evaluate-measure"
+            ],
+            "method": "POST"
+          },
+          "measure-evaluate-get": {
+            "path": [
+              "Measure",
+              "$evaluate-measure"
+            ],
+            "method": "GET"
+          }
+        },
+        "resourceType": "App"
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/ValueSet/2.16.840.1.113883.3.464.1003.1266"
+      },
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.1266-20250109",
+        "meta": {
+          "versionId": "5",
+          "lastUpdated": "2025-01-29T08:19:55.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.1266",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.1266"
+          }
+        ],
+        "version": "20250109",
+        "name": "DiabeticRetinopathySeverityLevel",
+        "title": "Diabetic Retinopathy Severity Level",
+        "status": "active",
+        "date": "2025-01-09T01:02:58-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for Diabetic Retinopathy Severity Level.),(Data Element Scope: This value set may use a model element related to Diabetic Retinopathy Severity Level.),(Inclusion Criteria: Includes concepts that represent severe, mild, moderate or no (non) proliferative retinopathy.),(Exclusion Criteria: none)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://loinc.org",
+              "concept": [
+                {
+                  "code": "LA18643-9",
+                  "display": "No apparent retinopathy"
+                },
+                {
+                  "code": "LA18644-7",
+                  "display": "Mild non-proliferative retinopathy"
+                },
+                {
+                  "code": "LA18645-4",
+                  "display": "Moderate non-proliferative retinopathy"
+                },
+                {
+                  "code": "LA18646-2",
+                  "display": "Severe non-proliferative retinopathy"
+                },
+                {
+                  "code": "LA18648-8",
+                  "display": "Proliferative retinopathy"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:cf75ca19-ff57-4797-b625-6661a2737fef",
+          "timestamp": "2025-08-28T16:55:33-04:00",
+          "total": 5,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "LA18643-9",
+              "display": "No apparent retinopathy"
+            },
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "LA18644-7",
+              "display": "Mild non-proliferative retinopathy"
+            },
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "LA18645-4",
+              "display": "Moderate non-proliferative retinopathy"
+            },
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "LA18646-2",
+              "display": "Severe non-proliferative retinopathy"
+            },
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "LA18648-8",
+              "display": "Proliferative retinopathy"
+            }
+          ]
+        },
+        "description": "Diabetic Retinopathy Severity Level",
+        "experimental": false
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/ValueSet/2.16.840.1.113883.3.464.1004.2616"
+      },
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1004.2616-20250130",
+        "meta": {
+          "versionId": "5",
+          "lastUpdated": "2025-02-04T15:23:56.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1004.2616",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1004.2616"
+          }
+        ],
+        "version": "20250130",
+        "name": "AutonomousEyeExamResultOrFinding",
+        "title": "Autonomous Eye Exam Result or Finding",
+        "status": "active",
+        "date": "2025-01-30T01:07:37-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for an Autonomous Eye Exam Result or Finding.),(Data Element Scope: This value set was intended to identify patients who had a Autonomous Eye Exam Result or Finding.),(Inclusion Criteria: Includes codes that identify an Autonomous Eye Exam Result or Findings.),(Exclusion Criteria: Exclude order only codes and code that indicate narrative reports.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://loinc.org",
+              "concept": [
+                {
+                  "code": "LA34398-0",
+                  "display": "ETDRS Level 20 or lower, without macular edema"
+                },
+                {
+                  "code": "LA34399-8",
+                  "display": "ETDRS Level 35 or higher, with or without macular edema"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:60c4b2ff-986b-4356-a5b5-c2d1de739c6d",
+          "timestamp": "2025-08-28T16:49:13-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "LA34398-0",
+              "display": "ETDRS Level 20 or lower, without macular edema"
+            },
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "LA34399-8",
+              "display": "ETDRS Level 35 or higher, with or without macular edema"
+            }
+          ]
+        },
+        "description": "Autonomous Eye Exam Result or Finding",
+        "experimental": false
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "/ValueSet/2.16.840.1.113762.1.4.1222.419"
+      },
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113762.1.4.1222.419-20240621",
+        "meta": {
+          "versionId": "11",
+          "lastUpdated": "2025-06-10T13:26:42.000-04:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Institutes for Research Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1222.419",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113762.1.4.1222.419"
+          }
+        ],
+        "version": "20240621",
+        "name": "PrediabetesBorderlineDiabetes",
+        "title": "Prediabetes (Borderline Diabetes)",
+        "status": "active",
+        "date": "2024-06-21T01:25:03-04:00",
+        "publisher": "American Institutes for Research Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: This set of values addresses terms representing Prediabetes (Borderline Diabetes).),(Data Element Scope: The intent of this set of values is to identify patients who have a/an documented diagnosis of prediabetes.),(Inclusion Criteria: Includes GROUPING codes for Prediabetes (Borderline Diabetes).),(Exclusion Criteria: Terms not representative of observable encoded terms that may have values indicating Prediabetes (Borderline Diabetes).)",
+        "compose": {
+          "include": [
+            {
+              "valueSet": [
+                "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1222.417"
+              ]
+            },
+            {
+              "valueSet": [
+                "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1222.418"
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:de9107e0-7033-470f-974b-35af237fba41",
+          "timestamp": "2025-08-28T17:05:07-04:00",
+          "total": 5,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "16896421000119107",
+              "display": "Prediabetes in mother during pregnancy (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "714628002",
+              "display": "Prediabetes (finding)"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "R73.01",
+              "display": "Impaired fasting glucose"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "R73.02",
+              "display": "Impaired glucose tolerance (oral)"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "R73.03",
+              "display": "Prediabetes"
+            }
+          ]
+        },
+        "description": "Prediabetes (Borderline Diabetes)",
+        "experimental": false
+      }
+    }
+  ]
+}

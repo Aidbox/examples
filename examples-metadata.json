@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-14T10:24:55.036333Z",
+  "timestamp": "2026-04-21T13:43:48.260259Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -70,6 +70,27 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-smart-launch-2",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-smart-launch-2/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-measure-evaluate",
+      "title": "Aidbox Measure/$evaluate-measure via SQL",
+      "description": "FHIR R4 [Measure/$evaluate-measure](https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html) implemented as native PostgreSQL SQL on Aidbox. No CQL engine required.",
+      "features": [
+        "FHIR Measure/$evaluate-measure",
+        "SQL on FHIR",
+        "Quality measures",
+        "HEDIS",
+        "eCQM",
+        "MeasureReport",
+        "Custom operations",
+        "Care gaps"
+      ],
+      "languages": [
+        "Python",
+        "SQL"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/measure-evaluate",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/measure-evaluate/README.md"
     },
     {
       "id": "aidbox-features-aidbox-notify-via-custom-resources",
@@ -850,6 +871,7 @@
     "Bun",
     "CQL",
     "Canonical Mapping",
+    "Care gaps",
     "Chart.js",
     "Chile localization",
     "Claude Code",
@@ -882,6 +904,7 @@
     "FHIR Dashboard",
     "FHIR Facade",
     "FHIR IG",
+    "FHIR Measure/$evaluate-measure",
     "FHIR Orchestration",
     "FHIR R5",
     "FHIR SDC",
@@ -901,6 +924,7 @@
     "Grafana",
     "Growth chart",
     "HAPI FHIR",
+    "HEDIS",
     "Healthcare",
     "IPS",
     "Implementation guide",
@@ -917,6 +941,7 @@
     "Logs",
     "Markdown",
     "Maven",
+    "MeasureReport",
     "Metabase",
     "Metrics",
     "Monitoring",
@@ -975,7 +1000,8 @@
     "TypeScript",
     "Web",
     "Web components",
-    "Workflow"
+    "Workflow",
+    "eCQM"
   ],
   "languages_list": [
     "Bash",
@@ -987,6 +1013,7 @@
     "Kotlin",
     "Markdown",
     "Python",
+    "SQL",
     "TypeScript",
     "YAML"
   ]

@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════════
+   Nord Dark — Theme Toggle
+   Applied only when html[data-theme="dark"].
+   ═══════════════════════════════════════════════════════ */
+
+html[data-theme="dark"] {
+  --fg: #e6edf3;
+  --fg2: #9eaab8;
+  --fg3: #6a7585;
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2129;
+  --card: #141920;
+  --line: #21262d;
+  --teal: #58a6ff;
+  --teal-bg: rgba(88,166,255,0.10);
+  --teal-light: rgba(88,166,255,0.20);
+  --green: #3fb950;
+  --green-bg: rgba(63,185,80,0.12);
+  --amber: #d29922;
+  --amber-bg: rgba(210,153,34,0.12);
+  --rose: #f85149;
+  --rose-bg: rgba(248,81,73,0.12);
+  --blue: #58a6ff;
+  --blue-bg: rgba(88,166,255,0.10);
+  --violet: #bc8cff;
+  --violet-bg: rgba(188,140,255,0.10);
+  --shadow: 0 2px 8px rgba(0,0,0,0.35), 0 0 1px rgba(255,255,255,0.03);
+  color-scheme: dark;
+}
+
+/* ── Scrollbar (dark only) ───────────────────────────── */
+html[data-theme="dark"] ::-webkit-scrollbar { width: 6px; height: 6px; }
+html[data-theme="dark"] ::-webkit-scrollbar-track { background: transparent; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #6a7585; }
+
+/* ── Native form elements ────────────────────────────── */
+html[data-theme="dark"] select,
+html[data-theme="dark"] input { color-scheme: dark; }
+
+/* ── Toggle button ───────────────────────────────────── */
+.theme-toggle {
+  position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 9999;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--card);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; line-height: 1;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+.theme-toggle:hover { transform: scale(1.1); }
+.theme-toggle:active { transform: scale(0.95); }
+
+/* Sun icon in light mode, moon icon in dark mode */
+.theme-toggle .icon-sun { display: block; }
+.theme-toggle .icon-moon { display: none; }
+html[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }

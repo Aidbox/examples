@@ -1,0 +1,3898 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.101.12.1008-20240110",
+        "meta": {
+          "versionId": "34",
+          "lastUpdated": "2024-01-10T01:09:31.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1008",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.101.12.1008"
+          }
+        ],
+        "version": "20240110",
+        "name": "OutpatientConsultation",
+        "title": "Outpatient Consultation",
+        "status": "active",
+        "date": "2024-01-10T01:09:31-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for encounters for outpatient interactions with a member of the medical care team.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent an encounter for the comprehensive history, evaluation, and management of a patient presenting with minor to high severity problems.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "281036007",
+                  "display": "Follow-up consultation (procedure)"
+                },
+                {
+                  "code": "77406008",
+                  "display": "Confirmatory medical consultation (procedure)"
+                }
+              ]
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "concept": [
+                {
+                  "code": "99242",
+                  "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 20 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99243",
+                  "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99244",
+                  "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 40 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99245",
+                  "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 55 minutes must be met or exceeded."
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:92f75aff-dd64-4dee-8096-489bfd6cfdc5",
+          "timestamp": "2025-08-28T16:49:20-04:00",
+          "total": 6,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "281036007",
+              "display": "Follow-up consultation (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "77406008",
+              "display": "Confirmatory medical consultation (procedure)"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99242",
+              "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 20 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99243",
+              "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99244",
+              "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 40 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99245",
+              "display": "Office or other outpatient consultation for a new or established patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 55 minutes must be met or exceeded."
+            }
+          ]
+        },
+        "description": "Outpatient Consultation",
+        "experimental": false
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.101.12.1008-20240110"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.101.12.1014-20240203",
+        "meta": {
+          "versionId": "39",
+          "lastUpdated": "2024-02-03T01:09:29.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1014",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.101.12.1014"
+          }
+        ],
+        "version": "20240203",
+        "name": "CareServicesInLongTermResidentialFacility",
+        "title": "Care Services in Long Term Residential Facility",
+        "status": "active",
+        "date": "2024-02-03T01:09:29-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for encounters for patients living in assisted living, domiciliary care or rest homes.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent an encounter for services provided to new and established patients living in assisted living, domiciliary care or rest home who have had an interaction with a member of their medical team.),(Exclusion Criteria: Excludes concepts that represent an encounter for settings other than assisted living, domiciliary care, or rest homes.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "209099002",
+                  "display": "History and physical examination with management of domiciliary or rest home patient (procedure)"
+                },
+                {
+                  "code": "210098006",
+                  "display": "Domiciliary or rest home patient evaluation and management (procedure)"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:3f615d3f-4230-48b0-8452-bc38c5704079",
+          "timestamp": "2025-08-28T16:52:18-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "209099002",
+              "display": "History and physical examination with management of domiciliary or rest home patient (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "210098006",
+              "display": "Domiciliary or rest home patient evaluation and management (procedure)"
+            }
+          ]
+        },
+        "description": "Care Services in Long Term Residential Facility",
+        "experimental": false
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.101.12.1014-20240203"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.114222.4.11.3591-20250419",
+        "meta": {
+          "versionId": "32",
+          "lastUpdated": "2025-04-19T06:02:35.000-04:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "HL7 US Realm Program Management Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.114222.4.11.3591"
+          }
+        ],
+        "version": "20250419",
+        "name": "PayerType",
+        "title": "Payer Type",
+        "status": "active",
+        "date": "2025-04-19T06:02:35-04:00",
+        "publisher": "HL7 US Realm Program Management Steward",
+        "description": "2025 April version was changed to reduce the amount of granular vs higher level categories of insurance (payer) types. Note that the code system from where these codes are drawn is now owned by the CDC and not owned by NAHDO. CDC Contact: sopt@cdc.gov",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: Categories of types of health care payer entities as defined by the US Public Health Data Consortium SOP code system),(Data Element Scope: Concepts intended to represent categories of insurance (payer) types.),(Inclusion Criteria: Codes representing high level categories of insurance (payer) types),(Exclusion Criteria: Codes representing, subdivisions of insurance categories and or specific private insurance companies)",
+        "compose": {
+          "include": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "concept": [
+                {
+                  "code": "1",
+                  "display": "MEDICARE"
+                },
+                {
+                  "code": "11",
+                  "display": "Medicare Managed Care (Includes Medicare Advantage Plans)"
+                },
+                {
+                  "code": "1111",
+                  "display": "Medicare Chronic Condition Special Needs Plan (C-SNP)"
+                },
+                {
+                  "code": "112",
+                  "display": "Medicare PPO"
+                },
+                {
+                  "code": "113",
+                  "display": "Medicare POS"
+                },
+                {
+                  "code": "119",
+                  "display": "Medicare Managed Care Other"
+                },
+                {
+                  "code": "12",
+                  "display": "Medicare (Non-managed Care)"
+                },
+                {
+                  "code": "121",
+                  "display": "Medicare FFS"
+                },
+                {
+                  "code": "122",
+                  "display": "Medicare Drug Benefit"
+                },
+                {
+                  "code": "123",
+                  "display": "Medicare Medical Savings Account (MSA)"
+                },
+                {
+                  "code": "129",
+                  "display": "Medicare Non-managed Care Other"
+                },
+                {
+                  "code": "13",
+                  "display": "Medicare Hospice"
+                },
+                {
+                  "code": "14",
+                  "display": "Dual Eligibility Medicare/Medicaid Organization"
+                },
+                {
+                  "code": "141",
+                  "display": "Dual Eligible Special Needs Plan (D-SNP)"
+                },
+                {
+                  "code": "142",
+                  "display": "Fully Integrated Dual Eligible Special Needs Plan (FIDE-SNP)"
+                },
+                {
+                  "code": "19",
+                  "display": "Medicare Other"
+                },
+                {
+                  "code": "191",
+                  "display": "Medicare Pharmacy Benefit Manager"
+                },
+                {
+                  "code": "2",
+                  "display": "MEDICAID"
+                },
+                {
+                  "code": "21",
+                  "display": "Medicaid (Managed Care)"
+                },
+                {
+                  "code": "211",
+                  "display": "Medicaid HMO"
+                },
+                {
+                  "code": "212",
+                  "display": "Medicaid PPO"
+                },
+                {
+                  "code": "213",
+                  "display": "Medicaid PCCM (Primary Care Case Management)"
+                },
+                {
+                  "code": "219",
+                  "display": "Medicaid Managed Care Other"
+                },
+                {
+                  "code": "22",
+                  "display": "Medicaid (Non-managed Care Plan)"
+                },
+                {
+                  "code": "23",
+                  "display": "Medicaid/SCHIP"
+                },
+                {
+                  "code": "25",
+                  "display": "Medicaid - Out of State"
+                },
+                {
+                  "code": "26",
+                  "display": "Medicaid - Long Term Care"
+                },
+                {
+                  "code": "29",
+                  "display": "Medicaid Other"
+                },
+                {
+                  "code": "291",
+                  "display": "Medicaid Pharmacy Benefit Manager"
+                },
+                {
+                  "code": "299",
+                  "display": "Medicaid - Dental"
+                },
+                {
+                  "code": "3",
+                  "display": "OTHER GOVERNMENT (Federal/State/Local) (excluding Department of Corrections)"
+                },
+                {
+                  "code": "31",
+                  "display": "Department of Defense"
+                },
+                {
+                  "code": "311",
+                  "display": "TRICARE (CHAMPUS)"
+                },
+                {
+                  "code": "3113",
+                  "display": "TRICARE Standard - Fee For Service"
+                },
+                {
+                  "code": "312",
+                  "display": "Military Treatment Facility"
+                },
+                {
+                  "code": "3123",
+                  "display": "TRICARE For Life (TFL)"
+                },
+                {
+                  "code": "313",
+                  "display": "Dental --Stand Alone"
+                },
+                {
+                  "code": "32",
+                  "display": "Department of Veterans Affairs"
+                },
+                {
+                  "code": "321",
+                  "display": "Veteran care-Care provided to Veterans"
+                },
+                {
+                  "code": "322",
+                  "display": "Non-veteran care"
+                },
+                {
+                  "code": "3221",
+                  "display": "Civilian Health and Medical Program for the VA (CHAMPVA)"
+                },
+                {
+                  "code": "33",
+                  "display": "Indian Health Service or Tribe"
+                },
+                {
+                  "code": "331",
+                  "display": "Indian Health Service - Regular"
+                },
+                {
+                  "code": "332",
+                  "display": "Indian Health Service - Contract"
+                },
+                {
+                  "code": "333",
+                  "display": "Indian Health Service - Managed Care"
+                },
+                {
+                  "code": "334",
+                  "display": "Indian Tribe - Sponsored Coverage"
+                },
+                {
+                  "code": "34",
+                  "display": "HRSA Program"
+                },
+                {
+                  "code": "341",
+                  "display": "Title V (MCH Block Grant)"
+                },
+                {
+                  "code": "342",
+                  "display": "Migrant Health Program"
+                },
+                {
+                  "code": "343",
+                  "display": "Ryan White Act"
+                },
+                {
+                  "code": "344",
+                  "display": "Disaster-related (includes Covid-19)"
+                },
+                {
+                  "code": "349",
+                  "display": "Other"
+                },
+                {
+                  "code": "35",
+                  "display": "Black Lung"
+                },
+                {
+                  "code": "36",
+                  "display": "State Government"
+                },
+                {
+                  "code": "361",
+                  "display": "State SCHIP program (codes for individual states)"
+                },
+                {
+                  "code": "362",
+                  "display": "Specific state programs (list/ local code)"
+                },
+                {
+                  "code": "369",
+                  "display": "State, not otherwise specified (other state)"
+                },
+                {
+                  "code": "37",
+                  "display": "Local Government"
+                },
+                {
+                  "code": "371",
+                  "display": "Local - Managed care"
+                },
+                {
+                  "code": "372",
+                  "display": "FFS/Indemnity"
+                },
+                {
+                  "code": "379",
+                  "display": "Local, not otherwise specified (other local, county)"
+                },
+                {
+                  "code": "38",
+                  "display": "Other Government (Federal, State, Local not specified)"
+                },
+                {
+                  "code": "381",
+                  "display": "Federal, State, Local not specified managed care"
+                },
+                {
+                  "code": "382",
+                  "display": "Federal, State, Local not specified - FFS"
+                },
+                {
+                  "code": "389",
+                  "display": "Federal, State, Local not specified - Other"
+                },
+                {
+                  "code": "39",
+                  "display": "Other Federal"
+                },
+                {
+                  "code": "391",
+                  "display": "Federal Employee Health Plan - Use when known"
+                },
+                {
+                  "code": "4",
+                  "display": "DEPARTMENTS OF CORRECTIONS"
+                },
+                {
+                  "code": "41",
+                  "display": "Corrections Federal"
+                },
+                {
+                  "code": "42",
+                  "display": "Corrections State"
+                },
+                {
+                  "code": "43",
+                  "display": "Corrections Local"
+                },
+                {
+                  "code": "44",
+                  "display": "Corrections Unknown Level"
+                },
+                {
+                  "code": "5",
+                  "display": "PRIVATE HEALTH INSURANCE"
+                },
+                {
+                  "code": "51",
+                  "display": "Managed Care (Private)"
+                },
+                {
+                  "code": "511",
+                  "display": "Commercial Managed Care - HMO"
+                },
+                {
+                  "code": "512",
+                  "display": "Commercial Managed Care - PPO"
+                },
+                {
+                  "code": "513",
+                  "display": "Commercial Managed Care - POS"
+                },
+                {
+                  "code": "514",
+                  "display": "Exclusive Provider Organization"
+                },
+                {
+                  "code": "515",
+                  "display": "Gatekeeper PPO (GPPO)"
+                },
+                {
+                  "code": "516",
+                  "display": "Commercial Managed Care - Pharmacy Benefit Manager"
+                },
+                {
+                  "code": "517",
+                  "display": "Commercial Managed Care - Dental"
+                },
+                {
+                  "code": "519",
+                  "display": "Managed Care, Other (non HMO)"
+                },
+                {
+                  "code": "52",
+                  "display": "Private Health Insurance - Indemnity"
+                },
+                {
+                  "code": "521",
+                  "display": "Commercial Indemnity"
+                },
+                {
+                  "code": "522",
+                  "display": "Self-insured (ERISA) Administrative Services Only (ASO) plan"
+                },
+                {
+                  "code": "523",
+                  "display": "Medicare supplemental policy (as second payer)"
+                },
+                {
+                  "code": "524",
+                  "display": "Indemnity Insurance - Dental"
+                },
+                {
+                  "code": "529",
+                  "display": "Private health insurance--other commercial Indemnity"
+                },
+                {
+                  "code": "53",
+                  "display": "Managed Care (private) or private health insurance (indemnity), not otherwise specified"
+                },
+                {
+                  "code": "54",
+                  "display": "Organized Delivery System"
+                },
+                {
+                  "code": "55",
+                  "display": "Small Employer Purchasing Group"
+                },
+                {
+                  "code": "56",
+                  "display": "Specialized Stand-Alone Plan"
+                },
+                {
+                  "code": "561",
+                  "display": "Dental"
+                },
+                {
+                  "code": "562",
+                  "display": "Vision"
+                },
+                {
+                  "code": "59",
+                  "display": "Other Private Insurance"
+                },
+                {
+                  "code": "7",
+                  "display": "MANAGED CARE, UNSPECIFIED (to be used only if one can't distinguish public from private)"
+                },
+                {
+                  "code": "71",
+                  "display": "HMO"
+                },
+                {
+                  "code": "72",
+                  "display": "PPO"
+                },
+                {
+                  "code": "73",
+                  "display": "POS"
+                },
+                {
+                  "code": "79",
+                  "display": "Other Managed Care"
+                },
+                {
+                  "code": "8",
+                  "display": "NO PAYMENT from an Organization/Agency/Program/Private Payer Listed"
+                },
+                {
+                  "code": "81",
+                  "display": "Self-pay (Includes applicants for insurance and Medicaid applicants)"
+                },
+                {
+                  "code": "82",
+                  "display": "No Charge"
+                },
+                {
+                  "code": "821",
+                  "display": "Charity"
+                },
+                {
+                  "code": "822",
+                  "display": "Professional Courtesy"
+                },
+                {
+                  "code": "823",
+                  "display": "Research/Clinical Trial"
+                },
+                {
+                  "code": "83",
+                  "display": "Refusal to Pay/Bad Debt"
+                },
+                {
+                  "code": "84",
+                  "display": "Hill Burton Free Care"
+                },
+                {
+                  "code": "85",
+                  "display": "Research/Donor"
+                },
+                {
+                  "code": "89",
+                  "display": "No Payment, Other"
+                },
+                {
+                  "code": "9",
+                  "display": "MISCELLANEOUS/OTHER"
+                },
+                {
+                  "code": "91",
+                  "display": "Foreign National"
+                },
+                {
+                  "code": "92",
+                  "display": "Other (Non-government)"
+                },
+                {
+                  "code": "93",
+                  "display": "Disability Insurance"
+                },
+                {
+                  "code": "94",
+                  "display": "Long-term Care Insurance"
+                },
+                {
+                  "code": "95",
+                  "display": "Worker's Compensation"
+                },
+                {
+                  "code": "951",
+                  "display": "Worker's Comp HMO"
+                },
+                {
+                  "code": "953",
+                  "display": "Worker's Comp Fee-for-Service"
+                },
+                {
+                  "code": "954",
+                  "display": "Worker's Comp Other Managed Care"
+                },
+                {
+                  "code": "959",
+                  "display": "Worker's Comp, Other unspecified"
+                },
+                {
+                  "code": "96",
+                  "display": "Auto Insurance (includes no fault)"
+                },
+                {
+                  "code": "97",
+                  "display": "Legal Liability / Liability Insurance"
+                },
+                {
+                  "code": "98",
+                  "display": "Other specified but not otherwise classifiable (includes Hospice - Unspecified plan)"
+                },
+                {
+                  "code": "99",
+                  "display": "No Typology Code available for payment source"
+                },
+                {
+                  "code": "9999",
+                  "display": "Unavailable / No Payer Specified / Blank"
+                }
+              ]
+            }
+          ],
+          "exclude": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "111"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "1112"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3111"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3112"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3114"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3115"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3116"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3119"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3121"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3122"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "descendent-of",
+                  "value": "321"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3222"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3223"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3229"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "descendent-of",
+                  "value": "371"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "descendent-of",
+                  "value": "381"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "is-a",
+                  "value": "6"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:51ec0c3b-015e-44f4-901d-6535f80fbe1f",
+          "timestamp": "2025-08-28T17:03:05-04:00",
+          "total": 125,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "1",
+              "display": "MEDICARE"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "11",
+              "display": "Medicare Managed Care (Includes Medicare Advantage Plans)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "1111",
+              "display": "Medicare Chronic Condition Special Needs Plan (C-SNP)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "112",
+              "display": "Medicare PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "113",
+              "display": "Medicare POS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "119",
+              "display": "Medicare Managed Care Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "12",
+              "display": "Medicare (Non-managed Care)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "121",
+              "display": "Medicare FFS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "122",
+              "display": "Medicare Drug Benefit"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "123",
+              "display": "Medicare Medical Savings Account (MSA)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "129",
+              "display": "Medicare Non-managed Care Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "13",
+              "display": "Medicare Hospice"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "14",
+              "display": "Dual Eligibility Medicare/Medicaid Organization"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "141",
+              "display": "Dual Eligible Special Needs Plan (D-SNP)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "142",
+              "display": "Fully Integrated Dual Eligible Special Needs Plan (FIDE-SNP)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "19",
+              "display": "Medicare Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "191",
+              "display": "Medicare Pharmacy Benefit Manager"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "2",
+              "display": "MEDICAID"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "21",
+              "display": "Medicaid (Managed Care)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "211",
+              "display": "Medicaid HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "212",
+              "display": "Medicaid PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "213",
+              "display": "Medicaid PCCM (Primary Care Case Management)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "219",
+              "display": "Medicaid Managed Care Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "22",
+              "display": "Medicaid (Non-managed Care Plan)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "23",
+              "display": "Medicaid/SCHIP"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "25",
+              "display": "Medicaid - Out of State"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "26",
+              "display": "Medicaid - Long Term Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "29",
+              "display": "Medicaid Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "291",
+              "display": "Medicaid Pharmacy Benefit Manager"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "299",
+              "display": "Medicaid - Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3",
+              "display": "OTHER GOVERNMENT (Federal/State/Local) (excluding Department of Corrections)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "31",
+              "display": "Department of Defense"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "311",
+              "display": "TRICARE (CHAMPUS)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3113",
+              "display": "TRICARE Standard - Fee For Service"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "312",
+              "display": "Military Treatment Facility"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3123",
+              "display": "TRICARE For Life (TFL)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "313",
+              "display": "Dental --Stand Alone"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "32",
+              "display": "Department of Veterans Affairs"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "321",
+              "display": "Veteran care-Care provided to Veterans"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "322",
+              "display": "Non-veteran care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3221",
+              "display": "Civilian Health and Medical Program for the VA (CHAMPVA)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "33",
+              "display": "Indian Health Service or Tribe"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "331",
+              "display": "Indian Health Service - Regular"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "332",
+              "display": "Indian Health Service - Contract"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "333",
+              "display": "Indian Health Service - Managed Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "334",
+              "display": "Indian Tribe - Sponsored Coverage"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "34",
+              "display": "HRSA Program"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "341",
+              "display": "Title V (MCH Block Grant)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "342",
+              "display": "Migrant Health Program"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "343",
+              "display": "Ryan White Act"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "344",
+              "display": "Disaster-related (includes Covid-19)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "349",
+              "display": "Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "35",
+              "display": "Black Lung"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "36",
+              "display": "State Government"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "361",
+              "display": "State SCHIP program (codes for individual states)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "362",
+              "display": "Specific state programs (list/ local code)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "369",
+              "display": "State, not otherwise specified (other state)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "37",
+              "display": "Local Government"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "371",
+              "display": "Local - Managed care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "372",
+              "display": "FFS/Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "379",
+              "display": "Local, not otherwise specified (other local, county)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "38",
+              "display": "Other Government (Federal, State, Local not specified)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "381",
+              "display": "Federal, State, Local not specified managed care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "382",
+              "display": "Federal, State, Local not specified - FFS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "389",
+              "display": "Federal, State, Local not specified - Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "39",
+              "display": "Other Federal"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "391",
+              "display": "Federal Employee Health Plan - Use when known"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "4",
+              "display": "DEPARTMENTS OF CORRECTIONS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "41",
+              "display": "Corrections Federal"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "42",
+              "display": "Corrections State"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "43",
+              "display": "Corrections Local"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "44",
+              "display": "Corrections Unknown Level"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "5",
+              "display": "PRIVATE HEALTH INSURANCE"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "51",
+              "display": "Managed Care (Private)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "511",
+              "display": "Commercial Managed Care - HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "512",
+              "display": "Commercial Managed Care - PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "513",
+              "display": "Commercial Managed Care - POS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "514",
+              "display": "Exclusive Provider Organization"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "515",
+              "display": "Gatekeeper PPO (GPPO)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "516",
+              "display": "Commercial Managed Care - Pharmacy Benefit Manager"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "517",
+              "display": "Commercial Managed Care - Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "519",
+              "display": "Managed Care, Other (non HMO)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "52",
+              "display": "Private Health Insurance - Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "521",
+              "display": "Commercial Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "522",
+              "display": "Self-insured (ERISA) Administrative Services Only (ASO) plan"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "523",
+              "display": "Medicare supplemental policy (as second payer)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "524",
+              "display": "Indemnity Insurance - Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "529",
+              "display": "Private health insurance--other commercial Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "53",
+              "display": "Managed Care (private) or private health insurance (indemnity), not otherwise specified"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "54",
+              "display": "Organized Delivery System"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "55",
+              "display": "Small Employer Purchasing Group"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "56",
+              "display": "Specialized Stand-Alone Plan"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "561",
+              "display": "Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "562",
+              "display": "Vision"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "59",
+              "display": "Other Private Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "7",
+              "display": "MANAGED CARE, UNSPECIFIED (to be used only if one can't distinguish public from private)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "71",
+              "display": "HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "72",
+              "display": "PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "73",
+              "display": "POS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "79",
+              "display": "Other Managed Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "8",
+              "display": "NO PAYMENT from an Organization/Agency/Program/Private Payer Listed"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "81",
+              "display": "Self-pay (Includes applicants for insurance and Medicaid applicants)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "82",
+              "display": "No Charge"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "821",
+              "display": "Charity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "822",
+              "display": "Professional Courtesy"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "823",
+              "display": "Research/Clinical Trial"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "83",
+              "display": "Refusal to Pay/Bad Debt"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "84",
+              "display": "Hill Burton Free Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "85",
+              "display": "Research/Donor"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "89",
+              "display": "No Payment, Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "9",
+              "display": "MISCELLANEOUS/OTHER"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "91",
+              "display": "Foreign National"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "92",
+              "display": "Other (Non-government)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "93",
+              "display": "Disability Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "94",
+              "display": "Long-term Care Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "95",
+              "display": "Worker's Compensation"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "951",
+              "display": "Worker's Comp HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "953",
+              "display": "Worker's Comp Fee-for-Service"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "954",
+              "display": "Worker's Comp Other Managed Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "959",
+              "display": "Worker's Comp, Other unspecified"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "96",
+              "display": "Auto Insurance (includes no fault)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "97",
+              "display": "Legal Liability / Liability Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "98",
+              "display": "Other specified but not otherwise classifiable (includes Hospice - Unspecified plan)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "99",
+              "display": "No Typology Code available for payment source"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "9999",
+              "display": "Unavailable / No Payer Specified / Blank"
+            }
+          ]
+        },
+        "experimental": false
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.114222.4.11.3591-20250419"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113762.1.4.1021.121",
+        "meta": {
+          "versionId": "12",
+          "lastUpdated": "2025-05-21T11:15:55.000-04:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1021.121",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113762.1.4.1021.121"
+          }
+        ],
+        "version": "20250228",
+        "name": "FederalAdministrativeSex",
+        "title": "Federal Administrative Sex",
+        "status": "active",
+        "date": "2025-02-28T01:07:20-05:00",
+        "publisher": "HL7 US Realm Program Management Steward",
+        "expansion": {
+          "identifier": "urn:uuid:0a80c455-fc01-4fdb-9e7e-25e2f24458cc",
+          "timestamp": "2025-08-29T13:49:36-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "248152002",
+              "display": "Female (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "248153007",
+              "display": "Male (finding)"
+            }
+          ]
+        },
+        "description": "Federal Administrative Sex",
+        "experimental": false,
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "248152002",
+                  "display": "Female (finding)"
+                },
+                {
+                  "code": "248153007",
+                  "display": "Male (finding)"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113762.1.4.1021.121"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.526.3.1285-20210209",
+        "meta": {
+          "versionId": "30",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Academy of Ophthalmology Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1285",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.526.3.1285"
+          }
+        ],
+        "version": "20210209",
+        "name": "OphthalmologicalServices",
+        "title": "Ophthalmological Services",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-03T18:46:01-05:00",
+        "publisher": "American Academy of Ophthalmology Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts of encounters for ophthalmological visits.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent an encounter for a visit with an eye care professional.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "359960003",
+                  "display": "Ophthalmologic examination and evaluation under general anesthesia, limited (procedure)"
+                },
+                {
+                  "code": "36228007",
+                  "display": "Ophthalmic examination and evaluation (procedure)"
+                },
+                {
+                  "code": "66902005",
+                  "display": "Ophthalmic examination and evaluation, follow-up (procedure)"
+                },
+                {
+                  "code": "78831002",
+                  "display": "Comprehensive eye examination (procedure)"
+                }
+              ]
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "concept": [
+                {
+                  "code": "92002",
+                  "display": "Ophthalmological services: medical examination and evaluation with initiation of diagnostic and treatment program; intermediate, new patient"
+                },
+                {
+                  "code": "92004",
+                  "display": "Ophthalmological services: medical examination and evaluation with initiation of diagnostic and treatment program; comprehensive, new patient, 1 or more visits"
+                },
+                {
+                  "code": "92012",
+                  "display": "Ophthalmological services: medical examination and evaluation, with initiation or continuation of diagnostic and treatment program; intermediate, established patient"
+                },
+                {
+                  "code": "92014",
+                  "display": "Ophthalmological services: medical examination and evaluation, with initiation or continuation of diagnostic and treatment program; comprehensive, established patient, 1 or more visits"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:a1583336-b9ca-451a-853c-6164211f1577",
+          "timestamp": "2025-08-28T16:56:35-04:00",
+          "total": 8,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "359960003",
+              "display": "Ophthalmologic examination and evaluation under general anesthesia, limited (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "36228007",
+              "display": "Ophthalmic examination and evaluation (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "66902005",
+              "display": "Ophthalmic examination and evaluation, follow-up (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "78831002",
+              "display": "Comprehensive eye examination (procedure)"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "92002",
+              "display": "Ophthalmological services: medical examination and evaluation with initiation of diagnostic and treatment program; intermediate, new patient"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "92004",
+              "display": "Ophthalmological services: medical examination and evaluation with initiation of diagnostic and treatment program; comprehensive, new patient, 1 or more visits"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "92012",
+              "display": "Ophthalmological services: medical examination and evaluation, with initiation or continuation of diagnostic and treatment program; intermediate, established patient"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "92014",
+              "display": "Ophthalmological services: medical examination and evaluation, with initiation or continuation of diagnostic and treatment program; comprehensive, established patient, 1 or more visits"
+            }
+          ]
+        },
+        "description": "Ophthalmological Services"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.526.3.1285-20210209"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.526.3.1007-20170504",
+        "meta": {
+          "versionId": "32",
+          "lastUpdated": "2025-01-31T14:08:38.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Institutes for Research Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1007",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.526.3.1007"
+          }
+        ],
+        "version": "20170504",
+        "name": "MedicalReason",
+        "title": "Medical Reason",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-07T11:14:02-05:00",
+        "publisher": "American Institutes for Research Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for medical reasons for not receiving a therapy or service.),(Data Element Scope: This value set may use a model element related to Negation Rationale.),(Inclusion Criteria: Includes concepts that describe a medical reason for not receiving a therapy or service.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "183932001",
+                  "display": "Procedure contraindicated (situation)"
+                },
+                {
+                  "code": "183964008",
+                  "display": "Treatment not indicated (situation)"
+                },
+                {
+                  "code": "183966005",
+                  "display": "Drug treatment not indicated (situation)"
+                },
+                {
+                  "code": "266721009",
+                  "display": "Absent response to treatment (situation)"
+                },
+                {
+                  "code": "269191009",
+                  "display": "Late effect of medical and surgical care complication (disorder)"
+                },
+                {
+                  "code": "31438003",
+                  "display": "Drug resistance (disorder)"
+                },
+                {
+                  "code": "35688006",
+                  "display": "Complication of medical care (disorder)"
+                },
+                {
+                  "code": "407563006",
+                  "display": "Treatment not tolerated (situation)"
+                },
+                {
+                  "code": "410534003",
+                  "display": "Not indicated (qualifier value)"
+                },
+                {
+                  "code": "410536001",
+                  "display": "Contraindicated (qualifier value)"
+                },
+                {
+                  "code": "416098002",
+                  "display": "Allergy to drug (finding)"
+                },
+                {
+                  "code": "428119001",
+                  "display": "Procedure not indicated (situation)"
+                },
+                {
+                  "code": "59037007",
+                  "display": "Intolerance to drug (finding)"
+                },
+                {
+                  "code": "62014003",
+                  "display": "Adverse reaction caused by drug (disorder)"
+                },
+                {
+                  "code": "79899007",
+                  "display": "Drug interaction (finding)"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:91657341-11cc-47fe-87dd-34cb4913674a",
+          "timestamp": "2025-08-28T16:56:55-04:00",
+          "total": 15,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "183932001",
+              "display": "Procedure contraindicated (situation)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "183964008",
+              "display": "Treatment not indicated (situation)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "183966005",
+              "display": "Drug treatment not indicated (situation)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "266721009",
+              "display": "Absent response to treatment (situation)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "269191009",
+              "display": "Late effect of medical and surgical care complication (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "31438003",
+              "display": "Drug resistance (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "35688006",
+              "display": "Complication of medical care (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "407563006",
+              "display": "Treatment not tolerated (situation)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "410534003",
+              "display": "Not indicated (qualifier value)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "410536001",
+              "display": "Contraindicated (qualifier value)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "416098002",
+              "display": "Allergy to drug (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "428119001",
+              "display": "Procedure not indicated (situation)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "59037007",
+              "display": "Intolerance to drug (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "62014003",
+              "display": "Adverse reaction caused by drug (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "79899007",
+              "display": "Drug interaction (finding)"
+            }
+          ]
+        },
+        "description": "Medical Reason"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.526.3.1007-20170504"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.526.3.326-20210209",
+        "meta": {
+          "versionId": "41",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Academy of Ophthalmology Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.326",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.526.3.326"
+          }
+        ],
+        "version": "20210209",
+        "name": "PrimaryOpenAngleGlaucoma",
+        "title": "Primary Open Angle Glaucoma",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-07T11:14:02-05:00",
+        "publisher": "American Academy of Ophthalmology Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for diagnoses of primary open-angle glaucoma (POAG).),(Data Element Scope: This value set may use a model element related to Diagnosis.),(Inclusion Criteria: Includes concepts that represent a diagnosis of primary open-angle glaucoma (POAG) and open-angle glaucoma.),(Exclusion Criteria: Excludes concepts that represent a diagnosis for 'unspecified eye.')",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "111513000",
+                  "display": "Advanced open-angle glaucoma (disorder)"
+                },
+                {
+                  "code": "1231243004",
+                  "display": "High pressure primary open-angle glaucoma (disorder)"
+                },
+                {
+                  "code": "1306287007",
+                  "display": "Primary open angle glaucoma of left eye (disorder)"
+                },
+                {
+                  "code": "1306288002",
+                  "display": "Primary open angle glaucoma of right eye (disorder)"
+                },
+                {
+                  "code": "1306289005",
+                  "display": "Primary open angle glaucoma of bilateral eyes (disorder)"
+                },
+                {
+                  "code": "1306884006",
+                  "display": "Normal pressure primary open-angle glaucoma of left eye (disorder)"
+                },
+                {
+                  "code": "1306885007",
+                  "display": "Normal pressure primary open-angle glaucoma of right eye (disorder)"
+                },
+                {
+                  "code": "1306886008",
+                  "display": "Normal pressure primary open-angle glaucoma of bilateral eyes (disorder)"
+                },
+                {
+                  "code": "15633281000119103",
+                  "display": "Bilateral primary open angle glaucoma (disorder)"
+                },
+                {
+                  "code": "50485007",
+                  "display": "Low tension glaucoma (disorder)"
+                },
+                {
+                  "code": "77075001",
+                  "display": "Primary open angle glaucoma (disorder)"
+                },
+                {
+                  "code": "84494001",
+                  "display": "Open-angle glaucoma (disorder)"
+                }
+              ]
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "concept": [
+                {
+                  "code": "H40.10X0",
+                  "display": "Unspecified open-angle glaucoma, stage unspecified"
+                },
+                {
+                  "code": "H40.10X1",
+                  "display": "Unspecified open-angle glaucoma, mild stage"
+                },
+                {
+                  "code": "H40.10X2",
+                  "display": "Unspecified open-angle glaucoma, moderate stage"
+                },
+                {
+                  "code": "H40.10X3",
+                  "display": "Unspecified open-angle glaucoma, severe stage"
+                },
+                {
+                  "code": "H40.10X4",
+                  "display": "Unspecified open-angle glaucoma, indeterminate stage"
+                },
+                {
+                  "code": "H40.1110",
+                  "display": "Primary open-angle glaucoma, right eye, stage unspecified"
+                },
+                {
+                  "code": "H40.1111",
+                  "display": "Primary open-angle glaucoma, right eye, mild stage"
+                },
+                {
+                  "code": "H40.1112",
+                  "display": "Primary open-angle glaucoma, right eye, moderate stage"
+                },
+                {
+                  "code": "H40.1113",
+                  "display": "Primary open-angle glaucoma, right eye, severe stage"
+                },
+                {
+                  "code": "H40.1114",
+                  "display": "Primary open-angle glaucoma, right eye, indeterminate stage"
+                },
+                {
+                  "code": "H40.1120",
+                  "display": "Primary open-angle glaucoma, left eye, stage unspecified"
+                },
+                {
+                  "code": "H40.1121",
+                  "display": "Primary open-angle glaucoma, left eye, mild stage"
+                },
+                {
+                  "code": "H40.1122",
+                  "display": "Primary open-angle glaucoma, left eye, moderate stage"
+                },
+                {
+                  "code": "H40.1123",
+                  "display": "Primary open-angle glaucoma, left eye, severe stage"
+                },
+                {
+                  "code": "H40.1124",
+                  "display": "Primary open-angle glaucoma, left eye, indeterminate stage"
+                },
+                {
+                  "code": "H40.1130",
+                  "display": "Primary open-angle glaucoma, bilateral, stage unspecified"
+                },
+                {
+                  "code": "H40.1131",
+                  "display": "Primary open-angle glaucoma, bilateral, mild stage"
+                },
+                {
+                  "code": "H40.1132",
+                  "display": "Primary open-angle glaucoma, bilateral, moderate stage"
+                },
+                {
+                  "code": "H40.1133",
+                  "display": "Primary open-angle glaucoma, bilateral, severe stage"
+                },
+                {
+                  "code": "H40.1134",
+                  "display": "Primary open-angle glaucoma, bilateral, indeterminate stage"
+                },
+                {
+                  "code": "H40.1210",
+                  "display": "Low-tension glaucoma, right eye, stage unspecified"
+                },
+                {
+                  "code": "H40.1211",
+                  "display": "Low-tension glaucoma, right eye, mild stage"
+                },
+                {
+                  "code": "H40.1212",
+                  "display": "Low-tension glaucoma, right eye, moderate stage"
+                },
+                {
+                  "code": "H40.1213",
+                  "display": "Low-tension glaucoma, right eye, severe stage"
+                },
+                {
+                  "code": "H40.1214",
+                  "display": "Low-tension glaucoma, right eye, indeterminate stage"
+                },
+                {
+                  "code": "H40.1220",
+                  "display": "Low-tension glaucoma, left eye, stage unspecified"
+                },
+                {
+                  "code": "H40.1221",
+                  "display": "Low-tension glaucoma, left eye, mild stage"
+                },
+                {
+                  "code": "H40.1222",
+                  "display": "Low-tension glaucoma, left eye, moderate stage"
+                },
+                {
+                  "code": "H40.1223",
+                  "display": "Low-tension glaucoma, left eye, severe stage"
+                },
+                {
+                  "code": "H40.1224",
+                  "display": "Low-tension glaucoma, left eye, indeterminate stage"
+                },
+                {
+                  "code": "H40.1230",
+                  "display": "Low-tension glaucoma, bilateral, stage unspecified"
+                },
+                {
+                  "code": "H40.1231",
+                  "display": "Low-tension glaucoma, bilateral, mild stage"
+                },
+                {
+                  "code": "H40.1232",
+                  "display": "Low-tension glaucoma, bilateral, moderate stage"
+                },
+                {
+                  "code": "H40.1233",
+                  "display": "Low-tension glaucoma, bilateral, severe stage"
+                },
+                {
+                  "code": "H40.1234",
+                  "display": "Low-tension glaucoma, bilateral, indeterminate stage"
+                },
+                {
+                  "code": "H40.151",
+                  "display": "Residual stage of open-angle glaucoma, right eye"
+                },
+                {
+                  "code": "H40.152",
+                  "display": "Residual stage of open-angle glaucoma, left eye"
+                },
+                {
+                  "code": "H40.153",
+                  "display": "Residual stage of open-angle glaucoma, bilateral"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:64b0010c-6906-4830-983a-4f33da9a145d",
+          "timestamp": "2025-08-28T16:48:41-04:00",
+          "total": 50,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "111513000",
+              "display": "Advanced open-angle glaucoma (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1231243004",
+              "display": "High pressure primary open-angle glaucoma (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1306287007",
+              "display": "Primary open angle glaucoma of left eye (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1306288002",
+              "display": "Primary open angle glaucoma of right eye (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1306289005",
+              "display": "Primary open angle glaucoma of bilateral eyes (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1306884006",
+              "display": "Normal pressure primary open-angle glaucoma of left eye (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1306885007",
+              "display": "Normal pressure primary open-angle glaucoma of right eye (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1306886008",
+              "display": "Normal pressure primary open-angle glaucoma of bilateral eyes (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "15633281000119103",
+              "display": "Bilateral primary open angle glaucoma (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "50485007",
+              "display": "Low tension glaucoma (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "77075001",
+              "display": "Primary open angle glaucoma (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "84494001",
+              "display": "Open-angle glaucoma (disorder)"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.10X0",
+              "display": "Unspecified open-angle glaucoma, stage unspecified"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.10X1",
+              "display": "Unspecified open-angle glaucoma, mild stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.10X2",
+              "display": "Unspecified open-angle glaucoma, moderate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.10X3",
+              "display": "Unspecified open-angle glaucoma, severe stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.10X4",
+              "display": "Unspecified open-angle glaucoma, indeterminate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1110",
+              "display": "Primary open-angle glaucoma, right eye, stage unspecified"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1111",
+              "display": "Primary open-angle glaucoma, right eye, mild stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1112",
+              "display": "Primary open-angle glaucoma, right eye, moderate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1113",
+              "display": "Primary open-angle glaucoma, right eye, severe stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1114",
+              "display": "Primary open-angle glaucoma, right eye, indeterminate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1120",
+              "display": "Primary open-angle glaucoma, left eye, stage unspecified"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1121",
+              "display": "Primary open-angle glaucoma, left eye, mild stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1122",
+              "display": "Primary open-angle glaucoma, left eye, moderate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1123",
+              "display": "Primary open-angle glaucoma, left eye, severe stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1124",
+              "display": "Primary open-angle glaucoma, left eye, indeterminate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1130",
+              "display": "Primary open-angle glaucoma, bilateral, stage unspecified"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1131",
+              "display": "Primary open-angle glaucoma, bilateral, mild stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1132",
+              "display": "Primary open-angle glaucoma, bilateral, moderate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1133",
+              "display": "Primary open-angle glaucoma, bilateral, severe stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1134",
+              "display": "Primary open-angle glaucoma, bilateral, indeterminate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1210",
+              "display": "Low-tension glaucoma, right eye, stage unspecified"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1211",
+              "display": "Low-tension glaucoma, right eye, mild stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1212",
+              "display": "Low-tension glaucoma, right eye, moderate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1213",
+              "display": "Low-tension glaucoma, right eye, severe stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1214",
+              "display": "Low-tension glaucoma, right eye, indeterminate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1220",
+              "display": "Low-tension glaucoma, left eye, stage unspecified"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1221",
+              "display": "Low-tension glaucoma, left eye, mild stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1222",
+              "display": "Low-tension glaucoma, left eye, moderate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1223",
+              "display": "Low-tension glaucoma, left eye, severe stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1224",
+              "display": "Low-tension glaucoma, left eye, indeterminate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1230",
+              "display": "Low-tension glaucoma, bilateral, stage unspecified"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1231",
+              "display": "Low-tension glaucoma, bilateral, mild stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1232",
+              "display": "Low-tension glaucoma, bilateral, moderate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1233",
+              "display": "Low-tension glaucoma, bilateral, severe stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.1234",
+              "display": "Low-tension glaucoma, bilateral, indeterminate stage"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.151",
+              "display": "Residual stage of open-angle glaucoma, right eye"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.152",
+              "display": "Residual stage of open-angle glaucoma, left eye"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "H40.153",
+              "display": "Residual stage of open-angle glaucoma, bilateral"
+            }
+          ]
+        },
+        "description": "Primary Open Angle Glaucoma"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.526.3.326-20210209"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.526.3.1334-20210209",
+        "meta": {
+          "versionId": "26",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Academy of Ophthalmology Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1334",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.526.3.1334"
+          }
+        ],
+        "version": "20210209",
+        "name": "OpticDiscExamForStructuralAbnormalities",
+        "title": "Optic Disc Exam for Structural Abnormalities",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-03T18:46:01-05:00",
+        "publisher": "American Academy of Ophthalmology Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts of diagnostic studies specific to obtaining cup to disc ratio by ophthalmoscopy.),(Data Element Scope: This value set may use a model element related to Diagnostic Study.),(Inclusion Criteria: Includes concepts that represent a diagnostic study using ophthalmoscopy.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://loinc.org",
+              "concept": [
+                {
+                  "code": "71486-5",
+                  "display": "Left eye Optic disc or retinal nerve fiber layer structural abnormalities by Ophthalmoscopy"
+                },
+                {
+                  "code": "71487-3",
+                  "display": "Right eye Optic disc or retinal nerve fiber layer structural abnormalities by Ophthalmoscopy"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:81ad1008-c18b-429d-9533-5499c6fac363",
+          "timestamp": "2025-08-28T16:55:16-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "71486-5",
+              "display": "Left eye Optic disc or retinal nerve fiber layer structural abnormalities by Ophthalmoscopy"
+            },
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "71487-3",
+              "display": "Right eye Optic disc or retinal nerve fiber layer structural abnormalities by Ophthalmoscopy"
+            }
+          ]
+        },
+        "description": "Optic Disc Exam for Structural Abnormalities"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.526.3.1334-20210209"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.526.3.1333-20210209",
+        "meta": {
+          "versionId": "29",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Academy of Ophthalmology Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1333",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.526.3.1333"
+          }
+        ],
+        "version": "20210209",
+        "name": "CupToDiscRatio",
+        "title": "Cup to Disc Ratio",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-03T18:46:01-05:00",
+        "publisher": "American Academy of Ophthalmology Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts of diagnostic studies specific to obtaining cup to disc ratio by ophthalmoscopy.),(Data Element Scope: This value set may use a model element related to Diagnostic Study.),(Inclusion Criteria: Includes concepts that represent a diagnostic study using ophthalmoscopy.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://loinc.org",
+              "concept": [
+                {
+                  "code": "71484-0",
+                  "display": "Left optic nerve Cup-disc ratio by Ophthalmoscopy"
+                },
+                {
+                  "code": "71485-7",
+                  "display": "Right optic nerve Cup-disc ratio by Ophthalmoscopy"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:78f9655b-f301-4ea8-a1c5-face6fae4d2b",
+          "timestamp": "2025-08-28T16:50:50-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "71484-0",
+              "display": "Left optic nerve Cup-disc ratio by Ophthalmoscopy"
+            },
+            {
+              "system": "http://loinc.org",
+              "inactive": false,
+              "version": "2.78",
+              "code": "71485-7",
+              "display": "Right optic nerve Cup-disc ratio by Ophthalmoscopy"
+            }
+          ]
+        },
+        "description": "Cup to Disc Ratio"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.526.3.1333-20210209"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.101.12.1012-20240110",
+        "meta": {
+          "versionId": "34",
+          "lastUpdated": "2024-01-10T01:09:31.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1012",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.101.12.1012"
+          }
+        ],
+        "version": "20240110",
+        "name": "NursingFacilityVisit",
+        "title": "Nursing Facility Visit",
+        "status": "active",
+        "date": "2024-01-10T01:09:31-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for encounters in a nursing facility.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent an encounter specific to a nursing facility, including skilled, intermediate and long term care facilities.),(Exclusion Criteria: Excludes concepts that represent an encounter other than a nursing facility visits.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "18170008",
+                  "display": "Subsequent nursing facility visit (procedure)"
+                },
+                {
+                  "code": "207195004",
+                  "display": "History and physical examination with evaluation and management of nursing facility patient (procedure)"
+                }
+              ]
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "concept": [
+                {
+                  "code": "99304",
+                  "display": "Initial nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99305",
+                  "display": "Initial nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 35 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99306",
+                  "display": "Initial nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 50 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99307",
+                  "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 10 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99308",
+                  "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 20 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99309",
+                  "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99310",
+                  "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 45 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99315",
+                  "display": "Nursing facility discharge management; 30 minutes or less total time on the date of the encounter"
+                },
+                {
+                  "code": "99316",
+                  "display": "Nursing facility discharge management; more than 30 minutes total time on the date of the encounter"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:84fae829-bc3d-4ea1-bf5b-5e20a1fe2d8a",
+          "timestamp": "2025-08-28T16:48:49-04:00",
+          "total": 11,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "18170008",
+              "display": "Subsequent nursing facility visit (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "207195004",
+              "display": "History and physical examination with evaluation and management of nursing facility patient (procedure)"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99304",
+              "display": "Initial nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward or low level of medical decision making. When using total time on the date of the encounter for code selection, 25 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99305",
+              "display": "Initial nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 35 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99306",
+              "display": "Initial nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 50 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99307",
+              "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 10 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99308",
+              "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 20 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99309",
+              "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99310",
+              "display": "Subsequent nursing facility care, per day, for the evaluation and management of a patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 45 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99315",
+              "display": "Nursing facility discharge management; 30 minutes or less total time on the date of the encounter"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99316",
+              "display": "Nursing facility discharge management; more than 30 minutes total time on the date of the encounter"
+            }
+          ]
+        },
+        "description": "Nursing Facility Visit",
+        "experimental": false
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.101.12.1012-20240110"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.101.12.1001-20180310",
+        "meta": {
+          "versionId": "28",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.101.12.1001"
+          }
+        ],
+        "version": "20180310",
+        "name": "OfficeVisit",
+        "title": "Office Visit",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-03T18:46:01-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for encounters for an outpatient visit.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent an encounter for the comprehensive history, evaluation, and management of a patient presenting with minor to high severity problems.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "185349003",
+                  "display": "Encounter for check up (procedure)"
+                },
+                {
+                  "code": "185463005",
+                  "display": "Visit out of hours (procedure)"
+                },
+                {
+                  "code": "185464004",
+                  "display": "Out of hours visit - not night visit (procedure)"
+                },
+                {
+                  "code": "185465003",
+                  "display": "Weekend visit (procedure)"
+                },
+                {
+                  "code": "3391000175108",
+                  "display": "Office visit for pediatric care and assessment (procedure)"
+                },
+                {
+                  "code": "439740005",
+                  "display": "Postoperative follow-up visit (procedure)"
+                }
+              ]
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "concept": [
+                {
+                  "code": "99202",
+                  "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 15 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99203",
+                  "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99204",
+                  "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 45 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99205",
+                  "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 60 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99212",
+                  "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 10 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99213",
+                  "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 20 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99214",
+                  "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+                },
+                {
+                  "code": "99215",
+                  "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 40 minutes must be met or exceeded."
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:8178ef22-c538-4a28-b644-82708ce1400a",
+          "timestamp": "2025-08-28T17:01:55-04:00",
+          "total": 14,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "185349003",
+              "display": "Encounter for check up (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "185463005",
+              "display": "Visit out of hours (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "185464004",
+              "display": "Out of hours visit - not night visit (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "185465003",
+              "display": "Weekend visit (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "3391000175108",
+              "display": "Office visit for pediatric care and assessment (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "439740005",
+              "display": "Postoperative follow-up visit (procedure)"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99202",
+              "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 15 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99203",
+              "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99204",
+              "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 45 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99205",
+              "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 60 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99212",
+              "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and straightforward medical decision making. When using total time on the date of the encounter for code selection, 10 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99213",
+              "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using total time on the date of the encounter for code selection, 20 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99214",
+              "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and moderate level of medical decision making. When using total time on the date of the encounter for code selection, 30 minutes must be met or exceeded."
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99215",
+              "display": "Office or other outpatient visit for the evaluation and management of an established patient, which requires a medically appropriate history and/or examination and high level of medical decision making. When using total time on the date of the encounter for code selection, 40 minutes must be met or exceeded."
+            }
+          ]
+        },
+        "description": "Office Visit"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001-20180310"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.114222.4.11.836",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.836",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.114222.4.11.836"
+          }
+        ],
+        "version": "20121025",
+        "name": "Race",
+        "title": "Race",
+        "status": "active",
+        "experimental": false,
+        "date": "2012-10-25T12:28:31-04:00",
+        "publisher": "CDC NCHS",
+        "expansion": {
+          "identifier": "urn:uuid:c0b356bd-2922-40ca-a05c-dc00341c4041",
+          "timestamp": "2025-08-29T13:52:51-04:00",
+          "total": 6,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "1002-5",
+              "display": "American Indian or Alaska Native"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2028-9",
+              "display": "Asian"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2054-5",
+              "display": "Black or African American"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2076-8",
+              "display": "Native Hawaiian or Other Pacific Islander"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2106-3",
+              "display": "White"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2131-1",
+              "display": "Other Race"
+            }
+          ]
+        },
+        "description": "Race",
+        "compose": {
+          "include": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "concept": [
+                {
+                  "code": "1002-5",
+                  "display": "American Indian or Alaska Native"
+                },
+                {
+                  "code": "2028-9",
+                  "display": "Asian"
+                },
+                {
+                  "code": "2054-5",
+                  "display": "Black or African American"
+                },
+                {
+                  "code": "2076-8",
+                  "display": "Native Hawaiian or Other Pacific Islander"
+                },
+                {
+                  "code": "2106-3",
+                  "display": "White"
+                },
+                {
+                  "code": "2131-1",
+                  "display": "Other Race"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.114222.4.11.836"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.114222.4.11.837",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.837",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.114222.4.11.837"
+          }
+        ],
+        "version": "20121025",
+        "name": "Ethnicity",
+        "title": "Ethnicity",
+        "status": "active",
+        "experimental": false,
+        "date": "2012-10-25T12:28:31-04:00",
+        "publisher": "CDC NCHS",
+        "expansion": {
+          "identifier": "urn:uuid:df717c4f-48f0-4a55-9fe0-931b6236c070",
+          "timestamp": "2025-08-29T13:46:52-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2135-2",
+              "display": "Hispanic or Latino"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2186-5",
+              "display": "Not Hispanic or Latino"
+            }
+          ]
+        },
+        "description": "Ethnicity",
+        "compose": {
+          "include": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "concept": [
+                {
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                },
+                {
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.114222.4.11.837"
+      }
+    }
+  ]
+}

@@ -1,0 +1,3851 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.666.5.307-20200307",
+        "meta": {
+          "versionId": "33",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "Lantana EH Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.666.5.307",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.666.5.307"
+          }
+        ],
+        "version": "20200307",
+        "name": "EncounterInpatient",
+        "title": "Encounter Inpatient",
+        "status": "active",
+        "experimental": false,
+        "date": "2020-03-07T01:00:21-05:00",
+        "publisher": "Lantana EH Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts of  inpatient hospitalization encounters.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent an encounter for inpatient hospitalizations.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "183452005",
+                  "display": "Emergency hospital admission (procedure)"
+                },
+                {
+                  "code": "32485007",
+                  "display": "Hospital admission (procedure)"
+                },
+                {
+                  "code": "8715000",
+                  "display": "Hospital admission, elective (procedure)"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:74118b1f-9b54-4687-bd66-edfd70fbcc20",
+          "timestamp": "2025-08-28T16:52:13-04:00",
+          "total": 3,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "183452005",
+              "display": "Emergency hospital admission (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "32485007",
+              "display": "Hospital admission (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "8715000",
+              "display": "Hospital admission, elective (procedure)"
+            }
+          ]
+        },
+        "description": "Encounter Inpatient"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.666.5.307-20200307"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.114222.4.11.3591-20250419",
+        "meta": {
+          "versionId": "32",
+          "lastUpdated": "2025-04-19T06:02:35.000-04:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "HL7 US Realm Program Management Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.3591",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.114222.4.11.3591"
+          }
+        ],
+        "version": "20250419",
+        "name": "PayerType",
+        "title": "Payer Type",
+        "status": "active",
+        "date": "2025-04-19T06:02:35-04:00",
+        "publisher": "HL7 US Realm Program Management Steward",
+        "description": "2025 April version was changed to reduce the amount of granular vs higher level categories of insurance (payer) types. Note that the code system from where these codes are drawn is now owned by the CDC and not owned by NAHDO. CDC Contact: sopt@cdc.gov",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: Categories of types of health care payer entities as defined by the US Public Health Data Consortium SOP code system),(Data Element Scope: Concepts intended to represent categories of insurance (payer) types.),(Inclusion Criteria: Codes representing high level categories of insurance (payer) types),(Exclusion Criteria: Codes representing, subdivisions of insurance categories and or specific private insurance companies)",
+        "compose": {
+          "include": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "concept": [
+                {
+                  "code": "1",
+                  "display": "MEDICARE"
+                },
+                {
+                  "code": "11",
+                  "display": "Medicare Managed Care (Includes Medicare Advantage Plans)"
+                },
+                {
+                  "code": "1111",
+                  "display": "Medicare Chronic Condition Special Needs Plan (C-SNP)"
+                },
+                {
+                  "code": "112",
+                  "display": "Medicare PPO"
+                },
+                {
+                  "code": "113",
+                  "display": "Medicare POS"
+                },
+                {
+                  "code": "119",
+                  "display": "Medicare Managed Care Other"
+                },
+                {
+                  "code": "12",
+                  "display": "Medicare (Non-managed Care)"
+                },
+                {
+                  "code": "121",
+                  "display": "Medicare FFS"
+                },
+                {
+                  "code": "122",
+                  "display": "Medicare Drug Benefit"
+                },
+                {
+                  "code": "123",
+                  "display": "Medicare Medical Savings Account (MSA)"
+                },
+                {
+                  "code": "129",
+                  "display": "Medicare Non-managed Care Other"
+                },
+                {
+                  "code": "13",
+                  "display": "Medicare Hospice"
+                },
+                {
+                  "code": "14",
+                  "display": "Dual Eligibility Medicare/Medicaid Organization"
+                },
+                {
+                  "code": "141",
+                  "display": "Dual Eligible Special Needs Plan (D-SNP)"
+                },
+                {
+                  "code": "142",
+                  "display": "Fully Integrated Dual Eligible Special Needs Plan (FIDE-SNP)"
+                },
+                {
+                  "code": "19",
+                  "display": "Medicare Other"
+                },
+                {
+                  "code": "191",
+                  "display": "Medicare Pharmacy Benefit Manager"
+                },
+                {
+                  "code": "2",
+                  "display": "MEDICAID"
+                },
+                {
+                  "code": "21",
+                  "display": "Medicaid (Managed Care)"
+                },
+                {
+                  "code": "211",
+                  "display": "Medicaid HMO"
+                },
+                {
+                  "code": "212",
+                  "display": "Medicaid PPO"
+                },
+                {
+                  "code": "213",
+                  "display": "Medicaid PCCM (Primary Care Case Management)"
+                },
+                {
+                  "code": "219",
+                  "display": "Medicaid Managed Care Other"
+                },
+                {
+                  "code": "22",
+                  "display": "Medicaid (Non-managed Care Plan)"
+                },
+                {
+                  "code": "23",
+                  "display": "Medicaid/SCHIP"
+                },
+                {
+                  "code": "25",
+                  "display": "Medicaid - Out of State"
+                },
+                {
+                  "code": "26",
+                  "display": "Medicaid - Long Term Care"
+                },
+                {
+                  "code": "29",
+                  "display": "Medicaid Other"
+                },
+                {
+                  "code": "291",
+                  "display": "Medicaid Pharmacy Benefit Manager"
+                },
+                {
+                  "code": "299",
+                  "display": "Medicaid - Dental"
+                },
+                {
+                  "code": "3",
+                  "display": "OTHER GOVERNMENT (Federal/State/Local) (excluding Department of Corrections)"
+                },
+                {
+                  "code": "31",
+                  "display": "Department of Defense"
+                },
+                {
+                  "code": "311",
+                  "display": "TRICARE (CHAMPUS)"
+                },
+                {
+                  "code": "3113",
+                  "display": "TRICARE Standard - Fee For Service"
+                },
+                {
+                  "code": "312",
+                  "display": "Military Treatment Facility"
+                },
+                {
+                  "code": "3123",
+                  "display": "TRICARE For Life (TFL)"
+                },
+                {
+                  "code": "313",
+                  "display": "Dental --Stand Alone"
+                },
+                {
+                  "code": "32",
+                  "display": "Department of Veterans Affairs"
+                },
+                {
+                  "code": "321",
+                  "display": "Veteran care-Care provided to Veterans"
+                },
+                {
+                  "code": "322",
+                  "display": "Non-veteran care"
+                },
+                {
+                  "code": "3221",
+                  "display": "Civilian Health and Medical Program for the VA (CHAMPVA)"
+                },
+                {
+                  "code": "33",
+                  "display": "Indian Health Service or Tribe"
+                },
+                {
+                  "code": "331",
+                  "display": "Indian Health Service - Regular"
+                },
+                {
+                  "code": "332",
+                  "display": "Indian Health Service - Contract"
+                },
+                {
+                  "code": "333",
+                  "display": "Indian Health Service - Managed Care"
+                },
+                {
+                  "code": "334",
+                  "display": "Indian Tribe - Sponsored Coverage"
+                },
+                {
+                  "code": "34",
+                  "display": "HRSA Program"
+                },
+                {
+                  "code": "341",
+                  "display": "Title V (MCH Block Grant)"
+                },
+                {
+                  "code": "342",
+                  "display": "Migrant Health Program"
+                },
+                {
+                  "code": "343",
+                  "display": "Ryan White Act"
+                },
+                {
+                  "code": "344",
+                  "display": "Disaster-related (includes Covid-19)"
+                },
+                {
+                  "code": "349",
+                  "display": "Other"
+                },
+                {
+                  "code": "35",
+                  "display": "Black Lung"
+                },
+                {
+                  "code": "36",
+                  "display": "State Government"
+                },
+                {
+                  "code": "361",
+                  "display": "State SCHIP program (codes for individual states)"
+                },
+                {
+                  "code": "362",
+                  "display": "Specific state programs (list/ local code)"
+                },
+                {
+                  "code": "369",
+                  "display": "State, not otherwise specified (other state)"
+                },
+                {
+                  "code": "37",
+                  "display": "Local Government"
+                },
+                {
+                  "code": "371",
+                  "display": "Local - Managed care"
+                },
+                {
+                  "code": "372",
+                  "display": "FFS/Indemnity"
+                },
+                {
+                  "code": "379",
+                  "display": "Local, not otherwise specified (other local, county)"
+                },
+                {
+                  "code": "38",
+                  "display": "Other Government (Federal, State, Local not specified)"
+                },
+                {
+                  "code": "381",
+                  "display": "Federal, State, Local not specified managed care"
+                },
+                {
+                  "code": "382",
+                  "display": "Federal, State, Local not specified - FFS"
+                },
+                {
+                  "code": "389",
+                  "display": "Federal, State, Local not specified - Other"
+                },
+                {
+                  "code": "39",
+                  "display": "Other Federal"
+                },
+                {
+                  "code": "391",
+                  "display": "Federal Employee Health Plan - Use when known"
+                },
+                {
+                  "code": "4",
+                  "display": "DEPARTMENTS OF CORRECTIONS"
+                },
+                {
+                  "code": "41",
+                  "display": "Corrections Federal"
+                },
+                {
+                  "code": "42",
+                  "display": "Corrections State"
+                },
+                {
+                  "code": "43",
+                  "display": "Corrections Local"
+                },
+                {
+                  "code": "44",
+                  "display": "Corrections Unknown Level"
+                },
+                {
+                  "code": "5",
+                  "display": "PRIVATE HEALTH INSURANCE"
+                },
+                {
+                  "code": "51",
+                  "display": "Managed Care (Private)"
+                },
+                {
+                  "code": "511",
+                  "display": "Commercial Managed Care - HMO"
+                },
+                {
+                  "code": "512",
+                  "display": "Commercial Managed Care - PPO"
+                },
+                {
+                  "code": "513",
+                  "display": "Commercial Managed Care - POS"
+                },
+                {
+                  "code": "514",
+                  "display": "Exclusive Provider Organization"
+                },
+                {
+                  "code": "515",
+                  "display": "Gatekeeper PPO (GPPO)"
+                },
+                {
+                  "code": "516",
+                  "display": "Commercial Managed Care - Pharmacy Benefit Manager"
+                },
+                {
+                  "code": "517",
+                  "display": "Commercial Managed Care - Dental"
+                },
+                {
+                  "code": "519",
+                  "display": "Managed Care, Other (non HMO)"
+                },
+                {
+                  "code": "52",
+                  "display": "Private Health Insurance - Indemnity"
+                },
+                {
+                  "code": "521",
+                  "display": "Commercial Indemnity"
+                },
+                {
+                  "code": "522",
+                  "display": "Self-insured (ERISA) Administrative Services Only (ASO) plan"
+                },
+                {
+                  "code": "523",
+                  "display": "Medicare supplemental policy (as second payer)"
+                },
+                {
+                  "code": "524",
+                  "display": "Indemnity Insurance - Dental"
+                },
+                {
+                  "code": "529",
+                  "display": "Private health insurance--other commercial Indemnity"
+                },
+                {
+                  "code": "53",
+                  "display": "Managed Care (private) or private health insurance (indemnity), not otherwise specified"
+                },
+                {
+                  "code": "54",
+                  "display": "Organized Delivery System"
+                },
+                {
+                  "code": "55",
+                  "display": "Small Employer Purchasing Group"
+                },
+                {
+                  "code": "56",
+                  "display": "Specialized Stand-Alone Plan"
+                },
+                {
+                  "code": "561",
+                  "display": "Dental"
+                },
+                {
+                  "code": "562",
+                  "display": "Vision"
+                },
+                {
+                  "code": "59",
+                  "display": "Other Private Insurance"
+                },
+                {
+                  "code": "7",
+                  "display": "MANAGED CARE, UNSPECIFIED (to be used only if one can't distinguish public from private)"
+                },
+                {
+                  "code": "71",
+                  "display": "HMO"
+                },
+                {
+                  "code": "72",
+                  "display": "PPO"
+                },
+                {
+                  "code": "73",
+                  "display": "POS"
+                },
+                {
+                  "code": "79",
+                  "display": "Other Managed Care"
+                },
+                {
+                  "code": "8",
+                  "display": "NO PAYMENT from an Organization/Agency/Program/Private Payer Listed"
+                },
+                {
+                  "code": "81",
+                  "display": "Self-pay (Includes applicants for insurance and Medicaid applicants)"
+                },
+                {
+                  "code": "82",
+                  "display": "No Charge"
+                },
+                {
+                  "code": "821",
+                  "display": "Charity"
+                },
+                {
+                  "code": "822",
+                  "display": "Professional Courtesy"
+                },
+                {
+                  "code": "823",
+                  "display": "Research/Clinical Trial"
+                },
+                {
+                  "code": "83",
+                  "display": "Refusal to Pay/Bad Debt"
+                },
+                {
+                  "code": "84",
+                  "display": "Hill Burton Free Care"
+                },
+                {
+                  "code": "85",
+                  "display": "Research/Donor"
+                },
+                {
+                  "code": "89",
+                  "display": "No Payment, Other"
+                },
+                {
+                  "code": "9",
+                  "display": "MISCELLANEOUS/OTHER"
+                },
+                {
+                  "code": "91",
+                  "display": "Foreign National"
+                },
+                {
+                  "code": "92",
+                  "display": "Other (Non-government)"
+                },
+                {
+                  "code": "93",
+                  "display": "Disability Insurance"
+                },
+                {
+                  "code": "94",
+                  "display": "Long-term Care Insurance"
+                },
+                {
+                  "code": "95",
+                  "display": "Worker's Compensation"
+                },
+                {
+                  "code": "951",
+                  "display": "Worker's Comp HMO"
+                },
+                {
+                  "code": "953",
+                  "display": "Worker's Comp Fee-for-Service"
+                },
+                {
+                  "code": "954",
+                  "display": "Worker's Comp Other Managed Care"
+                },
+                {
+                  "code": "959",
+                  "display": "Worker's Comp, Other unspecified"
+                },
+                {
+                  "code": "96",
+                  "display": "Auto Insurance (includes no fault)"
+                },
+                {
+                  "code": "97",
+                  "display": "Legal Liability / Liability Insurance"
+                },
+                {
+                  "code": "98",
+                  "display": "Other specified but not otherwise classifiable (includes Hospice - Unspecified plan)"
+                },
+                {
+                  "code": "99",
+                  "display": "No Typology Code available for payment source"
+                },
+                {
+                  "code": "9999",
+                  "display": "Unavailable / No Payer Specified / Blank"
+                }
+              ]
+            }
+          ],
+          "exclude": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "111"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "1112"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3111"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3112"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3114"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3115"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3116"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3119"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3121"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3122"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "descendent-of",
+                  "value": "321"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3222"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3223"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "=",
+                  "value": "3229"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "descendent-of",
+                  "value": "371"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "descendent-of",
+                  "value": "381"
+                }
+              ]
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "version": "9.2",
+              "filter": [
+                {
+                  "property": "concept",
+                  "op": "is-a",
+                  "value": "6"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:51ec0c3b-015e-44f4-901d-6535f80fbe1f",
+          "timestamp": "2025-08-28T17:03:05-04:00",
+          "total": 125,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "1",
+              "display": "MEDICARE"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "11",
+              "display": "Medicare Managed Care (Includes Medicare Advantage Plans)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "1111",
+              "display": "Medicare Chronic Condition Special Needs Plan (C-SNP)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "112",
+              "display": "Medicare PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "113",
+              "display": "Medicare POS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "119",
+              "display": "Medicare Managed Care Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "12",
+              "display": "Medicare (Non-managed Care)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "121",
+              "display": "Medicare FFS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "122",
+              "display": "Medicare Drug Benefit"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "123",
+              "display": "Medicare Medical Savings Account (MSA)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "129",
+              "display": "Medicare Non-managed Care Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "13",
+              "display": "Medicare Hospice"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "14",
+              "display": "Dual Eligibility Medicare/Medicaid Organization"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "141",
+              "display": "Dual Eligible Special Needs Plan (D-SNP)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "142",
+              "display": "Fully Integrated Dual Eligible Special Needs Plan (FIDE-SNP)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "19",
+              "display": "Medicare Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "191",
+              "display": "Medicare Pharmacy Benefit Manager"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "2",
+              "display": "MEDICAID"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "21",
+              "display": "Medicaid (Managed Care)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "211",
+              "display": "Medicaid HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "212",
+              "display": "Medicaid PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "213",
+              "display": "Medicaid PCCM (Primary Care Case Management)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "219",
+              "display": "Medicaid Managed Care Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "22",
+              "display": "Medicaid (Non-managed Care Plan)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "23",
+              "display": "Medicaid/SCHIP"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "25",
+              "display": "Medicaid - Out of State"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "26",
+              "display": "Medicaid - Long Term Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "29",
+              "display": "Medicaid Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "291",
+              "display": "Medicaid Pharmacy Benefit Manager"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "299",
+              "display": "Medicaid - Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3",
+              "display": "OTHER GOVERNMENT (Federal/State/Local) (excluding Department of Corrections)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "31",
+              "display": "Department of Defense"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "311",
+              "display": "TRICARE (CHAMPUS)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3113",
+              "display": "TRICARE Standard - Fee For Service"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "312",
+              "display": "Military Treatment Facility"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3123",
+              "display": "TRICARE For Life (TFL)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "313",
+              "display": "Dental --Stand Alone"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "32",
+              "display": "Department of Veterans Affairs"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "321",
+              "display": "Veteran care-Care provided to Veterans"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "322",
+              "display": "Non-veteran care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "3221",
+              "display": "Civilian Health and Medical Program for the VA (CHAMPVA)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "33",
+              "display": "Indian Health Service or Tribe"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "331",
+              "display": "Indian Health Service - Regular"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "332",
+              "display": "Indian Health Service - Contract"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "333",
+              "display": "Indian Health Service - Managed Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "334",
+              "display": "Indian Tribe - Sponsored Coverage"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "34",
+              "display": "HRSA Program"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "341",
+              "display": "Title V (MCH Block Grant)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "342",
+              "display": "Migrant Health Program"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "343",
+              "display": "Ryan White Act"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "344",
+              "display": "Disaster-related (includes Covid-19)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "349",
+              "display": "Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "35",
+              "display": "Black Lung"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "36",
+              "display": "State Government"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "361",
+              "display": "State SCHIP program (codes for individual states)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "362",
+              "display": "Specific state programs (list/ local code)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "369",
+              "display": "State, not otherwise specified (other state)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "37",
+              "display": "Local Government"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "371",
+              "display": "Local - Managed care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "372",
+              "display": "FFS/Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "379",
+              "display": "Local, not otherwise specified (other local, county)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "38",
+              "display": "Other Government (Federal, State, Local not specified)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "381",
+              "display": "Federal, State, Local not specified managed care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "382",
+              "display": "Federal, State, Local not specified - FFS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "389",
+              "display": "Federal, State, Local not specified - Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "39",
+              "display": "Other Federal"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "391",
+              "display": "Federal Employee Health Plan - Use when known"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "4",
+              "display": "DEPARTMENTS OF CORRECTIONS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "41",
+              "display": "Corrections Federal"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "42",
+              "display": "Corrections State"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "43",
+              "display": "Corrections Local"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "44",
+              "display": "Corrections Unknown Level"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "5",
+              "display": "PRIVATE HEALTH INSURANCE"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "51",
+              "display": "Managed Care (Private)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "511",
+              "display": "Commercial Managed Care - HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "512",
+              "display": "Commercial Managed Care - PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "513",
+              "display": "Commercial Managed Care - POS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "514",
+              "display": "Exclusive Provider Organization"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "515",
+              "display": "Gatekeeper PPO (GPPO)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "516",
+              "display": "Commercial Managed Care - Pharmacy Benefit Manager"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "517",
+              "display": "Commercial Managed Care - Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "519",
+              "display": "Managed Care, Other (non HMO)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "52",
+              "display": "Private Health Insurance - Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "521",
+              "display": "Commercial Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "522",
+              "display": "Self-insured (ERISA) Administrative Services Only (ASO) plan"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "523",
+              "display": "Medicare supplemental policy (as second payer)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "524",
+              "display": "Indemnity Insurance - Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "529",
+              "display": "Private health insurance--other commercial Indemnity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "53",
+              "display": "Managed Care (private) or private health insurance (indemnity), not otherwise specified"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "54",
+              "display": "Organized Delivery System"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "55",
+              "display": "Small Employer Purchasing Group"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "56",
+              "display": "Specialized Stand-Alone Plan"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "561",
+              "display": "Dental"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "562",
+              "display": "Vision"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "59",
+              "display": "Other Private Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "7",
+              "display": "MANAGED CARE, UNSPECIFIED (to be used only if one can't distinguish public from private)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "71",
+              "display": "HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "72",
+              "display": "PPO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "73",
+              "display": "POS"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "79",
+              "display": "Other Managed Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "8",
+              "display": "NO PAYMENT from an Organization/Agency/Program/Private Payer Listed"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "81",
+              "display": "Self-pay (Includes applicants for insurance and Medicaid applicants)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "82",
+              "display": "No Charge"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "821",
+              "display": "Charity"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "822",
+              "display": "Professional Courtesy"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "823",
+              "display": "Research/Clinical Trial"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "83",
+              "display": "Refusal to Pay/Bad Debt"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "84",
+              "display": "Hill Burton Free Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "85",
+              "display": "Research/Donor"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "89",
+              "display": "No Payment, Other"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "9",
+              "display": "MISCELLANEOUS/OTHER"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "91",
+              "display": "Foreign National"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "92",
+              "display": "Other (Non-government)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "93",
+              "display": "Disability Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "94",
+              "display": "Long-term Care Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "95",
+              "display": "Worker's Compensation"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "951",
+              "display": "Worker's Comp HMO"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "953",
+              "display": "Worker's Comp Fee-for-Service"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "954",
+              "display": "Worker's Comp Other Managed Care"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "959",
+              "display": "Worker's Comp, Other unspecified"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "96",
+              "display": "Auto Insurance (includes no fault)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "97",
+              "display": "Legal Liability / Liability Insurance"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "98",
+              "display": "Other specified but not otherwise classifiable (includes Hospice - Unspecified plan)"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "99",
+              "display": "No Typology Code available for payment source"
+            },
+            {
+              "system": "https://nahdo.org/sopt",
+              "inactive": false,
+              "version": "9.2",
+              "code": "9999",
+              "display": "Unavailable / No Payer Specified / Blank"
+            }
+          ]
+        },
+        "experimental": false
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.114222.4.11.3591-20250419"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113762.1.4.1021.121",
+        "meta": {
+          "versionId": "12",
+          "lastUpdated": "2025-05-21T11:15:55.000-04:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1021.121",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113762.1.4.1021.121"
+          }
+        ],
+        "version": "20250228",
+        "name": "FederalAdministrativeSex",
+        "title": "Federal Administrative Sex",
+        "status": "active",
+        "date": "2025-02-28T01:07:20-05:00",
+        "publisher": "HL7 US Realm Program Management Steward",
+        "expansion": {
+          "identifier": "urn:uuid:0a80c455-fc01-4fdb-9e7e-25e2f24458cc",
+          "timestamp": "2025-08-29T13:49:36-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "248152002",
+              "display": "Female (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "248153007",
+              "display": "Male (finding)"
+            }
+          ]
+        },
+        "description": "Federal Administrative Sex",
+        "experimental": false,
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "248152002",
+                  "display": "Female (finding)"
+                },
+                {
+                  "code": "248153007",
+                  "display": "Male (finding)"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113762.1.4.1021.121"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.526.3.1584-20210825",
+        "meta": {
+          "versionId": "16",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1584",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.526.3.1584"
+          }
+        ],
+        "version": "20210825",
+        "name": "HospiceCareAmbulatory",
+        "title": "Hospice Care Ambulatory",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-07T11:14:02-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts of interventions to identify patients receiving hospice care outside of a hospital or long term care facility.),(Data Element Scope: This value set may use a model element related to Procedure or Intervention.),(Inclusion Criteria: Includes concepts that represent a procedure or intervention for\u00a0hospice care.),(Exclusion Criteria: Excludes concepts that represent palliative care or comfort measures.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "170935008",
+                  "display": "Full care by hospice (finding)"
+                },
+                {
+                  "code": "170936009",
+                  "display": "Shared care - hospice and general practitioner (finding)"
+                },
+                {
+                  "code": "385763009",
+                  "display": "Hospice care (regime/therapy)"
+                }
+              ]
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "concept": [
+                {
+                  "code": "99377",
+                  "display": "Supervision of a hospice patient (patient not present) requiring complex and multidisciplinary care modalities involving regular development and/or revision of care plans by that individual, review of subsequent reports of patient status, review of related laboratory and other studies, communication (including telephone calls) for purposes of assessment or care decisions with health care professional(s), family member(s), surrogate decision maker(s) (eg, legal guardian) and/or key caregiver(s) involved in patient's care, integration of new information into the medical treatment plan and/or adjustment of medical therapy, within a calendar month; 15-29 minutes"
+                },
+                {
+                  "code": "99378",
+                  "display": "Supervision of a hospice patient (patient not present) requiring complex and multidisciplinary care modalities involving regular development and/or revision of care plans by that individual, review of subsequent reports of patient status, review of related laboratory and other studies, communication (including telephone calls) for purposes of assessment or care decisions with health care professional(s), family member(s), surrogate decision maker(s) (eg, legal guardian) and/or key caregiver(s) involved in patient's care, integration of new information into the medical treatment plan and/or adjustment of medical therapy, within a calendar month; 30 minutes or more"
+                }
+              ]
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "concept": [
+                {
+                  "code": "G0182",
+                  "display": "Physician supervision of a patient under a medicare-approved hospice (patient not present) requiring complex and multidisciplinary care modalities involving regular physician development and/or revision of care plans, review of subsequent reports of patient status, review of laboratory and other studies, communication (including telephone calls) with other health care professionals involved in the patient's care, integration of new information into the medical treatment plan and/or adjustment of medical therapy, within a calendar month, 30 minutes or more"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:ffd48a34-c435-445c-8ba7-d646c9118be6",
+          "timestamp": "2025-08-28T17:07:48-04:00",
+          "total": 6,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "170935008",
+              "display": "Full care by hospice (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "170936009",
+              "display": "Shared care - hospice and general practitioner (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "385763009",
+              "display": "Hospice care (regime/therapy)"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99377",
+              "display": "Supervision of a hospice patient (patient not present) requiring complex and multidisciplinary care modalities involving regular development and/or revision of care plans by that individual, review of subsequent reports of patient status, review of related laboratory and other studies, communication (including telephone calls) for purposes of assessment or care decisions with health care professional(s), family member(s), surrogate decision maker(s) (eg, legal guardian) and/or key caregiver(s) involved in patient's care, integration of new information into the medical treatment plan and/or adjustment of medical therapy, within a calendar month; 15-29 minutes"
+            },
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "inactive": false,
+              "version": "2025",
+              "code": "99378",
+              "display": "Supervision of a hospice patient (patient not present) requiring complex and multidisciplinary care modalities involving regular development and/or revision of care plans by that individual, review of subsequent reports of patient status, review of related laboratory and other studies, communication (including telephone calls) for purposes of assessment or care decisions with health care professional(s), family member(s), surrogate decision maker(s) (eg, legal guardian) and/or key caregiver(s) involved in patient's care, integration of new information into the medical treatment plan and/or adjustment of medical therapy, within a calendar month; 30 minutes or more"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G0182",
+              "display": "Physician supervision of a patient under a medicare-approved hospice (patient not present) requiring complex and multidisciplinary care modalities involving regular physician development and/or revision of care plans, review of subsequent reports of patient status, review of laboratory and other studies, communication (including telephone calls) with other health care professionals involved in the patient's care, integration of new information into the medical treatment plan and/or adjustment of medical therapy, within a calendar month, 30 minutes or more"
+            }
+          ]
+        },
+        "description": "Hospice Care Ambulatory"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.526.3.1584-20210825"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.1003-20210820",
+        "meta": {
+          "versionId": "9",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.1003",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.1003"
+          }
+        ],
+        "version": "20210820",
+        "name": "HospiceEncounter",
+        "title": "Hospice Encounter",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-03-03T18:46:01-05:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for encounters for hospice care services.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent hospice services in a hospice, home or inpatient setting.),(Exclusion Criteria: Excludes concepts that represent palliative care or comfort measures.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "183919006",
+                  "display": "Urgent admission to hospice (procedure)"
+                },
+                {
+                  "code": "183920000",
+                  "display": "Routine admission to hospice (procedure)"
+                },
+                {
+                  "code": "183921001",
+                  "display": "Admission to hospice for respite (procedure)"
+                },
+                {
+                  "code": "305336008",
+                  "display": "Admission to hospice (procedure)"
+                },
+                {
+                  "code": "305911006",
+                  "display": "Seen in hospice (finding)"
+                },
+                {
+                  "code": "385765002",
+                  "display": "Hospice care management (procedure)"
+                }
+              ]
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "concept": [
+                {
+                  "code": "G9473",
+                  "display": "Services performed by chaplain in the hospice setting, each 15 minutes"
+                },
+                {
+                  "code": "G9474",
+                  "display": "Services performed by dietary counselor in the hospice setting, each 15 minutes"
+                },
+                {
+                  "code": "G9475",
+                  "display": "Services performed by other counselor in the hospice setting, each 15 minutes"
+                },
+                {
+                  "code": "G9476",
+                  "display": "Services performed by volunteer in the hospice setting, each 15 minutes"
+                },
+                {
+                  "code": "G9477",
+                  "display": "Services performed by care coordinator in the hospice setting, each 15 minutes"
+                },
+                {
+                  "code": "G9478",
+                  "display": "Services performed by other qualified therapist in the hospice setting, each 15 minutes"
+                },
+                {
+                  "code": "G9479",
+                  "display": "Services performed by qualified pharmacist in the hospice setting, each 15 minutes"
+                },
+                {
+                  "code": "Q5003",
+                  "display": "Hospice care provided in nursing long term care facility (ltc) or non-skilled nursing facility (nf)"
+                },
+                {
+                  "code": "Q5004",
+                  "display": "Hospice care provided in skilled nursing facility (snf)"
+                },
+                {
+                  "code": "Q5005",
+                  "display": "Hospice care provided in inpatient hospital"
+                },
+                {
+                  "code": "Q5006",
+                  "display": "Hospice care provided in inpatient hospice facility"
+                },
+                {
+                  "code": "Q5007",
+                  "display": "Hospice care provided in long term care facility"
+                },
+                {
+                  "code": "Q5008",
+                  "display": "Hospice care provided in inpatient psychiatric facility"
+                },
+                {
+                  "code": "Q5010",
+                  "display": "Hospice home care provided in a hospice facility"
+                },
+                {
+                  "code": "S9126",
+                  "display": "Hospice care, in the home, per diem"
+                },
+                {
+                  "code": "T2042",
+                  "display": "Hospice routine home care; per diem"
+                },
+                {
+                  "code": "T2043",
+                  "display": "Hospice continuous home care; per hour"
+                },
+                {
+                  "code": "T2044",
+                  "display": "Hospice inpatient respite care; per diem"
+                },
+                {
+                  "code": "T2045",
+                  "display": "Hospice general inpatient care; per diem"
+                },
+                {
+                  "code": "T2046",
+                  "display": "Hospice long term care, room and board only; per diem"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:12f7e191-f0e1-400d-8314-3d23c8797be3",
+          "timestamp": "2025-08-28T16:49:51-04:00",
+          "total": 26,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "183919006",
+              "display": "Urgent admission to hospice (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "183920000",
+              "display": "Routine admission to hospice (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "183921001",
+              "display": "Admission to hospice for respite (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "305336008",
+              "display": "Admission to hospice (procedure)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "305911006",
+              "display": "Seen in hospice (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "385765002",
+              "display": "Hospice care management (procedure)"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G9473",
+              "display": "Services performed by chaplain in the hospice setting, each 15 minutes"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G9474",
+              "display": "Services performed by dietary counselor in the hospice setting, each 15 minutes"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G9475",
+              "display": "Services performed by other counselor in the hospice setting, each 15 minutes"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G9476",
+              "display": "Services performed by volunteer in the hospice setting, each 15 minutes"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G9477",
+              "display": "Services performed by care coordinator in the hospice setting, each 15 minutes"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G9478",
+              "display": "Services performed by other qualified therapist in the hospice setting, each 15 minutes"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "G9479",
+              "display": "Services performed by qualified pharmacist in the hospice setting, each 15 minutes"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "Q5003",
+              "display": "Hospice care provided in nursing long term care facility (ltc) or non-skilled nursing facility (nf)"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "Q5004",
+              "display": "Hospice care provided in skilled nursing facility (snf)"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "Q5005",
+              "display": "Hospice care provided in inpatient hospital"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "Q5006",
+              "display": "Hospice care provided in inpatient hospice facility"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "Q5007",
+              "display": "Hospice care provided in long term care facility"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "Q5008",
+              "display": "Hospice care provided in inpatient psychiatric facility"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "Q5010",
+              "display": "Hospice home care provided in a hospice facility"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "S9126",
+              "display": "Hospice care, in the home, per diem"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "T2042",
+              "display": "Hospice routine home care; per diem"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "T2043",
+              "display": "Hospice continuous home care; per hour"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "T2044",
+              "display": "Hospice inpatient respite care; per diem"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "T2045",
+              "display": "Hospice general inpatient care; per diem"
+            },
+            {
+              "system": "http://www.cms.gov/Medicare/Coding/HCPCSReleaseCodeSets",
+              "inactive": false,
+              "version": "2025",
+              "code": "T2046",
+              "display": "Hospice long term care, room and board only; per diem"
+            }
+          ]
+        },
+        "description": "Hospice Encounter"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.1003-20210820"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.125.12.1003-20170504",
+        "meta": {
+          "versionId": "17",
+          "lastUpdated": "2024-08-12T10:43:59.000-04:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Institutes for Research Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1003",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.125.12.1003"
+          }
+        ],
+        "version": "20170504",
+        "name": "ClinicalOralEvaluation",
+        "title": "Clinical Oral Evaluation",
+        "status": "active",
+        "experimental": false,
+        "date": "2017-05-04T01:00:13-04:00",
+        "publisher": "American Institutes for Research Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for encounters for clinical oral evaluations.),(Data Element Scope: This value set may use a model element related to Encounter.),(Inclusion Criteria: Includes concepts that represent an encounter for periodic or limited (problem focused) or comprehensive oral evaluations and re-evaluations.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://www.ada.org/cdt",
+              "concept": [
+                {
+                  "code": "D0120",
+                  "display": "periodic oral evaluation - established patient"
+                },
+                {
+                  "code": "D0140",
+                  "display": "limited oral evaluation - problem focused"
+                },
+                {
+                  "code": "D0145",
+                  "display": "oral evaluation for a patient under three years of age and counseling with primary caregiver"
+                },
+                {
+                  "code": "D0150",
+                  "display": "comprehensive oral evaluation - new or established patient"
+                },
+                {
+                  "code": "D0160",
+                  "display": "detailed and extensive oral evaluation - problem focused, by report"
+                },
+                {
+                  "code": "D0170",
+                  "display": "re-evaluation - limited, problem focused (established patient; not post-operative visit)"
+                },
+                {
+                  "code": "D0180",
+                  "display": "comprehensive periodontal evaluation - new or established patient"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:16ac738a-2fd0-4634-9bbb-09a7950968ed",
+          "timestamp": "2025-08-28T16:56:46-04:00",
+          "total": 7,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://www.ada.org/cdt",
+              "inactive": false,
+              "version": "2023",
+              "code": "D0120",
+              "display": "periodic oral evaluation - established patient"
+            },
+            {
+              "system": "http://www.ada.org/cdt",
+              "inactive": false,
+              "version": "2023",
+              "code": "D0140",
+              "display": "limited oral evaluation - problem focused"
+            },
+            {
+              "system": "http://www.ada.org/cdt",
+              "inactive": false,
+              "version": "2023",
+              "code": "D0145",
+              "display": "oral evaluation for a patient under three years of age and counseling with primary caregiver"
+            },
+            {
+              "system": "http://www.ada.org/cdt",
+              "inactive": false,
+              "version": "2023",
+              "code": "D0150",
+              "display": "comprehensive oral evaluation - new or established patient"
+            },
+            {
+              "system": "http://www.ada.org/cdt",
+              "inactive": false,
+              "version": "2023",
+              "code": "D0160",
+              "display": "detailed and extensive oral evaluation - problem focused, by report"
+            },
+            {
+              "system": "http://www.ada.org/cdt",
+              "inactive": false,
+              "version": "2023",
+              "code": "D0170",
+              "display": "re-evaluation - limited, problem focused (established patient; not post-operative visit)"
+            },
+            {
+              "system": "http://www.ada.org/cdt",
+              "inactive": false,
+              "version": "2023",
+              "code": "D0180",
+              "display": "comprehensive periodontal evaluation - new or established patient"
+            }
+          ]
+        },
+        "description": "Clinical Oral Evaluation"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.125.12.1003-20170504"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.125.12.1004-20210220",
+        "meta": {
+          "versionId": "24",
+          "lastUpdated": "2024-08-12T10:47:10.000-04:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "American Institutes for Research Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1004",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.125.12.1004"
+          }
+        ],
+        "version": "20210220",
+        "name": "DentalCaries",
+        "title": "Dental Caries",
+        "status": "active",
+        "experimental": false,
+        "date": "2021-02-20T01:03:49-05:00",
+        "publisher": "American Institutes for Research Steward",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts for a diagnosis of  dental caries.),(Data Element Scope: This value set may use a model element related to Diagnosis.),(Inclusion Criteria: Includes concepts that represent a diagnosis of dental caries.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "1085951000119102",
+                  "display": "Dental caries on pit and fissure surface limited to enamel (disorder)"
+                },
+                {
+                  "code": "1085961000119100",
+                  "display": "Dental caries on pit and fissure surface penetrating into dentin (disorder)"
+                },
+                {
+                  "code": "1085971000119106",
+                  "display": "Dental caries on pit and fissure surface penetrating into pulp (disorder)"
+                },
+                {
+                  "code": "1085981000119109",
+                  "display": "Dental caries on smooth surface limited to enamel (disorder)"
+                },
+                {
+                  "code": "1085991000119107",
+                  "display": "Dental caries on smooth surface penetrating into dentin (disorder)"
+                },
+                {
+                  "code": "1086001000119108",
+                  "display": "Dental caries on smooth surface penetrating into pulp (disorder)"
+                },
+                {
+                  "code": "109564008",
+                  "display": "Dental caries associated with enamel hypomineralization (disorder)"
+                },
+                {
+                  "code": "109566005",
+                  "display": "Dental caries associated with enamel hypoplasia (disorder)"
+                },
+                {
+                  "code": "109568006",
+                  "display": "Dental caries secondary to developmental defects of tooth structure (disorder)"
+                },
+                {
+                  "code": "109569003",
+                  "display": "Dental caries secondary to acquired defects of tooth structure (disorder)"
+                },
+                {
+                  "code": "109570002",
+                  "display": "Primary dental caries (disorder)"
+                },
+                {
+                  "code": "109571003",
+                  "display": "Primary dental caries of indeterminate origin (disorder)"
+                },
+                {
+                  "code": "109572005",
+                  "display": "Primary dental caries, cervical origin (disorder)"
+                },
+                {
+                  "code": "109573000",
+                  "display": "Primary dental caries, proximal smooth surface origin (disorder)"
+                },
+                {
+                  "code": "109574006",
+                  "display": "Primary dental caries, nonproximal smooth surface origin (disorder)"
+                },
+                {
+                  "code": "109575007",
+                  "display": "Primary dental caries, pit and fissure origin (disorder)"
+                },
+                {
+                  "code": "109576008",
+                  "display": "Primary dental caries, root surface origin (disorder)"
+                },
+                {
+                  "code": "109577004",
+                  "display": "Primary dental caries, multisurface origin (disorder)"
+                },
+                {
+                  "code": "109578009",
+                  "display": "Caries of infancy (disorder)"
+                },
+                {
+                  "code": "109580003",
+                  "display": "Caries of infancy associated with breast feeding (disorder)"
+                },
+                {
+                  "code": "109581004",
+                  "display": "Caries of infancy associated with bottle feeding (disorder)"
+                },
+                {
+                  "code": "1287576005",
+                  "display": "Primary dental caries extending into outer half of enamel (disorder)"
+                },
+                {
+                  "code": "15733007",
+                  "display": "Incipient enamel caries (disorder)"
+                },
+                {
+                  "code": "196298000",
+                  "display": "Acute dentine dental caries (disorder)"
+                },
+                {
+                  "code": "196299008",
+                  "display": "Chronic dentine dental caries (disorder)"
+                },
+                {
+                  "code": "196301001",
+                  "display": "Acute enamel dental caries (disorder)"
+                },
+                {
+                  "code": "196302008",
+                  "display": "Chronic enamel dental caries (disorder)"
+                },
+                {
+                  "code": "196305005",
+                  "display": "Odontoclasia (disorder)"
+                },
+                {
+                  "code": "234975001",
+                  "display": "Root caries (disorder)"
+                },
+                {
+                  "code": "234976000",
+                  "display": "Rampant dental caries (disorder)"
+                },
+                {
+                  "code": "30512007",
+                  "display": "Cementum caries (disorder)"
+                },
+                {
+                  "code": "442231009",
+                  "display": "Caries involving multiple surfaces of tooth (disorder)"
+                },
+                {
+                  "code": "442551007",
+                  "display": "Dental caries extending into dentin (disorder)"
+                },
+                {
+                  "code": "699489009",
+                  "display": "Dental caries class I (disorder)"
+                },
+                {
+                  "code": "699490000",
+                  "display": "Dental caries class II (disorder)"
+                },
+                {
+                  "code": "699491001",
+                  "display": "Dental caries class III (disorder)"
+                },
+                {
+                  "code": "699492008",
+                  "display": "Dental caries class IV (disorder)"
+                },
+                {
+                  "code": "699494009",
+                  "display": "Dental caries class V (disorder)"
+                },
+                {
+                  "code": "699495005",
+                  "display": "Dental caries class VI (disorder)"
+                },
+                {
+                  "code": "700046006",
+                  "display": "Carious exposure of pulp (disorder)"
+                },
+                {
+                  "code": "702402003",
+                  "display": "Early childhood caries (disorder)"
+                },
+                {
+                  "code": "733939000",
+                  "display": "Primary active dental caries extending into outer half of enamel (disorder)"
+                },
+                {
+                  "code": "733940003",
+                  "display": "Primary active dental caries extending into inner half of enamel (disorder)"
+                },
+                {
+                  "code": "733941004",
+                  "display": "Primary active dental caries extending into outer third of dentin (disorder)"
+                },
+                {
+                  "code": "733942006",
+                  "display": "Primary active dental caries extending into middle third of dentin (disorder)"
+                },
+                {
+                  "code": "733943001",
+                  "display": "Primary active dental caries extending into inner third of dentin (disorder)"
+                },
+                {
+                  "code": "733944007",
+                  "display": "Secondary active dental caries extending into outer half of enamel (disorder)"
+                },
+                {
+                  "code": "733945008",
+                  "display": "Secondary active dental caries extending into inner half of enamel (disorder)"
+                },
+                {
+                  "code": "733946009",
+                  "display": "Secondary active dental caries extending into outer third of dentin (disorder)"
+                },
+                {
+                  "code": "733947000",
+                  "display": "Secondary active dental caries extending into middle third of dentin (disorder)"
+                },
+                {
+                  "code": "733948005",
+                  "display": "Secondary active dental caries extending into inner third of dentin (disorder)"
+                },
+                {
+                  "code": "733968004",
+                  "display": "Active dental caries (disorder)"
+                },
+                {
+                  "code": "733970008",
+                  "display": "Primary active dental caries extending into enamel (disorder)"
+                },
+                {
+                  "code": "733972000",
+                  "display": "Primary active dental caries extending into dentin (disorder)"
+                },
+                {
+                  "code": "733974004",
+                  "display": "Secondary active dental caries extending into enamel (disorder)"
+                },
+                {
+                  "code": "733976002",
+                  "display": "Secondary active dental caries extending into dentin (disorder)"
+                },
+                {
+                  "code": "768639006",
+                  "display": "Initial stage caries of crown of tooth (disorder)"
+                },
+                {
+                  "code": "768641007",
+                  "display": "Initial stage active caries of crown of tooth (disorder)"
+                },
+                {
+                  "code": "768643005",
+                  "display": "Moderate stage caries of crown of tooth (disorder)"
+                },
+                {
+                  "code": "768646002",
+                  "display": "Moderate stage active caries of crown of tooth (disorder)"
+                },
+                {
+                  "code": "768649009",
+                  "display": "Extensive stage caries of crown of tooth (disorder)"
+                },
+                {
+                  "code": "768653006",
+                  "display": "Extensive stage active caries of crown of tooth (disorder)"
+                },
+                {
+                  "code": "769017001",
+                  "display": "Active cavitated caries of tooth root (disorder)"
+                },
+                {
+                  "code": "769020009",
+                  "display": "Non-cavitated caries of tooth root (disorder)"
+                },
+                {
+                  "code": "769021008",
+                  "display": "Active non-cavitated caries of tooth root (disorder)"
+                },
+                {
+                  "code": "80353004",
+                  "display": "Enamel caries (disorder)"
+                },
+                {
+                  "code": "80967001",
+                  "display": "Dental caries (disorder)"
+                },
+                {
+                  "code": "95246007",
+                  "display": "Salivary dysfunction caries secondary to aging (disorder)"
+                },
+                {
+                  "code": "95247003",
+                  "display": "Salivary dysfunction caries caused by medication (disorder)"
+                },
+                {
+                  "code": "95248008",
+                  "display": "Salivary dysfunction caries following radiotherapy (disorder)"
+                },
+                {
+                  "code": "95249000",
+                  "display": "Salivary dysfunction dental caries (disorder)"
+                },
+                {
+                  "code": "95252008",
+                  "display": "Secondary dental caries associated with failed or defective dental restoration (disorder)"
+                },
+                {
+                  "code": "95253003",
+                  "display": "Secondary dental caries associated with local or systemic factors (disorder)"
+                },
+                {
+                  "code": "95254009",
+                  "display": "Secondary dental caries (disorder)"
+                }
+              ]
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "concept": [
+                {
+                  "code": "K02.3",
+                  "display": "Arrested dental caries"
+                },
+                {
+                  "code": "K02.51",
+                  "display": "Dental caries on pit and fissure surface limited to enamel"
+                },
+                {
+                  "code": "K02.52",
+                  "display": "Dental caries on pit and fissure surface penetrating into dentin"
+                },
+                {
+                  "code": "K02.53",
+                  "display": "Dental caries on pit and fissure surface penetrating into pulp"
+                },
+                {
+                  "code": "K02.61",
+                  "display": "Dental caries on smooth surface limited to enamel"
+                },
+                {
+                  "code": "K02.62",
+                  "display": "Dental caries on smooth surface penetrating into dentin"
+                },
+                {
+                  "code": "K02.63",
+                  "display": "Dental caries on smooth surface penetrating into pulp"
+                },
+                {
+                  "code": "K02.7",
+                  "display": "Dental root caries"
+                },
+                {
+                  "code": "K02.9",
+                  "display": "Dental caries, unspecified"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:4349b8b9-b8a1-40e4-bcf0-d3a225a85774",
+          "timestamp": "2025-08-28T17:07:17-04:00",
+          "total": 83,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1085951000119102",
+              "display": "Dental caries on pit and fissure surface limited to enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1085961000119100",
+              "display": "Dental caries on pit and fissure surface penetrating into dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1085971000119106",
+              "display": "Dental caries on pit and fissure surface penetrating into pulp (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1085981000119109",
+              "display": "Dental caries on smooth surface limited to enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1085991000119107",
+              "display": "Dental caries on smooth surface penetrating into dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1086001000119108",
+              "display": "Dental caries on smooth surface penetrating into pulp (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109564008",
+              "display": "Dental caries associated with enamel hypomineralization (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109566005",
+              "display": "Dental caries associated with enamel hypoplasia (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109568006",
+              "display": "Dental caries secondary to developmental defects of tooth structure (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109569003",
+              "display": "Dental caries secondary to acquired defects of tooth structure (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109570002",
+              "display": "Primary dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109571003",
+              "display": "Primary dental caries of indeterminate origin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109572005",
+              "display": "Primary dental caries, cervical origin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109573000",
+              "display": "Primary dental caries, proximal smooth surface origin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109574006",
+              "display": "Primary dental caries, nonproximal smooth surface origin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109575007",
+              "display": "Primary dental caries, pit and fissure origin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109576008",
+              "display": "Primary dental caries, root surface origin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109577004",
+              "display": "Primary dental caries, multisurface origin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109578009",
+              "display": "Caries of infancy (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109580003",
+              "display": "Caries of infancy associated with breast feeding (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "109581004",
+              "display": "Caries of infancy associated with bottle feeding (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "1287576005",
+              "display": "Primary dental caries extending into outer half of enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "15733007",
+              "display": "Incipient enamel caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "196298000",
+              "display": "Acute dentine dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "196299008",
+              "display": "Chronic dentine dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "196301001",
+              "display": "Acute enamel dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "196302008",
+              "display": "Chronic enamel dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "196305005",
+              "display": "Odontoclasia (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "234975001",
+              "display": "Root caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "234976000",
+              "display": "Rampant dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "30512007",
+              "display": "Cementum caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "442231009",
+              "display": "Caries involving multiple surfaces of tooth (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "442551007",
+              "display": "Dental caries extending into dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "699489009",
+              "display": "Dental caries class I (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "699490000",
+              "display": "Dental caries class II (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "699491001",
+              "display": "Dental caries class III (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "699492008",
+              "display": "Dental caries class IV (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "699494009",
+              "display": "Dental caries class V (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "699495005",
+              "display": "Dental caries class VI (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "700046006",
+              "display": "Carious exposure of pulp (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "702402003",
+              "display": "Early childhood caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733939000",
+              "display": "Primary active dental caries extending into outer half of enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733940003",
+              "display": "Primary active dental caries extending into inner half of enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733941004",
+              "display": "Primary active dental caries extending into outer third of dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733942006",
+              "display": "Primary active dental caries extending into middle third of dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733943001",
+              "display": "Primary active dental caries extending into inner third of dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733944007",
+              "display": "Secondary active dental caries extending into outer half of enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733945008",
+              "display": "Secondary active dental caries extending into inner half of enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733946009",
+              "display": "Secondary active dental caries extending into outer third of dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733947000",
+              "display": "Secondary active dental caries extending into middle third of dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733948005",
+              "display": "Secondary active dental caries extending into inner third of dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733968004",
+              "display": "Active dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733970008",
+              "display": "Primary active dental caries extending into enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733972000",
+              "display": "Primary active dental caries extending into dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733974004",
+              "display": "Secondary active dental caries extending into enamel (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "733976002",
+              "display": "Secondary active dental caries extending into dentin (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "768639006",
+              "display": "Initial stage caries of crown of tooth (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "768641007",
+              "display": "Initial stage active caries of crown of tooth (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "768643005",
+              "display": "Moderate stage caries of crown of tooth (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "768646002",
+              "display": "Moderate stage active caries of crown of tooth (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "768649009",
+              "display": "Extensive stage caries of crown of tooth (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "768653006",
+              "display": "Extensive stage active caries of crown of tooth (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "769017001",
+              "display": "Active cavitated caries of tooth root (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "769020009",
+              "display": "Non-cavitated caries of tooth root (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "769021008",
+              "display": "Active non-cavitated caries of tooth root (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "80353004",
+              "display": "Enamel caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "80967001",
+              "display": "Dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "95246007",
+              "display": "Salivary dysfunction caries secondary to aging (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "95247003",
+              "display": "Salivary dysfunction caries caused by medication (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "95248008",
+              "display": "Salivary dysfunction caries following radiotherapy (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "95249000",
+              "display": "Salivary dysfunction dental caries (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "95252008",
+              "display": "Secondary dental caries associated with failed or defective dental restoration (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "95253003",
+              "display": "Secondary dental caries associated with local or systemic factors (disorder)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "95254009",
+              "display": "Secondary dental caries (disorder)"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.3",
+              "display": "Arrested dental caries"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.51",
+              "display": "Dental caries on pit and fissure surface limited to enamel"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.52",
+              "display": "Dental caries on pit and fissure surface penetrating into dentin"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.53",
+              "display": "Dental caries on pit and fissure surface penetrating into pulp"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.61",
+              "display": "Dental caries on smooth surface limited to enamel"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.62",
+              "display": "Dental caries on smooth surface penetrating into dentin"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.63",
+              "display": "Dental caries on smooth surface penetrating into pulp"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.7",
+              "display": "Dental root caries"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "inactive": false,
+              "version": "2025",
+              "code": "K02.9",
+              "display": "Dental caries, unspecified"
+            }
+          ]
+        },
+        "description": "Dental Caries"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.125.12.1004-20210220"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.113883.3.464.1003.1165-20220818",
+        "meta": {
+          "versionId": "5",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/valueset-author",
+            "valueContactDetail": {
+              "name": "NCQA PHEMUR Author"
+            }
+          }
+        ],
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.1165",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.113883.3.464.1003.1165"
+          }
+        ],
+        "version": "20220818",
+        "name": "HospiceDiagnosis",
+        "title": "Hospice Diagnosis",
+        "status": "active",
+        "experimental": false,
+        "date": "2022-08-18T01:03:00-04:00",
+        "publisher": "NCQA PHEMUR",
+        "jurisdiction": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                "valueCode": "unknown"
+              }
+            ]
+          }
+        ],
+        "purpose": "(Clinical Focus: The purpose of this value set is to represent concepts that indicate a patient is receiving hospice care or services.),(Data Element Scope: This value set may use a model element related to Diagnosis.),(Inclusion Criteria: Includes concepts that represent hospice care or services.),(Exclusion Criteria: No exclusions.)",
+        "compose": {
+          "include": [
+            {
+              "system": "http://snomed.info/sct",
+              "concept": [
+                {
+                  "code": "170935008",
+                  "display": "Full care by hospice (finding)"
+                },
+                {
+                  "code": "170936009",
+                  "display": "Shared care - hospice and general practitioner (finding)"
+                },
+                {
+                  "code": "305911006",
+                  "display": "Seen in hospice (finding)"
+                }
+              ]
+            }
+          ]
+        },
+        "expansion": {
+          "identifier": "urn:uuid:92bb486d-ad52-482f-845f-67e121b16581",
+          "timestamp": "2025-08-28T16:57:57-04:00",
+          "total": 3,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "170935008",
+              "display": "Full care by hospice (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "170936009",
+              "display": "Shared care - hospice and general practitioner (finding)"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "inactive": false,
+              "version": "http://snomed.info/sct/731000124108/version/20240901",
+              "code": "305911006",
+              "display": "Seen in hospice (finding)"
+            }
+          ]
+        },
+        "description": "Hospice Diagnosis"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.113883.3.464.1003.1165-20220818"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.114222.4.11.836",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.836",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.114222.4.11.836"
+          }
+        ],
+        "version": "20121025",
+        "name": "Race",
+        "title": "Race",
+        "status": "active",
+        "experimental": false,
+        "date": "2012-10-25T12:28:31-04:00",
+        "publisher": "CDC NCHS",
+        "expansion": {
+          "identifier": "urn:uuid:c0b356bd-2922-40ca-a05c-dc00341c4041",
+          "timestamp": "2025-08-29T13:52:51-04:00",
+          "total": 6,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "1002-5",
+              "display": "American Indian or Alaska Native"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2028-9",
+              "display": "Asian"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2054-5",
+              "display": "Black or African American"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2076-8",
+              "display": "Native Hawaiian or Other Pacific Islander"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2106-3",
+              "display": "White"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2131-1",
+              "display": "Other Race"
+            }
+          ]
+        },
+        "description": "Race",
+        "compose": {
+          "include": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "concept": [
+                {
+                  "code": "1002-5",
+                  "display": "American Indian or Alaska Native"
+                },
+                {
+                  "code": "2028-9",
+                  "display": "Asian"
+                },
+                {
+                  "code": "2054-5",
+                  "display": "Black or African American"
+                },
+                {
+                  "code": "2076-8",
+                  "display": "Native Hawaiian or Other Pacific Islander"
+                },
+                {
+                  "code": "2106-3",
+                  "display": "White"
+                },
+                {
+                  "code": "2131-1",
+                  "display": "Other Race"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.114222.4.11.836"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "2.16.840.1.114222.4.11.837",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-12-21T17:43:03.000-05:00",
+          "profile": [
+            "http://hl7.org/fhir/StructureDefinition/shareablevalueset",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/computable-valueset-cqfm",
+            "http://hl7.org/fhir/us/cqfmeasures/StructureDefinition/publishable-valueset-cqfm"
+          ]
+        },
+        "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.114222.4.11.837",
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:2.16.840.1.114222.4.11.837"
+          }
+        ],
+        "version": "20121025",
+        "name": "Ethnicity",
+        "title": "Ethnicity",
+        "status": "active",
+        "experimental": false,
+        "date": "2012-10-25T12:28:31-04:00",
+        "publisher": "CDC NCHS",
+        "expansion": {
+          "identifier": "urn:uuid:df717c4f-48f0-4a55-9fe0-931b6236c070",
+          "timestamp": "2025-08-29T13:46:52-04:00",
+          "total": 2,
+          "offset": 0,
+          "parameter": [
+            {
+              "name": "count",
+              "valueInteger": 1000
+            },
+            {
+              "name": "offset",
+              "valueInteger": 0
+            }
+          ],
+          "contains": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2135-2",
+              "display": "Hispanic or Latino"
+            },
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "inactive": false,
+              "version": "1.2",
+              "code": "2186-5",
+              "display": "Not Hispanic or Latino"
+            }
+          ]
+        },
+        "description": "Ethnicity",
+        "compose": {
+          "include": [
+            {
+              "system": "urn:oid:2.16.840.1.113883.6.238",
+              "concept": [
+                {
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                },
+                {
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/2.16.840.1.114222.4.11.837"
+      }
+    }
+  ]
+}

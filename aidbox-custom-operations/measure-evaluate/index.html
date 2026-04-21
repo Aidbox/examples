@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Measure/$evaluate via SQL — Aidbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Cool Frost — light (default) */
+  --bg: #f8fafc; --bg2: #f1f5f9; --bg3: #e2e8f0; --bg4: #cbd5e1;
+  --fg: #0f172a; --fg2: #334155; --fg3: #64748b;
+  --accent: #0f766e; --accent2: #14b8a6; --accent-bg: rgba(15,118,110,0.08);
+  --green: #15803d; --green-bg: rgba(21,128,61,0.08); --green-dim: #166534;
+  --amber: #b45309; --amber-bg: rgba(180,83,9,0.08);
+  --rose: #be123c; --rose-bg: rgba(190,18,60,0.08);
+  --cyan: #0891b2; --cyan-bg: rgba(8,145,178,0.08);
+  --line: #cbd5e1; --line2: #e2e8f0;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Outfit', system-ui, sans-serif;
+  --radius: 12px;
+}
+
+:root[data-theme="dark"] {
+  /* Original AME dark */
+  --bg: #0e0e10; --bg2: #16161a; --bg3: #1e1e24; --bg4: #26262e;
+  --fg: #e2e0e8; --fg2: #a09dac; --fg3: #6b687a;
+  --accent: #7c5cfc; --accent2: #a78bfa; --accent-bg: rgba(124,92,252,0.08);
+  --green: #34d399; --green-bg: rgba(52,211,153,0.08); --green-dim: #059669;
+  --amber: #fbbf24; --amber-bg: rgba(251,191,36,0.06);
+  --rose: #fb7185; --rose-bg: rgba(251,113,133,0.06);
+  --cyan: #22d3ee; --cyan-bg: rgba(34,211,238,0.06);
+  --line: #2a2a34; --line2: #36363f;
+  color-scheme: dark;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 9999;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--bg2);
+  box-shadow: 0 2px 8px rgba(15,23,42,0.10);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--fg2);
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, color 0.2s;
+}
+.theme-toggle:hover { transform: scale(1.1); color: var(--accent); border-color: var(--accent); }
+.theme-toggle:active { transform: scale(0.95); }
+.theme-toggle .icon-sun { display: block; }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle { background: var(--bg3); box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; scroll-behavior:smooth; scrollbar-color: var(--bg4) var(--bg); }
+body { font-family:var(--sans); background:var(--bg); color:var(--fg); line-height:1.7; -webkit-font-smoothing:antialiased; }
+
+/* ── Layout ── */
+.page { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+@media(max-width:900px) { .page { grid-template-columns:1fr; } .sidebar { display:none; } }
+
+/* ── Sidebar ── */
+.sidebar { position:sticky; top:0; height:100vh; background:var(--bg2); border-right:1px solid var(--line); padding:1.5rem 0; overflow-y:auto; display:flex; flex-direction:column; }
+.sidebar::-webkit-scrollbar { width:4px; } .sidebar::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:4px; }
+.brand { padding:0 1.25rem 1.25rem; border-bottom:1px solid var(--line); margin-bottom:0.75rem; }
+.brand-tag { font-family:var(--mono); font-size:0.6rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:0.25rem; }
+.brand-name { font-weight:700; font-size:1.1rem; color:var(--fg); line-height:1.3; }
+.brand-ver { font-family:var(--mono); font-size:0.68rem; color:var(--fg3); margin-top:0.15rem; }
+.nav-group { padding:0.5rem 1.25rem 0.15rem; font-family:var(--mono); font-size:0.58rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--fg3); }
+.nav-link { display:flex; align-items:center; gap:0.5rem; padding:0.3rem 1.25rem; font-size:0.8rem; color:var(--fg2); text-decoration:none; transition:all 0.15s; border-left:2px solid transparent; }
+.nav-link:hover { color:var(--fg); background:var(--accent-bg); }
+.nav-link.active { color:var(--accent2); border-left-color:var(--accent); background:var(--accent-bg); }
+.nav-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.nav-dot.green { background:var(--green); } .nav-dot.amber { background:var(--amber); } .nav-dot.rose { background:var(--rose); } .nav-dot.cyan { background:var(--cyan); }
+
+/* ── Main ── */
+main { max-width:820px; padding:3rem 3rem 6rem; }
+@media(max-width:900px) { main { padding:2rem 1.25rem 4rem; } }
+
+/* ── Typography ── */
+h1 { font-weight:700; font-size:2.2rem; line-height:1.2; margin-bottom:0.5rem; background:linear-gradient(135deg, var(--fg) 0%, var(--accent2) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.subtitle { font-size:1rem; color:var(--fg2); margin-bottom:2.5rem; max-width:600px; }
+h2 { font-weight:600; font-size:1.4rem; margin:3rem 0 1rem; padding-bottom:0.5rem; border-bottom:1px solid var(--line); color:var(--fg); }
+h2 .step-num { font-family:var(--mono); font-size:0.7rem; font-weight:600; color:var(--accent); background:var(--accent-bg); padding:0.2em 0.55em; border-radius:6px; margin-right:0.4rem; vertical-align:middle; }
+h3 { font-weight:600; font-size:1.05rem; margin:1.5rem 0 0.5rem; color:var(--fg); }
+p { color:var(--fg2); margin-bottom:0.85rem; font-size:0.92rem; }
+a { color:var(--accent2); text-decoration:none; } a:hover { text-decoration:underline; }
+ul,ol { margin:0.4rem 0 1rem 1.2rem; font-size:0.88rem; color:var(--fg2); } li { margin-bottom:0.3rem; }
+code { font-family:var(--mono); font-size:0.8em; background:var(--bg3); padding:0.15em 0.45em; border-radius:5px; color:var(--cyan); }
+
+/* ── Code blocks ── */
+.code-wrap { position:relative; margin:0.75rem 0 1.25rem; }
+.code-wrap pre { font-family:var(--mono); font-size:0.78rem; line-height:1.7; background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1.1rem 1.3rem; overflow-x:auto; color:var(--fg2); white-space:pre-wrap; word-break:break-all; }
+.code-wrap .lang { position:absolute; top:0.5rem; left:0.9rem; font-family:var(--mono); font-size:0.55rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--fg3); }
+.copy-btn { position:absolute; top:0.45rem; right:0.55rem; font-family:var(--mono); font-size:0.62rem; font-weight:500; padding:0.25em 0.6em; border:1px solid var(--line2); border-radius:6px; background:var(--bg3); color:var(--fg3); cursor:pointer; transition:all 0.2s; }
+.copy-btn:hover { color:var(--fg); border-color:var(--fg3); background:var(--bg4); }
+.copy-btn.copied { color:var(--green); border-color:var(--green-dim); }
+
+/* ── JSON response ── */
+.json-block pre { border-left:3px solid var(--green-dim); }
+
+/* ── Click-to-copy table ── */
+.copy-table code { cursor:pointer; transition: color 0.15s, background 0.15s; }
+.copy-table code:hover { color:var(--accent); background:var(--accent-bg); }
+.copy-table code.copied { color:var(--green); background:var(--green-bg); }
+
+/* ── Tables ── */
+table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem; }
+thead th { text-align:left; font-family:var(--mono); font-weight:600; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--fg3); padding:0.6rem 0.75rem; border-bottom:2px solid var(--line2); background:var(--bg2); }
+tbody td { padding:0.5rem 0.75rem; border-bottom:1px solid var(--line); color:var(--fg2); vertical-align:top; }
+tbody td a { color:var(--accent2); }
+tbody tr:hover { background:var(--accent-bg); }
+
+/* ── Cards ── */
+.card { background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1.2rem 1.4rem; margin:1rem 0; }
+.callout { border-left:3px solid; border-radius:0 var(--radius) var(--radius) 0; padding:0.85rem 1rem; margin:1rem 0; font-size:0.85rem; }
+.callout-green { border-color:var(--green-dim); background:var(--green-bg); color:var(--fg2); }
+.callout-amber { border-color:var(--amber); background:var(--amber-bg); color:var(--fg2); }
+.callout-rose { border-color:var(--rose); background:var(--rose-bg); color:var(--fg2); }
+.callout strong { color:var(--fg); }
+
+/* ── Badges ── */
+.badge { display:inline-block; font-family:var(--mono); font-size:0.62rem; font-weight:600; padding:0.2em 0.55em; border-radius:5px; }
+.badge-green { background:var(--green-bg); color:var(--green); border:1px solid rgba(52,211,153,0.2); }
+.badge-amber { background:var(--amber-bg); color:var(--amber); border:1px solid rgba(251,191,36,0.15); }
+.badge-rose { background:var(--rose-bg); color:var(--rose); border:1px solid rgba(251,113,133,0.15); }
+
+/* ── Architecture diagram ── */
+.arch { font-family:var(--mono); font-size:0.78rem; background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1.5rem 2rem; margin:1rem 0; color:var(--fg2); line-height:2; text-align:center; }
+.arch .node { display:inline-block; background:var(--bg3); border:1px solid var(--line2); border-radius:8px; padding:0.3em 0.8em; margin:0 0.15em; color:var(--fg); font-weight:500; }
+.arch .node.highlight { border-color:var(--accent); color:var(--accent2); background:var(--accent-bg); }
+.arch .arrow { color:var(--fg3); margin:0 0.3em; }
+
+/* ── Collapsible ── */
+details { margin:0.5rem 0; }
+details summary { font-weight:600; font-size:0.9rem; color:var(--fg2); cursor:pointer; padding:0.7rem 1rem; background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); transition:all 0.2s; list-style:none; display:flex; align-items:center; gap:0.5rem; }
+details summary::-webkit-details-marker { display:none; }
+details summary::before { content:'&#9656;'; font-family:var(--mono); font-size:0.7rem; color:var(--fg3); transition:transform 0.2s; }
+details[open] summary::before { transform:rotate(90deg); }
+details summary:hover { background:var(--bg3); border-color:var(--line2); color:var(--fg); }
+details[open] summary { border-radius:var(--radius) var(--radius) 0 0; border-bottom-color:transparent; }
+details .detail-body { background:var(--bg2); border:1px solid var(--line); border-top:none; border-radius:0 0 var(--radius) var(--radius); padding:1rem 1.25rem; }
+details .detail-body p:last-child { margin-bottom:0; }
+
+/* ── Measure cards ── */
+.measure-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin:1rem 0; }
+@media(max-width:700px) { .measure-grid { grid-template-columns:1fr; } }
+.measure-card { background:var(--bg2); border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.15rem; transition:border-color 0.2s; }
+.measure-card:hover { border-color:var(--accent); }
+.measure-card h4 { font-family:var(--mono); font-size:0.75rem; font-weight:600; color:var(--accent2); margin-bottom:0.15rem; }
+.measure-card .desc { font-size:0.78rem; color:var(--fg3); margin-bottom:0.5rem; }
+.measure-card .meta { font-family:var(--mono); font-size:0.68rem; color:var(--fg3); }
+
+/* ── Footer ── */
+.footer { margin-top:4rem; padding-top:1.25rem; border-top:1px solid var(--line); font-size:0.72rem; color:var(--fg3); display:flex; justify-content:space-between; }
+</style>
+</head>
+<body>
+<div class="page">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-tag">Aidbox Integration</div>
+    <div class="brand-name">Measure/$evaluate</div>
+    <div class="brand-ver">SQL on Aidbox</div>
+  </div>
+  <nav>
+    <div class="nav-group">Getting Started</div>
+    <a href="#quick-start" class="nav-link"><span class="nav-dot green"></span>Quick Start</a>
+    <a href="#activate" class="nav-link"><span class="nav-dot green"></span>Activate</a>
+    <a href="#load-data" class="nav-link"><span class="nav-dot green"></span>Load Data</a>
+    <div class="nav-group">Usage</div>
+    <a href="#evaluate" class="nav-link"><span class="nav-dot cyan"></span>Evaluate</a>
+    <a href="#rest-examples" class="nav-link"><span class="nav-dot cyan"></span>REST Console Examples</a>
+    <a href="#demo-app" class="nav-link"><span class="nav-dot cyan"></span>Demo App</a>
+    <div class="nav-group">Measures</div>
+    <a href="#cms130" class="nav-link"><span class="nav-dot cyan"></span>CMS130</a>
+    <a href="#cms125" class="nav-link"><span class="nav-dot cyan"></span>CMS125</a>
+    <a href="#cms131" class="nav-link"><span class="nav-dot cyan"></span>CMS131</a>
+    <a href="#cms165" class="nav-link"><span class="nav-dot cyan"></span>CMS165</a>
+    <a href="#cms124" class="nav-link"><span class="nav-dot cyan"></span>CMS124</a>
+    <a href="#cms139" class="nav-link"><span class="nav-dot cyan"></span>CMS139</a>
+    <a href="#cms75" class="nav-link"><span class="nav-dot cyan"></span>CMS75</a>
+    <a href="#cms1154" class="nav-link"><span class="nav-dot cyan"></span>CMS1154</a>
+    <a href="#cms149" class="nav-link"><span class="nav-dot cyan"></span>CMS149</a>
+    <a href="#cms153" class="nav-link"><span class="nav-dot cyan"></span>CMS153</a>
+    <a href="#cms155" class="nav-link"><span class="nav-dot cyan"></span>CMS155</a>
+    <a href="#cms143" class="nav-link"><span class="nav-dot cyan"></span>CMS143</a>
+    <div class="nav-group">Reference</div>
+    <a href="#architecture" class="nav-link"><span class="nav-dot amber"></span>Architecture</a>
+    <a href="#api-parameters" class="nav-link"><span class="nav-dot amber"></span>API Parameters</a>
+    <a href="#included-measures" class="nav-link"><span class="nav-dot amber"></span>Included Measures</a>
+  </nav>
+</aside>
+
+<main>
+
+<h1>Measure/$evaluate via SQL</h1>
+<p class="subtitle">FHIR Measure/$evaluate implemented as native PostgreSQL SQL on Aidbox. No CQL engine required. 12 CMS quality measures, 484 test patients, interactive demo.</p>
+
+<table>
+  <thead><tr><th>Component</th><th>Version</th><th>Link</th></tr></thead>
+  <tbody>
+    <tr><td>Aidbox</td><td><code>edge</code></td><td><a href="https://docs.aidbox.app" target="_blank">docs.aidbox.app</a></td></tr>
+    <tr><td>Python / Flask</td><td><code>3.11 / 3.x</code></td><td><a href="https://flask.palletsprojects.com/" target="_blank">flask.palletsprojects.com</a></td></tr>
+    <tr><td>Measure/$evaluate</td><td><code>FHIR R4</code></td><td><a href="https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html" target="_blank">hl7.org/fhir/R4 &mdash; $evaluate-measure</a></td></tr>
+    <tr><td>CQL Specification</td><td><code>HL7</code></td><td><a href="https://build.fhir.org/ig/HL7/cql" target="_blank">build.fhir.org/ig/HL7/cql</a></td></tr>
+    <tr><td>CQL measures</td><td><code>dqm-content-qicore-2025</code></td><td><a href="https://github.com/cqframework/dqm-content-qicore-2025/tree/master/input/cql" target="_blank">github.com/cqframework/dqm-content-qicore-2025 &mdash; input/cql</a></td></tr>
+    <tr><td>Test data</td><td><code>dqm-content-qicore-2025</code></td><td><a href="https://github.com/cqframework/dqm-content-qicore-2025/tree/master/input/tests" target="_blank">github.com/cqframework/dqm-content-qicore-2025 &mdash; input/tests</a></td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="quick-start"><span class="step-num">01</span> Quick Start</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p><strong>Prerequisites:</strong> <a href="https://docs.docker.com/get-docker/" target="_blank">Docker</a> with Docker Compose, <a href="https://www.python.org/downloads/" target="_blank">Python 3</a>, <a href="https://curl.se/" target="_blank">curl</a> (optional, for manual API calls).</p>
+
+<p>Build and start the full stack:</p>
+
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>docker compose up --build</pre>
+</div>
+
+<p>This starts three containers: PostgreSQL, Aidbox (port <code>8888</code>), and the SQL evaluate app (port <code>8090</code>).</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="activate"><span class="step-num">02</span> Activate Aidbox</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>Open <a href="http://localhost:8888" target="_blank">http://localhost:8888</a> in your browser and follow the activation prompt.</p>
+
+<div class="callout callout-amber">
+  <strong>One-time step.</strong> Aidbox requires browser activation on first launch. After activation, data persists across restarts.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="load-data"><span class="step-num">03</span> Load Data</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>In a second terminal, from this directory:</p>
+
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>python3 setup.py</pre>
+</div>
+
+<p>This creates shared views, loads terminology and clinical data for all 12 measures (~2 min).</p>
+
+<div class="callout callout-green">
+  <strong>Idempotent.</strong> Safe to run multiple times &mdash; views are replaced, data is upserted via PUT.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="evaluate"><span class="step-num">04</span> Evaluate a Measure</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>Evaluate CMS130 for a single patient:</p>
+
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>curl -u root:secret -X POST \
+  'http://localhost:8888/Measure/$evaluate?measure=cms130&subject=Patient/007ec5f1-08cf-474a-a472-f6a92cca4b79&periodStart=2026-01-01&periodEnd=2026-12-31'</pre>
+</div>
+
+<p>Response &mdash; a FHIR MeasureReport with population counts and measure score:</p>
+
+<div class="code-wrap json-block">
+  <span class="lang">response</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>{
+  "resourceType": "MeasureReport",
+  "status": "complete",
+  "type": "individual",
+  "measure": "http://ecqi.healthit.gov/ecqms/Measure/CMS130FHIRColorectalCancerScrn",
+  "subject": {
+    "reference": "Patient/007ec5f1-08cf-474a-a472-f6a92cca4b79"
+  },
+  "period": {
+    "start": "2026-01-01",
+    "end": "2026-12-31"
+  },
+  "group": [{
+    "population": [
+      {
+        "code": { "coding": [{ "code": "initial-population" }] },
+        "count": 1
+      },
+      {
+        "code": { "coding": [{ "code": "denominator" }] },
+        "count": 1
+      },
+      {
+        "code": { "coding": [{ "code": "denominator-exclusion" }] },
+        "count": 1
+      },
+      {
+        "code": { "coding": [{ "code": "numerator" }] },
+        "count": 0
+      }
+    ],
+    "measureScore": {
+      "value": null
+    }
+  }]
+}</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Pure SQL.</strong> No CQL engine involved &mdash; the measure logic runs as a single PostgreSQL query over Aidbox JSONB tables.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="rest-examples"><span class="step-num">05</span> REST Console Examples</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>Open the Aidbox REST Console at <a href="http://localhost:8888/ui/console" target="_blank">http://localhost:8888/ui/console</a> and paste any of the snippets below. The adapter resolves the <code>measure</code> parameter in three forms: <strong>short alias</strong> (<code>cms130</code>), <strong>FHIR Resource ID</strong> (<code>CMS130FHIRColorectalCancerScrn</code>), or <strong>canonical URL</strong>.</p>
+
+<h3>By alias &mdash; individual patient</h3>
+<p>CMS130 Colorectal Cancer Screening for a single patient:</p>
+<div class="code-wrap">
+  <span class="lang">rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Measure/$evaluate?measure=cms130&amp;subject=Patient/007ec5f1-08cf-474a-a472-f6a92cca4b79</pre>
+</div>
+
+<h3>By canonical URL &mdash; summary (all patients)</h3>
+<p>CMS125 Breast Cancer Screening, population-level MeasureReport:</p>
+<div class="code-wrap">
+  <span class="lang">rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Measure/$evaluate?measure=https://madie.cms.gov/Measure/CMS125FHIRBreastCancerScreen</pre>
+</div>
+
+<h3>By alias with explicit period</h3>
+<p>CMS165 Controlling High Blood Pressure for a single patient, measurement period 2026:</p>
+<div class="code-wrap">
+  <span class="lang">rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Measure/$evaluate?measure=cms165&amp;subject=Patient/045f7e0b-bfb3-4ee0-a06d-83c853f6a81e&amp;periodStart=2026-01-01&amp;periodEnd=2026-12-31</pre>
+</div>
+
+<h3>By FHIR Resource ID &mdash; individual patient</h3>
+<p>CMS131 Diabetes Eye Exam for a single patient:</p>
+<div class="code-wrap">
+  <span class="lang">rest console</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>POST /Measure/$evaluate?measure=CMS131FHIRDiabetesEyeExam&amp;subject=Patient/01a1241d-fd97-4c72-b288-fd31c4c7ae80</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Tip.</strong> Omit <code>subject</code> for a summary report across all patients. Omit <code>periodStart</code>/<code>periodEnd</code> to use defaults (<code>2026-01-01</code> to <code>2026-12-31</code>).
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="demo-app"><span class="step-num">06</span> Demo App</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>Start a local HTTP server from this directory (needed so the demo app can fetch SQL files):</p>
+
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>python3 -m http.server 3000</pre>
+</div>
+
+<p>Then open the demo in your browser:</p>
+
+<p style="margin:0.5rem 0 1rem;">&rarr; <a href="http://localhost:3000/demo/app.html" target="_blank"><strong>http://localhost:3000/demo/app.html</strong></a></p>
+
+<p>The demo shows all 12 measures with:</p>
+
+<ul>
+  <li>Patient-level care gaps</li>
+  <li>Step-by-step decision chains with evidence</li>
+  <li>Measure scores (population-level)</li>
+</ul>
+
+<div class="callout callout-amber">
+  <strong>Note.</strong> The demo app uses the Aidbox <code>$sql</code> endpoint directly for fast batch evaluation across all patients. For production integration, use the <code>Measure/$evaluate</code> FHIR API described above.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="included-measures" style="border-bottom:none; margin-bottom:0;">Included Measures</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p><span class="badge badge-green">12 measures</span> <span class="badge badge-green">484 patients</span></p>
+
+<div class="measure-grid" id="cms130">
+  <div class="measure-card"><h4>CMS130</h4><div class="desc">Colorectal Cancer Screening</div><div class="meta">64 patients</div></div>
+  <div class="measure-card" id="cms125"><h4>CMS125</h4><div class="desc">Breast Cancer Screening</div><div class="meta">66 patients</div></div>
+  <div class="measure-card" id="cms131"><h4>CMS131</h4><div class="desc">Diabetes Eye Exam</div><div class="meta">63 patients</div></div>
+  <div class="measure-card" id="cms165"><h4>CMS165</h4><div class="desc">Controlling High Blood Pressure</div><div class="meta">68 patients</div></div>
+  <div class="measure-card" id="cms124"><h4>CMS124</h4><div class="desc">Cervical Cancer Screening</div><div class="meta">34 patients</div></div>
+  <div class="measure-card" id="cms139"><h4>CMS139</h4><div class="desc">Fall Risk Screening</div><div class="meta">29 patients</div></div>
+  <div class="measure-card" id="cms75"><h4>CMS75</h4><div class="desc">Children Dental Decay</div><div class="meta">20 patients</div></div>
+  <div class="measure-card" id="cms1154"><h4>CMS1154</h4><div class="desc">Screening for Prediabetes</div><div class="meta">10 patients</div></div>
+  <div class="measure-card" id="cms149"><h4>CMS149</h4><div class="desc">Dementia Cognitive Assessment</div><div class="meta">33 patients</div></div>
+  <div class="measure-card" id="cms153"><h4>CMS153</h4><div class="desc">Chlamydia Screening</div><div class="meta">32 patients</div></div>
+  <div class="measure-card" id="cms155"><h4>CMS155</h4><div class="desc">Weight Assessment / Counseling</div><div class="meta">34 patients</div></div>
+  <div class="measure-card" id="cms143"><h4>CMS143</h4><div class="desc">POAG Optic Nerve Evaluation</div><div class="meta">32 patients</div></div>
+</div>
+
+<h3>Aliases &amp; Canonical URLs</h3>
+<p>Each measure can be referenced by short alias, FHIR Resource ID, or canonical URL in the <code>measure</code> parameter. <strong>Click any value to copy.</strong></p>
+
+<table class="copy-table">
+  <thead><tr><th>Alias</th><th>FHIR Resource ID</th><th>Canonical URL</th></tr></thead>
+  <tbody>
+    <tr><td><code>cms130</code></td><td><code>CMS130FHIRColorectalCancerScrn</code></td><td><code>https://madie.cms.gov/Measure/CMS130FHIRColorectalCancerScrn</code></td></tr>
+    <tr><td><code>cms125</code></td><td><code>CMS125FHIRBreastCancerScreen</code></td><td><code>https://madie.cms.gov/Measure/CMS125FHIRBreastCancerScreen</code></td></tr>
+    <tr><td><code>cms131</code></td><td><code>CMS131FHIRDiabetesEyeExam</code></td><td><code>https://madie.cms.gov/Measure/CMS131FHIRDiabetesEyeExam</code></td></tr>
+    <tr><td><code>cms165</code></td><td><code>CMS165FHIRControllingHighBP</code></td><td><code>https://madie.cms.gov/Measure/CMS165FHIRControllingHighBP</code></td></tr>
+    <tr><td><code>cms124</code></td><td><code>CMS124FHIRCervicalCancerScreen</code></td><td><code>https://madie.cms.gov/Measure/CMS124FHIRCervicalCancerScreen</code></td></tr>
+    <tr><td><code>cms139</code></td><td><code>CMS139FHIRFallRiskScreening</code></td><td><code>https://madie.cms.gov/Measure/CMS139FHIRFallRiskScreening</code></td></tr>
+    <tr><td><code>cms75</code></td><td><code>CMS75FHIRChildrenDentalDecay</code></td><td><code>https://madie.cms.gov/Measure/CMS75FHIRChildrenDentalDecay</code></td></tr>
+    <tr><td><code>cms1154</code></td><td><code>CMS1154ScreeningPrediabetesFHIR</code></td><td><code>https://madie.cms.gov/Measure/CMS1154ScreeningPrediabetesFHIR</code></td></tr>
+    <tr><td><code>cms149</code></td><td><code>CMS149FHIRDementiaCognitiveAssess</code></td><td><code>https://madie.cms.gov/Measure/CMS149FHIRDementiaCognitiveAssess</code></td></tr>
+    <tr><td><code>cms153</code></td><td><code>CMS153FHIRChlamydiaScreening</code></td><td><code>https://madie.cms.gov/Measure/CMS153FHIRChlamydiaScreening</code></td></tr>
+    <tr><td><code>cms155</code></td><td><code>CMS155FHIRWeightAssessment</code></td><td><code>https://madie.cms.gov/Measure/CMS155FHIRWeightAssessment</code></td></tr>
+    <tr><td><code>cms143</code></td><td><code>CMS143FHIRPOAGOpticNerveEval</code></td><td><code>https://madie.cms.gov/Measure/CMS143FHIRPOAGOpticNerveEval</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="architecture"><span class="step-num">&#9881;</span> Architecture</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<div class="arch">
+  <span class="node">Aidbox JSONB</span>
+  <span class="arrow">&rarr;</span>
+  <span class="node highlight">8 flat views</span>
+  <span class="arrow">&rarr;</span>
+  <span class="node highlight">concepts table</span>
+  <span class="arrow">&rarr;</span>
+  <span class="node highlight">measure SQL CTEs</span>
+  <span class="arrow">&rarr;</span>
+  <span class="node">MeasureReport</span>
+  <br>
+  <span style="font-size:0.68rem;color:var(--fg3);">POST /Measure/$evaluate &nbsp;&rarr;&nbsp; Flask app reads SQL &nbsp;&rarr;&nbsp; executes on PostgreSQL &nbsp;&rarr;&nbsp; builds FHIR MeasureReport</span>
+</div>
+
+<p>Each measure is a single SQL file (~200&ndash;400 lines) that uses shared flat views and a <code>concepts</code> table for offline terminology matching. No CQL engine, no Java, no external terminology service calls at runtime.</p>
+
+<h3>How it works</h3>
+
+<ol>
+  <li>Client sends <code>POST /Measure/$evaluate?measure=cms130&amp;subject=Patient/123</code></li>
+  <li>Aidbox routes the custom operation to the Flask app (port <code>8090</code>)</li>
+  <li>Flask app reads the measure SQL file, substitutes parameters, executes via Aidbox <code>$sql</code></li>
+  <li>SQL query runs over 8 shared flat views (patient, encounter, condition, observation, etc.) and the concepts table</li>
+  <li>Results are assembled into a FHIR MeasureReport and returned to the client</li>
+</ol>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="api-parameters"><span class="step-num">&#9881;</span> API Parameters</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<table>
+  <thead><tr><th>Parameter</th><th>Status</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>measure</code></td><td><span class="badge badge-green">required</span></td><td>Short alias (<code>cms130</code>), FHIR Resource ID (<code>CMS130FHIRColorectalCancerScrn</code>), or canonical URL (<code>https://madie.cms.gov/Measure/CMS130FHIRColorectalCancerScrn</code>).</td></tr>
+    <tr><td><code>subject</code></td><td><span class="badge badge-green">supported</span></td><td>Patient reference (e.g., <code>Patient/123</code>). Omit for summary report.</td></tr>
+    <tr><td><code>periodStart</code></td><td><span class="badge badge-green">supported</span></td><td>Measurement period start. Default: <code>2026-01-01</code>.</td></tr>
+    <tr><td><code>periodEnd</code></td><td><span class="badge badge-green">supported</span></td><td>Measurement period end. Default: <code>2026-12-31</code>.</td></tr>
+    <tr><td><code>reportType</code></td><td><span class="badge badge-green">supported</span></td><td><code>individual</code> (default), <code>summary</code>, or <code>subject-list</code>. Inferred from <code>subject</code> if omitted.</td></tr>
+    <tr><td><code>practitioner</code></td><td><span class="badge badge-rose">not supported</span></td><td>Practitioner-scoped evaluation is out of scope for this example.</td></tr>
+    <tr><td><code>lastReceivedOn</code></td><td><span class="badge badge-rose">not supported</span></td><td>Incremental reporting is out of scope for this example.</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.78rem; color:var(--fg3); margin-top:0.5rem;">5 of 7 FHIR R4 <code>$evaluate-measure</code> parameters supported. See the <a href="https://hl7.org/fhir/R4/operation-measure-evaluate-measure.html" target="_blank">R4 OperationDefinition</a> for the full spec.</p>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<h2 id="shutdown"><span class="step-num">&#9632;</span> Shutdown</h2>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+<p>Stop all containers (data preserved in Docker volume):</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>docker compose down</pre>
+</div>
+
+<p>Or stop and <strong>delete all data</strong> (clean slate for next run):</p>
+<div class="code-wrap">
+  <span class="lang">bash</span>
+  <button class="copy-btn" onclick="copyCode(this)">copy</button>
+  <pre>docker compose down -v</pre>
+</div>
+
+<div class="footer">
+  <span>Measure/$evaluate via SQL &mdash; Aidbox</span>
+  <span>2026-04-03</span>
+</div>
+
+</main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.parentElement.querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('h2[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const target = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (target) target.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+// Click-to-copy on table values
+document.querySelectorAll('.copy-table code').forEach(el => {
+  el.addEventListener('click', () => {
+    navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+      el.classList.add('copied');
+      setTimeout(() => el.classList.remove('copied'), 1200);
+    });
+  });
+});
+</script>
+<script src="theme-toggle.js"></script>
+</body>
+</html>
