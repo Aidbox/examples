@@ -11,7 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@atomic-ehr/codegen": "^0.0.13",
+    "@atomic-ehr/codegen": "^0.0.13-canary.20260421152026.cc8f05b",
     "@types/node": "^25.6.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
