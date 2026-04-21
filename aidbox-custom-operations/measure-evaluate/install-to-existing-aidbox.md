@@ -200,7 +200,7 @@ cp demo/config-external.example.json demo/config-myaidbox.json
 # Edit demo/config-myaidbox.json: set aidbox_url, auth_user, auth_pass,
 # period_start, period_end, dataset_label for your environment.
 
-# 2. Serve the sample directory over HTTP (file:// is blocked by CORS)
+# 2. Serve the sample directory over HTTP
 python3 -m http.server 3000
 
 # 3. Open the demo with ?stack=myaidbox — the demo fetches ./config-myaidbox.json

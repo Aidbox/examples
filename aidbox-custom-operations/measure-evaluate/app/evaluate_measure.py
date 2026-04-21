@@ -2,7 +2,7 @@
 """
 Evaluate a FHIR Measure via SQL and return a MeasureReport.
 
-Implements Measure/$evaluate semantics: takes measureUrl, subject, period,
+Implements Measure/\$evaluate-measure semantics: takes measureUrl, subject, period,
 runs the measure SQL via Aidbox $sql, and returns a FHIR MeasureReport.
 
 Usage:
@@ -263,7 +263,26 @@ def build_evaluated_resources(evidence_rows: list[dict]) -> list[dict]:
 
 
 def _build_group_entry(ip: int, den: int, exc: int, num: int, exc_type: str) -> dict:
-    """Build a single FHIR MeasureReport group entry."""
+    """Build a single FHIR MeasureReport group entry.
+
+    measureScore follows the FHIR R4 formula for proportion measures:
+        score = numerator / (denominator - exclusion)
+    When the denominator or (den − exc) is zero, the score is undefined and the
+    measureScore element is omitted — it is optional per the FHIR spec:
+    http://hl7.org/fhir/R4/measurereport-definitions.html#MeasureReport.group.measureScore
+
+    Population-calculation semantics follow the CQF Measures IG:
+    http://hl7.org/fhir/us/cqfmeasures/STU3/measure-conformance.html#scoring
+
+    Result: excluded or not-in-IP patients have no score. For population
+    reports the same formula returns the measurement rate.
+    """
+    eligible = den - exc
+    if den == 0 or eligible == 0:
+        score_value = None
+    else:
+        score_value = round(num / eligible, 4)
+
     return {
         "population": [
             {
@@ -283,9 +302,7 @@ def _build_group_entry(ip: int, den: int, exc: int, num: int, exc_type: str) -> 
                 "count": num,
             },
         ],
-        "measureScore": {
-            "value": round(num / max(den - exc, 1), 4) if den > 0 else None
-        },
+        "measureScore": {"value": score_value} if score_value is not None else {},
     }
 
 
