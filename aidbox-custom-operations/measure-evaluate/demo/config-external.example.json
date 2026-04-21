@@ -1,0 +1,10 @@
+{
+  "aidbox_url": "http://localhost:8888",
+  "auth_user": "root",
+  "auth_pass": "secret",
+  "dataset": "external",
+  "dataset_label": "External Aidbox — edit this file to match your instance",
+  "period_start": "2026-01-01",
+  "period_end": "2026-12-31",
+  "all_patients": true
+}

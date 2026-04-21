@@ -1,0 +1,3836 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "05c771b7-f552-4271-82a4-4d83aff39ab4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/05c771b7-f552-4271-82a4-4d83aff39ab4"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "16c0a276-f7ce-4a76-b11d-6f9a460b707a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/16c0a276-f7ce-4a76-b11d-6f9a460b707a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1a370226-6ab1-487f-b1da-08741e08f725",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/1a370226-6ab1-487f-b1da-08741e08f725"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1b089ab9-8539-4638-b58b-c33c2ca87e42",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/1b089ab9-8539-4638-b58b-c33c2ca87e42"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "1f7845f8-5fea-47d7-b531-394aee6bd8d5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-02"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/1f7845f8-5fea-47d7-b531-394aee6bd8d5"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "2929f1aa-b277-4763-b5d4-9e2d86bd623a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/2929f1aa-b277-4763-b5d4-9e2d86bd623a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "2b6eca9d-7580-4262-ba2c-97f6c174cc33",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/2b6eca9d-7580-4262-ba2c-97f6c174cc33"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "3fcb1fb9-0695-42b7-81a3-b550e8dda665",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/3fcb1fb9-0695-42b7-81a3-b550e8dda665"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "4576786d-d477-4447-8bdb-f9d5c2e6600c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/4576786d-d477-4447-8bdb-f9d5c2e6600c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "4a1c85c3-e97c-4644-b6a1-2475aa1c27e2",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/4a1c85c3-e97c-4644-b6a1-2475aa1c27e2"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "639c0ef2-67bd-4a14-a161-d9e88055263d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/639c0ef2-67bd-4a14-a161-d9e88055263d"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "65b723f6-246d-4320-a181-a64f7f1fd837",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/65b723f6-246d-4320-a181-a64f7f1fd837"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "67723351-e3ad-40b1-be93-e4b7cd7b92f0",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/67723351-e3ad-40b1-be93-e4b7cd7b92f0"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "741236df-31ad-463b-b730-fb113cfa09a8",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/741236df-31ad-463b-b730-fb113cfa09a8"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "7c3805d3-18b6-4ce5-be54-f0d9bc05c712",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/7c3805d3-18b6-4ce5-be54-f0d9bc05c712"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "8241d330-ddda-4c65-a04b-51cf208823f5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/8241d330-ddda-4c65-a04b-51cf208823f5"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "839e7c3a-a94f-418f-96cb-d356bf6de1da",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/839e7c3a-a94f-418f-96cb-d356bf6de1da"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "88bd2a94-332b-4e75-8fbe-7581c3f9793a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/88bd2a94-332b-4e75-8fbe-7581c3f9793a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "8bc317cf-4ee1-4560-a9e2-b3e862bd112e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              },
+              {
+                "url": "detailed",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "1653-5",
+                  "display": "Tohono O'Odham"
+                }
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              },
+              {
+                "url": "detailed",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2180-8",
+                  "display": "Puerto Rican"
+                }
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex",
+            "valueCode": "248153007"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "SDE",
+            "given": [
+              "SDECoverage"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/8bc317cf-4ee1-4560-a9e2-b3e862bd112e"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "8cf3bb45-d9c9-4e08-9e04-77dbf104fe42",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              },
+              {
+                "url": "detailed",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "1653-5",
+                  "display": "Tohono O'Odham"
+                }
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              },
+              {
+                "url": "detailed",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2180-8",
+                  "display": "Puerto Rican"
+                }
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex",
+            "valueCode": "248152002"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "SDE",
+            "given": [
+              "SDECoverage"
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/8cf3bb45-d9c9-4e08-9e04-77dbf104fe42"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "a62d26bf-6821-4c5b-b21a-83bb57f5ae17",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1960-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/a62d26bf-6821-4c5b-b21a-83bb57f5ae17"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "ad0aa294-a50d-483e-9bec-7231a5859d7b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/ad0aa294-a50d-483e-9bec-7231a5859d7b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "b6e3d7d2-0ce1-4aaf-a575-78dbc2402299",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/b6e3d7d2-0ce1-4aaf-a575-78dbc2402299"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "b7261db5-e945-48b9-90dd-0d0761c09295",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/b7261db5-e945-48b9-90dd-0d0761c09295"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "bca61422-b8b1-41da-9a56-b04d0f6012a9",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/bca61422-b8b1-41da-9a56-b04d0f6012a9"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "be125734-c120-481a-b6dc-cbeb040b687d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/be125734-c120-481a-b6dc-cbeb040b687d"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "dc382240-c2ff-45a7-8e4b-13c484f4ab68",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/dc382240-c2ff-45a7-8e4b-13c484f4ab68"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "f46ac4a7-66fd-49f6-a097-5712dcd97a18",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino",
+                  "userSelected": true
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MR"
+                }
+              ]
+            },
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/f46ac4a7-66fd-49f6-a097-5712dcd97a18"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "f5c7d552-39f7-4fa2-a4c6-967afba6a4b0",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "Bertha",
+            "given": [
+              "Betty"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1961-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/f5c7d552-39f7-4fa2-a4c6-967afba6a4b0"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "d7eac5cf-f682-465f-8d8a-a7207195102b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-encounter-diagnosis"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis",
+                "display": "Encounter Diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "170935008",
+              "display": "Full care by hospice (finding)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/1a370226-6ab1-487f-b1da-08741e08f725"
+        },
+        "onsetDateTime": "2025-12-31T23:59:59.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/d7eac5cf-f682-465f-8d8a-a7207195102b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "da5e0b40-68c5-4522-9164-d2718f2ce018",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "170935008",
+              "display": "Full care by hospice (finding)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/741236df-31ad-463b-b730-fb113cfa09a8"
+        },
+        "onsetDateTime": "2026-12-31T23:59:59.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/da5e0b40-68c5-4522-9164-d2718f2ce018"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "e891f7d4-6728-4876-8258-5f61d23406ee",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "version": "2024",
+                "code": "98971",
+                "display": "Qualified nonphysician health care professional online digital assessment and management, for an established patient, for up to 7 days, cumulative time during the 7 days; 11-20 minutes"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/05c771b7-f552-4271-82a4-4d83aff39ab4"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/e891f7d4-6728-4876-8258-5f61d23406ee"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "99803202-63bd-4422-9c6b-f8bf173f2582",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "version": "2024",
+                "code": "99387",
+                "display": "Initial comprehensive preventive medicine evaluation and management of an individual including an age and gender appropriate history, examination, counseling/anticipatory guidance/risk factor reduction interventions, and the ordering of laboratory/diagnostic procedures, new patient; 65 years and older"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/16c0a276-f7ce-4a76-b11d-6f9a460b707a"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/99803202-63bd-4422-9c6b-f8bf173f2582"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "7e95d7c3-30f1-481d-b6ff-cd2e6c15e14c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/1a370226-6ab1-487f-b1da-08741e08f725"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/7e95d7c3-30f1-481d-b6ff-cd2e6c15e14c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "08cfa90f-6ed5-4cea-a5cc-c9db690c277b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "410155007",
+                "display": "Occupational therapy assessment (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/1b089ab9-8539-4638-b58b-c33c2ca87e42"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/08cfa90f-6ed5-4cea-a5cc-c9db690c277b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "1cb22119-6a3a-43c5-b4e8-57a9fbe0ba61",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/1f7845f8-5fea-47d7-b531-394aee6bd8d5"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/1cb22119-6a3a-43c5-b4e8-57a9fbe0ba61"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "a58e388f-71dc-4877-837c-a20f729b0247",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "version": "2024",
+                "code": "92542",
+                "display": "Positional nystagmus test, minimum of 4 positions, with recording"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/2929f1aa-b277-4763-b5d4-9e2d86bd623a"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/a58e388f-71dc-4877-837c-a20f729b0247"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "d8995ad7-e1e0-4af4-a50c-ef50385e6e75",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/2b6eca9d-7580-4262-ba2c-97f6c174cc33"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/d8995ad7-e1e0-4af4-a50c-ef50385e6e75"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "6de09a27-bb34-4e17-a542-4c44fd5d73b4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "version": "2024",
+                "code": "99397",
+                "display": "Periodic comprehensive preventive medicine reevaluation and management of an individual including an age and gender appropriate history, examination, counseling/anticipatory guidance/risk factor reduction interventions, and the ordering of laboratory/diagnostic procedures, established patient; 65 years and older"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/3fcb1fb9-0695-42b7-81a3-b550e8dda665"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/6de09a27-bb34-4e17-a542-4c44fd5d73b4"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "24392c70-4475-4989-8e65-db91859d3f7e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/4576786d-d477-4447-8bdb-f9d5c2e6600c"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/24392c70-4475-4989-8e65-db91859d3f7e"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "b5fd7d13-434f-4b83-9e00-6a59f99fad3c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/4a1c85c3-e97c-4644-b6a1-2475aa1c27e2"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/b5fd7d13-434f-4b83-9e00-6a59f99fad3c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "1c110b91-2c19-4226-acd9-68d3546e8053",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "410158009",
+                "display": "Physical therapy assessment (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/639c0ef2-67bd-4a14-a161-d9e88055263d"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/1c110b91-2c19-4226-acd9-68d3546e8053"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "8b18bb64-0887-4a50-8e43-512cbe88d20b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/65b723f6-246d-4320-a181-a64f7f1fd837"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/8b18bb64-0887-4a50-8e43-512cbe88d20b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "da2699ff-2e9e-465e-807d-e6ff91699771",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "183921001",
+                "display": "Admission to hospice for respite (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/65b723f6-246d-4320-a181-a64f7f1fd837"
+        },
+        "period": {
+          "start": "2025-12-31T23:59:59.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/da2699ff-2e9e-465e-807d-e6ff91699771"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "613a8cf4-e28f-4443-bcdc-0d6a1ecf1f57",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/67723351-e3ad-40b1-be93-e4b7cd7b92f0"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/613a8cf4-e28f-4443-bcdc-0d6a1ecf1f57"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "022dcf0b-8467-4232-a41f-e4d93d7f78a7",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/741236df-31ad-463b-b730-fb113cfa09a8"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/022dcf0b-8467-4232-a41f-e4d93d7f78a7"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "7602530b-0a2d-4af6-8bfd-b9dcfb1f63f7",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "version": "2024",
+                "code": "99315",
+                "display": "Nursing facility discharge management; 30 minutes or less total time on the date of the encounter"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/7c3805d3-18b6-4ce5-be54-f0d9bc05c712"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/7602530b-0a2d-4af6-8bfd-b9dcfb1f63f7"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "dc4951ad-a88e-48a3-bab8-b09e1e42e9b0",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "18170008",
+                "display": "Subsequent nursing facility visit (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/8241d330-ddda-4c65-a04b-51cf208823f5"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/dc4951ad-a88e-48a3-bab8-b09e1e42e9b0"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "3b482e2c-68f1-4d88-aecc-37d2c1ff0cb5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "32485007",
+                "display": "Hospital admission (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/839e7c3a-a94f-418f-96cb-d356bf6de1da"
+        },
+        "period": {
+          "start": "2025-12-31T23:59:59.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        },
+        "hospitalization": {
+          "dischargeDisposition": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "428371000124100",
+                "display": "Discharge to healthcare facility for hospice care (procedure)"
+              }
+            ]
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/3b482e2c-68f1-4d88-aecc-37d2c1ff0cb5"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "8e082db8-e25d-409c-af4f-2cc54a966b55",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/839e7c3a-a94f-418f-96cb-d356bf6de1da"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/8e082db8-e25d-409c-af4f-2cc54a966b55"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "df8ef36a-1628-42f4-911b-31044c14c5b4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "version": "2024",
+                "code": "99401",
+                "display": "Preventive medicine counseling and/or risk factor reduction intervention(s) provided to an individual (separate procedure); approximately 15 minutes"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/88bd2a94-332b-4e75-8fbe-7581c3f9793a"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/df8ef36a-1628-42f4-911b-31044c14c5b4"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "3c0b9f38-3ae1-40df-b23c-5561683fd428",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185465003",
+                "display": "Weekend visit (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/8bc317cf-4ee1-4560-a9e2-b3e862bd112e"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/3c0b9f38-3ae1-40df-b23c-5561683fd428"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "8b4810df-b7f1-4ff6-8423-2b385532e1e1",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185465003",
+                "display": "Weekend visit (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/8cf3bb45-d9c9-4e08-9e04-77dbf104fe42"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/8b4810df-b7f1-4ff6-8423-2b385532e1e1"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "a5d42897-c475-4621-9b1e-ae5464112161",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "444971000124105",
+                "display": "Annual wellness visit (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/ad0aa294-a50d-483e-9bec-7231a5859d7b"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/a5d42897-c475-4621-9b1e-ae5464112161"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "7c2d26a6-27a0-4913-9d15-531037d9d010",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/b6e3d7d2-0ce1-4aaf-a575-78dbc2402299"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/7c2d26a6-27a0-4913-9d15-531037d9d010"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "3b249efd-84ed-478a-b5b3-5a71361c3745",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "32485007",
+                "display": "Hospital admission (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/b7261db5-e945-48b9-90dd-0d0761c09295"
+        },
+        "period": {
+          "start": "2025-12-31T23:59:59.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        },
+        "hospitalization": {
+          "dischargeDisposition": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "428361000124107",
+                "display": "Discharge to home for hospice care (procedure)"
+              }
+            ]
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/3b249efd-84ed-478a-b5b3-5a71361c3745"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "9b79a307-bc14-49ad-ba97-34116b8557b7",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185463005",
+                "display": "Visit out of hours (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/b7261db5-e945-48b9-90dd-0d0761c09295"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/9b79a307-bc14-49ad-ba97-34116b8557b7"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "c88718bf-e59e-4ff5-8c20-837e2aeee139",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185465003",
+                "display": "Weekend visit (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/bca61422-b8b1-41da-9a56-b04d0f6012a9"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/c88718bf-e59e-4ff5-8c20-837e2aeee139"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "ee7fd4fa-6247-4637-bb96-856b8d6bced3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185317003",
+                "display": "Telephone encounter (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/be125734-c120-481a-b6dc-cbeb040b687d"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/ee7fd4fa-6247-4637-bb96-856b8d6bced3"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "e44a23cc-51d9-4537-87d0-52c53c5108c5",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "185466002",
+                "display": "Home visit for urgent condition (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/dc382240-c2ff-45a7-8e4b-13c484f4ab68"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/e44a23cc-51d9-4537-87d0-52c53c5108c5"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "cd01e449-999a-4a30-b1a6-2f6445d26079",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "210098006",
+                "display": "Domiciliary or rest home patient evaluation and management (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/f46ac4a7-66fd-49f6-a097-5712dcd97a18"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T01:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/cd01e449-999a-4a30-b1a6-2f6445d26079"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "caf79801-0efe-4d00-b9a7-6a3215abe4f2",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "78831002",
+                "display": "Comprehensive eye examination (procedure)"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/f5c7d552-39f7-4fa2-a4c6-967afba6a4b0"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/caf79801-0efe-4d00-b9a7-6a3215abe4f2"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "ed07a62b-5f1e-415a-b1b5-eab6faee269f",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-servicerequest"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "387713003",
+                "display": "Surgical procedure"
+              }
+            ]
+          }
+        ],
+        "priority": "routine",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "170935008",
+              "display": "Full care by hospice (finding)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/2b6eca9d-7580-4262-ba2c-97f6c174cc33"
+        },
+        "authoredOn": "2026-01-01T00:00:00.000+00:00",
+        "performerType": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "405279007",
+              "display": "Attending physician (occupation)"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ServiceRequest/ed07a62b-5f1e-415a-b1b5-eab6faee269f"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "56ff8d0c-dc01-4270-bfc3-6d4613d8373d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-observation-screening-assessment"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "45755-6",
+              "display": "Hospice care [Minimum Data Set]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/4576786d-d477-4447-8bdb-f9d5c2e6600c"
+        },
+        "effectivePeriod": {
+          "start": "2025-12-31T00:00:00.000+00:00",
+          "end": "2026-01-01T00:00:00.000+00:00"
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "373066001",
+              "display": "Yes (qualifier value)"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/56ff8d0c-dc01-4270-bfc3-6d4613d8373d"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "id": "98e14ba4-aa8e-44ef-a19c-de689f4756d6",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-procedure"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-recorded",
+            "valueDateTime": "2026-12-31T00:00:00.000+00:00"
+          }
+        ],
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "385763009",
+              "display": "Hospice care (regime/therapy)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/4a1c85c3-e97c-4644-b6a1-2475aa1c27e2"
+        },
+        "performedPeriod": {
+          "start": "2026-12-31T00:00:00.000+00:00",
+          "end": "2026-12-31T23:59:59.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Procedure/98e14ba4-aa8e-44ef-a19c-de689f4756d6"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "e934c970-9c03-4e4d-a0ec-9ed723b9b3c4",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-observation-screening-assessment"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "52552-7",
+              "display": "Falls in the past year"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/67723351-e3ad-40b1-be93-e4b7cd7b92f0"
+        },
+        "effectivePeriod": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:15:00.000+00:00"
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "373066001",
+              "display": "Yes (qualifier value)"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/e934c970-9c03-4e4d-a0ec-9ed723b9b3c4"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "14d4adc3-618d-429e-bbd4-200feb46cf91",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-coverage"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://benefitsinc.com/certificate",
+            "value": "12345"
+          }
+        ],
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "code": "59",
+              "display": "Other Private Insurance"
+            }
+          ]
+        },
+        "policyHolder": {
+          "reference": "Patient/8bc317cf-4ee1-4560-a9e2-b3e862bd112e"
+        },
+        "subscriber": {
+          "reference": "Patient/8bc317cf-4ee1-4560-a9e2-b3e862bd112e"
+        },
+        "subscriberId": "12191",
+        "beneficiary": {
+          "reference": "Patient/8bc317cf-4ee1-4560-a9e2-b3e862bd112e"
+        },
+        "dependent": "0",
+        "relationship": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+              "code": "self"
+            }
+          ]
+        },
+        "period": {
+          "start": "2023-01-01T06:00:00.000+00:00",
+          "end": "2023-01-01T11:06:01.000+00:00"
+        },
+        "payor": [
+          {
+            "reference": "Patient/8bc317cf-4ee1-4560-a9e2-b3e862bd112e"
+          }
+        ],
+        "order": 9
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Coverage/14d4adc3-618d-429e-bbd4-200feb46cf91"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "0f1d8660-192e-4d0f-835c-8a55a48fcf23",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-coverage"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://benefitsinc.com/certificate",
+            "value": "12345"
+          }
+        ],
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "https://nahdo.org/sopt",
+              "code": "59",
+              "display": "Other Private Insurance"
+            }
+          ]
+        },
+        "policyHolder": {
+          "reference": "Patient/8cf3bb45-d9c9-4e08-9e04-77dbf104fe42"
+        },
+        "subscriber": {
+          "reference": "Patient/8cf3bb45-d9c9-4e08-9e04-77dbf104fe42"
+        },
+        "subscriberId": "12191",
+        "beneficiary": {
+          "reference": "Patient/8cf3bb45-d9c9-4e08-9e04-77dbf104fe42"
+        },
+        "dependent": "0",
+        "relationship": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+              "code": "self"
+            }
+          ]
+        },
+        "period": {
+          "start": "2023-01-01T06:00:00.000+00:00",
+          "end": "2023-01-01T11:06:01.000+00:00"
+        },
+        "payor": [
+          {
+            "reference": "Patient/8cf3bb45-d9c9-4e08-9e04-77dbf104fe42"
+          }
+        ],
+        "order": 9
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Coverage/0f1d8660-192e-4d0f-835c-8a55a48fcf23"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "a832bd24-455d-4196-b7fd-035dd9a9dd84",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-observation-screening-assessment"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "52552-7",
+              "display": "Falls in the past year"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/b6e3d7d2-0ce1-4aaf-a575-78dbc2402299"
+        },
+        "effectivePeriod": {
+          "start": "2025-12-31T23:59:00.000+00:00",
+          "end": "2025-12-31T23:59:59.000+00:00"
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "373066001",
+              "display": "Yes (qualifier value)"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/a832bd24-455d-4196-b7fd-035dd9a9dd84"
+      }
+    }
+  ]
+}

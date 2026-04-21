@@ -1,0 +1,9 @@
+{
+  "aidbox_url": "http://localhost:8888",
+  "auth_user": "root",
+  "auth_pass": "secret",
+  "dataset": "cypress-2026",
+  "dataset_label": "Sample / 485 dqm-content test patients",
+  "period_start": "2026-01-01",
+  "period_end": "2026-12-31"
+}

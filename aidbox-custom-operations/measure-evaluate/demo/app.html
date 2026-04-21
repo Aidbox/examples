@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quality Measures — Care Gap Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fg:#0f172a;--fg2:#334155;--fg3:#64748b;
+  --bg:#f8fafc;--bg2:#f1f5f9;--bg3:#e2e8f0;--card:#ffffff;--line:#cbd5e1;
+  --teal:#0f766e;--teal-bg:#e6f5f3;
+  --green:#15803d;--green-bg:#dcfce7;
+  --amber:#b45309;--amber-bg:#fef3c7;
+  --rose:#be123c;--rose-bg:#ffe4e6;
+  --blue:#1d6fa5;--blue-bg:#e0f2fe;
+  --violet:#7c3aed;--violet-bg:#ede9fe;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --radius:8px;
+  --shadow:0 1px 3px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.04);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px}
+body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased;height:100vh;overflow:hidden}
+
+.shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:48px 1fr;height:100vh}
+
+/* ── Top bar ──────────────────────── */
+.topbar{grid-column:1/-1;display:flex;align-items:center;border-bottom:1px solid var(--line);background:var(--card);padding:0 1.25rem;gap:1rem;z-index:10}
+.topbar-brand{font-family:var(--sans);font-weight:600;font-size:0.85rem;color:var(--fg);white-space:nowrap}
+.topbar-brand small{font-family:var(--sans);font-weight:400;font-size:0.62rem;color:var(--fg3);margin-left:.35rem}
+.tabs{display:flex;gap:0;margin-left:1.25rem}
+.tab{font-size:0.75rem;font-weight:500;color:var(--fg3);padding:.8rem .9rem;cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap}
+.tab:hover{color:var(--fg2)}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:.6rem}
+.conn{display:flex;align-items:center;gap:.25rem;font-size:0.62rem;color:var(--fg3)}
+.conn .dot{width:6px;height:6px;border-radius:50%}
+.dot-ok{background:var(--green)}.dot-err{background:var(--rose)}.dot-pending{background:var(--amber);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.dataset-label{font-size:0.6rem;color:var(--fg3);font-family:var(--mono);background:var(--bg2);padding:.15rem .4rem;border-radius:4px}
+
+/* ── Sidebar ──────────────────────── */
+.sidebar{background:var(--bg2);border-right:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column;font-size:0.72rem}
+.sb-section{font-size:0.52rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);padding:.6rem 1rem .2rem}
+.sb-section[onclick]{cursor:pointer;transition:color .12s}.sb-section[onclick]:hover{color:var(--teal)}
+.sb-item{display:flex;align-items:center;justify-content:space-between;padding:.35rem 1rem;cursor:pointer;border-left:3px solid transparent;transition:all .12s}
+.sb-item:hover{background:var(--bg3)}
+.sb-item.active{background:var(--card);border-left-color:var(--teal)}
+.sb-item .si-name{font-size:0.72rem;color:var(--fg2)}
+.sb-item.active .si-name{color:var(--teal);font-weight:500}
+.sb-item .si-badge{font-family:var(--mono);font-size:0.58rem;font-weight:500;padding:.08rem .35rem;border-radius:4px;min-width:2rem;text-align:center}
+.si-badge.loading{background:var(--bg3);color:var(--fg3)}
+.si-badge.scored{background:var(--teal-bg);color:var(--teal)}
+.si-badge.err{color:var(--rose)}
+.sb-foot{padding:.6rem 1rem;border-top:1px solid var(--line);margin-top:auto;display:flex;flex-direction:column;gap:.4rem}
+.sb-foot label{font-size:0.5rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
+.sb-foot input[type="date"]{width:100%;font-family:var(--sans);font-size:0.72rem;color:var(--fg);padding:.25rem .4rem;border:1px solid var(--line);border-radius:5px;background:var(--card);outline:none}
+.sb-foot input:focus{border-color:var(--teal)}
+.sb-exports{display:flex;gap:.3rem;margin-top:.2rem}
+.btn-exp{flex:1;font-family:var(--sans);font-size:0.68rem;font-weight:600;padding:.4rem;border:none;border-radius:5px;background:var(--fg);color:var(--card);cursor:pointer;text-align:center;transition:all .15s}
+.btn-exp:hover{background:var(--fg2)}
+.sb-summary{padding:.4rem 1rem;display:flex;justify-content:space-between;font-size:0.68rem;color:var(--fg2)}
+.sb-summary .sv{font-family:var(--mono);font-weight:600}
+.sb-summary .sv.rose{color:var(--rose)}.sb-summary .sv.teal{color:var(--teal)}
+.sb-progress{padding:.2rem 1rem;font-size:0.6rem;color:var(--fg3)}
+.sb-progress .spinner{display:inline-block;width:8px;height:8px;border:1.5px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite;margin-right:.2rem;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite;border-radius:var(--radius);min-height:120px}
+
+/* ── Main ─────────────────────────── */
+.main{overflow-y:auto;padding:1.25rem 1.75rem 2.5rem}
+
+/* ── KPI ──────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:1.1rem}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.75rem .85rem;animation:fadeUp .3s ease both}
+.kpi-val{font-family:var(--mono);font-size:1.5rem;font-weight:600;line-height:1;color:var(--fg)}
+.kpi-lbl{font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);margin-top:.2rem}
+.kpi.rose .kpi-val{color:var(--rose)}.kpi.teal .kpi-val{color:var(--teal)}
+
+/* ── Toolbar ──────────────────────── */
+.toolbar{display:flex;align-items:center;gap:.35rem;margin-bottom:.7rem;flex-wrap:wrap}
+.filter-group{display:flex;gap:.2rem}
+.fbtn{font-size:0.65rem;font-weight:500;padding:.25rem .55rem;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg3);cursor:pointer;transition:all .12s;font-family:var(--sans)}
+.fbtn:hover{border-color:var(--fg3);color:var(--fg2)}
+.fbtn.active{background:var(--fg);color:var(--card);border-color:var(--fg)}
+.search-box{flex:1;min-width:120px;font-size:0.72rem;padding:.25rem .5rem;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg);outline:none;margin-left:auto;font-family:var(--sans)}
+.search-box:focus{border-color:var(--teal)}.search-box::placeholder{color:var(--fg3)}
+.tcount{font-size:0.6rem;color:var(--fg3);font-family:var(--mono);white-space:nowrap}
+
+/* ── Overview grid ────────────────── */
+.overview-head{margin-bottom:1.25rem}
+.overview-head h1{font-family:var(--sans);font-size:1.4rem;font-weight:700;letter-spacing:-.02em}
+.overview-head p{font-size:0.78rem;color:var(--fg3);margin-top:.15rem}
+.overview-progress{font-size:0.65rem;color:var(--fg3);margin-top:.35rem}
+.overview-progress .spinner{display:inline-block;width:8px;height:8px;border:1.5px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite;margin-right:.2rem;vertical-align:middle}
+.measure-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem}
+.measure-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:all .2s;animation:fadeUp .3s ease both}
+.measure-card:hover{border-color:var(--teal);box-shadow:0 2px 12px rgba(15,118,110,.06);transform:translateY(-2px)}
+.mc-id{font-family:var(--mono);font-size:0.58rem;font-weight:600;color:var(--fg3)}
+.mc-name{font-family:var(--sans);font-size:0.82rem;font-weight:600;color:var(--fg);margin:.2rem 0 .6rem;line-height:1.3}
+.mc-bar{height:5px;border-radius:3px;background:var(--bg3);overflow:hidden;display:flex;margin-bottom:.55rem}
+.mc-bar .seg{height:100%;transition:width .6s ease}
+.seg-closed{background:var(--teal)}.seg-open{background:var(--rose)}.seg-excl{background:var(--amber)}.seg-noip{background:var(--bg3)}
+.mc-foot{display:flex;justify-content:space-between;align-items:baseline}
+.mc-pts{font-size:0.65rem;color:var(--fg3)}
+.mc-score{font-family:var(--mono);font-size:1.0rem;font-weight:600;color:var(--teal)}
+.measure-card.loading .mc-score{color:var(--fg3);font-size:0.65rem;font-weight:400}
+
+/* ── Detail ───────────────────────── */
+.detail-back{font-size:0.72rem;font-weight:500;color:var(--fg3);background:none;border:none;cursor:pointer;padding:0;margin-bottom:.85rem;display:flex;align-items:center;gap:.25rem;font-family:var(--sans)}
+.detail-back:hover{color:var(--teal)}
+.detail-head{margin-bottom:1.25rem}
+.detail-head h1{font-family:var(--sans);font-size:1.25rem;font-weight:700;letter-spacing:-.02em}
+.detail-head .dh-meta{font-size:0.72rem;color:var(--fg3);margin-top:.1rem}
+.detail-bar{margin-bottom:1.25rem}
+.detail-bar-track{height:28px;border-radius:7px;background:var(--bg3);overflow:hidden;display:flex}
+.detail-bar-track .bseg{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.62rem;font-weight:600;color:#fff;transition:width .5s ease;min-width:0;overflow:hidden}
+.bseg-closed{background:var(--teal)}.bseg-open{background:var(--rose)}.bseg-excl{background:var(--amber)}.bseg-noip{background:#94a3b8}
+.detail-bar-legend{display:flex;gap:1rem;margin-top:.35rem;font-size:0.65rem;color:var(--fg2)}
+.legend-item{display:flex;align-items:center;gap:.25rem}.legend-dot{width:8px;height:8px;border-radius:3px}
+
+/* ── Table ─────────────────────────── */
+.ptable{width:100%;border-collapse:collapse;font-size:0.75rem;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.ptable th{text-align:left;padding:.45rem .65rem;background:var(--bg2);font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);border-bottom:1px solid var(--line)}
+.ptable td{padding:.4rem .65rem;border-bottom:1px solid var(--bg3);color:var(--fg2)}
+.ptable tr:last-child td{border-bottom:none}
+.ptable .mono{font-family:var(--mono);font-size:0.65rem}
+.ptable .num{text-align:center;font-family:var(--mono)}
+.p-row{cursor:pointer;transition:background .1s}
+.p-row:hover td{background:var(--teal-bg)}
+.p-row.expanded td{background:var(--bg2)}
+.p-row td:first-child{border-left:3px solid transparent}
+.p-row.row-closed td:first-child{border-left-color:var(--teal)}
+.p-row.row-open td:first-child{border-left-color:var(--rose)}
+.p-row.row-excl td:first-child{border-left-color:var(--amber)}
+.p-row.row-noip td:first-child{border-left-color:var(--fg3)}
+
+.badge{display:inline-block;font-size:0.58rem;font-weight:600;padding:.1rem .38rem;border-radius:4px}
+.gap-closed{background:var(--teal-bg);color:var(--teal)}.gap-open{background:var(--rose-bg);color:var(--rose)}
+.gap-excluded{background:var(--amber-bg);color:var(--amber)}.gap-not-in-ip{background:var(--bg3);color:var(--fg3)}
+
+/* ── Evidence ──────────────────────── */
+.evidence-panel{display:none;margin-top:.4rem;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:.8rem 1rem;font-size:0.72rem;line-height:1.6}
+.evidence-panel.open{display:block;animation:fadeUp .2s ease}
+.ev-none{color:var(--fg3);font-style:italic}
+.decision-table{width:100%;border-collapse:collapse;margin:.3rem 0}
+.decision-table th{text-align:left;padding:.25rem .4rem;font-size:0.52rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);border-bottom:1px solid var(--line)}
+.decision-table th:last-child{text-align:center}
+.decision-table td{padding:.22rem .4rem;border-bottom:1px solid var(--bg3);font-size:0.68rem;color:var(--fg2)}
+.decision-table td:last-child{text-align:center}
+.decision-table td.yes{background:var(--green-bg);color:var(--green);font-weight:600}
+.decision-table td.no{color:var(--fg3)}
+.decision-table code{font-family:var(--mono);font-size:0.62rem;color:var(--fg3)}
+.decision-table tr.step-summary td{font-weight:600}
+.evidence-box{background:var(--card);border-radius:6px;padding:.5rem .65rem;margin:.35rem 0}
+.evidence-box-title{font-size:0.52rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:.2rem}
+.evidence-box-item{font-size:0.68rem;color:var(--fg2);line-height:1.5;padding:.06rem 0}
+.evidence-box-item strong{color:var(--fg);font-weight:500}
+.ev-conclusion{font-size:0.75rem;font-weight:500;margin-top:.35rem;padding-top:.3rem;border-top:1px solid var(--line)}
+.outcome-closed{color:var(--teal)}.outcome-open{color:var(--rose)}.outcome-excluded{color:var(--amber)}.outcome-notip{color:var(--fg3)}
+
+/* ── Care gap specific ─────────────── */
+.cat-badge{font-size:0.5rem;font-weight:600;padding:.08rem .3rem;border-radius:3px;display:inline-block;margin-right:.15rem}
+.cat-Screening{background:var(--blue-bg);color:var(--blue)}.cat-Lab{background:var(--violet-bg);color:var(--violet)}
+.cat-Referral{background:var(--amber-bg);color:var(--amber)}.cat-Visit{background:var(--teal-bg);color:var(--teal)}
+.cat-Assessment{background:var(--green-bg);color:var(--green)}
+
+.wl-name{font-weight:500;color:var(--fg)}.wl-id{font-family:var(--mono);font-size:0.58rem;color:var(--fg3)}
+.wl-gaps-badge{font-family:var(--mono);font-size:0.58rem;font-weight:600;background:var(--rose-bg);color:var(--rose);padding:.08rem .3rem;border-radius:3px}
+.wl-risk{display:flex;align-items:center;gap:.25rem}
+.wl-risk-bar{width:40px;height:4px;border-radius:2px;background:var(--bg3);overflow:hidden}
+.wl-risk-fill{height:100%;border-radius:2px}
+.wl-action{font-size:0.68rem;color:var(--fg2);max-width:200px}
+.wl-action .act-measure{font-weight:500;color:var(--fg)}
+.wl-row{cursor:pointer;transition:background .1s}
+.wl-row:hover td{background:var(--teal-bg)}
+.wl-row.expanded td{background:var(--bg2)}
+.wl-row td:first-child{border-left:3px solid var(--rose);padding-left:.4rem}
+
+.mini360{padding:.6rem;animation:fadeUp .2s ease}
+.m360-measures{display:flex;flex-direction:column;gap:.3rem}
+.m360-item{display:flex;align-items:center;gap:.5rem;padding:.3rem .4rem;border-radius:5px;background:var(--bg);border:1px solid var(--bg3);font-size:0.68rem}
+.m360-item.m360-open{border-left:3px solid var(--rose)}
+.m360-item.m360-closed{border-left:3px solid var(--teal)}
+.m360-item.m360-excl{border-left:3px solid var(--amber)}
+.m360-item.m360-noip{border-left:3px solid var(--fg3);opacity:.5}
+.m360-name{font-size:0.68rem;font-weight:500;color:var(--fg);min-width:80px}
+.m360-action{font-size:0.62rem;color:var(--fg2);flex:1}
+
+/* Patient 360 full */
+.p360-back{font-size:0.72rem;font-weight:500;color:var(--fg3);background:none;border:none;cursor:pointer;padding:0;margin-bottom:.85rem;display:flex;align-items:center;gap:.25rem;font-family:var(--sans)}
+.p360-back:hover{color:var(--teal)}
+.p360-header{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--line)}
+.p360-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:0.95rem;font-weight:600;color:var(--fg3);flex-shrink:0}
+.p360-info h2{font-family:var(--sans);font-size:1.1rem;font-weight:600}
+.p360-info .p360-meta{font-size:0.68rem;color:var(--fg3);margin-top:.05rem;font-family:var(--mono)}
+.p360-summary{display:flex;gap:.35rem;margin-top:.35rem}
+.p360-chip{font-size:0.58rem;font-weight:600;padding:.12rem .4rem;border-radius:4px}
+.p360-chip.open{background:var(--rose-bg);color:var(--rose)}.p360-chip.closed{background:var(--teal-bg);color:var(--teal)}.p360-chip.total{background:var(--bg3);color:var(--fg3)}
+.p360-list{display:flex;flex-direction:column;gap:.55rem}
+.p360-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem 1rem;animation:fadeUp .25s ease both}
+.p360-card.card-open{border-left:3px solid var(--rose)}.p360-card.card-closed{border-left:3px solid var(--teal)}
+.p360-card.card-excl{border-left:3px solid var(--amber)}.p360-card.card-noip{border-left:3px solid var(--fg3);opacity:.6}
+.p360-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem}
+.p360-card-title{font-family:var(--sans);font-size:0.82rem;font-weight:600}
+.p360-action-box{background:var(--rose-bg);border-radius:5px;padding:.45rem .6rem;margin:.3rem 0;font-size:0.72rem}
+.p360-action-box .act-label{font-size:0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--rose);margin-bottom:.1rem}
+.p360-action-box .act-text{color:var(--fg)}
+.p360-ev-toggle{font-size:0.65rem;font-weight:500;color:var(--teal);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:.2rem;font-family:var(--sans);margin-top:.3rem}
+.p360-ev-toggle:hover{text-decoration:underline}
+
+/* Cohort */
+.cohort-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:1rem}
+.cohort-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem;cursor:pointer;transition:all .2s;animation:fadeUp .3s ease both}
+.cohort-card:hover{border-color:var(--rose);transform:translateY(-2px)}
+.cohort-card.active{border-color:var(--rose);background:var(--rose-bg)}
+.cc-id{font-family:var(--mono);font-size:0.55rem;font-weight:600;color:var(--fg3)}
+.cc-name{font-family:var(--sans);font-size:0.78rem;font-weight:600;color:var(--fg);margin:.15rem 0 .4rem;line-height:1.3}
+.cc-count{font-family:var(--mono);font-size:1.2rem;font-weight:600;color:var(--rose)}
+.cc-label{font-size:0.55rem;color:var(--fg3);text-transform:uppercase;letter-spacing:.06em}
+.cc-action{font-size:0.62rem;color:var(--fg2);margin-top:.3rem;padding-top:.25rem;border-top:1px solid var(--bg3)}
+.cohort-detail{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem;animation:fadeUp .2s ease}
+.cohort-detail h3{font-family:var(--sans);font-size:0.9rem;font-weight:600;margin-bottom:.4rem}
+.cohort-detail .cd-action{font-size:0.75rem;color:var(--fg2);margin-bottom:.6rem;padding:.4rem .55rem;background:var(--rose-bg);border-radius:5px}
+.cd-toolbar{display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem}
+.cd-check-all{font-size:0.65rem;color:var(--teal);cursor:pointer;font-family:var(--sans);background:none;border:none;font-weight:500}
+.cd-check-all:hover{text-decoration:underline}
+.cd-list{display:flex;flex-direction:column;gap:.15rem;max-height:300px;overflow-y:auto}
+.cd-row{display:flex;align-items:center;gap:.4rem;padding:.25rem .35rem;border-radius:4px;font-size:0.68rem;color:var(--fg2)}
+.cd-row:hover{background:var(--bg2)}
+.cd-row input[type="checkbox"]{accent-color:var(--teal)}
+.cd-row .cd-name{font-weight:500;color:var(--fg)}
+.cd-row .cd-id{font-family:var(--mono);font-size:0.58rem;color:var(--fg3);margin-left:auto}
+
+.empty{text-align:center;padding:3rem 1.5rem;color:var(--fg3)}
+.empty h2{font-family:var(--sans);font-size:1.0rem;font-weight:600;color:var(--fg2);margin-bottom:.25rem}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--line);border-radius:2px}
+</style>
+<link rel="stylesheet" href="../light-theme.css">
+<link rel="stylesheet" href="../dark-theme.css">
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-brand">Quality Measures<small>Care Gap Management</small></div>
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-tab="overview" onclick="switchTab('overview',this)">Overview</div>
+      <div class="tab" data-tab="worklist" onclick="switchTab('worklist',this)">Worklist</div>
+      <div class="tab" data-tab="patient360" onclick="switchTab('patient360',this)">Patient 360</div>
+      <div class="tab" data-tab="cohort" onclick="switchTab('cohort',this)">Cohort Actions</div>
+    </div>
+    <div class="topbar-right">
+      <span class="dataset-label" id="dataset-label"></span>
+      <div class="conn" id="conn"><span class="dot dot-pending"></span><span>...</span></div>
+    </div>
+  </div>
+  <aside class="sidebar">
+    <div class="sb-section">Summary</div>
+    <div class="sb-summary"><span>Patients with gaps</span><span class="sv rose" id="sb-gap-pts">—</span></div>
+    <div class="sb-summary"><span>Total open gaps</span><span class="sv rose" id="sb-gaps">—</span></div>
+    <div class="sb-summary"><span>Avg gaps / patient</span><span class="sv" id="sb-avg">—</span></div>
+    <div class="sb-section" style="cursor:pointer" onclick="switchTab('overview',null)">Measures</div>
+    <div id="sb-measures"></div>
+    <div class="sb-progress" id="sb-progress"></div>
+    <div class="sb-foot">
+      <label style="display:flex;align-items:center;gap:.35rem;font-size:.65rem;color:var(--fg3);cursor:pointer;margin-bottom:.2rem"><input type="checkbox" id="chk-all-pts" style="accent-color:var(--teal)"> All Aidbox patients</label>
+      <div><label>Period start</label><input type="date" id="period-start" value="2026-01-01"></div>
+      <div><label>Period end</label><input type="date" id="period-end" value="2026-12-31"></div>
+      <button class="btn-exp" style="width:100%;margin-top:.3rem" onclick="reEvaluate()">Recalculate</button>
+    </div>
+  </aside>
+  <div class="main" id="main"></div>
+</div>
+
+<script>
+let AIDBOX_URL='http://localhost:8888',AUTH='Basic '+btoa('root:secret');
+const META={
+  cms75:{name:'Children Dental Decay',short:'CMS75',inverse:true,desc:'Percentage of children 1\u201320 who had a dental visit and have dental caries (cavities). Inverse measure \u2014 higher score means more children with decay. Lower is better.'},
+  cms124:{name:'Cervical Cancer Screening',short:'CMS124',desc:'Percentage of women 24\u201364 who were screened for cervical cancer: Pap test within 3 years or HPV test within 5 years (age \u226530 for HPV).'},
+  cms125:{name:'Breast Cancer Screening',short:'CMS125',desc:'Percentage of women 42\u201374 who had a mammogram to screen for breast cancer within 27 months of the end of the measurement period.'},
+  cms130:{name:'Colorectal Cancer Screening',short:'CMS130',desc:'Percentage of adults 46\u201375 who had appropriate screening for colorectal cancer: colonoscopy (10yr), FOBT (1yr), FIT-DNA (3yr), flex sigmoidoscopy (5yr), or CT colonography (5yr).'},
+  cms131:{name:'Diabetes: Eye Exam',short:'CMS131',desc:'Percentage of patients 18\u201375 with diabetes who had a retinal eye exam during the measurement period or a negative exam in the prior year.'},
+  cms139:{name:'Fall Risk Screening',short:'CMS139',desc:'Percentage of patients 65+ who were screened for future fall risk during the measurement period.'},
+  cms143:{name:'POAG: Optic Nerve Evaluation',short:'CMS143',desc:'Percentage of patients 18+ with primary open-angle glaucoma (POAG) who had an optic nerve head evaluation (cup-to-disc ratio) during the measurement period.'},
+  cms149:{name:'Dementia: Cognitive Assessment',short:'CMS149',desc:'Percentage of patients 65+ with dementia who had a cognitive assessment performed during the measurement period. Uses denominator exception (not exclusion).'},
+  cms153:{name:'Chlamydia Screening',short:'CMS153',desc:'Percentage of women 16\u201324 identified as sexually active who had at least one chlamydia test during the measurement period.'},
+  cms155:{name:'Weight Assessment/Counseling',short:'CMS155',desc:'Multi-group measure (3 rates): BMI percentile, nutrition counseling, physical activity counseling. Dashboard shows Group 1 (BMI percentile) only.'},
+  cms165:{name:'Controlling High Blood Pressure',short:'CMS165',desc:'Percentage of patients 18\u201385 with a diagnosis of hypertension whose most recent blood pressure was adequately controlled (systolic <140 and diastolic <90 mmHg).'},
+  cms1154:{name:'Screening for Prediabetes',short:'CMS1154',desc:'Percentage of patients 35\u201370 with BMI \u226525 (or \u226523 if Asian) who had a glycemic screening test (HbA1c, fasting glucose, or oral glucose tolerance) during the measurement period.'},
+};
+const ACTIONS={cms130:{action:'Order colonoscopy or FIT/FOBT',category:'Screening'},cms125:{action:'Schedule mammography',category:'Screening'},cms131:{action:'Schedule dilated eye exam',category:'Referral'},cms165:{action:'Schedule BP follow-up visit',category:'Visit'},cms124:{action:'Order cervical cancer screening',category:'Screening'},cms139:{action:'Perform fall risk assessment',category:'Assessment'},cms75:{action:'Schedule pediatric dental exam',category:'Referral'},cms1154:{action:'Order diabetes screening lab',category:'Lab'},cms149:{action:'Perform cognitive assessment',category:'Assessment'},cms153:{action:'Order chlamydia screening',category:'Lab'},cms155:{action:'Schedule weight/BMI assessment + counseling',category:'Visit'},cms143:{action:'Schedule optic nerve evaluation',category:'Referral'}};
+
+let MEASURES={},measureResults={},allPatientNames={},patientMap={};
+let currentTab='overview',currentMeasure=null,currentFilter='all',currentSearch='';
+let wlFilter='all',wlSearch='',selectedP360=null,selectedCohort=null,lastTab='overview';
+
+async function sql(q){const r=await fetch(`${AIDBOX_URL}/$sql`,{method:'POST',headers:{'Authorization':AUTH,'Content-Type':'application/json'},body:JSON.stringify([q])});if(!r.ok)throw new Error(`SQL ${r.status}`);const t=await r.text();return t.trim()?JSON.parse(t):[]}
+function buildSQL(id,s,e,p){let q=MEASURES[id].sql;q=q.replace(/\{PERIOD_START\}/g,s).replace(/\{PERIOD_END\}/g,e);if(p)q=q.replace('ORDER BY ap.patient_id;',`WHERE ap.patient_id='${p}'\nORDER BY ap.patient_id;`);return q}
+function gapStatus(r){const ip=+r.ip,exc=+r.exc,num=+r.num;if(ip===0)return{label:'Not in IP',cls:'gap-not-in-ip',key:'noip'};if(exc===1)return{label:'Excluded',cls:'gap-excluded',key:'excl'};if(num===1)return{label:'Closed',cls:'gap-closed',key:'closed'};return{label:'Open',cls:'gap-open',key:'open'}}
+function calcStats(rows){let ip=0,den=0,exc=0,num=0,open=0,closed=0,excluded=0,noip=0;for(const r of rows){const rip=+r.ip,rden=+r.den,rexc=+r.exc,rnum=+r.num;ip+=rip;den+=rden;exc+=rexc;num+=rnum;if(rip===0)noip++;else if(rnum===1)closed++;else if(rexc===1)excluded++;else open++}return{total:rows.length,ip,den,exc,num,open,closed,excluded,noip,score:den>0?(num/Math.max(den-exc,1)*100):null}}
+function getPeriod(){return{start:document.getElementById('period-start').value,end:document.getElementById('period-end').value}}
+function daysRemaining(){return Math.max(0,Math.ceil((new Date(document.getElementById('period-end').value+'T23:59:59')-new Date())/(864e5)))}
+function buildPatientMap(){patientMap={};for(const[mid,res]of Object.entries(measureResults)){if(!res.rows)continue;for(const r of res.rows){if(!patientMap[r.patient_id])patientMap[r.patient_id]=[];const g=gapStatus(r);patientMap[r.patient_id].push({mid,ip:r.ip,den:r.den,exc:r.exc,num:r.num,status:g.key,label:g.label,cls:g.cls})}}}
+function getGapPatients(){const list=[];for(const[pid,measures]of Object.entries(patientMap)){const og=measures.filter(m=>m.status==='open'&&!META[m.mid]?.inverse);if(og.length>0)list.push({pid,name:patientLabel(pid),measures,openGaps:og,topGap:og[0]})}list.sort((a,b)=>b.openGaps.length-a.openGaps.length);return list}
+function download(c,f,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=f;a.click();URL.revokeObjectURL(a.href)}
+let _patientCounter=0;const _patientNumbers={};
+function patientLabel(pid){const name=allPatientNames[pid];if(name&&!name.match(/^[0-9a-f-]{8,}$/i))return name;if(!_patientNumbers[pid])_patientNumbers[pid]=++_patientCounter;return'Patient #'+_patientNumbers[pid]}
+
+// ── Tab switching ──
+function switchTab(tab,el){
+  currentTab=tab;lastTab=tab;currentMeasure=null;selectedP360=null;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  else document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  render();
+}
+
+function render(){
+  if(currentMeasure)return renderMeasureDetail(currentMeasure);
+  if(currentTab==='overview')renderOverview();
+  else if(currentTab==='worklist')renderWorklist();
+  else if(currentTab==='patient360')selectedP360?renderP360Detail(selectedP360):renderP360List();
+  else if(currentTab==='cohort')renderCohort();
+}
+
+// ── Init ──
+async function init(){
+  const stack=new URLSearchParams(location.search).get('stack');const cfgFile=stack?`./config-${stack}.json`:'./config.json';
+  try{const cfg=await(await fetch(cfgFile)).json();AIDBOX_URL=cfg.aidbox_url||AIDBOX_URL;AUTH='Basic '+btoa((cfg.auth_user||'root')+':'+(cfg.auth_pass||'secret'));document.getElementById('dataset-label').textContent=cfg.dataset_label||'';if(cfg.period_start)document.getElementById('period-start').value=cfg.period_start;if(cfg.period_end)document.getElementById('period-end').value=cfg.period_end;if(cfg.all_patients)document.getElementById('chk-all-pts').checked=true}catch(e){}
+  try{MEASURES=await(await fetch('./measure-sql.json')).json()}catch(e){document.getElementById('main').innerHTML='<div class="empty"><h2>Cannot load measure-sql.json</h2></div>';return}
+  const conn=document.getElementById('conn');
+  try{const rows=await sql("SELECT COUNT(*) as cnt FROM patient");conn.innerHTML=`<span class="dot dot-ok"></span><span>${rows[0]?.cnt||0} pts</span>`}catch(e){conn.innerHTML='<span class="dot dot-err"></span><span>No connection</span>'}
+  try{const pats=await sql("SELECT id, resource#>>'{name,0,given,0}' AS given, resource#>>'{name,0,family}' AS family FROM patient ORDER BY id");for(const p of pats)allPatientNames[p.id]=[p.given,p.family].filter(Boolean).join(' ')||p.id.substring(0,12)}catch(e){}
+  const sbDays=document.getElementById('sb-days');if(sbDays)sbDays.textContent=daysRemaining()+'d';
+  // Build sidebar measures
+  const sbm=document.getElementById('sb-measures');
+  for(const[id]of Object.entries(MEASURES)){
+    const m=META[id]||{short:id.toUpperCase()};
+    const el=document.createElement('div');el.className='sb-item';el.dataset.id=id;
+    el.innerHTML=`<span class="si-name">${m.short}</span><span class="si-badge loading">…</span>`;
+    el.onclick=()=>{currentMeasure=id;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');renderMeasureDetail(id)};
+    sbm.appendChild(el);
+  }
+  render();
+  evaluateAll();
+}
+
+async function evaluateAll(){
+  const{start,end}=getPeriod();const ids=Object.keys(MEASURES);let done=0;
+  for(const id of ids){
+    try{let rows=await sql(buildSQL(id,start,end,null));const allPts=document.getElementById('chk-all-pts')?.checked;if(!allPts){const known=new Set(MEASURES[id]?.patients||[]);if(known.size>0)rows=rows.filter(r=>known.has(r.patient_id))}const stats=calcStats(rows);measureResults[id]={rows,stats};
+    const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const isInverse=META[id]?.inverse;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(isInverse){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=stats.score.toFixed(0)+'%'}else{const openCnt=stats.open;if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}}}
+    catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.title='Click to retry';el.style.cursor='pointer';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}
+    done++;buildPatientMap();updateSummary();
+    const prog=document.getElementById('sb-progress');if(prog)prog.innerHTML=done<ids.length?`<span class="spinner"></span>${done}/${ids.length}`:ids.length+' done';
+    if(currentTab==='overview'&&!currentMeasure){const bar=document.getElementById('bar-'+id);const sc=document.getElementById('score-'+id);const card=document.querySelector(`[data-card="${id}"]`);if(bar&&sc){card?.classList.remove('loading');const t=measureResults[id].stats.total||1;const s=measureResults[id].stats;bar.innerHTML=`<div class="seg seg-closed" style="width:${s.closed/t*100}%"></div><div class="seg seg-open" style="width:${s.open/t*100}%"></div><div class="seg seg-excl" style="width:${s.excluded/t*100}%"></div>`;sc.textContent=s.score!==null?s.score.toFixed(1)+'%':'N/A'}}
+    if(currentTab==='worklist'&&!currentMeasure)renderWorklist();
+  }
+}
+
+async function retryMeasure(id){const{start,end}=getPeriod();try{let rows=await sql(buildSQL(id,start,end,null));const allPts=document.getElementById('chk-all-pts')?.checked;if(!allPts){const known=new Set(MEASURES[id]?.patients||[]);if(known.size>0)rows=rows.filter(r=>known.has(r.patient_id))}const stats=calcStats(rows);measureResults[id]={rows,stats};const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const openCnt=stats.open;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}buildPatientMap();updateSummary();render()}catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}}
+
+function reEvaluate(){measureResults={};patientMap={};document.querySelectorAll('.si-badge').forEach(el=>{el.className='si-badge loading';el.textContent='...';el.style.background='';el.style.color=''});render();evaluateAll()}
+
+function updateSummary(){const gaps=getGapPatients();const total=gaps.reduce((s,p)=>s+p.openGaps.length,0);const el=id=>document.getElementById(id);if(el('sb-gaps'))el('sb-gaps').textContent=total;if(el('sb-gap-pts'))el('sb-gap-pts').textContent=gaps.length;if(el('sb-avg'))el('sb-avg').textContent=gaps.length>0?(total/gaps.length).toFixed(1):'0';if(el('sb-days'))el('sb-days').textContent=daysRemaining()+'d'}
+
+// ══════════════════════════════════
+//  OVERVIEW
+// ══════════════════════════════════
+function renderOverview(){
+  // Sort measures: evaluated with most open gaps first, then unevaluated
+  const entries=Object.entries(MEASURES);
+  // Keep stable order matching sidebar (order from measure-sql.json)
+  let html=`<div class="overview-head"><h1>Quality Measures</h1><p>${entries.length} measures &middot; ${getPeriod().start} &ndash; ${getPeriod().end}</p><div class="overview-progress" id="overview-progress"></div></div><div class="measure-grid">`;
+  let i=0;for(const[id,m]of entries){const meta=META[id]||{short:id.toUpperCase(),name:m.name};const res=measureResults[id];
+  html+=`<div class="measure-card${res?'':' loading'}" data-card="${id}" onclick="currentMeasure='${id}';document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));document.querySelector('.sb-item[data-id=\\'${id}\\']')?.classList.add('active');renderMeasureDetail('${id}')" style="animation-delay:${i*35}ms"><div class="mc-id">${meta.short}</div><div class="mc-name">${meta.name}</div><div class="mc-bar" id="bar-${id}"></div><div class="mc-foot"><span class="mc-pts">${m.patients?.length||'?'} pts</span><span class="mc-score" id="score-${id}">${res?(res.stats.score!==null?res.stats.score.toFixed(1)+'%':'N/A'):'...'}</span></div></div>`;i++}
+  html+='</div>';document.getElementById('main').innerHTML=html;
+  for(const[id,res]of Object.entries(measureResults)){const bar=document.getElementById('bar-'+id);const sc=document.getElementById('score-'+id);if(bar&&sc){const t=res.stats.total||1;bar.innerHTML=`<div class="seg seg-closed" style="width:${res.stats.closed/t*100}%"></div><div class="seg seg-open" style="width:${res.stats.open/t*100}%"></div><div class="seg seg-excl" style="width:${res.stats.excluded/t*100}%"></div>`;sc.textContent=res.stats.score!==null?res.stats.score.toFixed(1)+'%':'N/A'}}
+}
+
+// ══════════════════════════════════
+//  MEASURE DETAIL
+// ══════════════════════════════════
+async function renderMeasureDetail(id){
+  if(!measureResults[id]){document.getElementById('main').innerHTML='<div class="empty"><span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite"></span> Evaluating...</div>';try{const{start,end}=getPeriod();let rows=await sql(buildSQL(id,start,end,null));const allPts=document.getElementById('chk-all-pts')?.checked;if(!allPts){const known=new Set(MEASURES[id]?.patients||[]);if(known.size>0)rows=rows.filter(r=>known.has(r.patient_id))}measureResults[id]={rows,stats:calcStats(rows)}}catch(e){document.getElementById('main').innerHTML=`<div class="empty">Error: ${e.message}</div>`;return}}
+  const{rows,stats}=measureResults[id];const meta=META[id]||{short:id.toUpperCase(),name:MEASURES[id].name};const m=MEASURES[id];const excLabel=m.exc_type==='denominator-exception'?'Exception':'Exclusion';const t=stats.total||1;
+  currentFilter='all';currentSearch='';
+  let html=`<button class="detail-back" onclick="currentMeasure=null;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));render()">&larr; ${lastTab==='overview'?'Overview':lastTab==='worklist'?'Worklist':'Back'}</button>
+  <div class="detail-head"><h1>${meta.short} &mdash; ${meta.name} &mdash; Summary Report</h1><div class="dh-meta">${getPeriod().start} &mdash; ${getPeriod().end} &middot; ${stats.total} patients evaluated</div>${meta.desc?`<div style="font-size:.78rem;color:var(--fg2);margin-top:.55rem;line-height:1.55;max-width:640px;padding-left:.75rem;border-left:2px solid var(--line)">${meta.desc}</div>`:''}</div>
+  <div class="kpi-row" style="grid-template-columns:repeat(6,1fr)"><div class="kpi" style="animation-delay:0ms"><div class="kpi-val">${stats.total}</div><div class="kpi-lbl">Evaluated</div></div><div class="kpi" style="animation-delay:30ms"><div class="kpi-val">${stats.ip}</div><div class="kpi-lbl">Initial Pop</div></div><div class="kpi" style="animation-delay:60ms"><div class="kpi-val">${stats.num}</div><div class="kpi-lbl">Numerator</div></div><div class="kpi" style="animation-delay:90ms"><div class="kpi-val">${stats.den}</div><div class="kpi-lbl">Denominator</div></div><div class="kpi" style="animation-delay:120ms"><div class="kpi-val">${stats.excluded}</div><div class="kpi-lbl">${excLabel}</div></div><div class="kpi teal" style="animation-delay:150ms"><div class="kpi-val">${stats.score!==null?stats.score.toFixed(1)+'%':'N/A'}</div><div class="kpi-lbl" title="Numerator / (Denominator − Exclusions) — percentage of eligible patients with gap closed">Score &#9432;</div></div></div>
+  <div class="detail-bar"><div style="font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);margin-bottom:.3rem">Population breakdown</div><div class="detail-bar-track"><div class="bseg bseg-closed" style="width:${stats.closed/t*100}%"><span>${stats.closed}</span></div><div class="bseg bseg-open" style="width:${stats.open/t*100}%"><span>${stats.open}</span></div><div class="bseg bseg-excl" style="width:${stats.excluded/t*100}%"><span>${stats.excluded}</span></div><div class="bseg bseg-noip" style="width:${stats.noip/t*100}%"><span>${stats.noip}</span></div></div>
+  <div class="detail-bar-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Gap closed (${(stats.closed/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Gap open (${(stats.open/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Excluded (${(stats.excluded/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:#94a3b8"></div>Not in IP (${(stats.noip/t*100).toFixed(1)}%)</div></div></div>
+  <div class="toolbar"><div class="filter-group"><button class="fbtn active" onclick="currentFilter='all';renderDetailRows('${id}',this)">All</button><button class="fbtn" onclick="currentFilter='open';renderDetailRows('${id}',this)">Open</button><button class="fbtn" onclick="currentFilter='closed';renderDetailRows('${id}',this)">Closed</button><button class="fbtn" onclick="currentFilter='excl';renderDetailRows('${id}',this)">Excluded</button></div><input class="search-box" placeholder="Search..." oninput="currentSearch=this.value.toLowerCase();renderDetailRows('${id}')"><span class="tcount" id="tcount">${rows.length}</span></div>
+  <table class="ptable"><thead><tr><th>Patient</th><th>Name</th><th style="text-align:center">IP</th><th style="text-align:center">Num</th><th style="text-align:center">Den</th><th style="text-align:center">${excLabel.substring(0,4)}</th><th>Status</th></tr></thead><tbody id="ptable-body"></tbody></table>`;
+  document.getElementById('main').innerHTML=html;renderDetailRows(id);
+}
+
+function renderDetailRows(id,btn){
+  if(btn){document.querySelectorAll('.toolbar .fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+  const{rows}=measureResults[id];const body=document.getElementById('ptable-body');if(!body)return;
+  const order={open:0,closed:1,excl:2,noip:3};const sorted=[...rows].sort((a,b)=>(order[gapStatus(a).key]??9)-(order[gapStatus(b).key]??9));
+  let html='',vis=0;
+  for(const r of sorted){const g=gapStatus(r);const name=patientLabel(r.patient_id);
+  const show=(currentFilter==='all'||g.key===currentFilter)&&(!currentSearch||r.patient_id.toLowerCase().includes(currentSearch)||name.toLowerCase().includes(currentSearch));if(show)vis++;
+  const evId='ev-'+r.patient_id.substring(0,10);
+  html+=`<tr class="p-row row-${g.key}" style="${show?'':'display:none'}" onclick="toggleEv('${id}','${r.patient_id}','${evId}',this)"><td class="mono" style="white-space:nowrap">${r.patient_id}</td><td><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${r.patient_id}')">${name}</span></td><td class="num">${r.ip}</td><td class="num">${r.num}</td><td class="num">${r.den}</td><td class="num">${r.exc}</td><td><span class="badge ${g.cls}">${g.label}</span></td></tr><tr class="ev-row" style="display:none"><td colspan="7" style="padding:.35rem .5rem;background:var(--bg);border-bottom:2px solid var(--line)"><div id="${evId}"></div></td></tr>`}
+  body.innerHTML=html;const tc=document.getElementById('tcount');if(tc)tc.textContent=vis+'/'+rows.length;
+}
+
+function goP360(pid){selectedP360=pid;switchTab('patient360',null)}
+
+// ══════════════════════════════════
+//  WORKLIST
+// ══════════════════════════════════
+function renderWorklist(){
+  const gaps=getGapPatients();const totalOpen=gaps.reduce((s,p)=>s+p.openGaps.length,0);
+  let html=`<div class="kpi-row"><div class="kpi rose" style="animation-delay:0ms"><div class="kpi-val">${gaps.length}</div><div class="kpi-lbl">Patients with gaps</div></div><div class="kpi rose" style="animation-delay:40ms"><div class="kpi-val">${totalOpen}</div><div class="kpi-lbl">Total open gaps</div></div><div class="kpi" style="animation-delay:80ms"><div class="kpi-val">${gaps.length>0?(totalOpen/gaps.length).toFixed(1):'0'}</div><div class="kpi-lbl">Avg gaps / patient</div></div></div>
+  <div class="toolbar"><div class="filter-group"><button class="fbtn ${wlFilter==='all'?'active':''}" onclick="wlFilter='all';renderWorklist()">All</button><button class="fbtn ${wlFilter==='high'?'active':''}" onclick="wlFilter='high';renderWorklist()">High (3+)</button><button class="fbtn ${wlFilter==='med'?'active':''}" onclick="wlFilter='med';renderWorklist()">Medium (2)</button><button class="fbtn ${wlFilter==='low'?'active':''}" onclick="wlFilter='low';renderWorklist()">Low (1)</button></div><input class="search-box" placeholder="Search patient..." value="${wlSearch}" oninput="wlSearch=this.value.toLowerCase();renderWorklist()"><span class="tcount" id="wl-count"></span></div>`;
+  html+=`<table class="ptable"><thead><tr><th>Patient</th><th>Gaps</th><th>Top Action</th></tr></thead><tbody>`;
+  let vis=0;for(const p of gaps){const n=p.openGaps.length;if(!(wlFilter==='all'||(wlFilter==='high'&&n>=3)||(wlFilter==='med'&&n===2)||(wlFilter==='low'&&n===1)))continue;if(wlSearch&&!p.name.toLowerCase().includes(wlSearch)&&!p.pid.toLowerCase().includes(wlSearch))continue;vis++;
+  const act=ACTIONS[p.topGap.mid]||{action:'—',category:'—'};const meta=META[p.topGap.mid]||{short:p.topGap.mid};
+  html+=`<tr class="wl-row" onclick="toggleWlExpand('${p.pid}',this)"><td><div class="wl-name"><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${p.pid}')">${patientLabel(p.pid)}</span></div><div class="wl-id" style="white-space:nowrap;font-family:var(--mono);font-size:0.65rem">${p.pid}</div></td><td><span class="wl-gaps-badge">${n} open</span> / ${p.measures.length}</td><td class="wl-action"><span class="act-measure">${meta.short}</span> <span class="cat-badge cat-${act.category}">${act.category}</span><br>${act.action}</td></tr><tr class="wl-expand" style="display:none"><td colspan="3"><div class="mini360" id="wl-${p.pid.substring(0,10)}"></div></td></tr>`}
+  html+='</tbody></table>';document.getElementById('main').innerHTML=html;document.getElementById('wl-count').textContent=vis+' patients';
+}
+
+function toggleWlExpand(pid,row){const exp=row.nextElementSibling;if(row.classList.contains('expanded')){row.classList.remove('expanded');exp.style.display='none';return}row.classList.add('expanded');exp.style.display='';
+const el=exp.querySelector('.mini360');const measures=patientMap[pid]||[];let h='<div class="m360-measures">';for(const m of measures){const meta=META[m.mid]||{short:m.mid};const act=ACTIONS[m.mid]||{action:'',category:''};h+=`<div class="m360-item m360-${m.status}"><span class="m360-name">${meta.short}</span><span class="badge ${m.cls}" style="font-size:.55rem">${m.label}</span><span class="m360-action">${m.status==='open'?'<span class="cat-badge cat-'+act.category+'">'+act.category+'</span> '+act.action:''}</span></div>`}h+='</div>';el.innerHTML=h}
+
+// ══════════════════════════════════
+//  PATIENT 360
+// ══════════════════════════════════
+function renderP360List(){
+  const all=Object.keys(patientMap).sort((a,b)=>{const ga=(patientMap[a]||[]).filter(m=>m.status==='open').length;const gb=(patientMap[b]||[]).filter(m=>m.status==='open').length;return gb-ga});
+  let html=`<div class="toolbar"><input class="search-box" placeholder="Search patient..." oninput="filterP360(this.value)" style="max-width:300px"><span class="tcount">${all.length} patients</span></div><table class="ptable"><thead><tr><th>Patient</th><th>Open</th><th>Closed</th><th>Total</th><th></th></tr></thead><tbody id="p360-body">`;
+  for(const pid of all){const m=patientMap[pid]||[];const open=m.filter(x=>x.status==='open').length;const closed=m.filter(x=>x.status==='closed').length;const name=patientLabel(pid);
+  html+=`<tr class="p-row p360-row" data-name="${name.toLowerCase()}" data-pid="${pid}" onclick="selectedP360='${pid}';renderP360Detail('${pid}')"><td><div class="wl-name">${name}</div><div class="wl-id">${pid}</div></td><td>${open>0?'<span class="badge gap-open">'+open+'</span>':'<span style="color:var(--fg3)">0</span>'}</td><td><span class="badge gap-closed">${closed}</span></td><td style="font-family:var(--mono);font-size:.65rem">${m.length}</td><td style="color:var(--teal);font-size:.65rem">View &rarr;</td></tr>`}
+  html+='</tbody></table>';document.getElementById('main').innerHTML=html;
+}
+function filterP360(q){q=q.toLowerCase();document.querySelectorAll('.p360-row').forEach(r=>{r.style.display=(r.dataset.name.includes(q)||r.dataset.pid.includes(q))?'':'none'})}
+
+function renderP360Detail(pid){
+  selectedP360=pid;const measures=patientMap[pid]||[];const name=patientLabel(pid);const open=measures.filter(m=>m.status==='open');const closed=measures.filter(m=>m.status==='closed');const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  const sorted=[...measures].sort((a,b)=>{const o={open:0,closed:1,excl:2,noip:3};return(o[a.status]??9)-(o[b.status]??9)});
+  let html=`<button class="p360-back" onclick="selectedP360=null;renderP360List()">&larr; All Patients</button><div class="p360-header"><div class="p360-avatar">${initials}</div><div class="p360-info"><h2>${name}</h2><div class="p360-meta">${pid}</div><div class="p360-summary">${open.length>0?`<span class="p360-chip open">${open.length} open</span>`:''}<span class="p360-chip closed">${closed.length} closed</span><span class="p360-chip total">${measures.length} measures</span></div></div></div><div class="p360-list">`;
+  for(let i=0;i<sorted.length;i++){const m=sorted[i];const meta=META[m.mid]||{short:m.mid,name:m.mid};const act=ACTIONS[m.mid]||{action:'',category:''};const evId='p360-ev-'+m.mid;
+  html+=`<div class="p360-card card-${m.status}" style="animation-delay:${i*35}ms"><div class="p360-card-head"><div class="p360-card-title">${meta.short} &mdash; ${meta.name}</div><span class="badge ${m.cls}">${m.label}</span></div>${m.status==='open'?`<div class="p360-action-box"><div class="act-label"><span class="cat-badge cat-${act.category}">${act.category}</span> Recommended Action</div><div class="act-text">${act.action}</div></div>`:''}<button class="p360-ev-toggle" onclick="event.stopPropagation();toggleP360Ev('${m.mid}','${pid}','${evId}',this)">&#x25B8; Evidence</button><div id="${evId}"></div></div>`}
+  html+='</div>';document.getElementById('main').innerHTML=html;
+}
+function toggleP360Ev(mid,pid,evId,btn){const el=document.getElementById(evId);if(el.innerHTML){el.innerHTML='';btn.innerHTML='&#x25B8; Evidence';return}btn.innerHTML='&#x25BE; Evidence';loadEvidence(mid,pid,evId)}
+
+// ══════════════════════════════════
+//  COHORT
+// ══════════════════════════════════
+function renderCohort(){
+  const ids=Object.keys(measureResults);let html='<div class="cohort-grid">';
+  for(const id of ids){const res=measureResults[id];if(!res?.rows)continue;const openPts=res.rows.filter(r=>r.ip===1&&r.exc===0&&r.num===0);if(!openPts.length)continue;const meta=META[id]||{short:id,name:id};const act=ACTIONS[id]||{action:'—',category:'—'};
+  html+=`<div class="cohort-card ${selectedCohort===id?'active':''}" onclick="selectedCohort='${id}';renderCohort()" style="animation-delay:${ids.indexOf(id)*25}ms"><div class="cc-id">${meta.short}</div><div class="cc-name">${meta.name}</div><div class="cc-count">${openPts.length}</div><div class="cc-label">open gaps</div><div class="cc-action"><span class="cat-badge cat-${act.category}">${act.category}</span> ${act.action}</div></div>`}
+  html+='</div>';
+  if(selectedCohort&&measureResults[selectedCohort]){const id=selectedCohort;const res=measureResults[id];const openPts=res.rows.filter(r=>r.ip===1&&r.exc===0&&r.num===0);const meta=META[id]||{short:id};const act=ACTIONS[id]||{action:'—',category:'—'};
+  html+=`<div class="cohort-detail"><h3>${meta.short} &mdash; ${meta.name}</h3><div class="cd-action"><span class="cat-badge cat-${act.category}">${act.category}</span> ${act.action}</div><div class="cd-toolbar"><button class="cd-check-all" onclick="document.querySelectorAll('.cd-cb').forEach(c=>c.checked=!c.checked)">Toggle All</button><button class="btn-exp" onclick="exportCohort('${id}')">Export CSV</button><button class="btn-exp" onclick="exportOutreach('${id}')">Outreach List</button><span class="tcount">${openPts.length} patients</span></div><div class="cd-list">`;
+  for(const r of openPts){html+=`<div class="cd-row"><input type="checkbox" class="cd-cb" data-pid="${r.patient_id}" checked><span class="cd-name" style="cursor:pointer" onclick="goP360('${r.patient_id}')">${patientLabel(r.patient_id)}</span><span class="cd-id">${r.patient_id.substring(0,20)}</span></div>`}
+  html+='</div></div>'}
+  document.getElementById('main').innerHTML=html;
+}
+
+// ══════════════════════════════════
+//  EVIDENCE
+// ══════════════════════════════════
+function toggleEv(mid,pid,evId,row){const evRow=row.nextElementSibling;if(row.classList.contains('expanded')){row.classList.remove('expanded');evRow.style.display='none';document.getElementById(evId).innerHTML=''}else{row.classList.add('expanded');evRow.style.display='';loadEvidence(mid,pid,evId)}}
+
+async function loadEvidence(mid,pid,targetId){
+  const m=MEASURES[mid];const el=document.getElementById(targetId);if(!m.diagnostic_sql){el.innerHTML='<div class="evidence-panel open"><span class="ev-none">No diagnostic SQL</span></div>';return}
+  el.innerHTML='<div class="evidence-panel open"><span class="ev-none">Loading...</span></div>';const{start,end}=getPeriod();
+  try{let diag=m.diagnostic_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/\{PATIENT_ID\}/g,pid);const d=(await sql(diag))[0]||{};let evRows=[];if(m.evidence_sql){try{const all=await sql(m.evidence_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end));evRows=all.filter(r=>r.patient_id===pid)}catch(e){}}
+  let html='<div class="evidence-panel open"><table class="decision-table"><thead><tr><th>Step</th><th>CTE</th><th>Result</th></tr></thead><tbody>';
+  for(const step of m.steps){const val=d[step.cte],isYes=val==='YES';const isSummary=['denominator_exclusion','numerator','initial_population'].includes(step.cte);html+=`<tr${isSummary?' class="step-summary"':''}><td>${isSummary?'<strong>'+step.label+'</strong>':step.label}</td><td><code>${step.cte}</code></td><td class="${isYes?'yes':'no'}">${isSummary?'<strong>'+(isYes?'YES':'no')+'</strong>':(val||'—')}</td></tr>`}html+='</tbody></table>';
+  const ipItems=evRows.filter(r=>r.ip_code_display);const numItems=evRows.filter(r=>r.code_display||r.exclusion_pathway);
+  if(ipItems.length||numItems.length){html+='<div class="evidence-box"><div class="evidence-box-title">Evidence</div>';const shown=new Set();for(const r of ipItems){const k=r.ip_code_display+r.ip_event_date;if(shown.has(k))continue;shown.add(k);html+=`<div class="evidence-box-item"><strong>${r.ip_resource_type||'Encounter'}:</strong> ${r.ip_code_display}${r.ip_event_date?' — '+r.ip_event_date.substring(0,10):''}</div>`}for(const r of numItems){if(r.code_display)html+=`<div class="evidence-box-item"><strong>${r.resource_type||'Resource'}:</strong> ${r.code_display} (${r.code||''})${r.event_date?' — '+r.event_date.substring(0,10):''}</div>`;else if(r.exclusion_pathway)html+=`<div class="evidence-box-item"><strong>Exception:</strong> ${r.exclusion_pathway}</div>`}html+='</div>'}
+  const ip=d.initial_population==='YES',num=d.numerator==='YES',exc=d.denominator_exclusion==='YES';html+=`<div class="ev-conclusion">${!ip?'<span class="outcome-notip"><strong>Not in IP</strong></span>':exc?'<span class="outcome-excluded"><strong>Excluded</strong></span>':num?'<span class="outcome-closed"><strong>Gap Closed</strong></span>':'<span class="outcome-open"><strong>Gap Open</strong></span>'}</div></div>`;el.innerHTML=html}catch(e){el.innerHTML=`<div class="evidence-panel open"><span class="ev-none">Error: ${e.message}</span></div>`}}
+
+// ══════════════════════════════════
+//  EXPORTS
+// ══════════════════════════════════
+function exportCSV(){if(!currentMeasure||!measureResults[currentMeasure])return;const{rows}=measureResults[currentMeasure];let csv='patient_id,name,ip,den,exc,num,status\n';for(const r of rows){csv+=`${r.patient_id},${(allPatientNames[r.patient_id]||'').replace(/,/g,' ')},${r.ip},${r.den},${r.exc},${r.num},${gapStatus(r).label}\n`}download(csv,currentMeasure+'-results.csv','text/csv')}
+function exportNDJSON(){if(!currentMeasure||!measureResults[currentMeasure])return;const{rows}=measureResults[currentMeasure];const{start,end}=getPeriod();const exc=MEASURES[currentMeasure].exc_type||'denominator-exclusion';let ndjson='';for(const r of rows){ndjson+=JSON.stringify({resourceType:'MeasureReport',status:'complete',type:'individual',measure:`http://ecqi.healthit.gov/ecqms/Measure/${currentMeasure.toUpperCase()}`,subject:{reference:`Patient/${r.patient_id}`},date:new Date().toISOString(),period:{start:start+'T00:00:00+00:00',end:end+'T23:59:59+00:00'},group:[{population:[{code:{coding:[{system:'http://terminology.hl7.org/CodeSystem/measure-population',code:'initial-population'}]},count:r.ip},{code:{coding:[{system:'http://terminology.hl7.org/CodeSystem/measure-population',code:'denominator'}]},count:r.den},{code:{coding:[{system:'http://terminology.hl7.org/CodeSystem/measure-population',code:exc}]},count:r.exc},{code:{coding:[{system:'http://terminology.hl7.org/CodeSystem/measure-population',code:'numerator'}]},count:r.num}]}]})+'\n'}download(ndjson,currentMeasure+'-reports.ndjson','application/x-ndjson')}
+function exportCohort(id){const res=measureResults[id];if(!res)return;const pts=res.rows.filter(r=>r.ip===1&&r.exc===0&&r.num===0);const checked=new Set([...document.querySelectorAll('.cd-cb:checked')].map(c=>c.dataset.pid));const meta=META[id]||{short:id};const act=ACTIONS[id]||{action:'—',category:'—'};let csv='patient_id,name,measure,action,category\n';for(const r of pts){if(!checked.has(r.patient_id))continue;csv+=`${r.patient_id},${(allPatientNames[r.patient_id]||'').replace(/,/g,' ')},${meta.short},${act.action},${act.category}\n`}download(csv,id+'-cohort.csv','text/csv')}
+function exportOutreach(id){const res=measureResults[id];if(!res)return;const pts=res.rows.filter(r=>r.ip===1&&r.exc===0&&r.num===0);const checked=new Set([...document.querySelectorAll('.cd-cb:checked')].map(c=>c.dataset.pid));const meta=META[id]||{short:id};const act=ACTIONS[id]||{action:'—',category:'—'};let txt=`OUTREACH LIST — ${meta.short} ${meta.name}\nAction: ${act.action}\nGenerated: ${new Date().toISOString().substring(0,10)}\n${'─'.repeat(50)}\n\n`;let i=1;for(const r of pts){if(!checked.has(r.patient_id))continue;txt+=`${i}. ${allPatientNames[r.patient_id]||r.patient_id}\n   ID: ${r.patient_id}\n   Action: ${act.action}\n   Status: [ ] Contacted  [ ] Scheduled  [ ] Completed\n\n`;i++}download(txt,id+'-outreach.txt','text/plain')}
+
+init();
+</script>
+<script src="../theme-toggle.js"></script>
+</body>
+</html>

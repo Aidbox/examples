@@ -1,0 +1,2426 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "22778fb6-6e45-40cf-9d3f-4deb60464fcd",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/22778fb6-6e45-40cf-9d3f-4deb60464fcd"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "32157922-39aa-412c-876b-dd3c7a62a155",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/32157922-39aa-412c-876b-dd3c7a62a155"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "34207c0d-b3bf-4a7d-b83a-f1131881efbe",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2054-5",
+                  "display": "Black or African American"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Black or African American"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1901-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/34207c0d-b3bf-4a7d-b83a-f1131881efbe"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "38255f11-9b45-497d-b798-6f0a54f02f37",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/38255f11-9b45-497d-b798-6f0a54f02f37"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "5f74f583-38a0-496e-8c39-d4a410d06450",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/5f74f583-38a0-496e-8c39-d4a410d06450"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "74d09027-649b-4a96-9933-6bf4be627407",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/74d09027-649b-4a96-9933-6bf4be627407"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "783dd9e1-3ed1-4596-be13-2e8f87ebecc9",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/783dd9e1-3ed1-4596-be13-2e8f87ebecc9"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "b4eff700-1f2c-4bc6-9c1e-eb11baa3b125",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/b4eff700-1f2c-4bc6-9c1e-eb11baa3b125"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "bc9c82ca-72b5-41c4-a9a3-7e3860a9ac2d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/bc9c82ca-72b5-41c4-a9a3-7e3860a9ac2d"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "dbe9bd60-ca07-4e9d-917b-1a2791617bb0",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2028-9",
+                  "display": "Asian"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Asian"
+              }
+            ]
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2186-5",
+                  "display": "Not Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Not Hispanic or Latino"
+              }
+            ]
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hospital.smarthealthit.org",
+            "value": "999999995"
+          }
+        ],
+        "name": [
+          {
+            "family": "NUMPass",
+            "given": [
+              "NUMPass-70-on-Jan1-1"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1956-01-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/dbe9bd60-ca07-4e9d-917b-1a2791617bb0"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "d8484d09-8a97-448a-b96d-a19a02dc145d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active",
+              "userSelected": true
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "714628002"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/22778fb6-6e45-40cf-9d3f-4deb60464fcd"
+        },
+        "onsetDateTime": "2024-01-01T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/d8484d09-8a97-448a-b96d-a19a02dc145d"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "42e26c87-5190-41f5-aaf1-5ef83e1d1d6b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-encounter-diagnosis"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis",
+                "display": "Encounter Diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "111947009",
+              "display": "Functional disorder present, condition terminal"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/32157922-39aa-412c-876b-dd3c7a62a155"
+        },
+        "onsetDateTime": "2026-01-01T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/42e26c87-5190-41f5-aaf1-5ef83e1d1d6b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "a78fd1d3-1a4c-4671-8554-fc77f13e74eb",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active",
+              "userSelected": true
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "714628002"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/38255f11-9b45-497d-b798-6f0a54f02f37"
+        },
+        "onsetDateTime": "2000-12-30T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/a78fd1d3-1a4c-4671-8554-fc77f13e74eb"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "e5332d7b-6449-4e5a-9b88-84aaeae4d994",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active",
+              "userSelected": true
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "714628002"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/5f74f583-38a0-496e-8c39-d4a410d06450"
+        },
+        "onsetDateTime": "2024-01-02T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/e5332d7b-6449-4e5a-9b88-84aaeae4d994"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "665e5313-6c64-45c2-be74-164dd3373b89",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-encounter-diagnosis"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis",
+                "display": "Encounter Diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "111947009",
+              "display": "Functional disorder present, condition terminal"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/74d09027-649b-4a96-9933-6bf4be627407"
+        },
+        "onsetDateTime": "2025-12-31T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/665e5313-6c64-45c2-be74-164dd3373b89"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "38859cb4-d798-41f8-89b9-79aa67eae2f3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active",
+              "userSelected": true
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "714628002"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/783dd9e1-3ed1-4596-be13-2e8f87ebecc9"
+        },
+        "onsetDateTime": "2026-01-01T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/38859cb4-d798-41f8-89b9-79aa67eae2f3"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "18712f58-6d11-4ad0-9914-a25ee8eb8558",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active",
+              "userSelected": true
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "714628002"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/b4eff700-1f2c-4bc6-9c1e-eb11baa3b125"
+        },
+        "onsetDateTime": "2025-12-31T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/18712f58-6d11-4ad0-9914-a25ee8eb8558"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "d463a372-3385-4750-a011-05b99f82338c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "inactive",
+              "display": "Inactive",
+              "userSelected": true
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "714628002"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/bc9c82ca-72b5-41c4-a9a3-7e3860a9ac2d"
+        },
+        "onsetDateTime": "2025-12-31T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/d463a372-3385-4750-a011-05b99f82338c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "724ed47f-8a8a-43e6-a069-9d78a2d6d54c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-condition-problems-health-concerns"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active",
+              "display": "Active",
+              "userSelected": true
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item",
+                "display": "Problem List Item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "714628002"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/dbe9bd60-ca07-4e9d-917b-1a2791617bb0"
+        },
+        "onsetDateTime": "2026-02-02T00:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/724ed47f-8a8a-43e6-a069-9d78a2d6d54c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "1db34a0b-42ef-42ea-a003-b284d8bcf1b6",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/22778fb6-6e45-40cf-9d3f-4deb60464fcd"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/1db34a0b-42ef-42ea-a003-b284d8bcf1b6"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "2de73873-5ad2-4f9e-8ca4-b76876ea1a41",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/22778fb6-6e45-40cf-9d3f-4deb60464fcd"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/2de73873-5ad2-4f9e-8ca4-b76876ea1a41"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "1a511f1d-1634-45d5-bb7b-b235ae2e476f",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/32157922-39aa-412c-876b-dd3c7a62a155"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/1a511f1d-1634-45d5-bb7b-b235ae2e476f"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "37989993-3630-45fb-ba95-586c365be10c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "108219001"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/32157922-39aa-412c-876b-dd3c7a62a155"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/37989993-3630-45fb-ba95-586c365be10c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "3cbb7d28-3dd0-4b2e-bdbb-8ed92e98d59b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/34207c0d-b3bf-4a7d-b83a-f1131881efbe"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/3cbb7d28-3dd0-4b2e-bdbb-8ed92e98d59b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "ccb34f53-0d62-4d1d-a948-e3fa12b792cd",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/34207c0d-b3bf-4a7d-b83a-f1131881efbe"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/ccb34f53-0d62-4d1d-a948-e3fa12b792cd"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "8d5567a0-19f2-49f3-9039-db33cdd59349",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/38255f11-9b45-497d-b798-6f0a54f02f37"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/8d5567a0-19f2-49f3-9039-db33cdd59349"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "ca9433c0-ffce-4d14-b3bb-75e976120829",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/38255f11-9b45-497d-b798-6f0a54f02f37"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/ca9433c0-ffce-4d14-b3bb-75e976120829"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "5920a0e6-4fdb-4302-bc93-f4bbb11667b3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/5f74f583-38a0-496e-8c39-d4a410d06450"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/5920a0e6-4fdb-4302-bc93-f4bbb11667b3"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "b5939928-9a1a-4347-9eea-9c7798b49b65",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/5f74f583-38a0-496e-8c39-d4a410d06450"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/b5939928-9a1a-4347-9eea-9c7798b49b65"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "13f35d8f-b1ae-4a6c-9541-444c3b6a22f3",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "108219001"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/74d09027-649b-4a96-9933-6bf4be627407"
+        },
+        "period": {
+          "start": "2026-01-01T00:00:00.000+00:00",
+          "end": "2026-01-01T00:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/13f35d8f-b1ae-4a6c-9541-444c3b6a22f3"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "b213f397-26ec-45dd-99ff-d493421057cf",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/74d09027-649b-4a96-9933-6bf4be627407"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/b213f397-26ec-45dd-99ff-d493421057cf"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "1869b26d-4272-465f-826d-e78c0a140143",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/783dd9e1-3ed1-4596-be13-2e8f87ebecc9"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/1869b26d-4272-465f-826d-e78c0a140143"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "ed9594ce-af6b-4c10-ad8b-f0369d3d4503",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/783dd9e1-3ed1-4596-be13-2e8f87ebecc9"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/ed9594ce-af6b-4c10-ad8b-f0369d3d4503"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "4599f3f4-0b5f-4bf9-b716-f41aaeffa5f9",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/b4eff700-1f2c-4bc6-9c1e-eb11baa3b125"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/4599f3f4-0b5f-4bf9-b716-f41aaeffa5f9"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "6a4456bd-2944-4ea7-ad75-cbd2b8a01683",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/b4eff700-1f2c-4bc6-9c1e-eb11baa3b125"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/6a4456bd-2944-4ea7-ad75-cbd2b8a01683"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "9143a877-e42a-4178-9b85-55d94c5487e0",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/bc9c82ca-72b5-41c4-a9a3-7e3860a9ac2d"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/9143a877-e42a-4178-9b85-55d94c5487e0"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "adda8dfb-b42d-4e3e-8697-3f1b9eeb3c0a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/bc9c82ca-72b5-41c4-a9a3-7e3860a9ac2d"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/adda8dfb-b42d-4e3e-8697-3f1b9eeb3c0a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "23f62f63-bffc-422d-a8a5-73b5a2d654c8",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11429006"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/dbe9bd60-ca07-4e9d-917b-1a2791617bb0"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/23f62f63-bffc-422d-a8a5-73b5a2d654c8"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "d4527b8b-6c07-4dc8-9983-b46632ba434c",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB",
+          "display": "ambulatory"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99203",
+                "display": "Office or other outpatient visit for the evaluation and management of a new patient, which requires a medically appropriate history and/or examination and low level of medical decision making. When using time for code selection, 30-44 minutes of total time is spent on the date of the encounter."
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/dbe9bd60-ca07-4e9d-917b-1a2791617bb0"
+        },
+        "period": {
+          "start": "2026-01-04T08:00:00.000+00:00",
+          "end": "2026-01-04T08:00:00.000+00:00"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/d4527b8b-6c07-4dc8-9983-b46632ba434c"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "7caac2b7-c2dd-4f4c-a179-d276f1af4f68",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/22778fb6-6e45-40cf-9d3f-4deb60464fcd"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/7caac2b7-c2dd-4f4c-a179-d276f1af4f68"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "40f21e63-af5a-49c5-bf87-b7d7d554eb3d",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/32157922-39aa-412c-876b-dd3c7a62a155"
+        },
+        "effectiveDateTime": "2026-01-01T00:00:00.000+00:00",
+        "issued": "2026-01-01T00:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/40f21e63-af5a-49c5-bf87-b7d7d554eb3d"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "073a968a-cf40-4280-8b8e-2759f8daf09b",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/34207c0d-b3bf-4a7d-b83a-f1131881efbe"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 30,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/073a968a-cf40-4280-8b8e-2759f8daf09b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "d653f5f8-337f-48ed-9590-06f20de5f67e-2",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "10450-5",
+              "display": "Glucose [Mass/volume] in Serum or Plasma --10 hours fasting"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/34207c0d-b3bf-4a7d-b83a-f1131881efbe"
+        },
+        "effectiveDateTime": "2026-01-04T10:00:00.000+00:00",
+        "issued": "2026-01-04T10:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/d653f5f8-337f-48ed-9590-06f20de5f67e-2"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "d653f5f8-337f-48ed-9590-06f20de5f67e",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "10450-5",
+              "display": "Glucose [Mass/volume] in Serum or Plasma --10 hours fasting"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/34207c0d-b3bf-4a7d-b83a-f1131881efbe"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/d653f5f8-337f-48ed-9590-06f20de5f67e"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "46cac289-b065-4c94-9d0f-5055cbdf3427",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/38255f11-9b45-497d-b798-6f0a54f02f37"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/46cac289-b065-4c94-9d0f-5055cbdf3427"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "2fb2be17-1aab-4967-aa93-95d7ceaa1e6a",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/5f74f583-38a0-496e-8c39-d4a410d06450"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/2fb2be17-1aab-4967-aa93-95d7ceaa1e6a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "3c254259-220f-4ffb-be3d-d3141f4a8566",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/74d09027-649b-4a96-9933-6bf4be627407"
+        },
+        "effectiveDateTime": "2025-12-31T00:00:00.000+00:00",
+        "issued": "2025-12-31T00:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/3c254259-220f-4ffb-be3d-d3141f4a8566"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "13501369-26d5-42dd-90fb-0be60b0e79fe",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/783dd9e1-3ed1-4596-be13-2e8f87ebecc9"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/13501369-26d5-42dd-90fb-0be60b0e79fe"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "0bf7faea-4bed-4cd4-92cd-ee2e50fe2313",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/b4eff700-1f2c-4bc6-9c1e-eb11baa3b125"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/0bf7faea-4bed-4cd4-92cd-ee2e50fe2313"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "498eb673-540c-467a-a0d6-77e3c55515d2",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/bc9c82ca-72b5-41c4-a9a3-7e3860a9ac2d"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/498eb673-540c-467a-a0d6-77e3c55515d2"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "7513770a-a435-43cd-afca-e6b4417a60f6",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-bmi"
+          ]
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "39156-5",
+              "display": "Body mass index (BMI) [Ratio]"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/dbe9bd60-ca07-4e9d-917b-1a2791617bb0"
+        },
+        "effectiveDateTime": "2026-01-04T08:00:00.000+00:00",
+        "issued": "2026-01-04T08:00:00.000+00:00",
+        "valueQuantity": {
+          "value": 23,
+          "unit": "kg/m2",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg/m2"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/7513770a-a435-43cd-afca-e6b4417a60f6"
+      }
+    }
+  ]
+}

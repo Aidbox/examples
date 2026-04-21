@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+.DS_Store
+*.log
+
+# Local demo configs pointing at a user's own Aidbox — not part of the sample.
+# The template `config-external.example.json` IS committed; user-specific copies
+# (e.g. config-myaidbox.json) are gitignored.
+demo/config-*.json
+!demo/config-external.example.json

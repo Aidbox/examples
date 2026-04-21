@@ -1,0 +1,98 @@
+{
+  "cms75": {
+    "sql": "sql/measures/cms75/02-cms75-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS75FHIRChildrenDentalDecay",
+    "name": "Children Who Have Dental Decay or Cavities",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS75FHIRChildrenDentalDecay",
+    "bundle_dir": "CMS75FHIRChildrenDentalDecay"
+  },
+  "cms124": {
+    "sql": "sql/measures/cms124/02-cms124-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS124FHIRCervicalCancerScreen",
+    "name": "Cervical Cancer Screening",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS124FHIRCervicalCancerScreen",
+    "bundle_dir": "CMS124FHIRCervicalCancerScreen"
+  },
+  "cms125": {
+    "sql": "sql/measures/cms125/02-cms125-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS125FHIRBreastCancerScreen",
+    "name": "Breast Cancer Screening",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS125FHIRBreastCancerScreen",
+    "bundle_dir": "CMS125FHIRBreastCancerScreen"
+  },
+  "cms130": {
+    "sql": "sql/measures/cms130/02-cms130-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS130FHIRColorectalCancerScrn",
+    "name": "Colorectal Cancer Screening",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS130FHIRColorectalCancerScrn",
+    "bundle_dir": "CMS130FHIRColorectalCancerScrn"
+  },
+  "cms131": {
+    "sql": "sql/measures/cms131/02-cms131-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS131FHIRDiabetesEyeExam",
+    "name": "Diabetes: Eye Exam",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS131FHIRDiabetesEyeExam",
+    "bundle_dir": "CMS131FHIRDiabetesEyeExam"
+  },
+  "cms139": {
+    "sql": "sql/measures/cms139/02-cms139-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS139FHIRFallRiskScreening",
+    "name": "Screening for Future Fall Risk",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS139FHIRFallRiskScreening",
+    "bundle_dir": "CMS139FHIRFallRiskScreening"
+  },
+  "cms143": {
+    "sql": "sql/measures/cms143/02-cms143-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS143FHIRPOAGOpticNerveEval",
+    "name": "POAG Optic Nerve Evaluation",
+    "exc_type": "denominator-exception",
+    "library": "CMS143FHIRPOAGOpticNerveEval",
+    "bundle_dir": "CMS143FHIRPOAGOpticNerveEval"
+  },
+  "cms149": {
+    "sql": "sql/measures/cms149/02-cms149-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS149FHIRDementiaCognitiveAssess",
+    "name": "Dementia: Cognitive Assessment",
+    "exc_type": "denominator-exception",
+    "library": "CMS149FHIRDementiaCognitiveAssess",
+    "bundle_dir": "CMS149FHIRDementiaCognitiveAssess"
+  },
+  "cms153": {
+    "sql": "sql/measures/cms153/02-cms153-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS153FHIRChlamydiaScreening",
+    "name": "Chlamydia Screening",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS153FHIRChlamydiaScreening",
+    "bundle_dir": "CMS153FHIRChlamydiaScreening"
+  },
+  "cms155": {
+    "sql": "sql/measures/cms155/02-cms155-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS155FHIRWeightAssessment",
+    "name": "Weight Assessment / Counseling BMI Children",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS155FHIRWgtAssessCounseling",
+    "bundle_dir": "CMS155FHIRWgtAssessCounseling"
+  },
+  "cms165": {
+    "sql": "sql/measures/cms165/02-cms165-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS165FHIRControllingHighBP",
+    "name": "Controlling High Blood Pressure",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS165FHIRControllingHighBP",
+    "bundle_dir": "CMS165FHIRControllingHighBP"
+  },
+  "cms1154": {
+    "sql": "sql/measures/cms1154/02-cms1154-measure.sql",
+    "canonical": "https://madie.cms.gov/Measure/CMS1154ScreeningPrediabetesFHIR",
+    "name": "Screening for Prediabetes",
+    "exc_type": "denominator-exclusion",
+    "library": "CMS1154ScreeningPrediabetesFHIR",
+    "bundle_dir": "CMS1154ScreeningPrediabetesFHIR"
+  }
+}

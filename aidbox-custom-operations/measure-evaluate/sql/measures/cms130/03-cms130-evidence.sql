@@ -1,0 +1,236 @@
+-- CMS130 Patient-Level Evidence Query
+-- Minimal evidence contract: for each patient, shows not just flags but WHY
+--
+-- Usage: copy all CTEs from 02-cms130-measure.sql up to (and including)
+-- measure_results, then append these CTEs and the final SELECT.
+--
+-- Output: one row per qualifying event per patient. Patients with multiple
+-- qualifying screenings get multiple rows. Patients not in numerator get
+-- one row with pathway='none'. This preserves all evidence without
+-- artificial prioritization — CMS130 treats all 5 screening types equally.
+
+-- ============================================================
+-- EVIDENCE: All numerator triggering resources (all qualifying events)
+-- ============================================================
+-- ============================================================
+-- EVIDENCE: Initial Population qualifying encounters
+-- ============================================================
+ip_evidence AS (
+    SELECT DISTINCT e.patient_id, 'qualifying_encounter' AS pathway,
+           'Encounter' AS resource_type, e.id AS resource_id,
+           e.type_code AS code, vs.display AS code_display,
+           e.period_start AS event_date, 'initial_population' AS source_cte
+    FROM encounter_flat e
+    JOIN initial_population ip ON ip.patient_id = e.patient_id
+    JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
+    CROSS JOIN mp
+    WHERE e.period_start >= mp.mp_start AND e.period_end <= mp.mp_end
+),
+
+numerator_evidence AS (
+    -- Colonoscopy
+    SELECT pr.patient_id, 'colonoscopy' AS pathway, 'Procedure' AS resource_type,
+           pr.id AS resource_id, pr.code, vs.display AS code_display,
+           pr.performed_end AS event_date, 'colonoscopy' AS source_cte
+    FROM procedure_flat pr
+    JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1020'  -- Colonoscopy
+    CROSS JOIN mp
+    WHERE pr.patient_id IN (SELECT patient_id FROM colonoscopy)
+        AND pr.status = 'completed'
+        AND pr.performed_end >= (mp.mp_start - INTERVAL '9 years')
+        AND pr.performed_end <= mp.mp_end
+
+    UNION ALL
+
+    -- Flexible Sigmoidoscopy
+    SELECT pr.patient_id, 'flex_sig', 'Procedure',
+           pr.id, pr.code, vs.display,
+           pr.performed_end, 'flex_sig'
+    FROM procedure_flat pr
+    JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1010'  -- FlexibleSigmoidoscopy
+    CROSS JOIN mp
+    WHERE pr.patient_id IN (SELECT patient_id FROM flex_sig)
+        AND pr.status = 'completed'
+        AND pr.performed_end >= (mp.mp_start - INTERVAL '4 years')
+        AND pr.performed_end <= mp.mp_end
+
+    UNION ALL
+
+    -- CT Colonography
+    SELECT o.patient_id, 'ct_colonography', 'Observation',
+           o.id, o.code, vs.display,
+           o.effective_start, 'ct_colonography'
+    FROM observation_flat o
+    JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1038'  -- CTColonography
+    CROSS JOIN mp
+    WHERE o.patient_id IN (SELECT patient_id FROM ct_colonography)
+        AND o.status IN ('final', 'amended', 'corrected')
+        AND o.effective_start >= (mp.mp_start - INTERVAL '4 years')
+        AND o.effective_start <= mp.mp_end
+
+    UNION ALL
+
+    -- sDNA FIT
+    SELECT o.patient_id, 'sdna_fit', 'Observation',
+           o.id, o.code, vs.display,
+           o.effective_start, 'sdna_fit'
+    FROM observation_flat o
+    JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1039'  -- sDNAFITTest
+    CROSS JOIN mp
+    WHERE o.patient_id IN (SELECT patient_id FROM sdna_fit)
+        AND o.status IN ('final', 'amended', 'corrected')
+        AND o.has_value = true
+        AND o.effective_start >= (mp.mp_start - INTERVAL '2 years')
+        AND o.effective_start <= mp.mp_end
+
+    UNION ALL
+
+    -- FOBT
+    SELECT o.patient_id, 'fobt', 'Observation',
+           o.id, o.code, vs.display,
+           o.effective_start, 'fobt'
+    FROM observation_flat o
+    JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1011'  -- FecalOccultBloodTest(FOBT)
+    CROSS JOIN mp
+    WHERE o.patient_id IN (SELECT patient_id FROM fobt)
+        AND o.status IN ('final', 'amended', 'corrected')
+        AND o.has_value = true
+        AND o.effective_start >= mp.mp_start
+        AND o.effective_start <= mp.mp_end
+),
+
+-- ============================================================
+-- EVIDENCE: Exclusion — real resource references
+-- ============================================================
+exclusion_evidence AS (
+    -- Malignant Neoplasm → Condition
+    SELECT DISTINCT c.patient_id, 'malignant_neoplasm' AS exclusion_pathway,
+           'Condition' AS exc_resource_type, c.id AS exc_resource_id
+    FROM condition_flat c
+    JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.108.12.1001'
+    WHERE c.patient_id IN (SELECT patient_id FROM denominator_exclusion)
+
+    UNION ALL
+    -- Total Colectomy → Procedure
+    SELECT DISTINCT pr.patient_id, 'total_colectomy',
+           'Procedure', pr.id
+    FROM procedure_flat pr
+    JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1019'
+    WHERE pr.patient_id IN (SELECT patient_id FROM denominator_exclusion)
+
+    UNION ALL
+    -- Hospice Encounter → Encounter
+    SELECT DISTINCT e.patient_id, 'hospice',
+           'Encounter', e.id
+    FROM encounter_flat e
+    JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.1003'
+    WHERE e.patient_id IN (SELECT patient_id FROM hospice)
+
+    UNION ALL
+    -- Hospice Diagnosis → Condition
+    SELECT DISTINCT c.patient_id, 'hospice',
+           'Condition', c.id
+    FROM condition_flat c
+    JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.1165'
+    WHERE c.patient_id IN (SELECT patient_id FROM hospice)
+
+    UNION ALL
+    -- Hospice Observation (LOINC 45755-6) → Observation
+    SELECT DISTINCT o.patient_id, 'hospice',
+           'Observation', o.id
+    FROM observation_flat o
+    WHERE o.code = '45755-6' AND o.code_system = 'http://loinc.org'
+        AND o.patient_id IN (SELECT patient_id FROM hospice)
+
+    UNION ALL
+    -- Hospice ServiceRequest → ServiceRequest
+    SELECT DISTINCT sr.patient_id, 'hospice',
+           'ServiceRequest', sr.id
+    FROM servicerequest_flat sr
+    JOIN concepts vs ON vs.system = sr.code_system AND vs.code = sr.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1584'
+    WHERE sr.patient_id IN (SELECT patient_id FROM hospice)
+
+    UNION ALL
+    -- Hospice Procedure → Procedure
+    SELECT DISTINCT pr.patient_id, 'hospice',
+           'Procedure', pr.id
+    FROM procedure_flat pr
+    JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1584'
+    WHERE pr.patient_id IN (SELECT patient_id FROM hospice)
+
+    UNION ALL
+    -- Palliative Observation (LOINC 71007-9) → Observation
+    SELECT DISTINCT o.patient_id, 'palliative',
+           'Observation', o.id
+    FROM observation_flat o
+    WHERE o.code = '71007-9' AND o.code_system = 'http://loinc.org'
+        AND o.patient_id IN (SELECT patient_id FROM palliative)
+
+    UNION ALL
+    -- Palliative Diagnosis → Condition
+    SELECT DISTINCT c.patient_id, 'palliative',
+           'Condition', c.id
+    FROM condition_flat c
+    JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.1167'
+    WHERE c.patient_id IN (SELECT patient_id FROM palliative)
+
+    UNION ALL
+    -- Palliative Encounter → Encounter
+    SELECT DISTINCT e.patient_id, 'palliative',
+           'Encounter', e.id
+    FROM encounter_flat e
+    JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1090'
+    WHERE e.patient_id IN (SELECT patient_id FROM palliative)
+
+    UNION ALL
+    -- Palliative Procedure → Procedure
+    SELECT DISTINCT pr.patient_id, 'palliative',
+           'Procedure', pr.id
+    FROM procedure_flat pr
+    JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1135'
+    WHERE pr.patient_id IN (SELECT patient_id FROM palliative)
+)
+
+-- ============================================================
+-- OUTPUT: Patient-level evidence table
+-- ============================================================
+SELECT
+    mr.patient_id,
+    mr.in_initial_population AS ip,
+    mr.in_denominator AS den,
+    mr.in_exclusion AS exc,
+    mr.in_numerator AS num,
+    COALESCE(ne.pathway, 'none') AS pathway,
+    ne.resource_type,
+    ne.resource_id,
+    ne.code,
+    ne.code_display,
+    ne.event_date,
+    ne.source_cte,
+    ee.exclusion_pathway,
+    ee.exc_resource_type,
+    ee.exc_resource_id,
+    ie.resource_type AS ip_resource_type,
+    ie.resource_id AS ip_resource_id,
+    ie.code_display AS ip_code_display,
+    ie.event_date AS ip_event_date
+FROM measure_results mr
+LEFT JOIN ip_evidence ie ON ie.patient_id = mr.patient_id
+LEFT JOIN numerator_evidence ne ON ne.patient_id = mr.patient_id
+LEFT JOIN exclusion_evidence ee ON ee.patient_id = mr.patient_id
+ORDER BY mr.patient_id, ne.pathway, ne.event_date;
+
