@@ -1,0 +1,25 @@
+{
+  "type": "transaction",
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "AidboxMigration",
+        "ifNoneExist": "id=install-deident-package"
+      },
+      "resource": {
+        "resourceType": "AidboxMigration",
+        "id": "install-deident-package",
+        "action": "far-migration-fhir-package-install",
+        "status": "to-run",
+        "params": {
+          "resourceType": "Parameters",
+          "parameter": [
+            {"name": "package", "valueString": "io.health-samurai.de-identification.r4"}
+          ]
+        }
+      }
+    }
+  ]
+}
