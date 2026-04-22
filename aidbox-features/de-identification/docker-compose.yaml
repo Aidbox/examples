@@ -1,0 +1,43 @@
+volumes:
+  deident-pgdata:
+services:
+  aidbox-db:
+    image: docker.io/healthsamurai/aidboxdb:17
+    pull_policy: always
+    volumes:
+      - deident-pgdata:/data
+    environment:
+      PGDATA: /data
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: password
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: aidbox
+  aidbox:
+    image: docker.io/healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      - aidbox-db
+    volumes:
+      - ./resources:/resources
+    ports:
+      - 8080:8080
+    environment:
+      BOX_INIT_BUNDLE: 'file:///resources/init-bundle.json'
+      BOX_ADMIN_PASSWORD: admin
+      BOX_ROOT_CLIENT_SECRET: secret
+      BOX_SECURITY_DEV_MODE: 'true'
+      BOX_FHIR_COMPLIANT_MODE: 'true'
+      BOX_FHIR_SCHEMA_VALIDATION: 'true'
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: 'true'
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: 'true'
+      BOX_FHIR_TERMINOLOGY_ENGINE: hybrid
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx.health-samurai.io/fhir
+      BOX_WEB_BASE_URL: http://localhost:8080
+      BOX_WEB_PORT: 8080
+      BOX_SETTINGS_MODE: read-write
+      BOX_DB_HOST: aidbox-db
+      BOX_DB_PORT: '5432'
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_USER: aidbox
+      BOX_DB_PASSWORD: password

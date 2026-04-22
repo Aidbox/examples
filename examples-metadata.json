@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-21T15:37:01.904374Z",
+  "timestamp": "2026-04-22T14:00:26.065860Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -381,6 +381,24 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-builder-custom-renderer",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-builder-custom-renderer/README.md"
+    },
+    {
+      "id": "aidbox-features-de-identification",
+      "title": "De-Identification with ViewDefinitions",
+      "description": "Use Aidbox's per-column de-identification to create analytics-ready tables without exposing patient identifiers. This example uses the pre-built [`io.health-samurai.de-identification.r4`](https://get-ig.org/io.health-samurai.de-identification.r4) package which provides Safe Harbor ViewDefinitions for 17 FHIR R4 resource types.",
+      "features": [
+        "De-Identification",
+        "SQL on FHIR",
+        "HIPAA",
+        "Analytics",
+        "ViewDefinition"
+      ],
+      "languages": [
+        "JSON",
+        "SQL"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/de-identification",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/de-identification/README.md"
     },
     {
       "id": "aidbox-features-smart-app-launch-smartbox",
@@ -891,6 +909,7 @@
     "Data deletion",
     "Data visualization",
     "Database",
+    "De-Identification",
     "Deduplication",
     "Docker",
     "EHR integration",
@@ -925,6 +944,7 @@
     "Growth chart",
     "HAPI FHIR",
     "HEDIS",
+    "HIPAA",
     "Healthcare",
     "IPS",
     "Implementation guide",
@@ -998,6 +1018,7 @@
     "Testing",
     "Topic-based",
     "TypeScript",
+    "ViewDefinition",
     "Web",
     "Web components",
     "Workflow",
@@ -1008,6 +1029,7 @@
     "C#",
     "Dart",
     "HTML",
+    "JSON",
     "Java",
     "JavaScript",
     "Kotlin",
