@@ -32,15 +32,15 @@ const parseCsv = (path: string): Row[] => {
 };
 
 const rowToPatient = (row: Row): USCorePatientProfile => {
-  const patient = USCorePatientProfile.create({
+  const basePatient: Patient = {
+    resourceType: "Patient",
     identifier: [{ system: "http://hospital.example.org/mrn", value: row.mrn }],
     name: [{ family: row.family, given: [row.given] }],
-  });
-
-  Object.assign(patient.toResource(), {
     gender: row.gender as Patient["gender"],
     birthDate: row.birthDate,
-  });
+  };
+
+  const patient = USCorePatientProfile.apply(basePatient);
 
   patient.setRace({
     ombCategory: { system: "urn:oid:2.16.840.1.113883.6.238", code: row.raceCode, display: row.raceDisplay },
