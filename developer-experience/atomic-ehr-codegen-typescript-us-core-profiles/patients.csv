@@ -1,0 +1,6 @@
+mrn,family,given,birthDate,gender,raceCode,raceDisplay,effectiveDateTime,systolic,diastolic
+MRN-001,Lovelace,Ada,1815-12-10,female,2106-3,White,2026-04-15,120,80
+MRN-002,Turing,Alan,1912-06-23,male,2106-3,White,2026-04-15,118,76
+MRN-003,Curie,Marie,1867-11-07,female,2106-3,White,2026-04-16,125,82
+MRN-004,Carver,George,1864-01-01,male,2054-5,Black or African American,2026-04-16,135,88
+MRN-005,Ochoa,Ellen,1958-05-10,female,2054-5,Black or African American,2026-04-17,128,84
