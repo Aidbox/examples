@@ -1,7 +1,11 @@
-import { APIBuilder } from "@atomic-ehr/codegen";
+import { APIBuilder, mkCodegenLogger, prettyReport } from "@atomic-ehr/codegen";
 
 const main = async () => {
-  const builder = new APIBuilder()
+  const logger = mkCodegenLogger({
+    suppressTags: ["#fieldTypeNotFound", "#duplicateSchema", "#duplicateCanonical", "#largeValueSet"],
+  });
+
+  const builder = new APIBuilder({ logger })
     .fromPackage("hl7.fhir.us.core", "8.0.1")
     .typeSchema({
       treeShake: {
@@ -21,6 +25,7 @@ const main = async () => {
     .cleanOutput(true);
 
   const report = await builder.generate();
+  console.log(prettyReport(report));
   if (!report.success) process.exit(1);
 };
 
