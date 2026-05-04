@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 
 import type { Bundle, BundleEntry } from "./fhir-types/hl7-fhir-r4-core/Bundle";
@@ -67,7 +67,7 @@ const rowToBP = (row: Row, patientRef: `urn:uuid:${string}`): USCoreBloodPressur
   return bp;
 };
 
-const rowToEntries = (row: Row): BundleEntry[] => {
+const rowToEntries = (row: Row): BundleEntry<Patient | Observation>[] => {
   const patientUrn: `urn:uuid:${string}` = `urn:uuid:${randomUUID()}`;
   const patient = rowToPatient(row);
   const bp = rowToBP(row, patientUrn);
@@ -81,7 +81,7 @@ const rowToEntries = (row: Row): BundleEntry[] => {
 const rows = parseCsv("./patients.csv");
 console.log(`Loaded ${rows.length} rows`);
 
-const bundle: Bundle = {
+const bundle: Bundle<Patient | Observation> = {
   resourceType: "Bundle",
   type: "transaction",
   entry: rows.flatMap(rowToEntries),
@@ -89,16 +89,3 @@ const bundle: Bundle = {
 
 writeFileSync("./bundle.json", JSON.stringify(bundle, null, 2));
 console.log(`Wrote bundle with ${bundle.entry!.length} entries`);
-
-// Read back: compute average systolic/diastolic
-const bps = (bundle.entry ?? [])
-  .map(e => e.resource)
-  .filter((r): r is Observation => r?.resourceType === "Observation")
-  .map(o => USCoreBloodPressureProfile.from(o));
-
-const avg = (xs: number[]) => xs.reduce((s, x) => s + x, 0) / xs.length;
-
-const systolic = bps.map(bp => bp.getSystolic()!.value!);
-const diastolic = bps.map(bp => bp.getDiastolic()!.value!);
-
-console.log(`Avg BP: ${avg(systolic).toFixed(1)}/${avg(diastolic).toFixed(1)} mmHg (n=${bps.length})`);
