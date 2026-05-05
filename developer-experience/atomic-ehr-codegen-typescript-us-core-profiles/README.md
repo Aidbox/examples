@@ -42,23 +42,17 @@ Avg BP: 125.2/82.0 mmHg (n=5)
 
 ## POST to a FHIR Server (Optional)
 
-Any FHIR-compliant server accepts the generated `bundle.json` at its root endpoint. To try it end-to-end, [run Aidbox in Docker](https://www.health-samurai.io/docs/aidbox/getting-started/run-aidbox-locally) in two minutes; the setup writes a `docker-compose.yaml` with a per-install `BOX_ROOT_CLIENT_SECRET`. Read it back with `awk` so the curl commands keep working when the secret rotates:
+Run [Aidbox](https://www.health-samurai.io/fhir-server) locally and POST `bundle.json`:
 
 ```bash
+curl -JO https://aidbox.app/runme && docker compose up -d
 SECRET=$(awk '/BOX_ROOT_CLIENT_SECRET:/{print $2}' docker-compose.yaml)
 
-curl -u "root:$SECRET" -X POST \
-  -H "Content-Type: application/fhir+json" \
+curl -u "root:$SECRET" -X POST -H "Content-Type: application/fhir+json" \
   -d @bundle.json http://localhost:8080/fhir
 ```
 
-Aidbox resolves the `urn:uuid` references to concrete Patient IDs during the transaction commit -- check with:
-
-```bash
-curl -u "root:$SECRET" "http://localhost:8080/fhir/Patient?family=Lovelace"
-curl -u "root:$SECRET" "http://localhost:8080/fhir/Observation?code=http://loinc.org|85354-9" \
-  | jq '.entry[].resource.subject.reference'
-```
+Aidbox resolves the `urn:uuid` references during the transaction commit.
 
 ## Notes on the Code
 
