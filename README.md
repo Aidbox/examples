@@ -60,6 +60,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Agentic FHIR Implementation Guide Development](developer-experience/agentic-coding-ig-development/)
 - [Aidbox Firely .NET Client](developer-experience/aidbox-firely-dotnet-client/)
 - [Aidbox HAPI FHIR Client](developer-experience/aidbox-hapi-client/)
+- [@atomic-ehr/codegen: US Core Profiles in TypeScript: CSV -> FHIR Bundle](developer-experience/atomic-ehr-codegen-typescript-us-core-profiles/)
 
 ## Documentation
 
