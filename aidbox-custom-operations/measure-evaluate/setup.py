@@ -174,18 +174,16 @@ def execute_sql_file(filepath, label):
     if not os.path.exists(filepath):
         print(f"  SKIP {label} — not found")
         return
-
     with open(filepath) as f:
         content = f.read()
-
-    statements = [s.strip() for s in content.split(";") if s.strip()]
-    for stmt in statements:
-        try:
-            run_sql(stmt)
-        except Exception as e:
-            print(f"  FAIL {label}: {str(e)[:80]}")
-            return
-    print(f"  OK {label} — {len(statements)} statements")
+    try:
+        # Aidbox $sql wraps the whole call in one transaction — a mid-file
+        # error rolls back every preceding statement, so this is safe to retry.
+        run_sql(content)
+        # Rough count of '`;`' for the log line — not used for execution, just diagnostics.
+        print(f"  OK {label} — {content.count(';')} SQL statements")
+    except Exception as e:
+        print(f"  FAIL {label}: {str(e)[:200]}")
 
 
 def main():
@@ -230,11 +228,12 @@ def main():
                 print("  FAIL — Aidbox not responding. Is it running and activated?")
                 sys.exit(1)
 
-    # Create shared views + concepts table + shared exclusion functions
+    # Create shared views + concepts table + shared exclusion functions + indexes
     print("[2/5] Creating shared SQL infrastructure...")
     execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "00-terminology.sql"), "Concepts table")
     execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-views.sql"), "Shared views")
     execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
 
     # Create stubs
     print("[3/5] Creating stub resources...")
