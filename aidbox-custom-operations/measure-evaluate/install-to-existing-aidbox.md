@@ -10,7 +10,8 @@ Guide for deploying `Measure/$evaluate-measure` into an **already-running Aidbox
 | 1 App resource in Aidbox (wires the operation) | PostgreSQL data (Patient, Encounter, Condition, …) |
 | ~8 SQL views over your FHIR tables (read-only projections) | All clinical resources — we don't touch them |
 | 1 `concepts` table (terminology: 104 ValueSets, ~9 650 codes) | Your authentication, auth policies, access control |
-| 12 measure SQL definitions (one file per measure) | Your existing custom operations, Apps, indexes |
+| ~17 btree indexes on `Patient`/`Encounter`/`Condition`/… JSONB paths used by the measures | Your existing custom operations, Apps |
+| 12 measure SQL definitions (one file per measure) | Your data, schemas, and other indexes |
 
 ## Prerequisites
 
@@ -68,11 +69,14 @@ docker logs sql-evaluate-app --tail 15
 #   "Running on http://0.0.0.0:8090"
 ```
 
-The app only exposes `POST /` (called by Aidbox). Direct `GET` requests will return 404/405 — that's expected.
+The app only exposes `POST /` — that's the HTTP-RPC entry point Aidbox dispatches to. Direct calls to the Flask container with `GET` or any other path return 404/405 — Aidbox is the front door. Users invoke the operation via Aidbox at `Measure/$evaluate-measure` (registered in Step 2), and that endpoint supports both `POST` and `GET`.
 
 ## Step 2. Register the App resource in Aidbox
 
-This tells Aidbox to route `POST /Measure/$evaluate-measure` calls to your sql-evaluate-app.
+This tells Aidbox to route both `POST` and `GET` calls on `Measure/$evaluate-measure` to your sql-evaluate-app. The two are semantically distinct:
+
+- **`POST`** runs the measure **and persists** the resulting `MeasureReport` in Aidbox (the `measure-evaluate` operation below).
+- **`GET`** runs the measure and returns the report without persisting it (the `measure-evaluate-get` operation below) — useful for ad-hoc / read-only validation.
 
 ```bash
 curl -u <admin>:<password> -X PUT \
@@ -116,6 +120,7 @@ One command loads all non-clinical artifacts into your Aidbox:
 - Shared SQL views (8 flat projections over FHIR JSONB)
 - `concepts` table schema + 104 ValueSets × 9 651 codes
 - Shared exclusion helper functions
+- **Performance indexes** (~17 btree indexes on JSONB paths used by the measures — without these, measure SQL at scale is 100–1000× slower due to sequential scans)
 - CodeSystem bundle + 12 FHIR `Measure` / `Library` resources
 - Stub `Organization`, `Practitioner`, `Device` resources referenced by measures
 
@@ -172,14 +177,21 @@ These SQL files are loaded by the Flask app from `$REPO_ROOT/sql/measures/` **at
 
 ## Step 5. Evaluate a measure against your data
 
-Single-patient report (R4 `reportType=subject`):
+Single-patient report (R4 `reportType=subject`), **persisted** in Aidbox via `POST`:
 
 ```bash
 curl -u <admin>:<password> -X POST \
   'https://aidbox.example.com/Measure/$evaluate-measure?measure=cms130&subject=Patient/<your-patient-id>&reportType=subject&periodStart=2024-01-01&periodEnd=2024-12-31'
 ```
 
-Population-level report across all your patients:
+Same call but **read-only** via `GET` — the report is computed and returned but not stored:
+
+```bash
+curl -u <admin>:<password> -X GET \
+  'https://aidbox.example.com/Measure/$evaluate-measure?measure=cms130&subject=Patient/<your-patient-id>&reportType=subject&periodStart=2024-01-01&periodEnd=2024-12-31'
+```
+
+Population-level report across all your patients (either `POST` or `GET` works the same way):
 
 ```bash
 curl -u <admin>:<password> -X POST \
@@ -254,6 +266,49 @@ Quickest debug: evaluate for one known-good patient (`?subject=Patient/<id>&repo
 ### Concepts table is smaller than expected
 
 Re-run `python3 setup.py --skip-clinical` — it's idempotent (`DELETE WHERE valueset_url = X` before INSERT per ValueSet).
+
+### `$evaluate-measure` times out or is very slow on a large dataset
+
+Most often: the **performance indexes are missing**. They are part of `sql/03-performance.sql`, executed automatically by `setup.py`. If you installed an earlier version of this sample (before indexes were bundled), you can apply them standalone without re-running the full setup:
+
+```bash
+# Set credentials once (avoid pasting them inline)
+export AIDBOX_USER=<your-admin-user>
+export AIDBOX_PASS=<your-admin-password>
+export AIDBOX_URL=https://aidbox.example.com
+
+# Inspect the file
+cat sql/03-performance.sql
+
+# Apply via Aidbox $sql (the whole file is sent in one transactional call)
+python3 -c "
+import json, os, urllib.request, base64
+auth = base64.b64encode(f\"{os.environ['AIDBOX_USER']}:{os.environ['AIDBOX_PASS']}\".encode()).decode()
+url = f\"{os.environ['AIDBOX_URL']}/\$sql\"
+with open('sql/03-performance.sql') as f:
+    body = json.dumps([f.read()]).encode()
+req = urllib.request.Request(url, method='POST', data=body)
+req.add_header('Authorization', f'Basic {auth}')
+req.add_header('Content-Type', 'application/json')
+urllib.request.urlopen(req, timeout=300)
+print('OK')
+"
+
+# Or, if you have direct psql access:
+PGPASSWORD="$AIDBOX_PASS" psql -h <host> -U "$AIDBOX_USER" -d <aidbox_db> -f sql/03-performance.sql
+```
+
+Verify the indexes landed:
+
+```bash
+curl -u "$AIDBOX_USER:$AIDBOX_PASS" -X POST \
+  "$AIDBOX_URL/\$sql" \
+  -H 'Content-Type: application/json' \
+  -d '["SELECT count(*) AS index_count FROM pg_indexes WHERE indexname LIKE '"'"'ix_%'"'"'"]'
+# → [{"index_count": 17}]   (or close to it)
+```
+
+The single most important index for single-patient queries is `ix_<resource>_subject` on `(resource->'subject'->>'id')` — without it, every patient-scoped query degrades to a full sequential scan of the resource table.
 
 ## Uninstall
 
