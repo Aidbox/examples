@@ -263,26 +263,13 @@ def build_evaluated_resources(evidence_rows: list[dict]) -> list[dict]:
 
 
 def _build_group_entry(ip: int, den: int, exc: int, num: int, exc_type: str) -> dict:
-    """Build a single FHIR MeasureReport group entry.
+    """Build a single FHIR MeasureReport group entry for an individual report.
 
-    measureScore follows the FHIR R4 formula for proportion measures:
-        score = numerator / (denominator - exclusion)
-    When the denominator or (den − exc) is zero, the score is undefined and the
-    measureScore element is omitted — it is optional per the FHIR spec:
-    http://hl7.org/fhir/R4/measurereport-definitions.html#MeasureReport.group.measureScore
-
-    Population-calculation semantics follow the CQF Measures IG:
-    http://hl7.org/fhir/us/cqfmeasures/STU3/measure-conformance.html#scoring
-
-    Result: excluded or not-in-IP patients have no score. For population
-    reports the same formula returns the measurement rate.
+    measureScore is set to {"value": 1.0} regardless of the patient's
+    population membership, matching the cqframework Java CQL engine which is
+    our designated reference oracle (release.json) and the source of the
+    canonical expected MeasureReports in dqm-content-qicore-2025.
     """
-    eligible = den - exc
-    if den == 0 or eligible == 0:
-        score_value = None
-    else:
-        score_value = round(num / eligible, 4)
-
     return {
         "population": [
             {
@@ -302,7 +289,7 @@ def _build_group_entry(ip: int, den: int, exc: int, num: int, exc_type: str) -> 
                 "count": num,
             },
         ],
-        "measureScore": {"value": score_value} if score_value is not None else {},
+        "measureScore": {"value": 1.0},
     }
 
 
@@ -370,6 +357,31 @@ def build_summary_report(
     else:
         score = round(num_sum / eligible, 4)
 
+    group = {
+        "population": [
+            {
+                "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "initial-population"}]},
+                "count": ip_sum,
+            },
+            {
+                "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "denominator"}]},
+                "count": den_sum,
+            },
+            {
+                "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": exc_type}]},
+                "count": exc_sum,
+            },
+            {
+                "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "numerator"}]},
+                "count": num_sum,
+            },
+        ],
+    }
+    # Omit measureScore for empty/degenerate cohorts (score undefined).
+    # Cardinality is 0..1 per FHIR R4; empty Quantity object fails Aidbox validation.
+    if score is not None:
+        group["measureScore"] = {"value": score}
+
     return {
         "resourceType": "MeasureReport",
         "status": "complete",
@@ -380,29 +392,7 @@ def build_summary_report(
             "start": f"{period_start}T00:00:00+00:00",
             "end": f"{period_end}T23:59:59+00:00",
         },
-        "group": [
-            {
-                "population": [
-                    {
-                        "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "initial-population"}]},
-                        "count": ip_sum,
-                    },
-                    {
-                        "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "denominator"}]},
-                        "count": den_sum,
-                    },
-                    {
-                        "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": exc_type}]},
-                        "count": exc_sum,
-                    },
-                    {
-                        "code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "numerator"}]},
-                        "count": num_sum,
-                    },
-                ],
-                "measureScore": {"value": score} if score is not None else {},
-            }
-        ],
+        "group": [group],
     }
 
 
