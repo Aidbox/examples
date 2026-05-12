@@ -104,7 +104,14 @@ def load_bundle(filepath, label):
         except Exception:
             pass
 
-    print(f"  OK {label} — {loaded}/{loaded + failed} entries")
+    total = loaded + failed
+    if loaded == 0:
+        status = "FAIL"
+    elif failed == 0:
+        status = "OK"
+    else:
+        status = "PARTIAL"
+    print(f"  {status} {label} — {loaded}/{total} entries")
 
 
 def populate_concepts(valueset_path):
@@ -176,6 +183,12 @@ def execute_sql_file(filepath, label):
         return
     with open(filepath) as f:
         content = f.read()
+    # Prepend lock_timeout so that DROP VIEW / DROP TABLE statements give up
+    # promptly when something else is holding a conflicting lock, instead of
+    # queueing on the server for hours after our HTTP client has already
+    # timed out. lock_timeout only applies to lock acquisition — long ANALYZE
+    # statements are not affected.
+    content = "SET LOCAL lock_timeout = '60s';\n" + content
     try:
         # Aidbox $sql wraps the whole call in one transaction — a mid-file
         # error rolls back every preceding statement, so this is safe to retry.
