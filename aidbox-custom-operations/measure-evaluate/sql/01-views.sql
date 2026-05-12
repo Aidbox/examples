@@ -8,6 +8,28 @@
 --   - polymorphic fields: resource->'performed'->'Period'->>'start' (not resource->'performedPeriod'->>'start')
 
 -- ============================================================
+-- Partial-date helper
+-- FHIR R4 allows `dateTime` with partial precision: "2015" (year) or "2015-10"
+-- (year-month). A naïve cast `'2015-10'::timestamptz` raises
+-- "invalid input syntax for type timestamp with time zone".
+-- This helper pads partial dates to the start of the implied period:
+--   "2015"     -> 2015-01-01T00:00:00Z
+--   "2015-10"  -> 2015-10-01T00:00:00Z
+--   full date  -> as-is
+-- Anything that doesn't look like a FHIR date returns NULL so that downstream
+-- WHERE filters exclude the row instead of erroring.
+-- ============================================================
+CREATE OR REPLACE FUNCTION parse_fhir_datetime(s text) RETURNS timestamptz AS $$
+  SELECT CASE
+    WHEN s IS NULL                THEN NULL
+    WHEN s ~ '^\d{4}-\d{2}-\d{2}' THEN s::timestamptz
+    WHEN s ~ '^\d{4}-\d{2}$'      THEN (s || '-01T00:00:00Z')::timestamptz
+    WHEN s ~ '^\d{4}$'            THEN (s || '-01-01T00:00:00Z')::timestamptz
+    ELSE NULL
+  END
+$$ LANGUAGE sql STABLE;
+
+-- ============================================================
 -- Patient
 -- ============================================================
 DROP VIEW IF EXISTS patient_flat CASCADE;
@@ -51,8 +73,8 @@ SELECT
     r.resource->>'status' AS status,
     r.resource->'type'->0->'coding'->0->>'system' AS type_system,
     r.resource->'type'->0->'coding'->0->>'code' AS type_code,
-    (r.resource->'period'->>'start')::timestamptz AS period_start,
-    (r.resource->'period'->>'end')::timestamptz AS period_end
+    parse_fhir_datetime(r.resource->'period'->>'start') AS period_start,
+    parse_fhir_datetime(r.resource->'period'->>'end') AS period_end
 FROM encounter r;
 
 -- ============================================================
@@ -68,12 +90,12 @@ SELECT
     r.resource->'code'->'coding'->0->>'code' AS code,
     -- Aidbox polymorphic: performed -> {dateTime: '...'} or {Period: {start, end}}
     COALESCE(
-        (r.resource->'performed'->>'dateTime')::timestamptz,
-        (r.resource->'performed'->'Period'->>'start')::timestamptz
+        parse_fhir_datetime(r.resource->'performed'->>'dateTime'),
+        parse_fhir_datetime(r.resource->'performed'->'Period'->>'start')
     ) AS performed_start,
     COALESCE(
-        (r.resource->'performed'->>'dateTime')::timestamptz,
-        (r.resource->'performed'->'Period'->>'end')::timestamptz
+        parse_fhir_datetime(r.resource->'performed'->>'dateTime'),
+        parse_fhir_datetime(r.resource->'performed'->'Period'->>'end')
     ) AS performed_end
 FROM procedure r;
 
@@ -91,12 +113,12 @@ SELECT
     r.resource->'category'->0->'coding'->0->>'code' AS category_code,
     -- Aidbox polymorphic: effective -> {dateTime: '...'} or {Period: {start, end}}
     COALESCE(
-        (r.resource->'effective'->>'dateTime')::timestamptz,
-        (r.resource->'effective'->'Period'->>'start')::timestamptz
+        parse_fhir_datetime(r.resource->'effective'->>'dateTime'),
+        parse_fhir_datetime(r.resource->'effective'->'Period'->>'start')
     ) AS effective_start,
     COALESCE(
-        (r.resource->'effective'->>'dateTime')::timestamptz,
-        (r.resource->'effective'->'Period'->>'end')::timestamptz
+        parse_fhir_datetime(r.resource->'effective'->>'dateTime'),
+        parse_fhir_datetime(r.resource->'effective'->'Period'->>'end')
     ) AS effective_end,
     -- Aidbox polymorphic: value -> {CodeableConcept: {coding: [...]}}
     r.resource->'value'->'CodeableConcept'->'coding'->0->>'system' AS value_system,
@@ -118,12 +140,12 @@ SELECT
     r.resource->'verificationStatus'->'coding'->0->>'code' AS verification_status,
     -- Aidbox polymorphic: onset -> {dateTime: '...'} or {Period: {start}}
     COALESCE(
-        (r.resource->'onset'->>'dateTime')::timestamptz,
-        (r.resource->'onset'->'Period'->>'start')::timestamptz
+        parse_fhir_datetime(r.resource->'onset'->>'dateTime'),
+        parse_fhir_datetime(r.resource->'onset'->'Period'->>'start')
     ) AS onset_date,
     COALESCE(
-        (r.resource->'abatement'->>'dateTime')::timestamptz,
-        (r.resource->'abatement'->'Period'->>'end')::timestamptz
+        parse_fhir_datetime(r.resource->'abatement'->>'dateTime'),
+        parse_fhir_datetime(r.resource->'abatement'->'Period'->>'end')
     ) AS abatement_date,
     r.resource->'category'->0->'coding'->0->>'code' AS category_code
 FROM condition r;
@@ -140,7 +162,7 @@ SELECT
     r.resource->>'intent' AS intent,
     r.resource->'code'->'coding'->0->>'system' AS code_system,
     r.resource->'code'->'coding'->0->>'code' AS code,
-    (r.resource->>'authoredOn')::timestamptz AS authored_on
+    parse_fhir_datetime(r.resource->>'authoredOn') AS authored_on
 FROM servicerequest r;
 
 -- ============================================================
@@ -162,9 +184,9 @@ SELECT
         r.resource->'medication'->'CodeableConcept'->'coding'->0->>'code',
         m.resource->'code'->'coding'->0->>'code'
     ) AS med_code,
-    (r.resource->'dispenseRequest'->'validityPeriod'->>'start')::timestamptz AS validity_start,
-    (r.resource->'dispenseRequest'->'validityPeriod'->>'end')::timestamptz AS validity_end,
-    (r.resource->>'authoredOn')::timestamptz AS authored_on
+    parse_fhir_datetime(r.resource->'dispenseRequest'->'validityPeriod'->>'start') AS validity_start,
+    parse_fhir_datetime(r.resource->'dispenseRequest'->'validityPeriod'->>'end') AS validity_end,
+    parse_fhir_datetime(r.resource->>'authoredOn') AS authored_on
 FROM medicationrequest r
 LEFT JOIN medication m ON m.id = r.resource->'medication'->'Reference'->>'id';
 
@@ -181,5 +203,5 @@ SELECT
     -- Aidbox polymorphic: code -> {CodeableConcept: {coding: [...]}}
     r.resource->'code'->'CodeableConcept'->'coding'->0->>'system' AS code_system,
     r.resource->'code'->'CodeableConcept'->'coding'->0->>'code' AS code,
-    (r.resource->>'authoredOn')::timestamptz AS authored_on
+    parse_fhir_datetime(r.resource->>'authoredOn') AS authored_on
 FROM devicerequest r;
