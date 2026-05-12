@@ -114,6 +114,22 @@ def build_evidence_sql(measure_sql: str, evidence_sql_fragment: str,
 
     ctes = measure_sql[:idx]
 
+    # Apply same push-down marker substitution as build_patient_sql so the
+    # measure CTEs use ix_*_subject indexes instead of scanning the cohort.
+    # Without this, evidence SQL is bottlenecked by full-cohort CTE work
+    # (CMS165 evidence query took 170s on 97K cohort before this).
+    if patient_id:
+        pid_for_markers = _sanitize_patient_id(patient_id)
+        ctes = re.sub(
+            r"--\s*\$SUBJ\$\s+(.+?)\s*$",
+            lambda m: f"AND {m.group(1)} = '{pid_for_markers}'",
+            ctes,
+            flags=re.MULTILINE,
+        )
+        ctes = ctes.replace("/*$SUBJ_PARAM$*/", f", '{pid_for_markers}'")
+    else:
+        ctes = ctes.replace("/*$SUBJ_PARAM$*/", "")
+
     # Add comma after last CTE closing paren
     cte_lines = ctes.rstrip().splitlines()
     for i in range(len(cte_lines) - 1, -1, -1):
