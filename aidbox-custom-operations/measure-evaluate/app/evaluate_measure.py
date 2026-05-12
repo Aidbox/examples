@@ -144,8 +144,18 @@ def build_evidence_sql(measure_sql: str, evidence_sql_fragment: str,
 def build_patient_sql(measure_sql: str, patient_id: str | None) -> str:
     """Convert aggregate measure SQL to patient-level query.
 
-    Replaces the final SELECT COUNT(*) with a patient-level SELECT,
-    optionally filtered to a single patient.
+    Replaces the final SELECT COUNT(*) with a patient-level SELECT.
+
+    Push-down behavior: when patient_id is provided, this function does two things:
+      1. Substitutes `-- $SUBJ$ <col-expr>` markers in CTEs with
+         `AND <col-expr> = '<pid>'`. The col-expr can be a simple
+         `e.patient_id` or a raw JSONB path (e.g. `o.resource->'subject'->>'id'`).
+      2. Pushes the patient filter into the outer FROM clause as
+         `WHERE id = '<pid>'` instead of a top-level WHERE on the joined result.
+      3. Replaces `/*$SUBJ_PARAM$*/` with `, '<pid>'` to pass the subject
+         to shared exclusion functions.
+
+    Measures without these markers keep old behavior (outer WHERE only).
     """
     # Find where the final SELECT starts
     idx = measure_sql.rfind("\nSELECT\n    COUNT(*)")
@@ -157,10 +167,23 @@ def build_patient_sql(measure_sql: str, patient_id: str | None) -> str:
 
     ctes = measure_sql[:idx]
 
-    patient_filter = ""
     if patient_id:
         pid = _sanitize_patient_id(patient_id)
-        patient_filter = f"\n    WHERE ap.patient_id = '{pid}'"
+        # Marker-based push-down (no-op when markers absent in measure SQL)
+        ctes = re.sub(
+            r"--\s*\$SUBJ\$\s+(.+?)\s*$",
+            lambda m: f"AND {m.group(1)} = '{pid}'",
+            ctes,
+            flags=re.MULTILINE,
+        )
+        ctes = ctes.replace("/*$SUBJ_PARAM$*/", f", '{pid}'")
+        outer_from = (
+            f"FROM (SELECT id AS patient_id FROM patient_flat WHERE id = '{pid}') ap"
+        )
+    else:
+        # Population mode — remove SUBJ_PARAM markers entirely (no-op comment)
+        ctes = ctes.replace("/*$SUBJ_PARAM$*/", "")
+        outer_from = "FROM (SELECT id AS patient_id FROM patient_flat) ap"
 
     # Detect multi-group numerators (numerator_2, numerator_3, ...)
     extra_nums = []
@@ -182,11 +205,10 @@ SELECT ap.patient_id,
     CASE WHEN ip.patient_id IS NOT NULL THEN 1 ELSE 0 END AS den,
     CASE WHEN ip.patient_id IS NOT NULL AND de.patient_id IS NOT NULL THEN 1 ELSE 0 END AS exc,
     CASE WHEN ip.patient_id IS NOT NULL AND de.patient_id IS NULL AND n.patient_id IS NOT NULL THEN 1 ELSE 0 END AS num{extra_select}
-FROM (SELECT id AS patient_id FROM patient_flat) ap
+{outer_from}
 LEFT JOIN initial_population ip ON ip.patient_id = ap.patient_id
 LEFT JOIN denominator_exclusion de ON de.patient_id = ap.patient_id
 LEFT JOIN numerator n ON n.patient_id = ap.patient_id{extra_join}"""
-        + patient_filter
         + "\nORDER BY ap.patient_id;"
     )
     return patient_sql

@@ -38,6 +38,8 @@ qualifying_encounters AS (
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start
         AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
+    
 ),
 
 initial_population AS (
@@ -46,6 +48,8 @@ initial_population AS (
     CROSS JOIN mp
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) BETWEEN 3 AND 17
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
+        -- $SUBJ$ p.id
+    
 ),
 
 
@@ -54,7 +58,7 @@ initial_population AS (
 -- ============================================================
 
 -- 3a. Hospice Services (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3b. Pregnancy Diagnosis overlapping MP
 pregnancy_exclusion AS (
@@ -67,6 +71,8 @@ pregnancy_exclusion AS (
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date <= mp.mp_end
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
+    
 ),
 
 -- 3c. All exclusions combined
@@ -90,6 +96,8 @@ has_bmi_percentile AS (
         AND o.has_value = true
         AND o.effective_start >= mp.mp_start
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- Height (LOINC 8302-2, us-core-body-height profile)
@@ -102,6 +110,8 @@ has_height AS (
         AND o.has_value = true
         AND o.effective_start >= mp.mp_start
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- Weight (LOINC 29463-7, us-core-body-weight profile)
@@ -114,6 +124,8 @@ has_weight AS (
         AND o.has_value = true
         AND o.effective_start >= mp.mp_start
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- Numerator 1 = all three present
@@ -133,6 +145,8 @@ numerator_2 AS (
     WHERE pr.status = 'completed'
         AND pr.performed_start >= mp.mp_start
         AND pr.performed_start <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
+    
 ),
 
 -- 4c. Numerator 3: Counseling for Physical Activity during MP
@@ -145,6 +159,8 @@ numerator_3 AS (
     WHERE pr.status = 'completed'
         AND pr.performed_start >= mp.mp_start
         AND pr.performed_start <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
+    
 ),
 
 -- ============================================================

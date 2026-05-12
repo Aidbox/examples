@@ -3,6 +3,11 @@
 -- Translates CQL logic from CMS165FHIRControllingHighBP v1.0.000
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, concepts table populated
+--
+-- Subject push-down markers (same pattern as CMS125/130/131):
+--   `-- $SUBJ$ <col-expr>` and `/*$SUBJ_PARAM$*/` are no-ops in population mode.
+--   bp_observations uses a raw JSONB path (`o.resource->'subject'->>'id'`)
+--   because it goes directly to the observation table for BP component extraction.
 
 WITH mp AS (
     SELECT
@@ -28,6 +33,7 @@ qualifying_encounters AS (
     CROSS JOIN mp
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
 ),
 
 essential_hypertension AS (
@@ -38,6 +44,7 @@ essential_hypertension AS (
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date < mp.mp_6mo
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
 ),
 
 initial_population AS (
@@ -47,6 +54,7 @@ initial_population AS (
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) BETWEEN 18 AND 85
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
         AND p.id IN (SELECT patient_id FROM essential_hypertension)
+        -- $SUBJ$ p.id
 ),
 
 
@@ -55,7 +63,7 @@ initial_population AS (
 -- ============================================================
 
 -- 3a. Hospice (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3b. Pregnancy or Renal Diagnosis
 pregnancy_renal AS (
@@ -66,6 +74,7 @@ pregnancy_renal AS (
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
 ),
 
 -- 3c. ESRD Procedures (Kidney Transplant, Dialysis)
@@ -76,6 +85,7 @@ esrd_procedures AS (
     CROSS JOIN mp
     WHERE pr.status = 'completed'
         AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 
 -- 3d. ESRD Monthly Outpatient Encounter
@@ -84,10 +94,11 @@ esrd_encounter AS (
     JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.109.12.1014'  -- ESRDMonthlyOutpatientServices
     CROSS JOIN mp
     WHERE e.status = 'finished' AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
 ),
 
 -- 3e. Palliative Care (shared function)
-palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end) h),
+palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3f. Advanced Illness + Frailty (66-80) OR Frailty only (>=81)
 -- CMS165-specific: uses age split, cannot use shared_advanced_illness_frailty
@@ -95,10 +106,11 @@ patients_66_plus AS (
     SELECT p.id AS patient_id, EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) AS age
     FROM patient_flat p CROSS JOIN mp
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) >= 66
+        -- $SUBJ$ p.id
 ),
-has_frailty AS (SELECT h.* FROM mp, LATERAL shared_has_frailty(mp.mp_start, mp.mp_end) h),
-advanced_illness AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness(mp.mp_start, mp.mp_end) h),
-dementia_meds AS (SELECT h.* FROM mp, LATERAL shared_dementia_meds(mp.mp_start, mp.mp_end) h),
+has_frailty AS (SELECT h.* FROM mp, LATERAL shared_has_frailty(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
+advanced_illness AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
+dementia_meds AS (SELECT h.* FROM mp, LATERAL shared_dementia_meds(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 advanced_illness_frailty AS (
     -- 66-80: frailty AND (advanced illness OR dementia meds)
     SELECT p66.patient_id FROM patients_66_plus p66
@@ -115,7 +127,7 @@ advanced_illness_frailty AS (
 ),
 
 -- 3g. Nursing Home (shared function, age >= 66)
-nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end) h),
+nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3h. All exclusions combined
 denominator_exclusion AS (
@@ -165,6 +177,7 @@ bp_observations AS (
             (o.resource->'effective'->>'dateTime')::timestamptz,
             (o.resource->'effective'->'Period'->>'start')::timestamptz
         ) <= mp.mp_end
+        -- $SUBJ$ o.resource->'subject'->>'id'
 ),
 
 -- Disqualifying encounters (inpatient + ED)
@@ -174,6 +187,7 @@ disqualifying_encounters AS (
     JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
         AND vs.valueset_url IN ('http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.666.5.307', 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1010')  -- EncounterInpatient, EmergencyDepartmentEvaluationAndManagementVisit
     WHERE e.status = 'finished'
+        -- $SUBJ$ e.patient_id
     UNION
     -- Also filter by encounter class
     SELECT e.id AS encounter_id, e.patient_id, e.period_start, e.period_end
@@ -181,6 +195,7 @@ disqualifying_encounters AS (
     JOIN encounter r ON r.id = e.id
     WHERE e.status = 'finished'
         AND r.resource->'class'->>'code' IN ('EMER', 'IMP', 'ACUTE', 'NONAC', 'PRENC', 'SS')
+        -- $SUBJ$ e.patient_id
 ),
 
 -- Qualifying BP readings: during MP, NOT during disqualifying encounters
