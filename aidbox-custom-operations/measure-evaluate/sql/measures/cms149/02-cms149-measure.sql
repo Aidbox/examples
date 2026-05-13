@@ -114,24 +114,19 @@ initial_population AS (
 -- ObservationCancelled with Patient Reason, issued during dementia encounter
 -- ============================================================
 denominator_exclusion AS (
-    SELECT DISTINCT o.resource->'subject'->>'id' AS patient_id
-    FROM observation o
+    SELECT DISTINCT of_obs.patient_id
+    FROM observation_flat of_obs
+    JOIN observation o ON o.id = of_obs.id  -- raw table only for extension check
     CROSS JOIN mp
-    JOIN dementia_encounter de
-        ON de.patient_id = o.resource->'subject'->>'id'
-    WHERE o.resource->>'status' = 'cancelled'
-        -- code in Standardized Tools for Assessment of Cognition OR Cognitive Assessment
-        AND EXISTS (
-            SELECT 1 FROM concepts vs
-            WHERE vs.system = o.resource->'code'->'coding'->0->>'system'
-                AND vs.code = o.resource->'code'->'coding'->0->>'code'
-                AND vs.valueset_url IN (
-                    'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1006',  -- StandardizedToolsForAssessmentOfCognition
-                    'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1332'   -- CognitiveAssessment
-                )
+    JOIN dementia_encounter de ON de.patient_id = of_obs.patient_id
+    JOIN concepts vs ON vs.system = of_obs.code_system AND vs.code = of_obs.code
+        AND vs.valueset_url IN (
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1006',  -- StandardizedToolsForAssessmentOfCognition
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1332'   -- CognitiveAssessment
         )
+    WHERE of_obs.status = 'cancelled'
         -- issued during dementia encounter period
-        AND (o.resource->>'issued')::timestamptz >= de.period_start
+        AND (o.resource->>'issued')::timestamptz >= de.period_start -- $SUBJ$ of_obs.patient_id
         AND (o.resource->>'issued')::timestamptz <= de.period_end
         -- notDoneReason in Patient Reason
         AND EXISTS (
