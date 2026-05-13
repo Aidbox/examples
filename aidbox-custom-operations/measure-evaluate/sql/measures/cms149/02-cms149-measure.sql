@@ -45,6 +45,8 @@ encounter_to_assess_cognition AS (
         -- "period during day of MP" requires both start AND end within MP
         AND e.period_end IS NOT NULL
         AND e.period_end <= mp.mp_end
+        -- $SUBJ$ e.patient_id
+    
 ),
 
 -- Dementia Encounter: encounter_to_assess_cognition WITH dementia condition
@@ -94,6 +96,7 @@ qualifying_encounter_count AS (
             AND e.period_start <= mp.mp_end
             AND e.period_end IS NOT NULL
             AND e.period_end <= mp.mp_end
+            -- $SUBJ$ e.patient_id
     ) all_qualifying
     GROUP BY patient_id
     HAVING COUNT(DISTINCT encounter_id) >= 2
@@ -165,6 +168,8 @@ numerator AS (
         -- effective starts 12 months or less on or before end of encounter
         AND o.effective_start <= de.period_end
         AND o.effective_start >= (de.period_end - INTERVAL '12 months')
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- ============================================================

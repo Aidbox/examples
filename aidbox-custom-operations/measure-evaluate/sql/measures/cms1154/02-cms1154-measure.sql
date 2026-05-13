@@ -31,6 +31,7 @@ office_visits AS (
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start AND e.period_start <= mp.mp_end
         AND e.period_end <= mp.mp_end
+        -- $SUBJ$ e.patient_id
     GROUP BY e.patient_id
 ),
 
@@ -45,6 +46,8 @@ preventive_encounters AS (
     CROSS JOIN mp
     WHERE e.status = 'finished'
         AND e.period_end >= mp.mp_start AND e.period_end <= mp.mp_end
+        -- $SUBJ$ e.patient_id
+    
 ),
 
 -- Patients with qualifying visits
@@ -100,6 +103,8 @@ initial_population AS (
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_start, p.birth_date::date)) BETWEEN 35 AND 70
         AND p.id IN (SELECT patient_id FROM qualifying_visits)
         AND p.id IN (SELECT patient_id FROM bmi_eligible)
+        -- $SUBJ$ p.id
+    
 ),
 
 
@@ -117,6 +122,8 @@ pregnancy_observation AS (
     WHERE o.status IN ('final', 'amended', 'corrected')
         AND o.effective_start <= mp.mp_end
         AND (o.effective_end IS NULL OR o.effective_end >= mp.mp_start)
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- 3b. Pregnancy Diagnosis (Condition in Pregnancy VS, verified, prevalenceInterval overlaps MP)
@@ -130,6 +137,8 @@ pregnancy_diagnosis AS (
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date <= mp.mp_end
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
+    
 ),
 
 -- 3c. Advanced Illness or Limited Life Expectancy (onset before end of MP)
@@ -145,6 +154,8 @@ advanced_illness_lle AS (
     WHERE (c.verification_status IS NULL
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date <= mp.mp_end
+        -- $SUBJ$ c.patient_id
+    
 ),
 
 -- 3d. Diabetes Diagnosis overlaps Look Back Period
@@ -158,6 +169,7 @@ diabetes_lookback AS (
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date < mp.mp_start  -- prevalenceInterval overlaps [lb_start, mp_start)
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.lb_start)
+        -- $SUBJ$ c.patient_id
 ),
 
 -- 3e. Prediabetes Diagnosis overlaps Look Back Period
@@ -171,6 +183,7 @@ prediabetes_lookback AS (
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date < mp.mp_start  -- prevalenceInterval overlaps [lb_start, mp_start)
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.lb_start)
+        -- $SUBJ$ c.patient_id
 ),
 
 -- 3f. Glycemic Lab Test in Look Back Period
@@ -183,6 +196,8 @@ glycemic_lookback AS (
     WHERE o.status IN ('final', 'amended', 'corrected')
         AND o.effective_start >= mp.lb_start
         AND o.effective_start < mp.mp_start
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- 3g. All exclusions combined
@@ -207,6 +222,8 @@ glycemic_test_mp AS (
     WHERE o.status IN ('final', 'amended', 'corrected')
         AND o.effective_start >= mp.mp_start
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 numerator AS (

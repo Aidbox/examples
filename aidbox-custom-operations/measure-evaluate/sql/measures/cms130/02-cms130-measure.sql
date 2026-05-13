@@ -6,6 +6,13 @@
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, cms130/sql/00-terminology-data.sql
 -- IMPORTANT: Uses timestamptz for MP boundaries to handle Aidbox date storage
+--
+-- Subject push-down markers:
+--   `-- $SUBJ$ e.patient_id` placeholders are no-op in population mode.
+--   `build_patient_sql()` rewrites them to `AND e.patient_id = '<pid>'` when
+--   a subject is given, enabling index-only scans via ix_*_subject.
+--   `/*$SUBJ_PARAM$*/` markers are replaced with `, '<pid>'` to pass the
+--   subject to shared functions (defaults to NULL = no-op in population mode).
 
 WITH mp AS (
     SELECT
@@ -36,6 +43,7 @@ qualifying_encounters AS (
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start
         AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
 ),
 
 initial_population AS (
@@ -44,6 +52,7 @@ initial_population AS (
     CROSS JOIN mp
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) BETWEEN 46 AND 75
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
+        -- $SUBJ$ p.id
 ),
 
 
@@ -61,6 +70,7 @@ malignant_neoplasm AS (
     WHERE (c.verification_status IS NULL
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date <= mp.mp_end
+        -- $SUBJ$ c.patient_id
 ),
 
 -- 3b. Total Colectomy
@@ -72,19 +82,20 @@ total_colectomy AS (
     CROSS JOIN mp
     WHERE pr.status = 'completed'
         AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 
--- 3c. Hospice Services (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+-- 3c. Hospice Services (shared function — push-down via 3rd arg)
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3d. Palliative Care (shared function)
-palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end) h),
+palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3e. Advanced Illness + Frailty (shared function, age >= 66)
-advanced_illness_frailty AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness_frailty(mp.mp_start, mp.mp_end) h),
+advanced_illness_frailty AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness_frailty(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3f. Nursing Home (shared function, age >= 66)
-nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end) h),
+nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3g. All exclusions combined
 denominator_exclusion AS (
@@ -110,6 +121,7 @@ colonoscopy AS (
     WHERE pr.status = 'completed'
         AND pr.performed_end >= (mp.mp_start - INTERVAL '9 years')
         AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 
 -- 4b. FOBT (during measurement period, must have value)
@@ -123,6 +135,7 @@ fobt AS (
         AND o.has_value = true
         AND o.effective_start >= mp.mp_start
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- 4c. sDNA FIT (within 2 years before end of MP, must have value)
@@ -136,6 +149,7 @@ sdna_fit AS (
         AND o.has_value = true
         AND o.effective_start >= (mp.mp_start - INTERVAL '2 years')
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- 4d. Flexible Sigmoidoscopy (within 4 years before end of MP)
@@ -148,6 +162,7 @@ flex_sig AS (
     WHERE pr.status = 'completed'
         AND pr.performed_end >= (mp.mp_start - INTERVAL '4 years')
         AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 
 -- 4e. CT Colonography (within 4 years before end of MP)
@@ -160,6 +175,7 @@ ct_colonography AS (
     WHERE o.status IN ('final', 'amended', 'corrected')
         AND o.effective_start >= (mp.mp_start - INTERVAL '4 years')
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 numerator AS (

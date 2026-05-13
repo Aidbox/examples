@@ -49,6 +49,7 @@ qualifying_encounters AS (
         -- "during day of MP" = entire period contained; open-ended encounters excluded
         AND (r.resource->'period'->>'end') IS NOT NULL
         AND (r.resource->'period'->>'end')::timestamptz <= mp.mp_end
+        -- $SUBJ$ r.resource->'subject'->>'id'
         AND COALESCE(r.resource->'class'->>'code', '') != 'VR'
 ),
 
@@ -82,6 +83,8 @@ initial_population AS (
     CROSS JOIN mp
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_start, p.birth_date::date)) >= 18
         AND p.id IN (SELECT patient_id FROM poag_encounters)
+        -- $SUBJ$ p.id
+    
 ),
 
 
@@ -172,6 +175,8 @@ cup_to_disc AS (
                 AND o.effective_start >= pe.period_start
                 AND o.effective_start <= COALESCE(pe.period_end, pe.period_start)
         )
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- Optic Disc Exam performed with result, during POAG encounter
@@ -188,6 +193,8 @@ optic_disc_exam AS (
                 AND o.effective_start >= pe.period_start
                 AND o.effective_start <= COALESCE(pe.period_end, pe.period_start)
         )
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- Numerator = both cup-to-disc AND optic disc exam

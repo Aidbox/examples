@@ -3,6 +3,10 @@
 -- Translates CQL logic from CMS125FHIRBreastCancerScreen v1.0.000
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, concepts table populated
+--
+-- Subject push-down markers (same pattern as CMS130):
+--   `-- $SUBJ$ <col>` and `/*$SUBJ_PARAM$*/` are no-ops in population mode;
+--   `build_patient_sql()` rewrites them when a subject is given.
 
 WITH mp AS (
     SELECT
@@ -28,6 +32,7 @@ qualifying_encounters AS (
     CROSS JOIN mp
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
 ),
 
 initial_population AS (
@@ -37,6 +42,7 @@ initial_population AS (
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) BETWEEN 42 AND 74
         AND p.gender = 'female'
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
+        -- $SUBJ$ p.id
 ),
 
 
@@ -45,7 +51,7 @@ initial_population AS (
 -- ============================================================
 
 -- 3a. Hospice (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3b. Bilateral Mastectomy (diagnosis or procedure)
 bilateral_mastectomy_dx AS (
@@ -54,11 +60,13 @@ bilateral_mastectomy_dx AS (
     CROSS JOIN mp
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
+        -- $SUBJ$ c.patient_id
 ),
 bilateral_mastectomy_proc AS (
     SELECT DISTINCT pr.patient_id FROM procedure_flat pr
     JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1005'  -- BilateralMastectomy
     CROSS JOIN mp WHERE pr.status = 'completed' AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 
 -- 3c. Right Mastectomy (diagnosis or procedure)
@@ -68,6 +76,7 @@ right_mastectomy_dx AS (
     CROSS JOIN mp
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
+        -- $SUBJ$ c.patient_id
     UNION
     -- Unilateral unspecified with bodySite = Right (24028007)
     SELECT DISTINCT c.patient_id FROM condition_flat c
@@ -77,11 +86,13 @@ right_mastectomy_dx AS (
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
         AND r.resource->'bodySite'->0->'coding'->0->>'code' = '24028007'
+        -- $SUBJ$ c.patient_id
 ),
 right_mastectomy_proc AS (
     SELECT DISTINCT pr.patient_id FROM procedure_flat pr
     JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1134'  -- UnilateralMastectomyRight
     CROSS JOIN mp WHERE pr.status = 'completed' AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 has_right_mastectomy AS (
     SELECT patient_id FROM right_mastectomy_dx UNION SELECT patient_id FROM right_mastectomy_proc
@@ -94,6 +105,7 @@ left_mastectomy_dx AS (
     CROSS JOIN mp
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
+        -- $SUBJ$ c.patient_id
     UNION
     -- Unilateral unspecified with bodySite = Left (7771000)
     SELECT DISTINCT c.patient_id FROM condition_flat c
@@ -103,11 +115,13 @@ left_mastectomy_dx AS (
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
         AND r.resource->'bodySite'->0->'coding'->0->>'code' = '7771000'
+        -- $SUBJ$ c.patient_id
 ),
 left_mastectomy_proc AS (
     SELECT DISTINCT pr.patient_id FROM procedure_flat pr
     JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1133'  -- UnilateralMastectomyLeft
     CROSS JOIN mp WHERE pr.status = 'completed' AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 has_left_mastectomy AS (
     SELECT patient_id FROM left_mastectomy_dx UNION SELECT patient_id FROM left_mastectomy_proc
@@ -121,13 +135,13 @@ mastectomy_exclusion AS (
 ),
 
 -- 3f. Palliative Care (shared function)
-palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end) h),
+palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3g. Advanced Illness + Frailty (shared function, age >= 66)
-advanced_illness_frailty AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness_frailty(mp.mp_start, mp.mp_end) h),
+advanced_illness_frailty AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness_frailty(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3h. Nursing Home (shared function, age >= 66)
-nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end) h),
+nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3i. All exclusions combined
 denominator_exclusion AS (
@@ -151,6 +165,7 @@ numerator AS (
         AND o.category_code = 'imaging'
         AND o.effective_end >= mp.mammogram_lookback_start
         AND o.effective_end <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- ============================================================

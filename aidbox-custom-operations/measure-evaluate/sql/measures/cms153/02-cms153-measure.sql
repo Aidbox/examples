@@ -37,6 +37,8 @@ qualifying_encounters AS (
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start
         AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
+    
 ),
 
 -- Sexual activity evidence: Assessments (ObservationScreeningAssessment code=64728-9, value=373066001)
@@ -48,6 +50,8 @@ has_assessments AS (
         AND o.value_code = '373066001'
         AND o.status IN ('final', 'amended', 'corrected')
         AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- Sexual activity evidence: Diagnoses (3 valuesets, verified, prevalence overlaps MP)
@@ -65,6 +69,8 @@ has_diagnoses AS (
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date <= mp.mp_end
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
+    
 ),
 
 -- Sexual activity evidence: Active contraceptive medications (overlaps MP)
@@ -78,6 +84,8 @@ has_active_contraceptives AS (
         AND mr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
         AND COALESCE(mr.validity_start, mr.authored_on) <= mp.mp_end
         AND COALESCE(mr.validity_end, mr.authored_on) >= mp.mp_start
+        -- $SUBJ$ mr.patient_id
+    
 ),
 
 -- Sexual activity evidence: Ordered contraceptive medications (authoredOn during MP)
@@ -90,6 +98,8 @@ has_ordered_contraceptives AS (
     WHERE mr.status IN ('active', 'completed')
         AND mr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
         AND mr.authored_on >= mp.mp_start AND mr.authored_on <= mp.mp_end
+        -- $SUBJ$ mr.patient_id
+    
 ),
 
 -- Sexual activity evidence: Lab tests identifying sexual activity (ServiceRequest orders during MP)
@@ -108,6 +118,8 @@ has_lab_tests_sexual_activity AS (
     WHERE sr.status IN ('active', 'completed')
         AND sr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
         AND sr.authored_on >= mp.mp_start AND sr.authored_on <= mp.mp_end
+        -- $SUBJ$ sr.patient_id
+    
 ),
 
 -- Sexual activity evidence: Diagnostic studies during pregnancy (ServiceRequest during MP)
@@ -120,6 +132,8 @@ has_diagnostic_studies AS (
     WHERE sr.status IN ('active', 'completed')
         AND sr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
         AND sr.authored_on >= mp.mp_start AND sr.authored_on <= mp.mp_end
+        -- $SUBJ$ sr.patient_id
+    
 ),
 
 -- Sexual activity evidence: Procedures indicating sexual activity (during MP)
@@ -132,6 +146,8 @@ has_procedures_sexual_activity AS (
     WHERE pr.status = 'completed'
         AND pr.performed_start >= mp.mp_start
         AND pr.performed_start <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
+    
 ),
 
 -- Combined: any evidence of sexual activity
@@ -153,6 +169,8 @@ initial_population AS (
         AND p.sex = '248152002'
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
         AND p.id IN (SELECT patient_id FROM has_sexual_activity)
+        -- $SUBJ$ p.id
+    
 ),
 
 
@@ -161,7 +179,7 @@ initial_population AS (
 -- ============================================================
 
 -- 3a. Hospice Services (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3b. Pregnancy Test Exclusion
 -- Patient had pregnancy test + (XRay within 6 days OR Isotretinoin within 6 days)
@@ -177,6 +195,8 @@ pregnancy_test_orders AS (
     WHERE sr.status IN ('active', 'completed')
         AND sr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
         AND sr.authored_on >= mp.mp_start AND sr.authored_on <= mp.mp_end
+        -- $SUBJ$ sr.patient_id
+    
 ),
 
 -- XRay study orders
@@ -187,6 +207,8 @@ xray_orders AS (
         AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1034'  -- XRayStudy
     WHERE sr.status IN ('active', 'completed')
         AND sr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
+        -- $SUBJ$ sr.patient_id
+    
 ),
 
 -- Isotretinoin medication orders
@@ -197,6 +219,8 @@ isotretinoin_orders AS (
         AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.196.12.1143'  -- Isotretinoin
     WHERE mr.status IN ('active', 'completed')
         AND mr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
+        -- $SUBJ$ mr.patient_id
+    
 ),
 
 -- Pregnancy test with XRay within 6 days after
@@ -238,6 +262,8 @@ has_lab_tests_not_pregnancy AS (
     WHERE sr.status IN ('active', 'completed')
         AND sr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')
         AND sr.authored_on >= mp.mp_start AND sr.authored_on <= mp.mp_end
+        -- $SUBJ$ sr.patient_id
+    
 ),
 
 -- Pregnancy test exclusion applies ONLY if no other sexual activity evidence
@@ -272,6 +298,8 @@ numerator AS (
         AND o.has_value = true
         AND COALESCE(o.effective_end, o.effective_start) >= mp.mp_start
         AND COALESCE(o.effective_end, o.effective_start) <= mp.mp_end
+        -- $SUBJ$ o.patient_id
+    
 ),
 
 -- ============================================================

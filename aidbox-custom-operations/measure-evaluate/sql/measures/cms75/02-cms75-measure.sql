@@ -26,6 +26,7 @@ qualifying_encounters AS (
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start
         AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
 ),
 
 initial_population AS (
@@ -34,6 +35,7 @@ initial_population AS (
     CROSS JOIN mp
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_start::date, p.birth_date::date)) BETWEEN 1 AND 20
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
+        -- $SUBJ$ p.id
 ),
 
 
@@ -42,7 +44,7 @@ initial_population AS (
 -- ============================================================
 
 -- 3a. Hospice Services (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 denominator_exclusion AS (
     SELECT patient_id FROM hospice
@@ -61,6 +63,7 @@ numerator AS (
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date <= mp.mp_end
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
 ),
 
 -- ============================================================

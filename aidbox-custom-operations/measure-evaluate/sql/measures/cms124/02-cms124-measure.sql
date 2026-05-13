@@ -33,6 +33,7 @@ qualifying_encounters AS (
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start
         AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
 ),
 
 initial_population AS (
@@ -42,6 +43,7 @@ initial_population AS (
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) BETWEEN 24 AND 64
         AND p.sex = '248152002'
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
+        -- $SUBJ$ p.id
 ),
 
 
@@ -59,6 +61,7 @@ absence_of_cervix_procedure AS (
     CROSS JOIN mp
     WHERE pr.status = 'completed'
         AND pr.performed_end <= mp.mp_end
+        -- $SUBJ$ pr.patient_id
 ),
 
 -- Condition: Congenital or Acquired Absence of Cervix, verified, onset on or before end of MP
@@ -71,6 +74,7 @@ absence_of_cervix_condition AS (
     WHERE (c.verification_status IS NULL
         OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))
         AND c.onset_date <= mp.mp_end
+        -- $SUBJ$ c.patient_id
 ),
 
 absence_of_cervix AS (
@@ -79,10 +83,10 @@ absence_of_cervix AS (
 ),
 
 -- 3b. Hospice Services (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3c. Palliative Care (shared function)
-palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end) h),
+palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3d. All exclusions combined
 denominator_exclusion AS (
@@ -110,6 +114,7 @@ cervical_cytology AS (
         AND o.has_value = true
         AND COALESCE(o.effective_end, o.effective_start) >= (mp.mp_start - INTERVAL '2 years')
         AND COALESCE(o.effective_end, o.effective_start) <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- 4b. HPV Test within 5 years for women age 30+
@@ -129,6 +134,7 @@ hpv_test AS (
         AND COALESCE(o.effective_end, o.effective_start) >= (mp.mp_start - INTERVAL '4 years')
         AND COALESCE(o.effective_end, o.effective_start) <= mp.mp_end
         AND EXTRACT(YEAR FROM AGE(COALESCE(o.effective_end, o.effective_start)::date, p.birth_date::date)) >= 30
+        -- $SUBJ$ o.patient_id
 ),
 
 numerator AS (

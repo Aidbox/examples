@@ -3,6 +3,10 @@
 -- Translates CQL logic from CMS131FHIRDiabetesEyeExam v1.0.000
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, concepts table populated
+--
+-- Subject push-down markers (same pattern as CMS130, CMS125):
+--   `-- $SUBJ$ <col>` and `/*$SUBJ_PARAM$*/` are no-ops in population mode;
+--   `build_patient_sql()` rewrites them when a subject is given.
 
 WITH mp AS (
     SELECT
@@ -29,6 +33,7 @@ qualifying_encounters AS (
     CROSS JOIN mp
     WHERE e.status = 'finished'
         AND e.period_start >= mp.mp_start AND e.period_start <= mp.mp_end
+        -- $SUBJ$ e.patient_id
 ),
 
 diabetes_diagnosis AS (
@@ -39,6 +44,7 @@ diabetes_diagnosis AS (
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
 ),
 
 initial_population AS (
@@ -48,6 +54,7 @@ initial_population AS (
     WHERE EXTRACT(YEAR FROM AGE(mp.mp_end, p.birth_date::date)) BETWEEN 18 AND 75
         AND p.id IN (SELECT patient_id FROM qualifying_encounters)
         AND p.id IN (SELECT patient_id FROM diabetes_diagnosis)
+        -- $SUBJ$ p.id
 ),
 
 
@@ -56,16 +63,16 @@ initial_population AS (
 -- ============================================================
 
 -- 3a. Hospice (shared function)
-hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
+hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3b. Palliative Care (shared function)
-palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end) h),
+palliative AS (SELECT h.* FROM mp, LATERAL shared_palliative(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3c. Advanced Illness + Frailty (shared function, age >= 66)
-advanced_illness_frailty AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness_frailty(mp.mp_start, mp.mp_end) h),
+advanced_illness_frailty AS (SELECT h.* FROM mp, LATERAL shared_advanced_illness_frailty(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3d. Nursing Home (shared function, age >= 66)
-nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end) h),
+nursing_home AS (SELECT h.* FROM mp, LATERAL shared_nursing_home(mp.mp_start, mp.mp_end /*$SUBJ_PARAM$*/) h),
 
 -- 3e. Bilateral Absence of Eyes (unique to CMS131)
 bilateral_absence_eyes AS (
@@ -74,6 +81,7 @@ bilateral_absence_eyes AS (
     WHERE c.code = '15665641000119103' AND c.code_system = 'http://snomed.info/sct'
         AND (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
+        -- $SUBJ$ c.patient_id
 ),
 
 -- 3f. All exclusions combined
@@ -97,6 +105,7 @@ has_diabetic_retinopathy AS (
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
         AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)
+        -- $SUBJ$ c.patient_id
 ),
 
 -- Retinal exam during MP (isPhysicalExamPerformed → category = 'exam')
@@ -107,6 +116,7 @@ retinal_exam_in_mp AS (
     WHERE o.status IN ('final','amended','corrected')
         AND o.category_code = 'exam'
         AND o.effective_start >= mp.mp_start AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Retinal exam during MP or year prior
@@ -117,6 +127,7 @@ retinal_exam_in_mp_or_year_prior AS (
     WHERE o.status IN ('final','amended','corrected')
         AND o.category_code = 'exam'
         AND o.effective_start >= (mp.mp_start - INTERVAL '1 year') AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Autonomous eye exam during MP (code=105914-6, value in AutonomousEyeExamResultOrFinding)
@@ -128,6 +139,7 @@ autonomous_eye_exam AS (
         AND o.status IN ('final','amended','corrected')
         AND o.category_code = 'exam'
         AND o.effective_start >= mp.mp_start AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Left eye retinopathy severity during MP (code=71490-7, value in DiabeticRetinopathySeverityLevel)
@@ -139,6 +151,7 @@ has_left_eye_retinopathy AS (
         AND o.status IN ('final','amended','corrected')
         AND o.category_code = 'exam'
         AND o.effective_start >= mp.mp_start AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Right eye retinopathy severity during MP (code=71491-5, value in DiabeticRetinopathySeverityLevel)
@@ -150,6 +163,7 @@ has_right_eye_retinopathy AS (
         AND o.status IN ('final','amended','corrected')
         AND o.category_code = 'exam'
         AND o.effective_start >= mp.mp_start AND o.effective_start <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Left eye NO retinopathy in year prior (code=71490-7, value ~ LA18643-9)
@@ -161,6 +175,7 @@ has_left_eye_no_retinopathy_prior AS (
         AND o.status IN ('final','amended','corrected')
         AND o.category_code = 'exam'
         AND o.effective_start >= mp.year_prior_start AND o.effective_start <= mp.year_prior_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Right eye NO retinopathy in year prior (code=71491-5, value ~ LA18643-9)
@@ -172,6 +187,7 @@ has_right_eye_no_retinopathy_prior AS (
         AND o.status IN ('final','amended','corrected')
         AND o.category_code = 'exam'
         AND o.effective_start >= mp.year_prior_start AND o.effective_start <= mp.year_prior_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Path 4: Retinal exam finding with retinopathy severity level
