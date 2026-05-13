@@ -552,9 +552,24 @@ async function renderP360List(){
   if(pager)pager.innerHTML=pageCount>1?`<button class="fbtn" ${p360Page===0?'disabled':''} onclick="p360Page--;renderP360List()">&lsaquo; Prev</button><span>Page ${p360Page+1} of ${pageCount.toLocaleString()}</span><button class="fbtn" ${p360Page>=pageCount-1?'disabled':''} onclick="p360Page++;renderP360List()">Next &rsaquo;</button>`:'';
 }
 
-function renderP360Detail(pid){
-  selectedP360=pid;const measures=patientMap[pid]||[];const name=patientLabel(pid);const open=measures.filter(m=>m.status==='open');const closed=measures.filter(m=>m.status==='closed');const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-  const sorted=[...measures].sort((a,b)=>{const o={open:0,closed:1,excl:2,noip:3};return(o[a.status]??9)-(o[b.status]??9)});
+// Per-patient drill-down — fetches each active measure's status for this patient
+// via sql_subject (parallel Promise.all). No patientMap dependency: works even
+// if user navigated here from a tab/link without opening any measure detail first.
+async function renderP360Detail(pid){
+  selectedP360=pid;
+  document.getElementById('main').innerHTML=`<div class="empty"><span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite"></span> Loading patient…</div>`;
+  await loadNamesForIds([pid]);
+  const{start,end}=getPeriod();const ids=Object.keys(MEASURES);
+  const measures=await Promise.all(ids.map(async mid=>{
+    const m=MEASURES[mid];if(!m?.sql_subject)return{mid,status:'noip',label:'—',cls:'gap-not-in-ip',ip:0,den:0,exc:0,num:0};
+    const q=m.sql_subject.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/\{PATIENT_ID\}/g,pid);
+    try{const rows=await sql(q);const r=rows[0]||{ip:0,den:0,exc:0,num:0};const g=gapStatus(r);return{mid,ip:+r.ip,den:+r.den,exc:+r.exc,num:+r.num,status:g.key,label:g.label,cls:g.cls}}
+    catch(e){return{mid,status:'error',label:'error',cls:'gap-not-in-ip',ip:0,den:0,exc:0,num:0}}
+  }));
+  if(selectedP360!==pid)return;  // bail if user navigated away
+  const name=patientLabel(pid);const open=measures.filter(m=>m.status==='open');const closed=measures.filter(m=>m.status==='closed');
+  const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  const order={open:0,closed:1,excl:2,noip:3,error:9};const sorted=[...measures].sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
   let html=`<button class="p360-back" onclick="selectedP360=null;renderP360List()">&larr; All Patients</button><div class="p360-header"><div class="p360-avatar">${initials}</div><div class="p360-info"><h2>${name}</h2><div class="p360-meta">${pid}</div><div class="p360-summary">${open.length>0?`<span class="p360-chip open">${open.length} open</span>`:''}<span class="p360-chip closed">${closed.length} closed</span><span class="p360-chip total">${measures.length} measures</span></div></div></div><div class="p360-list">`;
   for(let i=0;i<sorted.length;i++){const m=sorted[i];const meta=META[m.mid]||{short:m.mid,name:m.mid};const act=ACTIONS[m.mid]||{action:'',category:''};const evId='p360-ev-'+m.mid;
   html+=`<div class="p360-card card-${m.status}" style="animation-delay:${i*35}ms"><div class="p360-card-head"><div class="p360-card-title">${meta.short} &mdash; ${meta.name}</div><span class="badge ${m.cls}">${m.label}</span></div>${m.status==='open'?`<div class="p360-action-box"><div class="act-label"><span class="cat-badge cat-${act.category}">${act.category}</span> Recommended Action</div><div class="act-text">${act.action}</div></div>`:''}<button class="p360-ev-toggle" onclick="event.stopPropagation();toggleP360Ev('${m.mid}','${pid}','${evId}',this)">&#x25B8; Evidence</button><div id="${evId}"></div></div>`}
