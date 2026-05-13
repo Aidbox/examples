@@ -138,7 +138,12 @@ def build_evidence_sql(measure_sql: str, evidence_sql_fragment: str,
             cte_lines[i] = stripped + ","
             break
 
-    full_sql = "\n".join(cte_lines) + "\n" + evidence_sql_fragment
+    ctes_joined = "\n".join(cte_lines)
+    full_sql = ctes_joined + "\n" + evidence_sql_fragment
+    # Boundary: where evidence_sql_fragment starts. Used to anchor the
+    # ORDER BY search below so we don't match an inner ORDER BY inside a
+    # CTE body (e.g. CMS1154's window-function ranking).
+    evidence_section_start = len(ctes_joined) + 1
 
     # Filter to single patient if provided
     if patient_id:
@@ -146,8 +151,8 @@ def build_evidence_sql(measure_sql: str, evidence_sql_fragment: str,
         full_sql = full_sql.rstrip().rstrip(";")
         # Add or replace WHERE clause for patient filter
         if "WHERE mr.patient_id" not in full_sql:
-            # Insert before ORDER BY
-            order_idx = full_sql.rfind("ORDER BY")
+            # Insert before the final SELECT's ORDER BY (within evidence section)
+            order_idx = full_sql.find("ORDER BY", evidence_section_start)
             if order_idx != -1:
                 full_sql = (full_sql[:order_idx]
                             + f"WHERE mr.patient_id = '{pid}'\n"
