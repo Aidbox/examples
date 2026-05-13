@@ -476,7 +476,15 @@ async function renderDetailRows(id,btn){
   if(pager)pager.innerHTML=pageCount>1?`<button class="fbtn" ${currentPage===0?'disabled':''} onclick="currentPage--;renderDetailRows('${id}')">&lsaquo; Prev</button><span>Page ${currentPage+1} of ${pageCount.toLocaleString()}</span><button class="fbtn" ${currentPage>=pageCount-1?'disabled':''} onclick="currentPage++;renderDetailRows('${id}')">Next &rsaquo;</button>`:'';
 }
 
-function goP360(pid){selectedP360=pid;switchTab('patient360',null)}
+// Navigate to a specific patient's 360 detail. Bypasses switchTab so the
+// selectedP360 state is preserved (switchTab nulls it to reset to list view).
+function goP360(pid){
+  currentTab='patient360';lastTab='patient360';currentMeasure=null;selectedP360=pid;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tab[data-tab="patient360"]')?.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  render();
+}
 
 // Shared placeholder for tabs that need patient-level data that has not been loaded yet.
 function renderPendingTab(title,msg){
@@ -515,11 +523,26 @@ async function renderWorklist(){
   const body=document.getElementById('wl-body');if(!body)return;
   let html='';
   for(const e of page){const topMid=e.mids[0];const act=ACTIONS[topMid]||{action:'—',category:'—'};const meta=META[topMid]||{short:topMid};
-  html+=`<tr class="wl-row" onclick="goP360('${e.pid}')"><td><div class="wl-name">${patientLabel(e.pid)}</div><div class="wl-id" style="white-space:nowrap;font-family:var(--mono);font-size:0.65rem">${e.pid}</div></td><td><span class="wl-gaps-badge">${e.n} open</span></td><td class="wl-action"><span class="act-measure">${meta.short}</span> <span class="cat-badge cat-${act.category}">${act.category}</span><br>${act.action}</td></tr>`}
+  html+=`<tr class="wl-row" onclick="toggleWlExpand('${e.pid}','${e.mids.join(',')}',this)"><td><div class="wl-name"><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${e.pid}')">${patientLabel(e.pid)}</span></div><div class="wl-id" style="white-space:nowrap;font-family:var(--mono);font-size:0.65rem">${e.pid}</div></td><td><span class="wl-gaps-badge">${e.n} open</span></td><td class="wl-action"><span class="act-measure">${meta.short}</span> <span class="cat-badge cat-${act.category}">${act.category}</span><br>${act.action}</td></tr><tr class="wl-expand" style="display:none"><td colspan="3"><div class="mini360" id="wl-mini-${e.pid.substring(0,10)}"></div></td></tr>`}
   body.innerHTML=html;
   const wlc=document.getElementById('wl-count');if(wlc)wlc.textContent=total?`${wlPage*PAGE_SIZE+1}–${Math.min((wlPage+1)*PAGE_SIZE,total)} / ${total.toLocaleString()}`:'0';
   const pager=document.getElementById('wl-pager');
   if(pager)pager.innerHTML=pageCount>1?`<button class="fbtn" ${wlPage===0?'disabled':''} onclick="wlPage--;renderWorklist()">&lsaquo; Prev</button><span>Page ${wlPage+1} of ${pageCount.toLocaleString()}</span><button class="fbtn" ${wlPage>=pageCount-1?'disabled':''} onclick="wlPage++;renderWorklist()">Next &rsaquo;</button>`:'';
+}
+
+// Inline expand for Worklist rows — shows the open-gap measures with their recommended actions.
+// Patient name click escapes via stopPropagation and routes to full Patient 360 detail instead.
+function toggleWlExpand(pid,midsCSV,row){
+  const exp=row.nextElementSibling;
+  if(row.classList.contains('expanded')){row.classList.remove('expanded');exp.style.display='none';return}
+  row.classList.add('expanded');exp.style.display='';
+  const el=exp.querySelector('.mini360');
+  const mids=midsCSV.split(',').filter(Boolean);
+  let h='<div class="m360-measures">';
+  for(const mid of mids){const meta=META[mid]||{short:mid};const act=ACTIONS[mid]||{action:'',category:''};
+  h+=`<div class="m360-item m360-open"><span class="m360-name">${meta.short}</span><span class="badge gap-open" style="font-size:.55rem">Open</span><span class="m360-action">${act.category?`<span class="cat-badge cat-${act.category}">${act.category}</span> `:''}${act.action}</span></div>`}
+  h+='</div>';
+  el.innerHTML=h;
 }
 
 // ══════════════════════════════════
