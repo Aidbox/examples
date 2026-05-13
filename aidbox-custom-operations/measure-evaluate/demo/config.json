@@ -5,5 +5,6 @@
   "dataset": "cypress-2026",
   "dataset_label": "Quality Measures Demo",
   "period_start": "2026-01-01",
-  "period_end": "2026-12-31"
+  "period_end": "2026-12-31",
+  "measures": ["cms130", "cms131"]
 }
