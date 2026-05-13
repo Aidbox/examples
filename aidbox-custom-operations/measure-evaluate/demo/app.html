@@ -478,9 +478,7 @@ async function renderDetailRows(id,btn){
 
 function goP360(pid){selectedP360=pid;switchTab('patient360',null)}
 
-// Shared placeholder for tabs that depend on patient-level data across measures.
-// Full cross-measure aggregation is deferred until the sof.* materialized-view
-// migration makes per-measure SQL cheap enough to run in evaluateAll.
+// Shared placeholder for tabs that need patient-level data that has not been loaded yet.
 function renderPendingTab(title,msg){
   document.getElementById('main').innerHTML=`<div class="empty" style="text-align:center;padding:3rem 1rem"><h2 style="margin-bottom:.6rem">${title}</h2><p style="font-size:.85rem;color:var(--fg3);max-width:560px;margin:0 auto;line-height:1.55">${msg}</p></div>`;
 }
@@ -531,7 +529,7 @@ async function renderWorklist(){
 // Same 50/page pattern as Worklist/Cohort to avoid rendering 60K+ DOM rows.
 async function renderP360List(){
   const all=Object.keys(patientMap);
-  if(!all.length)return renderPendingTab('Patient 360','Open any measure first to populate the patient list. Cross-measure search — pending optimization.');
+  if(!all.length)return renderPendingTab('Patient 360','Open any measure from the sidebar to populate the patient list.');
   const entries=all.map(pid=>{const m=patientMap[pid]||[];return{pid,open:m.filter(x=>x.status==='open').length,closed:m.filter(x=>x.status==='closed').length,total:m.length}}).sort((a,b)=>b.open-a.open);
   document.getElementById('main').innerHTML=`<div class="toolbar"><input class="search-box" placeholder="Search patient..." value="${p360Search}" oninput="p360Search=this.value.toLowerCase();p360Page=0;renderP360List()" style="max-width:300px"><span class="tcount" id="p360-count"></span></div>
   <table class="ptable"><thead><tr><th>Patient</th><th>Open</th><th>Closed</th><th>Total</th><th></th></tr></thead><tbody id="p360-body"></tbody></table>
