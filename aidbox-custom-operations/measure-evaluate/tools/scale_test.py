@@ -81,6 +81,37 @@ def rewrite_references(node, id_map):
             rewrite_references(item, id_map)
 
 
+_CANONICAL_DISPLAY = {
+    "condition-clinical": {
+        "active": "Active", "recurrence": "Recurrence", "relapse": "Relapse",
+        "inactive": "Inactive", "remission": "Remission", "resolved": "Resolved",
+    },
+    "condition-ver": {
+        "unconfirmed": "Unconfirmed", "provisional": "Provisional",
+        "differential": "Differential", "confirmed": "Confirmed",
+        "refuted": "Refuted", "entered-in-error": "Entered in Error",
+    },
+}
+
+
+def sanitize_resource(r):
+    """Fix known dqm-content data defects that fail Aidbox validation."""
+    if r.get("resourceType") == "Condition":
+        for field in ("clinicalStatus", "verificationStatus"):
+            block = r.get(field)
+            if not block:
+                continue
+            for coding in block.get("coding", []):
+                sys_url = coding.get("system", "")
+                code = coding.get("code", "")
+                for cs_key, lookup in _CANONICAL_DISPLAY.items():
+                    if cs_key in sys_url and code in lookup:
+                        coding["display"] = lookup[code]
+    if r.get("resourceType") == "Organization":
+        if not r.get("name") and not r.get("identifier"):
+            r["name"] = "Test Organization"
+
+
 def make_copy(bundle, copy_index):
     """Deep-copy the bundle, suffix every id, tag every resource."""
     bundle = copy.deepcopy(bundle)
@@ -88,6 +119,7 @@ def make_copy(bundle, copy_index):
     id_map = {}
     for entry in bundle["entry"]:
         r = entry["resource"]
+        sanitize_resource(r)
         old_id = r.get("id")
         if not old_id:
             continue
