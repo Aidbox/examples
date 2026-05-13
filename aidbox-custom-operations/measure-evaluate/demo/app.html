@@ -298,8 +298,23 @@ const ACTIONS={cms130:{action:'Order colonoscopy or FIT/FOBT',category:'Screenin
 let MEASURES={},measureResults={},allPatientNames={},patientMap={};
 let currentTab='overview',currentMeasure=null,currentFilter='all',currentSearch='';
 let wlFilter='all',wlSearch='',selectedP360=null,selectedCohort=null,lastTab='overview';
+let currentPage=0;const PAGE_SIZE=50;
 
 async function sql(q){const r=await fetch(`${AIDBOX_URL}/$sql`,{method:'POST',headers:{'Authorization':AUTH,'Content-Type':'application/json'},body:JSON.stringify([q])});if(!r.ok)throw new Error(`SQL ${r.status}`);const t=await r.text();return t.trim()?JSON.parse(t):[]}
+// Lazy patient-name lookup: fetches names only for ids we haven't seen yet.
+// Batched IN(...) queries (500 per chunk) — avoids loading 100K names upfront.
+async function loadNamesForIds(ids){
+  const missing=[...new Set(ids)].filter(id=>!(id in allPatientNames));
+  if(!missing.length)return;
+  for(let i=0;i<missing.length;i+=500){
+    const chunk=missing.slice(i,i+500);
+    const inList=chunk.map(id=>`'${id.replace(/'/g,"''")}'`).join(',');
+    try{const rows=await sql(`SELECT id, resource#>>'{name,0,given,0}' AS given, resource#>>'{name,0,family}' AS family FROM patient WHERE id IN (${inList})`);
+      for(const p of rows)allPatientNames[p.id]=[p.given,p.family].filter(Boolean).join(' ')||'';}catch(e){}
+    // Mark ids without a name as empty string so we don't refetch
+    for(const id of chunk)if(!(id in allPatientNames))allPatientNames[id]='';
+  }
+}
 function buildSQL(id,s,e,p){let q=p&&MEASURES[id].sql_subject?MEASURES[id].sql_subject:MEASURES[id].sql;q=q.replace(/\{PERIOD_START\}/g,s).replace(/\{PERIOD_END\}/g,e);if(p)q=MEASURES[id].sql_subject?q.replace(/\{PATIENT_ID\}/g,p):q.replace('ORDER BY ap.patient_id;',`WHERE ap.patient_id='${p}'\nORDER BY ap.patient_id;`);return q}
 function gapStatus(r){const ip=+r.ip,exc=+r.exc,num=+r.num;if(ip===0)return{label:'Not in IP',cls:'gap-not-in-ip',key:'noip'};if(exc===1)return{label:'Excluded',cls:'gap-excluded',key:'excl'};if(num===1)return{label:'Closed',cls:'gap-closed',key:'closed'};return{label:'Open',cls:'gap-open',key:'open'}}
 function calcStats(rows){let ip=0,den=0,exc=0,num=0,open=0,closed=0,excluded=0,noip=0;for(const r of rows){const rip=+r.ip,rden=+r.den,rexc=+r.exc,rnum=+r.num;ip+=rip;den+=rden;exc+=rexc;num+=rnum;if(rip===0)noip++;else if(rnum===1)closed++;else if(rexc===1)excluded++;else open++}return{total:rows.length,ip,den,exc,num,open,closed,excluded,noip,score:den>0?(num/Math.max(den-exc,1)*100):null}}
@@ -342,7 +357,6 @@ async function init(){
   if(Array.isArray(cfg.measures)&&cfg.measures.length){MEASURES=Object.fromEntries(Object.entries(MEASURES).filter(([id])=>cfg.measures.includes(id)))}
   const conn=document.getElementById('conn');
   try{const rows=await sql("SELECT COUNT(*) as cnt FROM patient");conn.innerHTML=`<span class="dot dot-ok"></span><span>${rows[0]?.cnt||0} pts</span>`}catch(e){conn.innerHTML='<span class="dot dot-err"></span><span>No connection</span>'}
-  try{const pats=await sql("SELECT id, resource#>>'{name,0,given,0}' AS given, resource#>>'{name,0,family}' AS family FROM patient ORDER BY id");for(const p of pats)allPatientNames[p.id]=[p.given,p.family].filter(Boolean).join(' ')||p.id.substring(0,12)}catch(e){}
   const sbDays=document.getElementById('sb-days');if(sbDays)sbDays.textContent=daysRemaining()+'d';
   // Build sidebar measures
   const sbm=document.getElementById('sb-measures');
@@ -402,6 +416,7 @@ function renderOverview(){
 // ══════════════════════════════════
 async function renderMeasureDetail(id){
   if(!measureResults[id]||!measureResults[id].rows){document.getElementById('main').innerHTML='<div class="empty"><span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite"></span> Loading patients...</div>';try{const{start,end}=getPeriod();const rows=await sql(buildSQL(id,start,end,null));const stats=measureResults[id]?.stats||calcStats(rows);measureResults[id]={...(measureResults[id]||{}),rows,stats};buildPatientMap()}catch(e){document.getElementById('main').innerHTML=`<div class="empty">Error: ${e.message}</div>`;return}}
+  currentPage=0;
   const{rows,stats}=measureResults[id];const meta=META[id]||{short:id.toUpperCase(),name:MEASURES[id].name};const m=MEASURES[id];const excLabel=m.exc_type==='denominator-exception'?'Exception':'Exclusion';const t=stats.total||1;
   currentFilter='all';currentSearch='';
   let html=`<button class="detail-back" onclick="currentMeasure=null;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));render()">&larr; ${lastTab==='overview'?'Overview':lastTab==='worklist'?'Worklist':'Back'}</button>
@@ -409,21 +424,32 @@ async function renderMeasureDetail(id){
   <div class="kpi-row" style="grid-template-columns:repeat(6,1fr)"><div class="kpi" style="animation-delay:0ms"><div class="kpi-val">${stats.total}</div><div class="kpi-lbl">Evaluated</div></div><div class="kpi" style="animation-delay:30ms"><div class="kpi-val">${stats.ip}</div><div class="kpi-lbl">Initial Pop</div></div><div class="kpi" style="animation-delay:60ms"><div class="kpi-val">${stats.num}</div><div class="kpi-lbl">Numerator</div></div><div class="kpi" style="animation-delay:90ms"><div class="kpi-val">${stats.den}</div><div class="kpi-lbl">Denominator</div></div><div class="kpi" style="animation-delay:120ms"><div class="kpi-val">${stats.excluded}</div><div class="kpi-lbl">${excLabel}</div></div><div class="kpi teal" style="animation-delay:150ms"><div class="kpi-val">${stats.score!==null?stats.score.toFixed(1)+'%':'N/A'}</div><div class="kpi-lbl" title="Numerator / (Denominator − Exclusions) — percentage of eligible patients with gap closed">Score &#9432;</div></div></div>
   <div class="detail-bar"><div style="font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);margin-bottom:.3rem">Population breakdown</div><div class="detail-bar-track"><div class="bseg bseg-closed" style="width:${stats.closed/t*100}%"><span>${stats.closed}</span></div><div class="bseg bseg-open" style="width:${stats.open/t*100}%"><span>${stats.open}</span></div><div class="bseg bseg-excl" style="width:${stats.excluded/t*100}%"><span>${stats.excluded}</span></div><div class="bseg bseg-noip" style="width:${stats.noip/t*100}%"><span>${stats.noip}</span></div></div>
   <div class="detail-bar-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Gap closed (${(stats.closed/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Gap open (${(stats.open/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Excluded (${(stats.excluded/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:#94a3b8"></div>Not in IP (${(stats.noip/t*100).toFixed(1)}%)</div></div></div>
-  <div class="toolbar"><div class="filter-group"><button class="fbtn active" onclick="currentFilter='all';renderDetailRows('${id}',this)">All</button><button class="fbtn" onclick="currentFilter='open';renderDetailRows('${id}',this)">Open</button><button class="fbtn" onclick="currentFilter='closed';renderDetailRows('${id}',this)">Closed</button><button class="fbtn" onclick="currentFilter='excl';renderDetailRows('${id}',this)">Excluded</button></div><input class="search-box" placeholder="Search..." oninput="currentSearch=this.value.toLowerCase();renderDetailRows('${id}')"><span class="tcount" id="tcount">${rows.length}</span></div>
-  <table class="ptable"><thead><tr><th>Patient</th><th>Name</th><th style="text-align:center">IP</th><th style="text-align:center">Num</th><th style="text-align:center">Den</th><th style="text-align:center">${excLabel.substring(0,4)}</th><th>Status</th></tr></thead><tbody id="ptable-body"></tbody></table>`;
+  <div class="toolbar"><div class="filter-group"><button class="fbtn active" onclick="currentFilter='all';currentPage=0;renderDetailRows('${id}',this)">All</button><button class="fbtn" onclick="currentFilter='open';currentPage=0;renderDetailRows('${id}',this)">Open</button><button class="fbtn" onclick="currentFilter='closed';currentPage=0;renderDetailRows('${id}',this)">Closed</button><button class="fbtn" onclick="currentFilter='excl';currentPage=0;renderDetailRows('${id}',this)">Excluded</button></div><input class="search-box" placeholder="Search..." oninput="currentSearch=this.value.toLowerCase();currentPage=0;renderDetailRows('${id}')"><span class="tcount" id="tcount">${rows.length}</span></div>
+  <table class="ptable"><thead><tr><th>Patient</th><th>Name</th><th style="text-align:center">IP</th><th style="text-align:center">Num</th><th style="text-align:center">Den</th><th style="text-align:center">${excLabel.substring(0,4)}</th><th>Status</th></tr></thead><tbody id="ptable-body"></tbody></table>
+  <div id="pager" style="display:flex;gap:.5rem;justify-content:center;align-items:center;margin-top:.8rem;font-size:.7rem;color:var(--fg3)"></div>`;
   document.getElementById('main').innerHTML=html;renderDetailRows(id);
 }
 
-function renderDetailRows(id,btn){
+// Paginated render — filter+sort+search client-side, fetch names only for current page (50 rows).
+// Keeps the full row set in measureResults[id].rows; paginates on top.
+async function renderDetailRows(id,btn){
   if(btn){document.querySelectorAll('.toolbar .fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
   const{rows}=measureResults[id];const body=document.getElementById('ptable-body');if(!body)return;
-  const order={open:0,closed:1,excl:2,noip:3};const sorted=[...rows].sort((a,b)=>(order[gapStatus(a).key]??9)-(order[gapStatus(b).key]??9));
-  let html='',vis=0;
-  for(const r of sorted){const g=gapStatus(r);const name=patientLabel(r.patient_id);
-  const show=(currentFilter==='all'||g.key===currentFilter)&&(!currentSearch||r.patient_id.toLowerCase().includes(currentSearch)||name.toLowerCase().includes(currentSearch));if(show)vis++;
-  const evId='ev-'+r.patient_id.substring(0,10);
-  html+=`<tr class="p-row row-${g.key}" style="${show?'':'display:none'}" onclick="toggleEv('${id}','${r.patient_id}','${evId}',this)"><td class="mono" style="white-space:nowrap">${r.patient_id}</td><td><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${r.patient_id}')">${name}</span></td><td class="num">${r.ip}</td><td class="num">${r.num}</td><td class="num">${r.den}</td><td class="num">${r.exc}</td><td><span class="badge ${g.cls}">${g.label}</span></td></tr><tr class="ev-row" style="display:none"><td colspan="7" style="padding:.35rem .5rem;background:var(--bg);border-bottom:2px solid var(--line)"><div id="${evId}"></div></td></tr>`}
-  body.innerHTML=html;const tc=document.getElementById('tcount');if(tc)tc.textContent=vis+'/'+rows.length;
+  const order={open:0,closed:1,excl:2,noip:3};
+  let filtered=rows.filter(r=>currentFilter==='all'||gapStatus(r).key===currentFilter);
+  if(currentSearch)filtered=filtered.filter(r=>r.patient_id.toLowerCase().includes(currentSearch)||(allPatientNames[r.patient_id]||'').toLowerCase().includes(currentSearch));
+  filtered.sort((a,b)=>(order[gapStatus(a).key]??9)-(order[gapStatus(b).key]??9));
+  const total=filtered.length;const pageCount=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  if(currentPage>=pageCount)currentPage=pageCount-1;if(currentPage<0)currentPage=0;
+  const page=filtered.slice(currentPage*PAGE_SIZE,(currentPage+1)*PAGE_SIZE);
+  await loadNamesForIds(page.map(r=>r.patient_id));
+  let html='';
+  for(const r of page){const g=gapStatus(r);const name=patientLabel(r.patient_id);const evId='ev-'+r.patient_id.substring(0,10);
+  html+=`<tr class="p-row row-${g.key}" onclick="toggleEv('${id}','${r.patient_id}','${evId}',this)"><td class="mono" style="white-space:nowrap">${r.patient_id}</td><td><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${r.patient_id}')">${name}</span></td><td class="num">${r.ip}</td><td class="num">${r.num}</td><td class="num">${r.den}</td><td class="num">${r.exc}</td><td><span class="badge ${g.cls}">${g.label}</span></td></tr><tr class="ev-row" style="display:none"><td colspan="7" style="padding:.35rem .5rem;background:var(--bg);border-bottom:2px solid var(--line)"><div id="${evId}"></div></td></tr>`}
+  body.innerHTML=html;
+  const tc=document.getElementById('tcount');if(tc)tc.textContent=total?`${currentPage*PAGE_SIZE+1}–${Math.min((currentPage+1)*PAGE_SIZE,total)} / ${total.toLocaleString()}`:'0';
+  const pager=document.getElementById('pager');
+  if(pager)pager.innerHTML=pageCount>1?`<button class="fbtn" ${currentPage===0?'disabled':''} onclick="currentPage--;renderDetailRows('${id}')">&lsaquo; Prev</button><span>Page ${currentPage+1} of ${pageCount.toLocaleString()}</span><button class="fbtn" ${currentPage>=pageCount-1?'disabled':''} onclick="currentPage++;renderDetailRows('${id}')">Next &rsaquo;</button>`:'';
 }
 
 function goP360(pid){selectedP360=pid;switchTab('patient360',null)}
