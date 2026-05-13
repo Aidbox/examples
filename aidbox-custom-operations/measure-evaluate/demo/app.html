@@ -269,7 +269,6 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
     <div id="sb-measures"></div>
     <div class="sb-progress" id="sb-progress"></div>
     <div class="sb-foot">
-      <label style="display:flex;align-items:center;gap:.35rem;font-size:.65rem;color:var(--fg3);cursor:pointer;margin-bottom:.2rem"><input type="checkbox" id="chk-all-pts" style="accent-color:var(--teal)"> All Aidbox patients</label>
       <div><label>Period start</label><input type="date" id="period-start" value="2026-01-01"></div>
       <div><label>Period end</label><input type="date" id="period-end" value="2026-12-31"></div>
       <button class="btn-exp" style="width:100%;margin-top:.3rem" onclick="reEvaluate()">Recalculate</button>
@@ -333,7 +332,7 @@ function render(){
 // ── Init ──
 async function init(){
   const stack=new URLSearchParams(location.search).get('stack');const cfgFile=stack?`./config-${stack}.json`:'./config.json';
-  try{const cfg=await(await fetch(cfgFile)).json();AIDBOX_URL=cfg.aidbox_url||AIDBOX_URL;AUTH='Basic '+btoa((cfg.auth_user||'root')+':'+(cfg.auth_pass||'secret'));document.getElementById('dataset-label').textContent=cfg.dataset_label||'';if(cfg.period_start)document.getElementById('period-start').value=cfg.period_start;if(cfg.period_end)document.getElementById('period-end').value=cfg.period_end;if(cfg.all_patients)document.getElementById('chk-all-pts').checked=true}catch(e){}
+  try{const cfg=await(await fetch(cfgFile)).json();AIDBOX_URL=cfg.aidbox_url||AIDBOX_URL;AUTH='Basic '+btoa((cfg.auth_user||'root')+':'+(cfg.auth_pass||'secret'));document.getElementById('dataset-label').textContent=cfg.dataset_label||'';if(cfg.period_start)document.getElementById('period-start').value=cfg.period_start;if(cfg.period_end)document.getElementById('period-end').value=cfg.period_end}catch(e){}
   try{MEASURES=await(await fetch('./measure-sql.json')).json()}catch(e){document.getElementById('main').innerHTML='<div class="empty"><h2>Cannot load measure-sql.json</h2></div>';return}
   const conn=document.getElementById('conn');
   try{const rows=await sql("SELECT COUNT(*) as cnt FROM patient");conn.innerHTML=`<span class="dot dot-ok"></span><span>${rows[0]?.cnt||0} pts</span>`}catch(e){conn.innerHTML='<span class="dot dot-err"></span><span>No connection</span>'}
@@ -352,20 +351,27 @@ async function init(){
   evaluateAll();
 }
 
+function calcStatsFromSummary(row){
+  if(!row)return{total:0,ip:0,den:0,exc:0,num:0,open:0,closed:0,excluded:0,noip:0,score:null};
+  const total=+row.total||0,ip=+row.ip||0,den=+row.den||0,exc=+row.exc||0,num=+row.num||0;
+  return{total,ip,den,exc,num,closed:num,excluded:exc,open:ip-exc-num,noip:total-ip,score:den-exc>0?(num/(den-exc)*100):null};
+}
+
+// Overview = aggregate stats only (one row per measure via summary_sql).
+// Patient-level rows are loaded lazily by renderMeasureDetail/renderWorklist.
 async function evaluateAll(){
   const{start,end}=getPeriod();const ids=Object.keys(MEASURES);let done=0;
   for(const id of ids){
-    try{let rows=await sql(buildSQL(id,start,end,null));const allPts=document.getElementById('chk-all-pts')?.checked;if(!allPts){const known=new Set(MEASURES[id]?.patients||[]);if(known.size>0)rows=rows.filter(r=>known.has(r.patient_id))}const stats=calcStats(rows);measureResults[id]={rows,stats};
+    try{const q=MEASURES[id].summary_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end);const res=await sql(q);const row=res[0]||null;const stats=calcStatsFromSummary(row);measureResults[id]={summary:row,stats,rows:null};
     const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const isInverse=META[id]?.inverse;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(isInverse){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=stats.score.toFixed(0)+'%'}else{const openCnt=stats.open;if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}}}
     catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.title='Click to retry';el.style.cursor='pointer';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}
-    done++;buildPatientMap();updateSummary();
+    done++;updateSummary();
     const prog=document.getElementById('sb-progress');if(prog)prog.innerHTML=done<ids.length?`<span class="spinner"></span>${done}/${ids.length}`:ids.length+' done';
-    if(currentTab==='overview'&&!currentMeasure){const bar=document.getElementById('bar-'+id);const sc=document.getElementById('score-'+id);const card=document.querySelector(`[data-card="${id}"]`);if(bar&&sc){card?.classList.remove('loading');const t=measureResults[id].stats.total||1;const s=measureResults[id].stats;bar.innerHTML=`<div class="seg seg-closed" style="width:${s.closed/t*100}%"></div><div class="seg seg-open" style="width:${s.open/t*100}%"></div><div class="seg seg-excl" style="width:${s.excluded/t*100}%"></div>`;sc.textContent=s.score!==null?s.score.toFixed(1)+'%':'N/A'}}
-    if(currentTab==='worklist'&&!currentMeasure)renderWorklist();
+    if(currentTab==='overview'&&!currentMeasure&&measureResults[id]){const bar=document.getElementById('bar-'+id);const sc=document.getElementById('score-'+id);const card=document.querySelector(`[data-card="${id}"]`);if(bar&&sc){card?.classList.remove('loading');const t=measureResults[id].stats.total||1;const s=measureResults[id].stats;bar.innerHTML=`<div class="seg seg-closed" style="width:${s.closed/t*100}%"></div><div class="seg seg-open" style="width:${s.open/t*100}%"></div><div class="seg seg-excl" style="width:${s.excluded/t*100}%"></div>`;sc.textContent=s.score!==null?s.score.toFixed(1)+'%':'N/A'}}
   }
 }
 
-async function retryMeasure(id){const{start,end}=getPeriod();try{let rows=await sql(buildSQL(id,start,end,null));const allPts=document.getElementById('chk-all-pts')?.checked;if(!allPts){const known=new Set(MEASURES[id]?.patients||[]);if(known.size>0)rows=rows.filter(r=>known.has(r.patient_id))}const stats=calcStats(rows);measureResults[id]={rows,stats};const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const openCnt=stats.open;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}buildPatientMap();updateSummary();render()}catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}}
+async function retryMeasure(id){const{start,end}=getPeriod();try{const q=MEASURES[id].summary_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end);const res=await sql(q);const row=res[0]||null;const stats=calcStatsFromSummary(row);measureResults[id]={summary:row,stats,rows:null};const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const openCnt=stats.open;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}updateSummary();render()}catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}}
 
 function reEvaluate(){measureResults={};patientMap={};document.querySelectorAll('.si-badge').forEach(el=>{el.className='si-badge loading';el.textContent='...';el.style.background='';el.style.color=''});render();evaluateAll()}
 
@@ -380,7 +386,7 @@ function renderOverview(){
   // Keep stable order matching sidebar (order from measure-sql.json)
   let html=`<div class="overview-head"><h1>Quality Measures</h1><p>${entries.length} measures &middot; ${getPeriod().start} &ndash; ${getPeriod().end}</p><div class="overview-progress" id="overview-progress"></div></div><div class="measure-grid">`;
   let i=0;for(const[id,m]of entries){const meta=META[id]||{short:id.toUpperCase(),name:m.name};const res=measureResults[id];
-  html+=`<div class="measure-card${res?'':' loading'}" data-card="${id}" onclick="currentMeasure='${id}';document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));document.querySelector('.sb-item[data-id=\\'${id}\\']')?.classList.add('active');renderMeasureDetail('${id}')" style="animation-delay:${i*35}ms"><div class="mc-id">${meta.short}</div><div class="mc-name">${meta.name}</div><div class="mc-bar" id="bar-${id}"></div><div class="mc-foot"><span class="mc-pts">${m.patients?.length||'?'} pts</span><span class="mc-score" id="score-${id}">${res?(res.stats.score!==null?res.stats.score.toFixed(1)+'%':'N/A'):'...'}</span></div></div>`;i++}
+  html+=`<div class="measure-card${res?'':' loading'}" data-card="${id}" onclick="currentMeasure='${id}';document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));document.querySelector('.sb-item[data-id=\\'${id}\\']')?.classList.add('active');renderMeasureDetail('${id}')" style="animation-delay:${i*35}ms"><div class="mc-id">${meta.short}</div><div class="mc-name">${meta.name}</div><div class="mc-bar" id="bar-${id}"></div><div class="mc-foot"><span class="mc-pts">${res?.stats?.ip!=null?res.stats.ip.toLocaleString()+' in IP':'...'}</span><span class="mc-score" id="score-${id}">${res?(res.stats.score!==null?res.stats.score.toFixed(1)+'%':'N/A'):'...'}</span></div></div>`;i++}
   html+='</div>';document.getElementById('main').innerHTML=html;
   for(const[id,res]of Object.entries(measureResults)){const bar=document.getElementById('bar-'+id);const sc=document.getElementById('score-'+id);if(bar&&sc){const t=res.stats.total||1;bar.innerHTML=`<div class="seg seg-closed" style="width:${res.stats.closed/t*100}%"></div><div class="seg seg-open" style="width:${res.stats.open/t*100}%"></div><div class="seg seg-excl" style="width:${res.stats.excluded/t*100}%"></div>`;sc.textContent=res.stats.score!==null?res.stats.score.toFixed(1)+'%':'N/A'}}
 }
@@ -389,7 +395,7 @@ function renderOverview(){
 //  MEASURE DETAIL
 // ══════════════════════════════════
 async function renderMeasureDetail(id){
-  if(!measureResults[id]){document.getElementById('main').innerHTML='<div class="empty"><span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite"></span> Evaluating...</div>';try{const{start,end}=getPeriod();let rows=await sql(buildSQL(id,start,end,null));const allPts=document.getElementById('chk-all-pts')?.checked;if(!allPts){const known=new Set(MEASURES[id]?.patients||[]);if(known.size>0)rows=rows.filter(r=>known.has(r.patient_id))}measureResults[id]={rows,stats:calcStats(rows)}}catch(e){document.getElementById('main').innerHTML=`<div class="empty">Error: ${e.message}</div>`;return}}
+  if(!measureResults[id]||!measureResults[id].rows){document.getElementById('main').innerHTML='<div class="empty"><span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite"></span> Loading patients...</div>';try{const{start,end}=getPeriod();const rows=await sql(buildSQL(id,start,end,null));const stats=measureResults[id]?.stats||calcStats(rows);measureResults[id]={...(measureResults[id]||{}),rows,stats};buildPatientMap()}catch(e){document.getElementById('main').innerHTML=`<div class="empty">Error: ${e.message}</div>`;return}}
   const{rows,stats}=measureResults[id];const meta=META[id]||{short:id.toUpperCase(),name:MEASURES[id].name};const m=MEASURES[id];const excLabel=m.exc_type==='denominator-exception'?'Exception':'Exclusion';const t=stats.total||1;
   currentFilter='all';currentSearch='';
   let html=`<button class="detail-back" onclick="currentMeasure=null;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));render()">&larr; ${lastTab==='overview'?'Overview':lastTab==='worklist'?'Worklist':'Back'}</button>
