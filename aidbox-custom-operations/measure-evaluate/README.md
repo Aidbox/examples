@@ -74,7 +74,43 @@ Then open the demo in your browser:
 
 → [http://localhost:3000/demo/app.html](http://localhost:3000/demo/app.html)
 
-The demo shows all 12 measures with patient-level care gaps, decision chains, and measure scores.
+The demo has four tabs:
+
+| Tab | What it shows |
+|---|---|
+| **Overview** | Measure cards with population breakdown and score |
+| **Worklist** | Patients ranked by number of open gaps across all measures |
+| **Patient 360** | Per-patient cross-measure status with evidence drill-down |
+| **Cohort Actions** | Per-measure outreach lists with CSV export |
+
+The demo is built for cohorts of tens of thousands of patients. Cross-measure aggregation runs on the server (`JSON_AGG` of open patient ids inside `summary_sql`), every patient-level tab is paginated 50 rows per page, and patient names are fetched lazily for the visible rows only.
+
+## Demo Configuration
+
+`demo/app.html` reads `demo/config.json` by default. Recognized keys:
+
+| Key | Description |
+|---|---|
+| `aidbox_url` | Aidbox base URL (e.g., `http://localhost:8888`) |
+| `auth_user`, `auth_pass` | Basic auth credentials |
+| `dataset_label` | Label shown in the topbar |
+| `period_start`, `period_end` | Measurement period defaults |
+| `measures` | Optional whitelist of measure IDs to display (e.g., `["cms130", "cms131"]`). If omitted, all measures from `measure-sql.json` are shown. |
+
+### Connecting to an existing Aidbox
+
+For clients who already run Aidbox and want to install only the Flask app + measure resources, use a stack-specific config:
+
+```bash
+cp demo/config-external.example.json demo/config-external.json
+# Edit demo/config-external.json with your Aidbox URL, credentials and active measures
+```
+
+Then open the demo with the `stack` URL parameter:
+
+→ http://localhost:3000/demo/app.html?stack=external
+
+The `?stack=NAME` parameter loads `demo/config-NAME.json` instead of the default `demo/config.json`, so multiple environments can coexist side-by-side.
 
 ## Included Measures
 
@@ -92,6 +128,8 @@ The demo shows all 12 measures with patient-level care gaps, decision chains, an
 | CMS153 | Chlamydia Screening | 32 |
 | CMS155 | Weight Assessment / Counseling | 34 |
 | CMS143 | POAG Optic Nerve Evaluation | 32 |
+
+`demo/config.json` ships with nine of these enabled by default; edit the `measures` array to add or remove any.
 
 ## How It Works
 
