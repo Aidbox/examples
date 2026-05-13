@@ -3,7 +3,7 @@
 -- Translates CQL logic from CMS1154ScreeningPrediabetesFHIR v1.0.000
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql
--- IMPORTANT: Uses timestamptz for MP boundaries to handle Aidbox date storage
+-- Uses timestamptz for MP boundaries (Aidbox stores dates as text)
 
 WITH mp AS (
     SELECT

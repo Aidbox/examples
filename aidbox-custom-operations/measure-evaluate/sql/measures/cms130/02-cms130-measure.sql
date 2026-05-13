@@ -2,10 +2,8 @@
 -- Measurement Period: 2026-01-01 to 2026-12-31
 -- Translates CQL logic from CMS130FHIRColorectalCancerScrn v1.0.000
 --
--- Result: 64/64 test cases match expected MeasureReports (100%)
---
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, cms130/sql/00-terminology-data.sql
--- IMPORTANT: Uses timestamptz for MP boundaries to handle Aidbox date storage
+-- Uses timestamptz for MP boundaries (Aidbox stores dates as text)
 --
 -- Subject push-down markers:
 --   `-- $SUBJ$ e.patient_id` placeholders are no-op in population mode.

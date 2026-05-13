@@ -3,7 +3,7 @@
 -- Translates CQL logic from CMS124FHIRCervicalCancerScreen v1.0.000
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, cms124 terminology data
--- IMPORTANT: Uses timestamptz for MP boundaries to handle Aidbox date storage
+-- Uses timestamptz for MP boundaries (Aidbox stores dates as text)
 
 WITH mp AS (
     SELECT

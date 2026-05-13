@@ -205,7 +205,7 @@ numerator AS (
 
 -- ============================================================
 -- 5. MEASURE REPORT
--- NOTE: This measure uses denominator EXCEPTION (not exclusion).
+-- This measure uses denominator EXCEPTION (not exclusion).
 -- Exception applies ONLY if patient is NOT in numerator.
 -- If patient is in both exception AND numerator, they stay in denominator as a success.
 -- ============================================================

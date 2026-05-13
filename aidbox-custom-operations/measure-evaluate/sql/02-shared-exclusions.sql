@@ -1,13 +1,8 @@
 -- Shared Exclusion Functions
 -- Reusable SQL functions for exclusion blocks shared across multiple measures.
--- Eliminates ~100 lines of copy-paste per measure.
 --
--- Each function accepts an optional p_subject parameter (DEFAULT NULL).
---   p_subject IS NULL  → population mode (scan whole cohort, used by population reports)
---   p_subject = '<id>' → subject mode (filter early via ix_*_subject indexes; ~100× faster)
---
--- Existing 2-arg callers (shared_hospice(mp.mp_start, mp.mp_end)) continue to work — the
--- subject parameter defaults to NULL and the filter condition becomes a no-op.
+-- Each function accepts an optional p_subject (DEFAULT NULL):
+-- when set, the filter is pushed early via ix_*_subject indexes.
 --
 -- Usage in measure SQL (LATERAL pattern):
 --   hospice AS (SELECT h.* FROM mp, LATERAL shared_hospice(mp.mp_start, mp.mp_end) h),
