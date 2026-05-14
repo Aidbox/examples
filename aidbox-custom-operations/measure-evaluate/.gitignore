@@ -9,3 +9,7 @@ __pycache__/
 # (e.g. config-myaidbox.json) are gitignored.
 demo/config-*.json
 !demo/config-external.example.json
+
+# tools/measure_perf.py local snapshots
+tools/perf-*.json
+tools/baseline-sof-*.json
