@@ -295,22 +295,26 @@ const META={
 };
 const ACTIONS={cms130:{action:'Order colonoscopy or FIT/FOBT',category:'Screening'},cms125:{action:'Schedule mammography',category:'Screening'},cms131:{action:'Schedule dilated eye exam',category:'Referral'},cms165:{action:'Schedule BP follow-up visit',category:'Visit'},cms124:{action:'Order cervical cancer screening',category:'Screening'},cms139:{action:'Perform fall risk assessment',category:'Assessment'},cms75:{action:'Schedule pediatric dental exam',category:'Referral'},cms1154:{action:'Order diabetes screening lab',category:'Lab'},cms149:{action:'Perform cognitive assessment',category:'Assessment'},cms153:{action:'Order chlamydia screening',category:'Lab'},cms155:{action:'Schedule weight/BMI assessment + counseling',category:'Visit'},cms143:{action:'Schedule optic nerve evaluation',category:'Referral'}};
 
-let MEASURES={},measureResults={},allPatientNames={},patientMap={};
+let MEASURES={},measureResults={},allPatientNames={},allPatientBirthDates={},patientMap={};
 let currentTab='overview',currentMeasure=null,currentFilter='all',currentSearch='';
 let wlFilter='all',wlSearch='',selectedP360=null,selectedCohort=null,lastTab='overview';
 let currentPage=0,wlPage=0,cohortPage=0,p360Page=0,p360Search='';const PAGE_SIZE=50;
 
 async function sql(q){const r=await fetch(`${AIDBOX_URL}/$sql`,{method:'POST',headers:{'Authorization':AUTH,'Content-Type':'application/json'},body:JSON.stringify([q])});if(!r.ok)throw new Error(`SQL ${r.status}`);const t=await r.text();return t.trim()?JSON.parse(t):[]}
-// Lazy patient-name lookup: fetches names only for ids we haven't seen yet.
-// Batched IN(...) queries (500 per chunk) — avoids loading 100K names upfront.
+// Lazy patient demographics lookup: fetches name + birth_date only for ids we haven't seen yet.
+// Batched IN(...) queries (500 per chunk) — avoids loading 100K rows upfront.
 async function loadNamesForIds(ids){
   const missing=[...new Set(ids)].filter(id=>!(id in allPatientNames));
   if(!missing.length)return;
   for(let i=0;i<missing.length;i+=500){
     const chunk=missing.slice(i,i+500);
     const inList=chunk.map(id=>`'${id.replace(/'/g,"''")}'`).join(',');
-    try{const rows=await sql(`SELECT id, resource#>>'{name,0,given,0}' AS given, resource#>>'{name,0,family}' AS family FROM patient WHERE id IN (${inList})`);
-      for(const p of rows)allPatientNames[p.id]=[p.given,p.family].filter(Boolean).join(' ')||'';}catch(e){}
+    try{const rows=await sql(`SELECT id, resource#>>'{name,0,given,0}' AS given, resource#>>'{name,0,family}' AS family, resource->>'birthDate' AS birth_date FROM patient WHERE id IN (${inList})`);
+      for(const p of rows){
+        allPatientNames[p.id]=[p.given,p.family].filter(Boolean).join(' ')||'';
+        if(p.birth_date)allPatientBirthDates[p.id]=p.birth_date;
+      }
+    }catch(e){}
     // Mark ids without a name as empty string so we don't refetch
     for(const id of chunk)if(!(id in allPatientNames))allPatientNames[id]='';
   }
@@ -325,6 +329,14 @@ function getGapPatients(){const list=[];for(const[pid,measures]of Object.entries
 function download(c,f,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=f;a.click();URL.revokeObjectURL(a.href)}
 let _patientCounter=0;const _patientNumbers={};
 function patientLabel(pid){const name=allPatientNames[pid];if(name&&!name.match(/^[0-9a-f-]{8,}$/i))return name;if(!_patientNumbers[pid])_patientNumbers[pid]=++_patientCounter;return'Patient #'+_patientNumbers[pid]}
+// Age computed as of the measurement period start (the convention used by CQL/eCQM eligibility).
+function patientAge(pid){
+  const bd=allPatientBirthDates[pid];if(!bd)return '—';
+  const[by,bmo,bda]=bd.split('-').map(Number);
+  const[ay,amo,ada]=getPeriod().start.split('-').map(Number);
+  let age=ay-by;if(amo<bmo||(amo===bmo&&ada<bda))age--;
+  return age+'y';
+}
 
 // ── Tab switching ──
 function switchTab(tab,el){
@@ -449,7 +461,7 @@ async function renderMeasureDetail(id){
   <div class="detail-bar"><div style="font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);margin-bottom:.3rem">Population breakdown</div><div class="detail-bar-track"><div class="bseg bseg-closed" style="width:${stats.closed/t*100}%"><span>${stats.closed}</span></div><div class="bseg bseg-open" style="width:${stats.open/t*100}%"><span>${stats.open}</span></div><div class="bseg bseg-excl" style="width:${stats.excluded/t*100}%"><span>${stats.excluded}</span></div><div class="bseg bseg-noip" style="width:${stats.noip/t*100}%"><span>${stats.noip}</span></div></div>
   <div class="detail-bar-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Gap closed (${(stats.closed/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Gap open (${(stats.open/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Excluded (${(stats.excluded/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:#94a3b8"></div>Not in IP (${(stats.noip/t*100).toFixed(1)}%)</div></div></div>
   <div class="toolbar"><div class="filter-group"><button class="fbtn active" onclick="currentFilter='all';currentPage=0;renderDetailRows('${id}',this)">All</button><button class="fbtn" onclick="currentFilter='open';currentPage=0;renderDetailRows('${id}',this)">Open</button><button class="fbtn" onclick="currentFilter='closed';currentPage=0;renderDetailRows('${id}',this)">Closed</button><button class="fbtn" onclick="currentFilter='excl';currentPage=0;renderDetailRows('${id}',this)">Excluded</button></div><input class="search-box" placeholder="Search..." oninput="currentSearch=this.value.toLowerCase();currentPage=0;renderDetailRows('${id}')"><span class="tcount" id="tcount">${rows.length}</span></div>
-  <table class="ptable"><thead><tr><th>Patient</th><th>Name</th><th style="text-align:center">IP</th><th style="text-align:center">Num</th><th style="text-align:center">Den</th><th style="text-align:center">${excLabel.substring(0,4)}</th><th>Status</th></tr></thead><tbody id="ptable-body"></tbody></table>
+  <table class="ptable"><thead><tr><th>Patient</th><th>Name</th><th>Age</th><th style="text-align:center">IP</th><th style="text-align:center">Num</th><th style="text-align:center">Den</th><th style="text-align:center">${excLabel.substring(0,4)}</th><th>Status</th></tr></thead><tbody id="ptable-body"></tbody></table>
   <div id="pager" style="display:flex;gap:.5rem;justify-content:center;align-items:center;margin-top:.8rem;font-size:.7rem;color:var(--fg3)"></div>`;
   document.getElementById('main').innerHTML=html;renderDetailRows(id);
 }
@@ -469,7 +481,7 @@ async function renderDetailRows(id,btn){
   await loadNamesForIds(page.map(r=>r.patient_id));
   let html='';
   for(const r of page){const g=gapStatus(r);const name=patientLabel(r.patient_id);const evId='ev-'+r.patient_id.substring(0,10);
-  html+=`<tr class="p-row row-${g.key}" onclick="toggleEv('${id}','${r.patient_id}','${evId}',this)"><td class="mono" style="white-space:nowrap">${r.patient_id}</td><td><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${r.patient_id}')">${name}</span></td><td class="num">${r.ip}</td><td class="num">${r.num}</td><td class="num">${r.den}</td><td class="num">${r.exc}</td><td><span class="badge ${g.cls}">${g.label}</span></td></tr><tr class="ev-row" style="display:none"><td colspan="7" style="padding:.35rem .5rem;background:var(--bg);border-bottom:2px solid var(--line)"><div id="${evId}"></div></td></tr>`}
+  html+=`<tr class="p-row row-${g.key}" onclick="toggleEv('${id}','${r.patient_id}','${evId}',this)"><td class="mono" style="white-space:nowrap">${r.patient_id}</td><td><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${r.patient_id}')">${name}</span></td><td>${patientAge(r.patient_id)}</td><td class="num">${r.ip}</td><td class="num">${r.num}</td><td class="num">${r.den}</td><td class="num">${r.exc}</td><td><span class="badge ${g.cls}">${g.label}</span></td></tr><tr class="ev-row" style="display:none"><td colspan="8" style="padding:.35rem .5rem;background:var(--bg);border-bottom:2px solid var(--line)"><div id="${evId}"></div></td></tr>`}
   body.innerHTML=html;
   const tc=document.getElementById('tcount');if(tc)tc.textContent=total?`${currentPage*PAGE_SIZE+1}–${Math.min((currentPage+1)*PAGE_SIZE,total)} / ${total.toLocaleString()}`:'0';
   const pager=document.getElementById('pager');
@@ -508,7 +520,7 @@ async function renderWorklist(){
   const totalOpen=entries.reduce((s,e)=>s+e.n,0);
   document.getElementById('main').innerHTML=`<div class="kpi-row"><div class="kpi rose" style="animation-delay:0ms"><div class="kpi-val">${entries.length.toLocaleString()}</div><div class="kpi-lbl">Patients with gaps</div></div><div class="kpi rose" style="animation-delay:40ms"><div class="kpi-val">${totalOpen.toLocaleString()}</div><div class="kpi-lbl">Total open gaps</div></div><div class="kpi" style="animation-delay:80ms"><div class="kpi-val">${(totalOpen/entries.length).toFixed(1)}</div><div class="kpi-lbl">Avg gaps / patient</div></div></div>
   <div class="toolbar"><div class="filter-group"><button class="fbtn ${wlFilter==='all'?'active':''}" onclick="wlFilter='all';wlPage=0;renderWorklist()">All</button><button class="fbtn ${wlFilter==='high'?'active':''}" onclick="wlFilter='high';wlPage=0;renderWorklist()">High (3+)</button><button class="fbtn ${wlFilter==='med'?'active':''}" onclick="wlFilter='med';wlPage=0;renderWorklist()">Medium (2)</button><button class="fbtn ${wlFilter==='low'?'active':''}" onclick="wlFilter='low';wlPage=0;renderWorklist()">Low (1)</button></div><input class="search-box" placeholder="Search patient..." value="${wlSearch}" oninput="wlSearch=this.value.toLowerCase();wlPage=0;renderWorklist()"><span class="tcount" id="wl-count"></span></div>
-  <table class="ptable"><thead><tr><th>Patient</th><th>Gaps</th><th>Top Action</th></tr></thead><tbody id="wl-body"></tbody></table>
+  <table class="ptable"><thead><tr><th>Patient</th><th>Age</th><th>Gaps</th><th>Top Action</th></tr></thead><tbody id="wl-body"></tbody></table>
   <div id="wl-pager" style="display:flex;gap:.5rem;justify-content:center;align-items:center;margin-top:.8rem;font-size:.7rem;color:var(--fg3)"></div>`;
   // Apply filter
   let filtered=entries;
@@ -523,7 +535,7 @@ async function renderWorklist(){
   const body=document.getElementById('wl-body');if(!body)return;
   let html='';
   for(const e of page){const topMid=e.mids[0];const act=ACTIONS[topMid]||{action:'—',category:'—'};const meta=META[topMid]||{short:topMid};
-  html+=`<tr class="wl-row" onclick="toggleWlExpand('${e.pid}','${e.mids.join(',')}',this)"><td><div class="wl-name"><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${e.pid}')">${patientLabel(e.pid)}</span></div><div class="wl-id" style="white-space:nowrap;font-family:var(--mono);font-size:0.65rem">${e.pid}</div></td><td><span class="wl-gaps-badge">${e.n} open</span></td><td class="wl-action"><span class="act-measure">${meta.short}</span> <span class="cat-badge cat-${act.category}">${act.category}</span><br>${act.action}</td></tr><tr class="wl-expand" style="display:none"><td colspan="3"><div class="mini360" id="wl-mini-${e.pid.substring(0,10)}"></div></td></tr>`}
+  html+=`<tr class="wl-row" onclick="toggleWlExpand('${e.pid}','${e.mids.join(',')}',this)"><td><div class="wl-name"><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${e.pid}')">${patientLabel(e.pid)}</span></div><div class="wl-id" style="white-space:nowrap;font-family:var(--mono);font-size:0.65rem">${e.pid}</div></td><td>${patientAge(e.pid)}</td><td><span class="wl-gaps-badge">${e.n} open</span></td><td class="wl-action"><span class="act-measure">${meta.short}</span> <span class="cat-badge cat-${act.category}">${act.category}</span><br>${act.action}</td></tr><tr class="wl-expand" style="display:none"><td colspan="4"><div class="mini360" id="wl-mini-${e.pid.substring(0,10)}"></div></td></tr>`}
   body.innerHTML=html;
   const wlc=document.getElementById('wl-count');if(wlc)wlc.textContent=total?`${wlPage*PAGE_SIZE+1}–${Math.min((wlPage+1)*PAGE_SIZE,total)} / ${total.toLocaleString()}`:'0';
   const pager=document.getElementById('wl-pager');
@@ -555,7 +567,7 @@ async function renderP360List(){
   if(!all.length)return renderPendingTab('Patient 360','Open any measure from the sidebar to populate the patient list.');
   const entries=all.map(pid=>{const m=patientMap[pid]||[];return{pid,open:m.filter(x=>x.status==='open').length,closed:m.filter(x=>x.status==='closed').length,total:m.length}}).sort((a,b)=>b.open-a.open);
   document.getElementById('main').innerHTML=`<div class="toolbar"><input class="search-box" placeholder="Search patient..." value="${p360Search}" oninput="p360Search=this.value.toLowerCase();p360Page=0;renderP360List()" style="max-width:300px"><span class="tcount" id="p360-count"></span></div>
-  <table class="ptable"><thead><tr><th>Patient</th><th>Open</th><th>Closed</th><th>Total</th><th></th></tr></thead><tbody id="p360-body"></tbody></table>
+  <table class="ptable"><thead><tr><th>Patient</th><th>Age</th><th>Open</th><th>Closed</th><th>Total</th><th></th></tr></thead><tbody id="p360-body"></tbody></table>
   <div id="p360-pager" style="display:flex;gap:.5rem;justify-content:center;align-items:center;margin-top:.8rem;font-size:.7rem;color:var(--fg3)"></div>`;
   let filtered=entries;
   if(p360Search)filtered=filtered.filter(e=>e.pid.toLowerCase().includes(p360Search)||(allPatientNames[e.pid]||'').toLowerCase().includes(p360Search));
@@ -566,7 +578,7 @@ async function renderP360List(){
   const body=document.getElementById('p360-body');if(!body)return;
   let html='';
   for(const e of page){const name=patientLabel(e.pid);
-  html+=`<tr class="p-row p360-row" data-pid="${e.pid}" onclick="selectedP360='${e.pid}';renderP360Detail('${e.pid}')"><td><div class="wl-name">${name}</div><div class="wl-id">${e.pid}</div></td><td>${e.open>0?'<span class="badge gap-open">'+e.open+'</span>':'<span style="color:var(--fg3)">0</span>'}</td><td><span class="badge gap-closed">${e.closed}</span></td><td style="font-family:var(--mono);font-size:.65rem">${e.total}</td><td style="color:var(--teal);font-size:.65rem">View &rarr;</td></tr>`}
+  html+=`<tr class="p-row p360-row" data-pid="${e.pid}" onclick="selectedP360='${e.pid}';renderP360Detail('${e.pid}')"><td><div class="wl-name">${name}</div><div class="wl-id">${e.pid}</div></td><td>${patientAge(e.pid)}</td><td>${e.open>0?'<span class="badge gap-open">'+e.open+'</span>':'<span style="color:var(--fg3)">0</span>'}</td><td><span class="badge gap-closed">${e.closed}</span></td><td style="font-family:var(--mono);font-size:.65rem">${e.total}</td><td style="color:var(--teal);font-size:.65rem">View &rarr;</td></tr>`}
   body.innerHTML=html;
   const cnt=document.getElementById('p360-count');if(cnt)cnt.textContent=total?`${p360Page*PAGE_SIZE+1}–${Math.min((p360Page+1)*PAGE_SIZE,total)} / ${total.toLocaleString()}`:'0';
   const pager=document.getElementById('p360-pager');
@@ -591,7 +603,7 @@ async function renderP360Detail(pid){
   const name=patientLabel(pid);const open=measures.filter(m=>m.status==='open');const closed=measures.filter(m=>m.status==='closed');
   const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
   const order={open:0,closed:1,excl:2,noip:3,error:9};const sorted=[...measures].sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
-  let html=`<button class="p360-back" onclick="selectedP360=null;renderP360List()">&larr; All Patients</button><div class="p360-header"><div class="p360-avatar">${initials}</div><div class="p360-info"><h2>${name}</h2><div class="p360-meta">${pid}</div><div class="p360-summary">${open.length>0?`<span class="p360-chip open">${open.length} open</span>`:''}<span class="p360-chip closed">${closed.length} closed</span><span class="p360-chip total">${measures.length} measures</span></div></div></div><div class="p360-list">`;
+  let html=`<button class="p360-back" onclick="selectedP360=null;renderP360List()">&larr; All Patients</button><div class="p360-header"><div class="p360-avatar">${initials}</div><div class="p360-info"><h2>${name}</h2><div class="p360-meta">${pid}</div><div class="p360-summary"><span class="p360-chip total">Age ${patientAge(pid)}</span>${open.length>0?`<span class="p360-chip open">${open.length} open</span>`:''}<span class="p360-chip closed">${closed.length} closed</span><span class="p360-chip total">${measures.length} measures</span></div></div></div><div class="p360-list">`;
   for(let i=0;i<sorted.length;i++){const m=sorted[i];const meta=META[m.mid]||{short:m.mid,name:m.mid};const act=ACTIONS[m.mid]||{action:'',category:''};const evId='p360-ev-'+m.mid;
   html+=`<div class="p360-card card-${m.status}" style="animation-delay:${i*35}ms"><div class="p360-card-head"><div class="p360-card-title">${meta.short} &mdash; ${meta.name}</div><span class="badge ${m.cls}">${m.label}</span></div>${m.status==='open'?`<div class="p360-action-box"><div class="act-label"><span class="cat-badge cat-${act.category}">${act.category}</span> Recommended Action</div><div class="act-text">${act.action}</div></div>`:''}<button class="p360-ev-toggle" onclick="event.stopPropagation();toggleP360Ev('${m.mid}','${pid}','${evId}',this)">&#x25B8; Evidence</button><div id="${evId}"></div></div>`}
   html+='</div>';document.getElementById('main').innerHTML=html;
