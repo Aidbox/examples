@@ -2,13 +2,8 @@
 --
 -- $materialize drops and recreates the tables — indexes are lost.
 -- Re-run this script after every $materialize call.
---
--- Perf benchmark (100k patients, POC :7888, 12 measures cohort SQL, warm cache):
---   without new indexes:  11.98s total
---   with new indexes:     9.91s total  (1.21x speedup)
---   biggest win: CMS1154 1.88s → 0.54s (3.5x) from sof.patient_flat (id) alone
 
--- patient_id lookups (one per measure cohort)
+-- patient_id / id lookups
 CREATE INDEX IF NOT EXISTS idx_sof_patient_id ON sof.patient_flat(id);
 CREATE INDEX IF NOT EXISTS idx_sof_encounter_patient ON sof.encounter_flat(patient_id);
 CREATE INDEX IF NOT EXISTS idx_sof_condition_patient ON sof.condition_flat(patient_id);
@@ -25,12 +20,12 @@ CREATE INDEX IF NOT EXISTS idx_sof_condition_code ON sof.condition_flat(code_sys
 CREATE INDEX IF NOT EXISTS idx_sof_procedure_code ON sof.procedure_flat(code_system, code);
 CREATE INDEX IF NOT EXISTS idx_sof_observation_code ON sof.observation_flat(code_system, code);
 CREATE INDEX IF NOT EXISTS idx_sof_observation_value ON sof.observation_flat(value_system, value_code);
-CREATE INDEX IF NOT EXISTS idx_sof_servicerequest_code ON sof.servicerequest_flat(code_system, code);
-CREATE INDEX IF NOT EXISTS idx_sof_medicationrequest_med ON sof.medicationrequest_flat(med_system, med_code);
-CREATE INDEX IF NOT EXISTS idx_sof_devicerequest_code ON sof.devicerequest_flat(code_system, code);
 
--- Composite covering (patient+code in one access path — encounter & condition are hottest)
-CREATE INDEX IF NOT EXISTS idx_sof_encounter_patient_type ON sof.encounter_flat(patient_id, type_system, type_code);
+-- Composite covering — verified via EXPLAIN ANALYZE that the planner picks
+-- this for cms130/cms131/cms143/cms149/cms155 condition lookups (Bitmap Heap
+-- Scan over patient_id + code_system + code). Encounter equivalent was tried
+-- and dropped: planner never selected it and its presence caused a Hash→Merge
+-- join flip in cms153 that regressed that measure.
 CREATE INDEX IF NOT EXISTS idx_sof_condition_patient_code ON sof.condition_flat(patient_id, code_system, code);
 
 -- ANALYZE so planner has fresh row estimates immediately after $materialize.
