@@ -7,14 +7,9 @@
 --   2. ANALYZE to update planner statistics
 --
 -- Note on date-range indexes:
---   We do NOT index timestamp-cast expressions like ((resource->'period'->>'start')::timestamptz),
---   because Postgres rejects them ("functions in index expression must be marked IMMUTABLE":
---   text->timestamp casts depend on the DateStyle GUC, hence STABLE not IMMUTABLE).
---   In practice this does not matter for single-patient or small-cohort evaluation:
---   once the subject indexes below limit the row set to one patient, an in-memory
---   filter on dates is cheap. Date-range scans on the full table remain unindexed —
---   for population-level evaluation at very large scale, plan a follow-up pass with
---   to_timestamp(text, 'YYYY-MM-DD"T"HH24:MI:SS') or a maintained timestamp column.
+--   text->timestamp casts are STABLE, not IMMUTABLE — Postgres refuses to
+--   index expressions like ((resource->'period'->>'start')::timestamptz).
+--   Subject indexes below filter to one patient first; date filtering is then in-memory.
 
 -- ============================================================
 -- 1. Indexes on FHIR resource tables

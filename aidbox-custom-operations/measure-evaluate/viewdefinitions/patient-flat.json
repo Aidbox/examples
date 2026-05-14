@@ -1,0 +1,48 @@
+{
+  "name": "patient_flat",
+  "select": [
+    {
+      "column": [
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "birth_date",
+          "path": "birthDate"
+        },
+        {
+          "name": "gender",
+          "path": "gender"
+        },
+        {
+          "name": "family_name",
+          "path": "name.first().family"
+        },
+        {
+          "name": "given_name",
+          "path": "name.first().given.first()"
+        },
+        {
+          "name": "sex",
+          "description": "us-core-sex extension valueCode (e.g. SNOMED 248152002 Female, 248153007 Male)",
+          "path": "extension('http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex').value.ofType(code).first()"
+        },
+        {
+          "name": "race_code",
+          "description": "us-core-race ombCategory valueCoding.code (e.g. 2028-9 Asian, 2054-5 Black, 2106-3 White)",
+          "path": "extension('http://hl7.org/fhir/us/core/StructureDefinition/us-core-race').extension('ombCategory').value.ofType(Coding).code.first()"
+        },
+        {
+          "name": "ethnicity_code",
+          "description": "us-core-ethnicity ombCategory valueCoding.code (e.g. 2135-2 Hispanic, 2186-5 Not Hispanic)",
+          "path": "extension('http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity').extension('ombCategory').value.ofType(Coding).code.first()"
+        }
+      ]
+    }
+  ],
+  "status": "active",
+  "resource": "Patient",
+  "id": "patient-flat",
+  "resourceType": "ViewDefinition"
+}

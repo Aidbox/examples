@@ -81,11 +81,10 @@ right_mastectomy_dx AS (
     -- Unilateral unspecified with bodySite = Right (24028007)
     SELECT DISTINCT c.patient_id FROM condition_flat c
     JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1071'  -- UnilateralMastectomy,UnspecifiedLaterality
-    JOIN condition r ON r.id = c.id
     CROSS JOIN mp
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
-        AND r.resource->'bodySite'->0->'coding'->0->>'code' = '24028007'
+        AND c.body_site_code = '24028007'
         -- $SUBJ$ c.patient_id
 ),
 right_mastectomy_proc AS (
@@ -110,11 +109,10 @@ left_mastectomy_dx AS (
     -- Unilateral unspecified with bodySite = Left (7771000)
     SELECT DISTINCT c.patient_id FROM condition_flat c
     JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1071'  -- UnilateralMastectomy,UnspecifiedLaterality
-    JOIN condition r ON r.id = c.id
     CROSS JOIN mp
     WHERE (c.verification_status IS NULL OR c.verification_status IN ('confirmed','unconfirmed','provisional','differential'))
         AND c.onset_date <= mp.mp_end
-        AND r.resource->'bodySite'->0->'coding'->0->>'code' = '7771000'
+        AND c.body_site_code = '7771000'
         -- $SUBJ$ c.patient_id
 ),
 left_mastectomy_proc AS (

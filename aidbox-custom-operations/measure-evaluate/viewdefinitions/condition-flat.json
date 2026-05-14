@@ -1,0 +1,67 @@
+{
+  "name": "condition_flat",
+  "select": [
+    {
+      "column": [
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "patient_id",
+          "path": "subject.getReferenceKey(Patient)"
+        },
+        {
+          "name": "clinical_status",
+          "path": "clinicalStatus.coding.first().code"
+        },
+        {
+          "name": "verification_status",
+          "path": "verificationStatus.coding.first().code"
+        },
+        {
+          "name": "onset_dt",
+          "path": "onset.ofType(dateTime)"
+        },
+        {
+          "name": "onset_period_start",
+          "path": "onset.ofType(Period).start"
+        },
+        {
+          "name": "abatement_dt",
+          "path": "abatement.ofType(dateTime)"
+        },
+        {
+          "name": "abatement_period_end",
+          "path": "abatement.ofType(Period).end"
+        },
+        {
+          "name": "category_code",
+          "path": "category.first().coding.first().code"
+        },
+        {
+          "name": "body_site_code",
+          "description": "Condition.bodySite — used by CMS125 for mastectomy laterality (24028007 Right, 7771000 Left)",
+          "path": "bodySite.first().coding.first().code"
+        }
+      ]
+    },
+    {
+      "column": [
+        {
+          "name": "code_system",
+          "path": "system"
+        },
+        {
+          "name": "code",
+          "path": "code"
+        }
+      ],
+      "forEachOrNull": "code.coding"
+    }
+  ],
+  "status": "active",
+  "resource": "Condition",
+  "id": "condition-flat",
+  "resourceType": "ViewDefinition"
+}

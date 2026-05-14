@@ -1,0 +1,46 @@
+{
+  "name": "servicerequest_flat",
+  "select": [
+    {
+      "column": [
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "patient_id",
+          "path": "subject.getReferenceKey(Patient)"
+        },
+        {
+          "name": "status",
+          "path": "status"
+        },
+        {
+          "name": "intent",
+          "path": "intent"
+        },
+        {
+          "name": "authored_on",
+          "path": "authoredOn"
+        }
+      ]
+    },
+    {
+      "column": [
+        {
+          "name": "code_system",
+          "path": "system"
+        },
+        {
+          "name": "code",
+          "path": "code"
+        }
+      ],
+      "forEachOrNull": "code.coding"
+    }
+  ],
+  "status": "active",
+  "resource": "ServiceRequest",
+  "id": "servicerequest-flat",
+  "resourceType": "ViewDefinition"
+}
