@@ -1,0 +1,54 @@
+{
+  "name": "medicationrequest_flat",
+  "select": [
+    {
+      "column": [
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "patient_id",
+          "path": "subject.getReferenceKey(Patient)"
+        },
+        {
+          "name": "status",
+          "path": "status"
+        },
+        {
+          "name": "intent",
+          "path": "intent"
+        },
+        {
+          "name": "validity_start",
+          "path": "dispenseRequest.validityPeriod.start"
+        },
+        {
+          "name": "validity_end",
+          "path": "dispenseRequest.validityPeriod.end"
+        },
+        {
+          "name": "authored_on",
+          "path": "authoredOn"
+        }
+      ]
+    },
+    {
+      "column": [
+        {
+          "name": "med_system",
+          "path": "system"
+        },
+        {
+          "name": "med_code",
+          "path": "code"
+        }
+      ],
+      "forEachOrNull": "medication.ofType(CodeableConcept).coding"
+    }
+  ],
+  "status": "active",
+  "resource": "MedicationRequest",
+  "id": "medicationrequest-flat",
+  "resourceType": "ViewDefinition"
+}

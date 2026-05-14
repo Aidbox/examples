@@ -59,32 +59,20 @@ qualifying_visits AS (
 
 -- Most Recent BMI per patient (USCoreBMIProfile = code 39156-5)
 most_recent_bmi AS (
-    SELECT DISTINCT ON (o.resource->'subject'->>'id')
-        o.resource->'subject'->>'id' AS patient_id,
-        (o.resource->'value'->'Quantity'->>'value')::numeric AS bmi_value
-    FROM observation o
-    WHERE o.resource->'code'->'coding'->0->>'code' = '39156-5'
-        AND o.resource->>'status' IN ('final', 'amended', 'corrected')
-    ORDER BY o.resource->'subject'->>'id',
-        COALESCE(
-            (o.resource->'effective'->>'dateTime')::timestamptz,
-            (o.resource->'effective'->'Period'->>'start')::timestamptz
-        ) DESC
+    SELECT DISTINCT ON (o.patient_id)
+        o.patient_id,
+        o.value_quantity::numeric AS bmi_value
+    FROM observation_flat o
+    WHERE o.code = '39156-5'
+        AND o.status IN ('final', 'amended', 'corrected')
+    ORDER BY o.patient_id, o.effective_start DESC
 ),
 
 -- Patient is Asian (us-core-race extension with ombCategory code 2028-9)
 patient_is_asian AS (
     SELECT p.id AS patient_id
-    FROM patient p
-    WHERE EXISTS (
-        SELECT 1 FROM jsonb_array_elements(p.resource->'extension') ext
-        WHERE ext->>'url' = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
-        AND EXISTS (
-            SELECT 1 FROM jsonb_array_elements(ext->'extension') sub
-            WHERE sub->>'url' = 'ombCategory'
-            AND sub->'value'->'Coding'->>'code' = '2028-9'
-        )
-    )
+    FROM patient_flat p
+    WHERE p.race_code = '2028-9'
 ),
 
 -- BMI threshold check

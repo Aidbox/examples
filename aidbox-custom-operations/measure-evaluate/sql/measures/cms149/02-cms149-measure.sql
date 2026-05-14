@@ -114,29 +114,24 @@ initial_population AS (
 -- ObservationCancelled with Patient Reason, issued during dementia encounter
 -- ============================================================
 denominator_exclusion AS (
-    SELECT DISTINCT of_obs.patient_id
-    FROM observation_flat of_obs
-    JOIN observation o ON o.id = of_obs.id  -- raw table only for extension check
+    SELECT DISTINCT o.patient_id
+    FROM observation_flat o
     CROSS JOIN mp
-    JOIN dementia_encounter de ON de.patient_id = of_obs.patient_id
-    JOIN concepts vs ON vs.system = of_obs.code_system AND vs.code = of_obs.code
+    JOIN dementia_encounter de ON de.patient_id = o.patient_id
+    JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code
         AND vs.valueset_url IN (
             'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1006',  -- StandardizedToolsForAssessmentOfCognition
             'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1332'   -- CognitiveAssessment
         )
-    WHERE of_obs.status = 'cancelled'
-        -- issued during dementia encounter period
-        AND (o.resource->>'issued')::timestamptz >= de.period_start -- $SUBJ$ of_obs.patient_id
-        AND (o.resource->>'issued')::timestamptz <= de.period_end
+    WHERE o.status = 'cancelled'
+        AND o.issued >= de.period_start -- $SUBJ$ o.patient_id
+        AND o.issued <= de.period_end
         -- notDoneReason in Patient Reason
         AND EXISTS (
-            SELECT 1
-            FROM jsonb_array_elements(o.resource->'extension') ext
-            JOIN concepts pr
-                ON pr.system = ext->'value'->'CodeableConcept'->'coding'->0->>'system'
-                AND pr.code = ext->'value'->'CodeableConcept'->'coding'->0->>'code'
+            SELECT 1 FROM concepts pr
+            WHERE pr.system = o.not_done_reason_system
+                AND pr.code = o.not_done_reason_code
                 AND pr.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1008'  -- PatientReason
-            WHERE ext->>'url' = 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason'
         )
 ),
 

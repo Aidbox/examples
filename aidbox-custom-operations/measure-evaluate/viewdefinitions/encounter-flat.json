@@ -1,0 +1,56 @@
+{
+  "name": "encounter_flat",
+  "select": [
+    {
+      "column": [
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "patient_id",
+          "path": "subject.getReferenceKey(Patient)"
+        },
+        {
+          "name": "status",
+          "path": "status"
+        },
+        {
+          "name": "period_start",
+          "path": "period.start"
+        },
+        {
+          "name": "period_end",
+          "path": "period.end"
+        },
+        {
+          "name": "class_code",
+          "description": "Encounter.class.code — used by CMS165 for inpatient/ED filtering (EMER, IMP, ACUTE, etc.)",
+          "path": "class.code"
+        },
+        {
+          "name": "discharge_code",
+          "description": "Encounter.hospitalization.dischargeDisposition — used by shared_hospice",
+          "path": "hospitalization.dischargeDisposition.coding.first().code"
+        }
+      ]
+    },
+    {
+      "column": [
+        {
+          "name": "type_system",
+          "path": "system"
+        },
+        {
+          "name": "type_code",
+          "path": "code"
+        }
+      ],
+      "forEachOrNull": "type.coding"
+    }
+  ],
+  "status": "active",
+  "resource": "Encounter",
+  "id": "encounter-flat",
+  "resourceType": "ViewDefinition"
+}

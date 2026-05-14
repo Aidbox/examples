@@ -23,20 +23,16 @@ WITH mp AS (
 -- ============================================================
 
 -- Qualifying encounters: 5 types, finished, during MP, NOT virtual
--- Uses jsonb_array_elements to match ANY coding in encounter type (not just first)
+-- Multi-coding covered by encounter_flat ViewDefinition (type.coding fan-out)
 qualifying_encounters AS (
     SELECT DISTINCT
-        r.resource->'subject'->>'id' AS patient_id,
-        r.id AS encounter_id,
-        (r.resource->'period'->>'start')::timestamptz AS period_start,
-        (r.resource->'period'->>'end')::timestamptz AS period_end
-    FROM encounter r
+        e.patient_id,
+        e.id AS encounter_id,
+        e.period_start,
+        e.period_end
+    FROM encounter_flat e
     CROSS JOIN mp
-    CROSS JOIN LATERAL jsonb_array_elements(r.resource->'type') AS t
-    CROSS JOIN LATERAL jsonb_array_elements(t->'coding') AS coding
-    JOIN concepts c
-        ON c.system = coding->>'system'
-        AND c.code = coding->>'code'
+    JOIN concepts c ON c.system = e.type_system AND c.code = e.type_code
         AND c.valueset_url IN (
             'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001',  -- OfficeVisit
             'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1285',             -- OphthalmologicalServices
@@ -44,13 +40,12 @@ qualifying_encounters AS (
             'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1012',   -- NursingFacilityVisit
             'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1014'    -- CareServicesInLongTermResidentialFacility
         )
-    WHERE r.resource->>'status' = 'finished'
-        AND (r.resource->'period'->>'start')::timestamptz >= mp.mp_start
-        -- "during day of MP" = entire period contained; open-ended encounters excluded
-        AND (r.resource->'period'->>'end') IS NOT NULL
-        AND (r.resource->'period'->>'end')::timestamptz <= mp.mp_end
-        -- $SUBJ$ r.resource->'subject'->>'id'
-        AND COALESCE(r.resource->'class'->>'code', '') != 'VR'
+    WHERE e.status = 'finished'
+        AND e.period_start >= mp.mp_start
+        AND e.period_end IS NOT NULL
+        AND e.period_end <= mp.mp_end
+        -- $SUBJ$ e.patient_id
+        AND COALESCE(e.class_code, '') != 'VR'
 ),
 
 -- POAG encounters: qualifying encounter WITH overlapping POAG diagnosis
@@ -96,55 +91,43 @@ initial_population AS (
 
 -- Cup to Disc Ratio not performed with medical reason, during POAG encounter
 medical_reason_cup_to_disc AS (
-    SELECT DISTINCT o.resource#>>'{subject,id}' AS patient_id
-    FROM observation o
-    JOIN concepts vs ON vs.system = o.resource->'code'->'coding'->0->>'system'
-        AND vs.code = o.resource->'code'->'coding'->0->>'code'
+    SELECT DISTINCT o.patient_id
+    FROM observation_flat o
+    JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code
         AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1333'  -- CupToDiscRatio
-    WHERE o.resource->>'status' = 'cancelled'
-        -- notDoneReason in Medical Reason valueset (via extension)
+    WHERE o.status = 'cancelled'
         AND EXISTS (
-            SELECT 1 FROM jsonb_array_elements(o.resource->'extension') ext
-            WHERE ext->>'url' = 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason'
-                AND EXISTS (
-                    SELECT 1 FROM concepts mr
-                    WHERE mr.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1007'  -- MedicalReason
-                        AND mr.code = ext->'value'->'CodeableConcept'->'coding'->0->>'code'
-                        AND mr.system = ext->'value'->'CodeableConcept'->'coding'->0->>'system'
-                )
+            SELECT 1 FROM concepts mr
+            WHERE mr.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1007'  -- MedicalReason
+                AND mr.code = o.not_done_reason_code
+                AND mr.system = o.not_done_reason_system
         )
-        -- issued during a POAG encounter period
         AND EXISTS (
             SELECT 1 FROM poag_encounters pe
-            WHERE pe.patient_id = o.resource#>>'{subject,id}'
-                AND (o.resource->>'issued')::date >= pe.period_start::date
-                AND (o.resource->>'issued')::date <= COALESCE(pe.period_end, pe.period_start)::date
+            WHERE pe.patient_id = o.patient_id
+                AND o.issued::date >= pe.period_start::date
+                AND o.issued::date <= COALESCE(pe.period_end, pe.period_start)::date
         )
 ),
 
 -- Optic Disc Exam not performed with medical reason, during POAG encounter
 medical_reason_optic_disc AS (
-    SELECT DISTINCT o.resource#>>'{subject,id}' AS patient_id
-    FROM observation o
-    JOIN concepts vs ON vs.system = o.resource->'code'->'coding'->0->>'system'
-        AND vs.code = o.resource->'code'->'coding'->0->>'code'
+    SELECT DISTINCT o.patient_id
+    FROM observation_flat o
+    JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code
         AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1334'  -- OpticDiscExamForStructuralAbnormalities
-    WHERE o.resource->>'status' = 'cancelled'
+    WHERE o.status = 'cancelled'
         AND EXISTS (
-            SELECT 1 FROM jsonb_array_elements(o.resource->'extension') ext
-            WHERE ext->>'url' = 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason'
-                AND EXISTS (
-                    SELECT 1 FROM concepts mr
-                    WHERE mr.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1007'
-                        AND mr.code = ext->'value'->'CodeableConcept'->'coding'->0->>'code'
-                        AND mr.system = ext->'value'->'CodeableConcept'->'coding'->0->>'system'
-                )
+            SELECT 1 FROM concepts mr
+            WHERE mr.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1007'
+                AND mr.code = o.not_done_reason_code
+                AND mr.system = o.not_done_reason_system
         )
         AND EXISTS (
             SELECT 1 FROM poag_encounters pe
-            WHERE pe.patient_id = o.resource#>>'{subject,id}'
-                AND (o.resource->>'issued')::date >= pe.period_start::date
-                AND (o.resource->>'issued')::date <= COALESCE(pe.period_end, pe.period_start)::date
+            WHERE pe.patient_id = o.patient_id
+                AND o.issued::date >= pe.period_start::date
+                AND o.issued::date <= COALESCE(pe.period_end, pe.period_start)::date
         )
 ),
 

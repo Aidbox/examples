@@ -145,39 +145,21 @@ denominator_exclusion AS (
 -- Most recent BP day → lowest systolic < 140 AND lowest diastolic < 90
 -- ============================================================
 
--- All BP observations (USCoreBloodPressureProfile: code=85354-9, category=vital-signs)
+-- All BP observations via sof.observation_bp_flat (pre-filtered to code=85354-9)
 bp_observations AS (
     SELECT
-        o.resource->'subject'->>'id' AS patient_id,
+        o.patient_id,
         o.id AS obs_id,
-        COALESCE(
-            (o.resource->'effective'->>'dateTime')::timestamptz,
-            (o.resource->'effective'->'Period'->>'start')::timestamptz
-        ) AS effective_date,
-        o.resource->'encounter'->>'id' AS encounter_id,
-        -- Extract systolic component value
-        (SELECT (comp->'value'->'Quantity'->>'value')::numeric
-         FROM jsonb_array_elements(o.resource->'component') comp
-         WHERE comp->'code'->'coding'->0->>'code' = '8480-6'
-         LIMIT 1) AS systolic,
-        -- Extract diastolic component value
-        (SELECT (comp->'value'->'Quantity'->>'value')::numeric
-         FROM jsonb_array_elements(o.resource->'component') comp
-         WHERE comp->'code'->'coding'->0->>'code' = '8462-4'
-         LIMIT 1) AS diastolic
-    FROM observation o
+        o.effective_date,
+        o.encounter_id,
+        o.systolic,
+        o.diastolic
+    FROM observation_bp_flat o
     CROSS JOIN mp
-    WHERE o.resource->'code'->'coding'->0->>'code' = '85354-9'
-        AND o.resource->>'status' IN ('final', 'amended', 'corrected')
-        AND COALESCE(
-            (o.resource->'effective'->>'dateTime')::timestamptz,
-            (o.resource->'effective'->'Period'->>'start')::timestamptz
-        ) >= mp.mp_start
-        AND COALESCE(
-            (o.resource->'effective'->>'dateTime')::timestamptz,
-            (o.resource->'effective'->'Period'->>'start')::timestamptz
-        ) <= mp.mp_end
-        -- $SUBJ$ o.resource->'subject'->>'id'
+    WHERE o.status IN ('final', 'amended', 'corrected')
+        AND o.effective_date >= mp.mp_start
+        AND o.effective_date <= mp.mp_end
+        -- $SUBJ$ o.patient_id
 ),
 
 -- Disqualifying encounters (inpatient + ED)
@@ -192,9 +174,8 @@ disqualifying_encounters AS (
     -- Also filter by encounter class
     SELECT e.id AS encounter_id, e.patient_id, e.period_start, e.period_end
     FROM encounter_flat e
-    JOIN encounter r ON r.id = e.id
     WHERE e.status = 'finished'
-        AND r.resource->'class'->>'code' IN ('EMER', 'IMP', 'ACUTE', 'NONAC', 'PRENC', 'SS')
+        AND e.class_code IN ('EMER', 'IMP', 'ACUTE', 'NONAC', 'PRENC', 'SS')
         -- $SUBJ$ e.patient_id
 ),
 

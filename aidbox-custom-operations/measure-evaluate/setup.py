@@ -241,27 +241,41 @@ def main():
                 print("  FAIL — Aidbox not responding. Is it running and activated?")
                 sys.exit(1)
 
-    # Create shared views + concepts table + shared exclusion functions + indexes
-    print("[2/5] Creating shared SQL infrastructure...")
+    # Upload ViewDefinitions
+    print("[2/8] Uploading ViewDefinition resources...")
+    vd_dir = os.path.join(SCRIPT_DIR, "viewdefinitions")
+    vd_ids = [f.replace(".json", "") for f in sorted(os.listdir(vd_dir)) if f.endswith(".json")]
+    for vd_id in vd_ids:
+        with open(os.path.join(vd_dir, f"{vd_id}.json")) as f:
+            vd = json.load(f)
+        try:
+            req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}", method="PUT",
+                data=json.dumps(vd).encode())
+            req.add_header("Authorization", auth_header())
+            req.add_header("Content-Type", "application/json")
+            urllib.request.urlopen(req, timeout=30)
+        except Exception:
+            pass
+    print(f"  OK — {len(vd_ids)} ViewDefinitions uploaded")
+
+    # Create concepts table
+    print("[3/8] Creating concepts table...")
     execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "00-terminology.sql"), "Concepts table")
-    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-views.sql"), "Shared views")
-    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
-    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
 
     # Create stubs
-    print("[3/5] Creating stub resources...")
+    print("[4/8] Creating stub resources...")
     create_stubs()
 
     # Load shared CodeSystems
-    print("[4/6] Loading shared CodeSystems...")
+    print("[5/8] Loading shared CodeSystems...")
     load_bundle(os.path.join(SCRIPT_DIR, "data", "codesystems-bundle.json"), "CodeSystems")
 
     # Load FHIR Measure resources
-    print("[5/6] Loading FHIR Measure resources...")
+    print("[5/8] Loading FHIR Measure resources...")
     load_bundle(os.path.join(SCRIPT_DIR, "data", "measures-bundle.json"), "Measure resources")
 
     # Load each measure
-    print(f"[6/6] Loading {len(MEASURES)} measures...")
+    print(f"[6/8] Loading {len(MEASURES)} measures...")
     for i, m in enumerate(MEASURES, 1):
         print(f"\n  [{i}/{len(MEASURES)}] {m.upper()}")
 
@@ -278,6 +292,32 @@ def main():
         new = populate_concepts(vs_path)
         if new:
             print(f"  OK Concepts — {new} codes")
+
+    # Materialize ViewDefinitions (after data loaded)
+    print("\n[7/8] Materializing ViewDefinitions → sof.* tables...")
+    mat_body = json.dumps({"resourceType": "Parameters", "parameter": [{"name": "type", "valueCode": "table"}]}).encode()
+    sof_ok = True
+    for vd_id in vd_ids:
+        try:
+            req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}/$materialize", method="POST",
+                data=mat_body)
+            req.add_header("Authorization", auth_header())
+            req.add_header("Content-Type", "application/json")
+            urllib.request.urlopen(req, timeout=300)
+        except Exception as e:
+            print(f"  WARN: $materialize failed for {vd_id}: {e}")
+            print(f"  Falling back to legacy views...")
+            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
+            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
+            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
+            sof_ok = False
+            break
+    if sof_ok:
+        print(f"  OK — {len(vd_ids)} tables materialized")
+        print("[8/8] Creating indexes + wrapper views + shared functions...")
+        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes")
+        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
+        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
 
     # Summary
     try:

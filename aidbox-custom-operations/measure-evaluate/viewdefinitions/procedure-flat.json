@@ -1,0 +1,50 @@
+{
+  "name": "procedure_flat",
+  "select": [
+    {
+      "column": [
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "patient_id",
+          "path": "subject.getReferenceKey(Patient)"
+        },
+        {
+          "name": "status",
+          "path": "status"
+        },
+        {
+          "name": "performed_start",
+          "path": "performed.ofType(dateTime)"
+        },
+        {
+          "name": "performed_period_start",
+          "path": "performed.ofType(Period).start"
+        },
+        {
+          "name": "performed_period_end",
+          "path": "performed.ofType(Period).end"
+        }
+      ]
+    },
+    {
+      "column": [
+        {
+          "name": "code_system",
+          "path": "system"
+        },
+        {
+          "name": "code",
+          "path": "code"
+        }
+      ],
+      "forEachOrNull": "code.coding"
+    }
+  ],
+  "status": "active",
+  "resource": "Procedure",
+  "id": "procedure-flat",
+  "resourceType": "ViewDefinition"
+}

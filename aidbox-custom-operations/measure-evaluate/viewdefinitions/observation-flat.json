@@ -1,0 +1,95 @@
+{
+  "name": "observation_flat",
+  "select": [
+    {
+      "column": [
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "patient_id",
+          "path": "subject.getReferenceKey(Patient)"
+        },
+        {
+          "name": "status",
+          "path": "status"
+        },
+        {
+          "name": "category_code",
+          "path": "category.first().coding.first().code"
+        },
+        {
+          "name": "effective_dt",
+          "path": "effective.ofType(dateTime)"
+        },
+        {
+          "name": "effective_period_start",
+          "path": "effective.ofType(Period).start"
+        },
+        {
+          "name": "effective_period_end",
+          "path": "effective.ofType(Period).end"
+        },
+        {
+          "name": "value_quantity",
+          "path": "value.ofType(Quantity).value"
+        },
+        {
+          "name": "value_unit",
+          "path": "value.ofType(Quantity).unit"
+        },
+        {
+          "name": "issued",
+          "description": "Observation.issued — used by CMS143/CMS149 for date-level comparisons",
+          "path": "issued"
+        },
+        {
+          "name": "has_value",
+          "description": "True if Observation.value is present (any type)",
+          "path": "value.exists()"
+        },
+        {
+          "name": "not_done_reason_system",
+          "description": "qicore-notDoneReason extension value CodeableConcept system — used by CMS143/CMS149",
+          "path": "extension('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason').value.ofType(CodeableConcept).coding.first().system"
+        },
+        {
+          "name": "not_done_reason_code",
+          "description": "qicore-notDoneReason extension value CodeableConcept code — used by CMS143/CMS149",
+          "path": "extension('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason').value.ofType(CodeableConcept).coding.first().code"
+        }
+      ]
+    },
+    {
+      "column": [
+        {
+          "name": "code_system",
+          "path": "system"
+        },
+        {
+          "name": "code",
+          "path": "code"
+        }
+      ],
+      "forEachOrNull": "code.coding"
+    },
+    {
+      "column": [
+        {
+          "name": "value_system",
+          "path": "system"
+        },
+        {
+          "name": "value_code",
+          "path": "code"
+        }
+      ],
+      "forEachOrNull": "value.ofType(CodeableConcept).coding"
+    }
+  ],
+  "status": "active",
+  "resource": "Observation",
+  "id": "observation-flat",
+  "resourceType": "ViewDefinition"
+}
