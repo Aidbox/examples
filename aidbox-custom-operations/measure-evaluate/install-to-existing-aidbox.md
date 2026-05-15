@@ -8,22 +8,23 @@ Guide for deploying `Measure/$evaluate-measure` into an **already-running Aidbox
 |---|---|
 | 1 Flask container (sql-evaluate-app, port 8090) | Aidbox instance (any version, any deploy) |
 | 1 App resource in Aidbox (wires the operation) | PostgreSQL data (Patient, Encounter, Condition, …) |
-| ~8 SQL views over your FHIR tables (read-only projections) | All clinical resources — we don't touch them |
-| 1 `concepts` table (terminology: 104 ValueSets, ~9 650 codes) | Your authentication, auth policies, access control |
-| ~17 btree indexes on `Patient`/`Encounter`/`Condition`/… JSONB paths used by the measures | Your existing custom operations, Apps |
+| 9 SQL on FHIR `ViewDefinition` resources, materialized into `sof.*_flat` tables + 9 wrapper views on top | All clinical resources — we don't touch them |
+| 1 `concepts` table (terminology: ValueSets + codes used by the 12 measures) | Your authentication, auth policies, access control |
+| Btree indexes on the `sof.*_flat` tables | Your existing custom operations, Apps |
 | 12 measure SQL definitions (one file per measure) | Your data, schemas, and other indexes |
 
 ## Prerequisites
 
 - **Aidbox** any recent build, FHIR R4
-  - Storage: Aidbox JSONB (default). Measures read `resource->'subject'->>'id'` etc. HAPI/raw-FHIR JSON storage is **not** supported — see [Aidbox JSONB specifics](#aidbox-jsonb-specifics) below.
-- **Your FHIR data** conforms (at least loosely) to [US Core 6.1](http://hl7.org/fhir/us/core/STU6.1/) / [QI-Core 6.0](http://hl7.org/fhir/us/qicore/STU6/). Specifically the measures expect:
-  - `Patient` with `birthDate`, `gender`
-  - `Encounter` with `status`, `class.code`, `period.start`, `type[0].coding[0].code`
-  - `Condition` with `code.coding[0].{system, code}`, `onsetDateTime` or `onsetPeriod.start`, `clinicalStatus`
-  - `Observation` with `code.coding[0].{system, code}`, `effectiveDateTime` or `effectivePeriod`, `value.*` (polymorphic)
-  - `Procedure` with `code.coding[0].{system, code}`, `performed.dateTime` or `performed.Period.start`, `status`
-  - `MedicationRequest`, `Immunization`, `AllergyIntolerance` (for selected measures)
+  - Storage: Aidbox JSONB (default). The shipped `ViewDefinition` resources use FHIRPath against Aidbox JSONB; raw HAPI/FHIR JSON storage is not supported.
+  - Version: Aidbox 2508 or later (needed for the `$materialize` operation on `ViewDefinition`). On older Aidbox versions `setup.py` automatically switches to a legacy hand-written-SQL path that doesn't need `$materialize`.
+- **Your FHIR data** conforms (at least loosely) to [US Core 6.1](http://hl7.org/fhir/us/core/STU6.1/) / [QI-Core 6.0](http://hl7.org/fhir/us/qicore/STU6/). The measures read these elements (multi-coding supported — all entries in `code.coding[]` are considered):
+  - `Patient` with `birthDate`, `gender`, optional `us-core-sex` / `us-core-race` / `us-core-ethnicity` extensions
+  - `Encounter` with `status`, `class.code`, `period.start`, `type.coding`
+  - `Condition` with `code.coding`, `onsetDateTime` or `onsetPeriod.start`, `clinicalStatus`
+  - `Observation` with `code.coding`, `effectiveDateTime` or `effectivePeriod`, `value.*` (polymorphic, including `valueCodeableConcept.coding`)
+  - `Procedure` with `code.coding`, `performed.dateTime` or `performed.Period.start`, `status`
+  - `MedicationRequest`, `ServiceRequest`, `DeviceRequest` (for selected measures)
 - **Aidbox admin credentials** with `$sql` access, ability to create `App` resources
 - **Docker** (or any Python 3.11 runtime) for the sql-evaluate-app container
 - **Network:** Aidbox must be able to reach the sql-evaluate-app container on port 8090, and the app must reach Aidbox on its API port
@@ -117,10 +118,11 @@ curl -u <admin>:<password> \
 ## Step 3. Install shared SQL infra and terminology
 
 One command loads all non-clinical artifacts into your Aidbox:
-- Shared SQL views (8 flat projections over FHIR JSONB)
-- `concepts` table schema + 104 ValueSets × 9 651 codes
-- Shared exclusion helper functions
-- **Performance indexes** (~17 btree indexes on JSONB paths used by the measures — without these, measure SQL at scale is 100–1000× slower due to sequential scans)
+- 9 `ViewDefinition` resources (SQL on FHIR), materialized via `$materialize` into `sof.*_flat` tables — these are the flat projections the measure SQL reads from
+- 9 wrapper views on top of `sof.*_flat` that handle polymorphic `dateTime`/`Period` fields and partial-date parsing
+- `concepts` table schema + ValueSets and codes used by the 12 measures
+- Shared exclusion helper functions (`02-shared-exclusions.sql`)
+- Btree indexes on `sof.*_flat` tables (`03-sof-indexes.sql`) — patient_id, code/system, plus a composite covering for condition
 - CodeSystem bundle + 12 FHIR `Measure` / `Library` resources
 - Stub `Organization`, `Practitioner`, `Device` resources referenced by measures
 
@@ -138,7 +140,7 @@ Setup is idempotent — safe to re-run. Expected output ends with:
 ==================================================
   Setup complete!
   Patients: <your actual patient count>
-  Concepts: 9651
+  Concepts: <code count>
   Measures: 12
 ==================================================
 ```
@@ -146,22 +148,29 @@ Setup is idempotent — safe to re-run. Expected output ends with:
 Verify:
 
 ```bash
-# 8 shared views wrap your FHIR data
+# wrapper views wrap your FHIR data (one per resource type)
 curl -u <admin>:<password> -X POST \
   https://aidbox.example.com/\$sql \
   -H 'Content-Type: application/json' \
   -d '["SELECT count(*) FROM patient_flat"]'
 # → [{"count": <number equal to your Patient count>}]
 
+# sof.*_flat materialized tables (one per ViewDefinition)
+curl -u <admin>:<password> -X POST \
+  https://aidbox.example.com/\$sql \
+  -H 'Content-Type: application/json' \
+  -d '["SELECT relname FROM pg_class WHERE relkind='"'"'r'"'"' AND relname LIKE '"'"'%_flat'"'"' ORDER BY relname"]'
+# → 9 rows: condition_flat, devicerequest_flat, encounter_flat, medicationrequest_flat,
+#   observation_bp_flat, observation_flat, patient_flat, procedure_flat, servicerequest_flat
+
 # concepts loaded
 curl -u <admin>:<password> -X POST \
   https://aidbox.example.com/\$sql \
   -H 'Content-Type: application/json' \
   -d '["SELECT COUNT(DISTINCT valueset_url) AS valuesets, COUNT(*) AS codes FROM concepts"]'
-# → [{"valuesets": 104, "codes": 9651}]
 ```
 
-Authentication: setup.py uses `root:secret` by default (matching our sample docker-compose). If your Aidbox uses different credentials, edit `USER`/`PASS` constants at the top of `setup.py`, or — for production — fork and parameterize.
+Authentication: setup.py uses `root:secret` by default. If your Aidbox uses different credentials, edit `USER`/`PASS` constants at the top of `setup.py`, or — for production — fork and parameterize.
 
 **If you want to add more measures later**, you can load additional ValueSets by appending to `concepts` from your own VSAC extractions. Schema:
 
@@ -173,7 +182,7 @@ concepts (valueset_url, valueset_name, system, code, display)
 
 Each measure is one SQL file under `sql/measures/<cmsXXX>/02-<cmsXXX>-measure.sql`. It defines CTEs (initial population, exclusions, numerator) over the shared views + concepts table.
 
-These SQL files are loaded by the Flask app from `$REPO_ROOT/sql/measures/` **at request time** — nothing to install into PostgreSQL. The Dockerfile already bakes them into the image (Step 1, Option A). If you ran bare Python (Step 1, Option B), point `REPO_ROOT` at this directory.
+These SQL files are loaded by the Flask app from `$REPO_ROOT/sql/measures/` **at request time**. The Dockerfile already bakes them into the image (Step 1, Option A).
 
 ## Step 5. Evaluate a measure against your data
 
@@ -202,7 +211,7 @@ Response: a FHIR `MeasureReport` with `group.population` counts (initial-populat
 
 ## Step 6. (Optional) Demo UI pointed at your Aidbox
 
-The bundled `demo/app.html` is a single-file dashboard that visualises all 12 measures + care gaps + patient drill-down. It reads its target Aidbox from a config file — so you can point it at your instance without editing code.
+The bundled `demo/app.html` is a single-file dashboard that visualizes all 12 measures + care gaps + patient drill-down. It reads its target Aidbox from a config file — so you can point it at your instance without editing code.
 
 A template is provided at `demo/config-external.example.json`. Copy and edit it to match your Aidbox.
 
@@ -223,21 +232,14 @@ URL-param convention: `?stack=<name>` makes the demo fetch `./config-<name>.json
 
 **CORS:** the demo calls your Aidbox's `$sql` endpoint from a browser. Aidbox reflects `Origin` in `Access-Control-Allow-Origin` by default — works out of the box. If your Aidbox is behind a stricter proxy, allow the origin where you're serving the demo (e.g., `http://localhost:3000`).
 
-## Aidbox JSONB specifics
+## Architecture notes
 
-Our views and measure SQL assume **Aidbox JSONB** storage, not raw HAPI/FHIR JSON. Key path differences:
+Measure SQL is built on top of two layers that hide most of the raw Aidbox JSONB:
 
-```
-FHIR JSON                                 Aidbox JSONB
-----------------------------------------  ----------------------------------------
-resource.subject.reference                resource->'subject'->>'id'
-resource.performedDateTime                resource->'performed'->'dateTime'
-resource.performedPeriod.start            resource->'performed'->'Period'->>'start'
-resource.valueCodeableConcept             resource->'value'->'CodeableConcept'
-resource.medicationCodeableConcept        resource->'medication'->'CodeableConcept'
-```
+1. **`ViewDefinition` resources** (in `viewdefinitions/`) use FHIRPath to project FHIR resources into relational columns. `POST /ViewDefinition/<id>/$materialize` writes the result into a `sof.*_flat` table.
+2. **Wrapper views** (in `sql/01-wrapper-views.sql`) sit on top of the `sof.*_flat` tables and add: `COALESCE` for polymorphic `dateTime` vs `Period`, `parse_fhir_datetime` for partial dates like `"2015"` / `"2015-10"`, and a `has_value::boolean` cast for Observation.
 
-If your Aidbox uses raw FHIR JSON storage (rare), you'll need to adapt the views. All 8 shared views are in one file (`sql/01-views.sql`) and are ~200 lines total.
+Measure SQL queries the wrapper views — `encounter_flat`, `condition_flat`, etc. — using simple column names. Aidbox JSONB still underlies the raw resources, but the JSONB extraction is encapsulated in the `ViewDefinition` resources, not duplicated in every measure SQL. One wrapper (`medicationrequest_flat`) additionally `LEFT JOIN`s the raw `medication` table to fall back on medication-by-`Reference` cases that the `ViewDefinition` alone can't resolve.
 
 ## Troubleshooting
 
@@ -267,25 +269,24 @@ Quickest debug: evaluate for one known-good patient (`?subject=Patient/<id>&repo
 
 Re-run `python3 setup.py --skip-clinical` — it's idempotent (`DELETE WHERE valueset_url = X` before INSERT per ValueSet).
 
-### `$evaluate-measure` times out or is very slow on a large dataset
+### `$evaluate-measure` times out or is slow on a large dataset
 
-Most often: the **performance indexes are missing**. They are part of `sql/03-performance.sql`, executed automatically by `setup.py`. If you installed an earlier version of this sample (before indexes were bundled), you can apply them standalone without re-running the full setup:
+Check that the indexes on `sof.*_flat` are present. They are defined in `sql/03-sof-indexes.sql` and applied automatically by `setup.py` after each `$materialize`. If you ran an older version of this sample before sof-indexes existed, apply them standalone without re-running the full setup:
 
 ```bash
-# Set credentials once (avoid pasting them inline)
 export AIDBOX_USER=<your-admin-user>
 export AIDBOX_PASS=<your-admin-password>
 export AIDBOX_URL=https://aidbox.example.com
 
 # Inspect the file
-cat sql/03-performance.sql
+cat sql/03-sof-indexes.sql
 
-# Apply via Aidbox $sql (the whole file is sent in one transactional call)
+# Apply via Aidbox $sql
 python3 -c "
 import json, os, urllib.request, base64
 auth = base64.b64encode(f\"{os.environ['AIDBOX_USER']}:{os.environ['AIDBOX_PASS']}\".encode()).decode()
 url = f\"{os.environ['AIDBOX_URL']}/\$sql\"
-with open('sql/03-performance.sql') as f:
+with open('sql/03-sof-indexes.sql') as f:
     body = json.dumps([f.read()]).encode()
 req = urllib.request.Request(url, method='POST', data=body)
 req.add_header('Authorization', f'Basic {auth}')
@@ -295,7 +296,7 @@ print('OK')
 "
 
 # Or, if you have direct psql access:
-PGPASSWORD="$AIDBOX_PASS" psql -h <host> -U "$AIDBOX_USER" -d <aidbox_db> -f sql/03-performance.sql
+PGPASSWORD="$AIDBOX_PASS" psql -h <host> -U "$AIDBOX_USER" -d <aidbox_db> -f sql/03-sof-indexes.sql
 ```
 
 Verify the indexes landed:
@@ -304,11 +305,18 @@ Verify the indexes landed:
 curl -u "$AIDBOX_USER:$AIDBOX_PASS" -X POST \
   "$AIDBOX_URL/\$sql" \
   -H 'Content-Type: application/json' \
-  -d '["SELECT count(*) AS index_count FROM pg_indexes WHERE indexname LIKE '"'"'ix_%'"'"'"]'
-# → [{"index_count": 17}]   (or close to it)
+  -d '["SELECT indexname FROM pg_indexes WHERE schemaname='"'"'sof'"'"' ORDER BY indexname"]'
 ```
 
-The single most important index for single-patient queries is `ix_<resource>_subject` on `(resource->'subject'->>'id')` — without it, every patient-scoped query degrades to a full sequential scan of the resource table.
+To measure per-measure execution time on your data, use `tools/measure_perf.py`:
+
+```bash
+python3 tools/measure_perf.py --base-url "$AIDBOX_URL" \
+  --user "$AIDBOX_USER" --password "$AIDBOX_PASS" \
+  --label client-baseline --iterations 5
+```
+
+This runs the cohort SQL for all 12 measures, samples each 5 times after a warm-up, and writes `tools/perf-client-baseline.json` with median + min/max per measure. Share that file with the maintainers when reporting performance issues.
 
 ## Uninstall
 
@@ -322,7 +330,7 @@ curl -u <admin>:<password> -X DELETE \
 # 2. Stop the Flask container
 docker stop sql-evaluate-app && docker rm sql-evaluate-app
 
-# 3. Drop views and concepts table (via Aidbox $sql or psql)
+# 3. Drop wrapper views, sof.* materialized tables, and the concepts table
 curl -u <admin>:<password> -X POST \
   https://aidbox.example.com/\$sql \
   -H 'Content-Type: application/json' \
@@ -332,11 +340,20 @@ curl -u <admin>:<password> -X POST \
      DROP VIEW IF EXISTS encounter_flat CASCADE;
      DROP VIEW IF EXISTS condition_flat CASCADE;
      DROP VIEW IF EXISTS observation_flat CASCADE;
+     DROP VIEW IF EXISTS observation_bp_flat CASCADE;
      DROP VIEW IF EXISTS procedure_flat CASCADE;
      DROP VIEW IF EXISTS medicationrequest_flat CASCADE;
      DROP VIEW IF EXISTS servicerequest_flat CASCADE;
-     DROP VIEW IF EXISTS devicerequest_flat CASCADE;"
+     DROP VIEW IF EXISTS devicerequest_flat CASCADE;
+     DROP SCHEMA IF EXISTS sof CASCADE;"
   ]'
+
+# 4. (Optional) Remove the 9 ViewDefinition resources
+for vd in patient encounter condition procedure observation observation-bp \
+         servicerequest medicationrequest devicerequest; do
+  curl -u <admin>:<password> -X DELETE \
+    "https://aidbox.example.com/ViewDefinition/${vd}-flat"
+done
 ```
 
-Your clinical data is untouched — we never wrote to it.
+The clinical FHIR resources (Patient, Encounter, Condition, …) are not affected — the steps above remove only the artifacts installed in Steps 1–3.
