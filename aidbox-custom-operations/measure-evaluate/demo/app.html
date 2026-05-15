@@ -173,6 +173,16 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 .res-console.copied{background:var(--teal-bg);color:var(--teal)}
 .res-preview{display:block;margin-top:.3rem;padding:.5rem .65rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;font-family:var(--mono);font-size:0.6rem;line-height:1.45;color:var(--fg2);max-height:320px;overflow:auto;white-space:pre-wrap}
 .cte-tag{display:inline-block;margin-left:.4rem;padding:.05rem .35rem;background:var(--bg3);color:var(--fg3);font-family:var(--mono);font-size:0.55rem;border-radius:3px;letter-spacing:.04em;vertical-align:middle}
+.p360-everything-wrap{margin:.5rem 0 .8rem}
+.p360-everything-mount{margin-top:.4rem;padding:.5rem .65rem;background:var(--card);border:1px solid var(--line);border-radius:6px;font-size:0.7rem}
+.evt-group{margin:.2rem 0}
+.evt-head{cursor:pointer;padding:.18rem .4rem;background:var(--bg2);border-radius:4px;display:inline-block;color:var(--fg2);font-size:0.66rem;user-select:none;font-weight:500}
+.evt-head:hover{background:var(--bg3);color:var(--fg)}
+.evt-head .evt-count{font-family:var(--mono);font-size:0.55rem;color:var(--fg3);margin-left:.3rem;font-weight:400}
+.evt-body{padding:.25rem 0 .25rem .85rem;border-left:1px solid var(--bg3);margin-left:.4rem;margin-top:.2rem}
+.evt-row{padding:.08rem 0;font-size:0.64rem;color:var(--fg2);line-height:1.55}
+.evt-row .res-link{font-family:var(--mono);font-size:0.6rem}
+.evt-summary{color:var(--fg3);margin-left:.2rem}
 
 /* ── Care gap specific ─────────────── */
 .cat-badge{font-size:0.5rem;font-weight:600;padding:.08rem .3rem;border-radius:3px;display:inline-block;margin-right:.15rem}
@@ -613,7 +623,7 @@ async function renderP360Detail(pid){
   const name=patientLabel(pid);const open=measures.filter(m=>m.status==='open');const closed=measures.filter(m=>m.status==='closed');
   const initials=name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
   const order={open:0,closed:1,excl:2,noip:3,error:9};const sorted=[...measures].sort((a,b)=>(order[a.status]??9)-(order[b.status]??9));
-  let html=`<button class="p360-back" onclick="selectedP360=null;renderP360List()">&larr; All Patients</button><div class="p360-header"><div class="p360-avatar">${initials}</div><div class="p360-info"><h2>${name}</h2><div class="p360-meta">${pid}</div><div class="p360-summary"><span class="p360-chip total">Age ${patientAge(pid)}</span>${open.length>0?`<span class="p360-chip open">${open.length} open</span>`:''}<span class="p360-chip closed">${closed.length} closed</span><span class="p360-chip total">${measures.length} measures</span></div></div></div><div class="p360-list">`;
+  let html=`<button class="p360-back" onclick="selectedP360=null;renderP360List()">&larr; All Patients</button><div class="p360-header"><div class="p360-avatar">${initials}</div><div class="p360-info"><h2>${name}</h2><div class="p360-meta">${pid}</div><div class="p360-summary"><span class="p360-chip total">Age ${patientAge(pid)}</span>${open.length>0?`<span class="p360-chip open">${open.length} open</span>`:''}<span class="p360-chip closed">${closed.length} closed</span><span class="p360-chip total">${measures.length} measures</span></div></div></div><div class="p360-everything-wrap"><button class="p360-ev-toggle" onclick="loadEverything('${pid}',this,'p360-ever-${pid}')">&#x25B8; Patient $everything</button><div id="p360-ever-${pid}" class="p360-everything-mount" style="display:none"></div></div><div class="p360-list">`;
   for(let i=0;i<sorted.length;i++){const m=sorted[i];const meta=META[m.mid]||{short:m.mid,name:m.mid};const act=ACTIONS[m.mid]||{action:'',category:''};const evId='p360-ev-'+m.mid;
   html+=`<div class="p360-card card-${m.status}" style="animation-delay:${i*35}ms"><div class="p360-card-head"><div class="p360-card-title">${meta.short} &mdash; ${meta.name}</div><span class="badge ${m.cls}">${m.label}</span></div>${m.status==='open'?`<div class="p360-action-box"><div class="act-label"><span class="cat-badge cat-${act.category}">${act.category}</span> Recommended Action</div><div class="act-text">${act.action}</div></div>`:''}<button class="p360-ev-toggle" onclick="event.stopPropagation();toggleP360Ev('${m.mid}','${pid}','${evId}',this)">&#x25B8; Evidence</button><div id="${evId}"></div></div>`}
   html+='</div>';document.getElementById('main').innerHTML=html;
@@ -666,7 +676,7 @@ async function loadEvidence(mid,pid,targetId){
     html+='<div class="evidence-box"><div class="evidence-box-title">Evidence</div>';
     const shown=new Set();
     for(const r of ipItems){
-      const rt=r.ip_resource_type||'Encounter',rid=r.ip_resource_id||'',src=r.source_cte||r.ip_pathway||r.pathway||'';
+      const rt=r.ip_resource_type||'Encounter',rid=r.ip_resource_id||'',src=r.ip_source_cte||r.ip_pathway||'';
       const key=rid?`${rt}/${rid}|${src}`:`ip|${r.ip_code_display}|${r.ip_event_date}|${src}`;
       if(shown.has(key))continue;shown.add(key);
       const date=r.ip_event_date?' — '+r.ip_event_date.substring(0,10):'';
@@ -680,7 +690,7 @@ async function loadEvidence(mid,pid,targetId){
     }
     for(const r of numItems){
       if(r.code_display){
-        const rt=r.resource_type||'Resource',rid=r.resource_id||'',src=r.source_cte||r.pathway||'';
+        const rt=r.resource_type||'Resource',rid=r.resource_id||'',src=(r.source_cte&&r.source_cte!=='none'?r.source_cte:'')||(r.pathway&&r.pathway!=='none'?r.pathway:'')||'';
         const key=rid?`${rt}/${rid}|${src}`:`num|${r.code_display}|${r.event_date}|${src}`;
         if(shown.has(key))continue;shown.add(key);
         const date=r.event_date?' — '+r.event_date.substring(0,10):'';
@@ -693,11 +703,10 @@ async function loadEvidence(mid,pid,targetId){
           html+=`<div class="evidence-box-item"><strong>${escapeHtml(rt)}:</strong> ${escapeHtml(r.code_display)}${codeStr}${date}${tag}</div>`;
         }
       }else if(r.exclusion_pathway){
-        const src=r.source_cte||r.pathway||'';
-        const key=`exc|${r.exclusion_pathway}|${src}`;
+        // Exception row: body already shows the pathway, no separate cte-tag needed.
+        const key=`exc|${r.exclusion_pathway}`;
         if(shown.has(key))continue;shown.add(key);
-        const tag=src?` <span class="cte-tag">${escapeHtml(src)}</span>`:'';
-        html+=`<div class="evidence-box-item"><strong>Exception:</strong> ${escapeHtml(r.exclusion_pathway)}${tag}</div>`;
+        html+=`<div class="evidence-box-item"><strong>Exception:</strong> ${escapeHtml(r.exclusion_pathway)}</div>`;
       }
     }
     html+='</div>';
@@ -741,6 +750,110 @@ async function loadResource(ev,linkEl,type,id){
     pre.style.display='';linkEl.classList.remove('loading');linkEl.classList.add('error');
   }
   return false;
+}
+
+// ── Patient $everything tree ────────────────
+const everythingCache={};
+const resourceStash=new Map();
+
+async function loadEverything(pid,btn,mountId){
+  const mount=document.getElementById(mountId);
+  if(!mount)return;
+  if(mount.dataset.loaded==='1'){
+    const hidden=mount.style.display==='none';
+    mount.style.display=hidden?'':'none';
+    btn.innerHTML=(hidden?'&#x25BE;':'&#x25B8;')+' Patient $everything';
+    return;
+  }
+  btn.innerHTML='&hellip; loading Patient $everything';
+  try{
+    let bundle=everythingCache[pid];
+    if(!bundle){
+      const resp=await fetch(`${AIDBOX_URL}/fhir/Patient/${pid}/$everything`,{headers:{'Authorization':AUTH,'Accept':'application/fhir+json'}});
+      if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+      bundle=await resp.json();
+      everythingCache[pid]=bundle;
+    }
+    mount.innerHTML=renderEverything(bundle);
+    mount.dataset.loaded='1';
+    mount.style.display='';
+    btn.innerHTML='&#x25BE; Patient $everything';
+  }catch(e){
+    mount.innerHTML=`<span class="ev-none" style="color:var(--rose)">Error: ${escapeHtml(e.message)}</span>`;
+    mount.style.display='';
+    btn.innerHTML='&#x25B8; Patient $everything (error — click to retry)';
+    mount.dataset.loaded='';
+  }
+}
+
+function renderEverything(bundle){
+  const entries=bundle.entry||[];
+  if(!entries.length)return '<span class="ev-none">No resources returned by $everything</span>';
+  const byType={};
+  for(const e of entries){
+    const r=e.resource;
+    if(!r||!r.resourceType)continue;
+    (byType[r.resourceType]=byType[r.resourceType]||[]).push(r);
+    if(r.id)resourceStash.set(`${r.resourceType}/${r.id}`,r);
+  }
+  const types=Object.keys(byType).sort((a,b)=>byType[b].length-byType[a].length||a.localeCompare(b));
+  let html=`<div class="evidence-box-title">All resources <span class="cte-tag">${entries.length} total</span></div>`;
+  for(const t of types){
+    const list=byType[t];
+    const bodyId=`evt-body-${t}-${Math.random().toString(36).slice(2,8)}`;
+    html+=`<div class="evt-group"><div class="evt-head" onclick="toggleEvtGroup('${bodyId}',this)">&#x25B8; ${escapeHtml(t)}<span class="evt-count">(${list.length})</span></div><div id="${bodyId}" class="evt-body" style="display:none">`;
+    for(const r of list){
+      const summary=summarizeResource(r);
+      const sRt=escapeHtml(t),sRid=escapeHtml(r.id||'?');
+      html+=`<div class="evt-row"><a class="res-link" href="#" onclick="return showInlineJson(event,this,'${sRt}','${sRid}')">${sRid}</a> <a class="res-console" href="#" onclick="return openConsole(event,'${sRt}','${sRid}')" title="Open in Aidbox REST console (copies GET to clipboard)">&#8599;</a>${summary?`<span class="evt-summary">— ${escapeHtml(summary)}</span>`:''}<pre class="res-preview" style="display:none"></pre></div>`;
+    }
+    html+='</div></div>';
+  }
+  return html;
+}
+
+function toggleEvtGroup(bodyId,head){
+  const body=document.getElementById(bodyId);
+  if(!body)return;
+  const hidden=body.style.display==='none';
+  body.style.display=hidden?'':'none';
+  head.innerHTML=head.innerHTML.replace(/^&#x25B[8E];|^[▸▾]/,hidden?'&#x25BE;':'&#x25B8;');
+}
+
+function showInlineJson(ev,linkEl,type,id){
+  ev.preventDefault();ev.stopPropagation();
+  const pre=linkEl.parentElement.querySelector('pre.res-preview');
+  if(!pre)return false;
+  if(pre.style.display!=='none'){pre.style.display='none';return false}
+  if(pre.dataset.loaded!=='1'){
+    const r=resourceStash.get(`${type}/${id}`);
+    pre.textContent=r?JSON.stringify(r,null,2):'Resource not found in $everything cache';
+    pre.dataset.loaded='1';
+  }
+  pre.style.display='';
+  return false;
+}
+
+function summarizeResource(r){
+  const t=r.resourceType;
+  const cd=cc=>cc&&((cc.coding&&cc.coding[0]&&(cc.coding[0].display||cc.coding[0].code))||cc.text)||'';
+  let s='';
+  if(t==='Encounter')s=(r.class&&(r.class.display||r.class.code))||(r.type&&cd(r.type[0]))||'';
+  else if(t==='Patient')s=(r.name&&r.name[0]&&[(r.name[0].given||[]).join(' '),r.name[0].family].filter(Boolean).join(' '))||'';
+  else if(r.medicationCodeableConcept)s=cd(r.medicationCodeableConcept);
+  else if(r.code)s=cd(r.code);
+  const date=r.effectiveDateTime
+    ||(r.effectivePeriod&&r.effectivePeriod.start)
+    ||r.performedDateTime
+    ||(r.performedPeriod&&r.performedPeriod.start)
+    ||(r.period&&r.period.start)
+    ||r.onsetDateTime
+    ||r.authoredOn
+    ||r.recordedDate
+    ||r.birthDate
+    ||r.issued
+    ||'';
+  return [s,date&&date.substring(0,10)].filter(Boolean).join(' — ');
 }
 
 // ══════════════════════════════════
