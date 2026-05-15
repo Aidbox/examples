@@ -321,6 +321,15 @@ def measure_evaluate(body, persist=False):
     # building expensive patient-level SQL (which scans all patients with JOINs).
     # The aggregate SQL (SELECT COUNT(*)) is 10-100× faster at scale.
     if report_type == 'summary':
+        # CMS165: use PL/pgSQL wrapper that sets enable_nestloop = off.
+        # Without it, PG mis-estimates CTE cardinality (1 vs 15K rows)
+        # and picks nested loops → 75s.  The wrapper forces hash joins → 8s.
+        if measure_id == 'cms165':
+            measure_sql = (
+                f"SELECT * FROM cms165_aggregate("
+                f"'{period_start}T00:00:00Z'::timestamptz,"
+                f"'{period_end}T23:59:59Z'::timestamptz)"
+            )
         try:
             agg = run_sql(measure_sql, AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
         except Exception as e:
