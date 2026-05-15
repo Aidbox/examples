@@ -22,6 +22,7 @@ Usage:
 
 import argparse
 import base64
+import concurrent.futures
 import copy
 import json
 import os
@@ -146,6 +147,13 @@ def load_copy(measure_id, copy_index):
     with open(path) as f:
         bundle = json.load(f)
     bundle = make_copy(bundle, copy_index)
+    for attempt in range(3):
+        try:
+            http("POST", "/fhir", bundle, timeout=180, as_json=False)
+            return len(bundle.get("entry", []))
+        except urllib.error.HTTPError:
+            if attempt < 2:
+                time.sleep(0.5)
     http("POST", "/fhir", bundle, timeout=180, as_json=False)
     return len(bundle.get("entry", []))
 
@@ -275,25 +283,57 @@ def main():
     print(f"  Measures: {', '.join(measures)}")
     print()
 
-    # Phase 1 — load multiplied clinical data
+    # Phase 1 — load multiplied clinical data (parallel across measures)
     print("[1/2] Loading multiplied clinical data...")
     total = 0
     t0 = time.time()
-    for m in measures:
-        per_measure = 0
+    results = {}
+
+    def load_measure_copies(m):
+        n = 0
         for i in range(1, args.multiplier + 1):
             try:
-                per_measure += load_copy(m, i)
-            except urllib.error.HTTPError as e:
-                print(f"  FAIL {m} copy {i}: HTTP {e.code}")
-                break
+                n += load_copy(m, i)
             except Exception as e:
                 print(f"  FAIL {m} copy {i}: {str(e)[:80]}")
                 break
-        print(f"  {m}: {per_measure} resources across {args.multiplier} copies")
-        total += per_measure
+        return m, n
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as ex:
+        for m, n in ex.map(load_measure_copies, measures):
+            results[m] = n
+            total += n
+            print(f"  {m}: {n} resources across {args.multiplier} copies")
     print(f"  Total: {total} resources in {time.time() - t0:.1f}s")
     print(f"  Patient count now: {patient_count()}")
+
+    # Verify: count resources per type in DB vs expected
+    print("  Verifying resource counts...")
+    by_type = {}
+    for m in measures:
+        path = os.path.join(DATA_DIR, f"{m}-clinical-data.json")
+        if not os.path.exists(path):
+            continue
+        with open(path) as f:
+            bundle = json.load(f)
+        for entry in bundle.get("entry", []):
+            r = entry.get("resource", {})
+            rt = r.get("resourceType")
+            rid = r.get("id")
+            if rt and rid:
+                by_type.setdefault(rt, set()).add(rid)
+    ok = True
+    for rt, ids in sorted(by_type.items()):
+        expected = len(ids) * (1 + args.multiplier)
+        try:
+            actual = http("POST", "/$sql", [f"SELECT count(*) AS n FROM {rt.lower()}"])[0]["n"]
+        except Exception:
+            actual = 0
+        if actual < expected:
+            print(f"  WARN {rt}: expected {expected}, got {actual} (missing {expected - actual})")
+            ok = False
+    if ok:
+        print("  OK — all resource counts match")
     print()
 
     # Phase 2 — measure timings
