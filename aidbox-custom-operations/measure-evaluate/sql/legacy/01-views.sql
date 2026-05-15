@@ -74,7 +74,11 @@ SELECT
     r.resource->'type'->0->'coding'->0->>'system' AS type_system,
     r.resource->'type'->0->'coding'->0->>'code' AS type_code,
     parse_fhir_datetime(r.resource->'period'->>'start') AS period_start,
-    parse_fhir_datetime(r.resource->'period'->>'end') AS period_end
+    parse_fhir_datetime(r.resource->'period'->>'end') AS period_end,
+    -- Encounter.class.code — used by CMS165/CMS143 for inpatient/ED filtering (EMER, IMP, ACUTE, etc.)
+    r.resource->'class'->>'code' AS class_code,
+    -- Encounter.hospitalization.dischargeDisposition — used by shared_hospice
+    r.resource->'hospitalization'->'dischargeDisposition'->'coding'->0->>'code' AS discharge_code
 FROM encounter r;
 
 -- ============================================================
@@ -120,11 +124,49 @@ SELECT
         parse_fhir_datetime(r.resource->'effective'->>'dateTime'),
         parse_fhir_datetime(r.resource->'effective'->'Period'->>'end')
     ) AS effective_end,
-    -- Aidbox polymorphic: value -> {CodeableConcept: {coding: [...]}}
+    -- Aidbox polymorphic: value -> {Quantity: {value, unit}} OR {CodeableConcept: {coding: [...]}}
+    (r.resource->'value'->'Quantity'->>'value') AS value_quantity,
+    (r.resource->'value'->'Quantity'->>'unit') AS value_unit,
     r.resource->'value'->'CodeableConcept'->'coding'->0->>'system' AS value_system,
     r.resource->'value'->'CodeableConcept'->'coding'->0->>'code' AS value_code,
-    CASE WHEN r.resource->'value' IS NOT NULL THEN true ELSE false END AS has_value
+    CASE WHEN r.resource->'value' IS NOT NULL THEN true ELSE false END AS has_value,
+    parse_fhir_datetime(r.resource->>'issued') AS issued,
+    -- qicore-notDoneReason extension (CMS143/CMS149 use it for exception logic)
+    (SELECT ext->'value'->'CodeableConcept'->'coding'->0->>'system'
+     FROM jsonb_array_elements(r.resource->'extension') ext
+     WHERE ext->>'url' = 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason'
+     LIMIT 1) AS not_done_reason_system,
+    (SELECT ext->'value'->'CodeableConcept'->'coding'->0->>'code'
+     FROM jsonb_array_elements(r.resource->'extension') ext
+     WHERE ext->>'url' = 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason'
+     LIMIT 1) AS not_done_reason_code
 FROM observation r;
+
+-- ============================================================
+-- Observation (BP panel, CMS165) — pre-filtered to LOINC 85354-9
+-- with systolic (8480-6) and diastolic (8462-4) components projected
+-- ============================================================
+DROP VIEW IF EXISTS observation_bp_flat CASCADE;
+CREATE VIEW observation_bp_flat AS
+SELECT
+    r.id,
+    r.resource->'subject'->>'id' AS patient_id,
+    r.resource->>'status' AS status,
+    COALESCE(
+        parse_fhir_datetime(r.resource->'effective'->>'dateTime'),
+        parse_fhir_datetime(r.resource->'effective'->'Period'->>'start')
+    ) AS effective_date,
+    r.resource->'encounter'->>'id' AS encounter_id,
+    (SELECT (c->'value'->'Quantity'->>'value')::numeric
+     FROM jsonb_array_elements(r.resource->'component') c
+     WHERE c->'code'->'coding'->0->>'code' = '8480-6'
+     LIMIT 1) AS systolic,
+    (SELECT (c->'value'->'Quantity'->>'value')::numeric
+     FROM jsonb_array_elements(r.resource->'component') c
+     WHERE c->'code'->'coding'->0->>'code' = '8462-4'
+     LIMIT 1) AS diastolic
+FROM observation r
+WHERE r.resource->'code'->'coding'->0->>'code' = '85354-9';
 
 -- ============================================================
 -- Condition
@@ -147,7 +189,9 @@ SELECT
         parse_fhir_datetime(r.resource->'abatement'->>'dateTime'),
         parse_fhir_datetime(r.resource->'abatement'->'Period'->>'end')
     ) AS abatement_date,
-    r.resource->'category'->0->'coding'->0->>'code' AS category_code
+    r.resource->'category'->0->'coding'->0->>'code' AS category_code,
+    -- Condition.bodySite — used by CMS125 for mastectomy laterality (24028007 Right, 7771000 Left)
+    r.resource->'bodySite'->0->'coding'->0->>'code' AS body_site_code
 FROM condition r;
 
 -- ============================================================
