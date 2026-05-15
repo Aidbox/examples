@@ -9,6 +9,7 @@ executes the measure SQL via $sql, and returns a FHIR MeasureReport.
 import json
 import os
 import sys
+from datetime import datetime, timezone
 
 from flask import Flask, request, jsonify
 
@@ -314,6 +315,64 @@ def measure_evaluate(body, persist=False):
     # Parameterize measurement period
     measure_sql = parameterize_sql(measure_sql, period_start, period_end)
 
+    exc_type = measure_info.get('exc_type', 'denominator-exclusion')
+
+    # Fast path for summary mode: run the aggregate SQL directly instead of
+    # building expensive patient-level SQL (which scans all patients with JOINs).
+    # The aggregate SQL (SELECT COUNT(*)) is 10-100× faster at scale.
+    if report_type == 'summary':
+        try:
+            agg = run_sql(measure_sql, AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+        except Exception as e:
+            return jsonify({
+                'resourceType': 'OperationOutcome',
+                'issue': [{'severity': 'error', 'code': 'exception',
+                            'diagnostics': f'SQL execution error: {e}'}]
+            }), 500
+
+        if not agg:
+            return jsonify({
+                'resourceType': 'OperationOutcome',
+                'issue': [{'severity': 'information', 'code': 'not-found',
+                            'diagnostics': 'No results. Is measure data loaded?'}]
+            }), 404
+
+        row = agg[0]
+        ip = row.get('initial_population', 0)
+        den = row.get('denominator', 0)
+        exc = row.get('denominator_exclusion') or row.get('denominator_exception') or 0
+        num = row.get('numerator', 0)
+        eligible = den - exc
+        score = round(num / eligible, 4) if eligible > 0 else None
+
+        group = {
+            "population": [
+                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "initial-population"}]}, "count": ip},
+                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "denominator"}]}, "count": den},
+                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": exc_type}]}, "count": exc},
+                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "numerator"}]}, "count": num},
+            ],
+        }
+        if score is not None:
+            group["measureScore"] = {"value": score}
+
+        report = {
+            "resourceType": "MeasureReport",
+            "status": "complete",
+            "type": "summary",
+            "measure": measure_info["canonical"],
+            "date": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
+            "period": {"start": f"{period_start}T00:00:00+00:00", "end": f"{period_end}T23:59:59+00:00"},
+            "group": [group],
+        }
+        report = enrich_measure_report(report, measure_id)
+        if persist:
+            try:
+                report = _persist_resource(report)
+            except Exception as e:
+                app.logger.warning(f"Failed to persist MeasureReport: {e}")
+        return jsonify(report)
+
     # Build patient-level SQL
     patient_id = subject.replace('Patient/', '') if subject else None
     patient_sql = build_patient_sql(measure_sql, patient_id)
@@ -334,8 +393,6 @@ def measure_evaluate(body, persist=False):
             'issue': [{'severity': 'information', 'code': 'not-found',
                         'diagnostics': 'No results. Is measure data loaded?'}]
         }), 404
-
-    exc_type = measure_info.get('exc_type', 'denominator-exclusion')
 
     if report_type == 'individual':
         # Individual report -- with evidence if available
@@ -395,7 +452,7 @@ def measure_evaluate(body, persist=False):
         return jsonify(bundle)
 
     else:
-        # Summary report (default when no subject)
+        # Fallback summary path (shouldn't reach here, but kept for safety)
         report = build_summary_report(
             results, measure_info, period_start, period_end, exc_type)
         report = enrich_measure_report(report, measure_id)
