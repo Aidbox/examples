@@ -55,6 +55,13 @@ CREATE INDEX IF NOT EXISTS ix_medrq_med_code ON medicationrequest ((resource->'m
 CREATE INDEX IF NOT EXISTS ix_devicerq_subject ON devicerequest ((resource->'subject'->>'id'));
 CREATE INDEX IF NOT EXISTS ix_devicerq_code ON devicerequest ((resource->'code'->'CodeableConcept'->'coding'->0->>'system'), (resource->'code'->'CodeableConcept'->'coding'->0->>'code'));
 
+-- Observation: partial index for BP panel (observation_bp_flat legacy view)
+-- Dramatically reduces rows scanned for CMS165 on legacy path
+CREATE INDEX IF NOT EXISTS ix_observation_bp ON observation ((resource->'code'->'coding'->0->>'code')) WHERE resource->'code'->'coding'->0->>'code' = '85354-9';
+
+-- Encounter: class code (CMS165 disqualifying encounters)
+CREATE INDEX IF NOT EXISTS ix_encounter_class ON encounter ((resource->'class'->>'code'));
+
 -- ============================================================
 -- 2. Update planner statistics
 -- On a fresh sample these complete in seconds. On a production-scale install
