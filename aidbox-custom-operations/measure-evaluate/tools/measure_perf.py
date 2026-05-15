@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Cohort SQL perf benchmark for 12 measures on AME Aidbox.
+"""Aggregate SQL perf benchmark for 12 measures on AME Aidbox.
 
-Mirrors aidbox-cql-poc/experiments/dba-optimization/measure_perf.py, but reads
-measure SQL from this repo's sql/measures/cmsXXX/02-cmsXXX-measure.sql layout
-and targets the AME Aidbox at http://localhost:8888 by default.
+Runs each measure's aggregate SQL (SELECT COUNT(*) ...) — the same query
+that $evaluate-measure summary mode executes in production.
 
 Usage:
   python3 tools/measure_perf.py --label before
@@ -42,20 +41,26 @@ def run_sql(query: str, base_url: str, user: str, password: str, timeout: int = 
         return json.loads(resp.read())
 
 
-def build_cohort_sql(measure_id: str) -> str:
+def build_aggregate_sql(measure_id: str) -> str:
+    """Return aggregate SQL that matches what $evaluate-measure summary mode runs."""
+    # CMS165: PL/pgSQL wrapper with SET LOCAL enable_nestloop = off
+    if measure_id == "cms165":
+        return (f"SELECT * FROM cms165_aggregate("
+                f"'{PERIOD_START}T00:00:00Z'::timestamptz,"
+                f"'{PERIOD_END}T23:59:59Z'::timestamptz)")
+    # All others: raw aggregate SQL from file (SELECT COUNT(*) ...)
     sql_path = ROOT / "sql" / "measures" / measure_id / f"02-{measure_id}-measure.sql"
     sql = sql_path.read_text()
-    sql = em.parameterize_sql(sql, PERIOD_START, PERIOD_END)
-    return em.build_patient_sql(sql, None)
+    return em.parameterize_sql(sql, PERIOD_START, PERIOD_END)
 
 
 def measure_one(measure_id: str, base_url: str, user: str, password: str,
                 warm: bool = True, iterations: int = 1) -> dict:
-    """Run cohort SQL `iterations` times after one warmup. Report median+min+max."""
-    cohort_sql = build_cohort_sql(measure_id)
+    """Run aggregate SQL `iterations` times after one warmup. Report median+min+max."""
+    sql = build_aggregate_sql(measure_id)
     if warm:
         try:
-            run_sql(cohort_sql, base_url, user, password)
+            run_sql(sql, base_url, user, password)
         except Exception as e:
             return {"error": f"warmup failed: {e}"}
     samples: list[float] = []
@@ -63,7 +68,7 @@ def measure_one(measure_id: str, base_url: str, user: str, password: str,
     for _ in range(iterations):
         t0 = time.time()
         try:
-            rows = run_sql(cohort_sql, base_url, user, password)
+            rows = run_sql(sql, base_url, user, password)
         except urllib.error.HTTPError as e:
             return {"error": f"HTTP {e.code}: {e.read()[:200].decode(errors='replace')}"}
         except Exception as e:
@@ -71,11 +76,13 @@ def measure_one(measure_id: str, base_url: str, user: str, password: str,
         samples.append((time.time() - t0) * 1000)
         last_rows = rows
     rows = last_rows or []
-    n_rows = len(rows) if isinstance(rows, list) else 0
-    n_ip = sum(1 for r in rows if r.get("ip"))
-    n_den = sum(1 for r in rows if r.get("den"))
-    n_exc = sum(1 for r in rows if r.get("exc"))
-    n_num = sum(1 for r in rows if r.get("num"))
+
+    r = rows[0] if rows else {}
+    n_ip = r.get("initial_population", 0)
+    n_den = r.get("denominator", 0)
+    n_exc = r.get("denominator_exclusion", 0) or 0
+    n_num = r.get("numerator", 0) or 0
+
     samples.sort()
     median = samples[len(samples) // 2]
     return {
@@ -83,7 +90,6 @@ def measure_one(measure_id: str, base_url: str, user: str, password: str,
         "median_ms": round(median, 1),
         "min_ms": round(min(samples), 1),
         "max_ms": round(max(samples), 1),
-        "rows": n_rows,
         "ip": n_ip, "den": n_den, "exc": n_exc, "num": n_num,
     }
 
@@ -117,7 +123,7 @@ def main():
             print(f"  ERROR: {result['error']}")
         else:
             spread = f"({result['min_ms']:.0f}–{result['max_ms']:.0f})"
-            print(f"  median={result['median_ms']:>7.1f}ms {spread:>14s}  rows={result['rows']:6d}  "
+            print(f"  median={result['median_ms']:>7.1f}ms {spread:>14s}  "
                   f"ip={result['ip']}/den={result['den']}/exc={result['exc']}/num={result['num']}")
 
     out_path = OUT_DIR / f"perf-{args.label}.json"
