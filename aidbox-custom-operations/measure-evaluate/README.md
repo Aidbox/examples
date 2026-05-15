@@ -14,7 +14,7 @@ Includes 12 CMS quality measures with sample data (484 test patients) and an int
 
 | Component | Version |
 |---|---|
-| Aidbox | edge |
+| Aidbox | **2603 recommended** (minimum 2508 — needed for `ViewDefinition`/`$materialize`) |
 | Python / Flask | 3.11 / 3.x |
 | PostgreSQL | 17 (via aidboxdb) |
 

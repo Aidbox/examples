@@ -163,6 +163,16 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 .evidence-box-item strong{color:var(--fg);font-weight:500}
 .ev-conclusion{font-size:0.75rem;font-weight:500;margin-top:.35rem;padding-top:.3rem;border-top:1px solid var(--line)}
 .outcome-closed{color:var(--teal)}.outcome-open{color:var(--rose)}.outcome-excluded{color:var(--amber)}.outcome-notip{color:var(--fg3)}
+.res-link{color:var(--teal);text-decoration:none;cursor:pointer;border-bottom:1px dashed transparent;transition:border-color .12s}
+.res-link:hover{border-bottom-color:var(--teal)}
+.res-link strong{color:var(--teal)}
+.res-link.loading{opacity:.5}
+.res-link.error,.res-link.error strong{color:var(--rose)}
+.res-console{display:inline-block;margin:0 .15rem;color:var(--teal);text-decoration:none;cursor:pointer;font-size:0.75rem;line-height:1;padding:0 .2rem;border-radius:3px;transition:background .15s}
+.res-console:hover{background:var(--teal-bg)}
+.res-console.copied{background:var(--teal-bg);color:var(--teal)}
+.res-preview{display:block;margin-top:.3rem;padding:.5rem .65rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;font-family:var(--mono);font-size:0.6rem;line-height:1.45;color:var(--fg2);max-height:320px;overflow:auto;white-space:pre-wrap}
+.cte-tag{display:inline-block;margin-left:.4rem;padding:.05rem .35rem;background:var(--bg3);color:var(--fg3);font-family:var(--mono);font-size:0.55rem;border-radius:3px;letter-spacing:.04em;vertical-align:middle}
 
 /* ── Care gap specific ─────────────── */
 .cat-badge{font-size:0.5rem;font-weight:600;padding:.08rem .3rem;border-radius:3px;display:inline-block;margin-right:.15rem}
@@ -248,7 +258,7 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 <body>
 <div class="shell">
   <div class="topbar">
-    <div class="topbar-brand">Quality Measures<small>Care Gap Management</small></div>
+    <div class="topbar-brand"><span id="brand">Quality Measures</span><small id="subbrand">Care Gap Management</small></div>
     <div class="tabs" id="tabs">
       <div class="tab active" data-tab="overview" onclick="switchTab('overview',this)">Overview</div>
       <div class="tab" data-tab="worklist" onclick="switchTab('worklist',this)">Worklist</div>
@@ -360,7 +370,7 @@ function render(){
 async function init(){
   const stack=new URLSearchParams(location.search).get('stack');const cfgFile=stack?`./config-${stack}.json`:'./config.json';
   let cfg={};
-  try{cfg=await(await fetch(cfgFile)).json();AIDBOX_URL=cfg.aidbox_url||AIDBOX_URL;AUTH='Basic '+btoa((cfg.auth_user||'root')+':'+(cfg.auth_pass||'secret'));document.getElementById('dataset-label').textContent=cfg.dataset_label||''}catch(e){}
+  try{cfg=await(await fetch(cfgFile)).json();AIDBOX_URL=cfg.aidbox_url||AIDBOX_URL;AUTH='Basic '+btoa((cfg.auth_user||'root')+':'+(cfg.auth_pass||'secret'));document.getElementById('dataset-label').textContent=cfg.dataset_label||'';if(cfg.brand)document.getElementById('brand').textContent=cfg.brand;if(cfg.subbrand)document.getElementById('subbrand').textContent=cfg.subbrand;document.title=(cfg.brand||'Quality Measures')+' — '+(cfg.subbrand||'Care Gap Management')}catch(e){}
   const yr=new Date().getFullYear();
   document.getElementById('period-start').value=cfg.period_start||`${yr}-01-01`;
   document.getElementById('period-end').value=cfg.period_end||`${yr}-12-31`;
@@ -652,8 +662,86 @@ async function loadEvidence(mid,pid,targetId){
   let html='<div class="evidence-panel open"><table class="decision-table"><thead><tr><th>Step</th><th>CTE</th><th>Result</th></tr></thead><tbody>';
   for(const step of m.steps){const val=d[step.cte],isYes=val==='YES';const isSummary=['denominator_exclusion','numerator','initial_population'].includes(step.cte);html+=`<tr${isSummary?' class="step-summary"':''}><td>${isSummary?'<strong>'+step.label+'</strong>':step.label}</td><td><code>${step.cte}</code></td><td class="${isYes?'yes':'no'}">${isSummary?'<strong>'+(isYes?'YES':'no')+'</strong>':(val||'—')}</td></tr>`}html+='</tbody></table>';
   const ipItems=evRows.filter(r=>r.ip_code_display);const numItems=evRows.filter(r=>r.code_display||r.exclusion_pathway);
-  if(ipItems.length||numItems.length){html+='<div class="evidence-box"><div class="evidence-box-title">Evidence</div>';const shown=new Set();for(const r of ipItems){const k=r.ip_code_display+r.ip_event_date;if(shown.has(k))continue;shown.add(k);html+=`<div class="evidence-box-item"><strong>${r.ip_resource_type||'Encounter'}:</strong> ${r.ip_code_display}${r.ip_event_date?' — '+r.ip_event_date.substring(0,10):''}</div>`}for(const r of numItems){if(r.code_display)html+=`<div class="evidence-box-item"><strong>${r.resource_type||'Resource'}:</strong> ${r.code_display} (${r.code||''})${r.event_date?' — '+r.event_date.substring(0,10):''}</div>`;else if(r.exclusion_pathway)html+=`<div class="evidence-box-item"><strong>Exception:</strong> ${r.exclusion_pathway}</div>`}html+='</div>'}
+  if(ipItems.length||numItems.length){
+    html+='<div class="evidence-box"><div class="evidence-box-title">Evidence</div>';
+    const shown=new Set();
+    for(const r of ipItems){
+      const rt=r.ip_resource_type||'Encounter',rid=r.ip_resource_id||'',src=r.source_cte||r.ip_pathway||r.pathway||'';
+      const key=rid?`${rt}/${rid}|${src}`:`ip|${r.ip_code_display}|${r.ip_event_date}|${src}`;
+      if(shown.has(key))continue;shown.add(key);
+      const date=r.ip_event_date?' — '+r.ip_event_date.substring(0,10):'';
+      const tag=src?` <span class="cte-tag">${escapeHtml(src)}</span>`:'';
+      if(rid){
+        const sRt=escapeHtml(rt),sRid=escapeHtml(rid);
+        html+=`<div class="evidence-box-item"><a class="res-link" href="#" onclick="return loadResource(event,this,'${sRt}','${sRid}')"><strong>${sRt}:</strong> ${escapeHtml(r.ip_code_display)}</a> <a class="res-console" href="#" onclick="return openConsole(event,'${sRt}','${sRid}')" title="Open in Aidbox REST console (copies GET to clipboard)">↗</a>${date}${tag}<pre class="res-preview" style="display:none"></pre></div>`;
+      }else{
+        html+=`<div class="evidence-box-item"><strong>${escapeHtml(rt)}:</strong> ${escapeHtml(r.ip_code_display)}${date}${tag}</div>`;
+      }
+    }
+    for(const r of numItems){
+      if(r.code_display){
+        const rt=r.resource_type||'Resource',rid=r.resource_id||'',src=r.source_cte||r.pathway||'';
+        const key=rid?`${rt}/${rid}|${src}`:`num|${r.code_display}|${r.event_date}|${src}`;
+        if(shown.has(key))continue;shown.add(key);
+        const date=r.event_date?' — '+r.event_date.substring(0,10):'';
+        const codeStr=r.code?` (${escapeHtml(r.code)})`:'';
+        const tag=src?` <span class="cte-tag">${escapeHtml(src)}</span>`:'';
+        if(rid){
+          const sRt=escapeHtml(rt),sRid=escapeHtml(rid);
+          html+=`<div class="evidence-box-item"><a class="res-link" href="#" onclick="return loadResource(event,this,'${sRt}','${sRid}')"><strong>${sRt}:</strong> ${escapeHtml(r.code_display)}</a>${codeStr} <a class="res-console" href="#" onclick="return openConsole(event,'${sRt}','${sRid}')" title="Open in Aidbox REST console (copies GET to clipboard)">↗</a>${date}${tag}<pre class="res-preview" style="display:none"></pre></div>`;
+        }else{
+          html+=`<div class="evidence-box-item"><strong>${escapeHtml(rt)}:</strong> ${escapeHtml(r.code_display)}${codeStr}${date}${tag}</div>`;
+        }
+      }else if(r.exclusion_pathway){
+        const src=r.source_cte||r.pathway||'';
+        const key=`exc|${r.exclusion_pathway}|${src}`;
+        if(shown.has(key))continue;shown.add(key);
+        const tag=src?` <span class="cte-tag">${escapeHtml(src)}</span>`:'';
+        html+=`<div class="evidence-box-item"><strong>Exception:</strong> ${escapeHtml(r.exclusion_pathway)}${tag}</div>`;
+      }
+    }
+    html+='</div>';
+  }
   const ip=d.initial_population==='YES',num=d.numerator==='YES',exc=d.denominator_exclusion==='YES';html+=`<div class="ev-conclusion">${!ip?'<span class="outcome-notip"><strong>Not in IP</strong></span>':exc?'<span class="outcome-excluded"><strong>Excluded</strong></span>':num?'<span class="outcome-closed"><strong>Gap Closed</strong></span>':'<span class="outcome-open"><strong>Gap Open</strong></span>'}</div></div>`;el.innerHTML=html}catch(e){el.innerHTML=`<div class="evidence-panel open"><span class="ev-none">Error: ${e.message}</span></div>`}}
+
+function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c])}
+
+function openConsole(ev,type,id){
+  ev.preventDefault();ev.stopPropagation();
+  const path=`/${type}/${id}`;
+  const url=`${AIDBOX_URL}/ui/console#/rest?method=GET&url=${encodeURIComponent(path)}`;
+  const cmd=`GET ${path}`;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(cmd).then(()=>{
+      const el=ev.target;el.classList.add('copied');
+      el.title=`Copied "${cmd}" to clipboard. Paste in REST console.`;
+      setTimeout(()=>el.classList.remove('copied'),1500);
+    }).catch(()=>{});
+  }
+  window.open(url,'_blank','noopener');
+  return false;
+}
+
+async function loadResource(ev,linkEl,type,id){
+  ev.preventDefault();ev.stopPropagation();
+  const pre=linkEl.parentElement.querySelector('pre.res-preview');
+  if(!pre)return false;
+  if(pre.style.display!=='none'){pre.style.display='none';return false}
+  if(pre.dataset.loaded==='1'){pre.style.display='';return false}
+  linkEl.classList.add('loading');
+  try{
+    const resp=await fetch(`${AIDBOX_URL}/fhir/${type}/${id}`,{headers:{'Authorization':AUTH,'Accept':'application/fhir+json'}});
+    if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+    const j=await resp.json();
+    pre.textContent=JSON.stringify(j,null,2);
+    pre.dataset.loaded='1';pre.style.display='';
+    linkEl.classList.remove('loading');
+  }catch(e){
+    pre.textContent=`Error: ${e.message}\nURL: ${AIDBOX_URL}/fhir/${type}/${id}`;
+    pre.style.display='';linkEl.classList.remove('loading');linkEl.classList.add('error');
+  }
+  return false;
+}
 
 // ══════════════════════════════════
 //  EXPORTS

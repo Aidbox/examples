@@ -17,7 +17,7 @@ Guide for deploying `Measure/$evaluate-measure` into an **already-running Aidbox
 
 - **Aidbox** any recent build, FHIR R4
   - Storage: Aidbox JSONB (default). The shipped `ViewDefinition` resources use FHIRPath against Aidbox JSONB; raw HAPI/FHIR JSON storage is not supported.
-  - Version: Aidbox 2508 or later (needed for the `$materialize` operation on `ViewDefinition`). On older Aidbox versions `setup.py` automatically switches to a legacy hand-written-SQL path that doesn't need `$materialize`.
+  - Version: **Aidbox 2603 recommended** (current stable). Minimum supported is 2508 (needed for the `$materialize` operation on `ViewDefinition`). Older versions are not supported — the legacy hand-written-SQL fallback path remains in `setup.py` but is not actively maintained.
 - **Your FHIR data** conforms (at least loosely) to [US Core 6.1](http://hl7.org/fhir/us/core/STU6.1/) / [QI-Core 6.0](http://hl7.org/fhir/us/qicore/STU6/). The measures read these elements (multi-coding supported — all entries in `code.coding[]` are considered):
   - `Patient` with `birthDate`, `gender`, optional `us-core-sex` / `us-core-race` / `us-core-ethnicity` extensions
   - `Encounter` with `status`, `class.code`, `period.start`, `type.coding`
