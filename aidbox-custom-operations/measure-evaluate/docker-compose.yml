@@ -11,7 +11,7 @@ services:
       POSTGRES_DB: aidbox
       POSTGRES_PASSWORD: M3ya7uZxdJ
   aidbox:
-    image: healthsamurai/aidboxone:edge
+    image: healthsamurai/aidboxone:2603
     depends_on:
       - db
     ports:
