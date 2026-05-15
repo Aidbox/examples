@@ -480,7 +480,7 @@ async function renderDetailRows(id,btn){
   const page=filtered.slice(currentPage*PAGE_SIZE,(currentPage+1)*PAGE_SIZE);
   await loadNamesForIds(page.map(r=>r.patient_id));
   let html='';
-  for(const r of page){const g=gapStatus(r);const name=patientLabel(r.patient_id);const evId='ev-'+r.patient_id.substring(0,10);
+  for(const r of page){const g=gapStatus(r);const name=patientLabel(r.patient_id);const evId='ev-'+r.patient_id;
   html+=`<tr class="p-row row-${g.key}" onclick="toggleEv('${id}','${r.patient_id}','${evId}',this)"><td class="mono" style="white-space:nowrap">${r.patient_id}</td><td><span style="cursor:pointer" onclick="event.stopPropagation();goP360('${r.patient_id}')">${name}</span></td><td>${patientAge(r.patient_id)}</td><td class="num">${r.ip}</td><td class="num">${r.num}</td><td class="num">${r.den}</td><td class="num">${r.exc}</td><td><span class="badge ${g.cls}">${g.label}</span></td></tr><tr class="ev-row" style="display:none"><td colspan="8" style="padding:.35rem .5rem;background:var(--bg);border-bottom:2px solid var(--line)"><div id="${evId}"></div></td></tr>`}
   body.innerHTML=html;
   const tc=document.getElementById('tcount');if(tc)tc.textContent=total?`${currentPage*PAGE_SIZE+1}–${Math.min((currentPage+1)*PAGE_SIZE,total)} / ${total.toLocaleString()}`:'0';
