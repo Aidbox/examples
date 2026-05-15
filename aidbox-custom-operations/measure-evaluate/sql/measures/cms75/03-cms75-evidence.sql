@@ -22,6 +22,7 @@ ip_evidence AS (
     FROM encounter_flat e
     JOIN initial_population ip ON ip.patient_id = e.patient_id
     JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
+        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1003'  -- DentalServiceVisits
     CROSS JOIN mp
     WHERE e.period_start >= mp.mp_start AND e.period_end <= mp.mp_end
 ),
@@ -109,6 +110,8 @@ SELECT
     ee.exclusion_pathway,
     ee.exc_resource_type,
     ee.exc_resource_id,
+    ie.pathway AS ip_pathway,
+    ie.source_cte AS ip_source_cte,
     ie.resource_type AS ip_resource_type,
     ie.resource_id AS ip_resource_id,
     ie.code_display AS ip_code_display,

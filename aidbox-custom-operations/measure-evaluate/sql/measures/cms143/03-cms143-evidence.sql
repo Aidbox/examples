@@ -61,6 +61,20 @@ exclusion_evidence AS (
         AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1334'
     WHERE o.resource->>'status' = 'cancelled'
         AND o.resource#>>'{subject,id}' IN (SELECT patient_id FROM medical_reason_optic_disc)
+),
+
+-- ============================================================
+-- EVIDENCE: Initial Population — POAG encounter (encounter WITH active POAG diagnosis)
+-- ============================================================
+ip_evidence AS (
+    SELECT DISTINCT pe.patient_id, 'poag_encounter' AS pathway,
+           'Encounter' AS resource_type, pe.encounter_id AS resource_id,
+           e.type_code AS code, vs.display AS code_display,
+           pe.period_start AS event_date, 'initial_population' AS source_cte
+    FROM poag_encounters pe
+    JOIN initial_population ip ON ip.patient_id = pe.patient_id
+    JOIN encounter_flat e ON e.id = pe.encounter_id AND e.patient_id = pe.patient_id
+    LEFT JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
 )
 
 -- ============================================================
@@ -81,8 +95,15 @@ SELECT
     ne.source_cte,
     ee.exclusion_pathway,
     ee.exc_resource_type,
-    ee.exc_resource_id
+    ee.exc_resource_id,
+    ie.pathway AS ip_pathway,
+    ie.source_cte AS ip_source_cte,
+    ie.resource_type AS ip_resource_type,
+    ie.resource_id AS ip_resource_id,
+    ie.code_display AS ip_code_display,
+    ie.event_date AS ip_event_date
 FROM measure_results mr
+LEFT JOIN ip_evidence ie ON ie.patient_id = mr.patient_id
 LEFT JOIN numerator_evidence ne ON ne.patient_id = mr.patient_id
 LEFT JOIN exclusion_evidence ee ON ee.patient_id = mr.patient_id
 ORDER BY mr.patient_id, pathway;

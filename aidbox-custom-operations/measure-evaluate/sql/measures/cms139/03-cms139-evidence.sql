@@ -21,6 +21,23 @@ ip_evidence AS (
     FROM encounter_flat e
     JOIN initial_population ip ON ip.patient_id = e.patient_id
     JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
+        AND vs.valueset_url IN (
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1240',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1025',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1023',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1080',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1089',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1285',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1026',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1013',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1012',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1014',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1066',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1022',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.1011'
+        )
     CROSS JOIN mp
     WHERE e.period_start >= mp.mp_start AND e.period_end <= mp.mp_end
 ),
@@ -108,6 +125,8 @@ SELECT
     ee.exclusion_pathway,
     ee.exc_resource_type,
     ee.exc_resource_id,
+    ie.pathway AS ip_pathway,
+    ie.source_cte AS ip_source_cte,
     ie.resource_type AS ip_resource_type,
     ie.resource_id AS ip_resource_id,
     ie.code_display AS ip_code_display,
