@@ -251,11 +251,11 @@ def main():
         try:
             req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}", method="PUT",
                 data=json.dumps(vd).encode())
-            req.add_header("Authorization", auth_header())
+            req.add_header("Authorization", f"Basic {auth_header()}")
             req.add_header("Content-Type", "application/json")
             urllib.request.urlopen(req, timeout=30)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"  WARN: failed to upload ViewDefinition/{vd_id}: {e}")
     print(f"  OK — {len(vd_ids)} ViewDefinitions uploaded")
 
     # Create concepts table
@@ -301,7 +301,7 @@ def main():
         try:
             req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}/$materialize", method="POST",
                 data=mat_body)
-            req.add_header("Authorization", auth_header())
+            req.add_header("Authorization", f"Basic {auth_header()}")
             req.add_header("Content-Type", "application/json")
             urllib.request.urlopen(req, timeout=300)
         except Exception as e:
