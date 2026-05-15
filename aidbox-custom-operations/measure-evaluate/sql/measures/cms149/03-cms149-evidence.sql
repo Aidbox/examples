@@ -11,15 +11,16 @@
 -- EVIDENCE: Initial Population qualifying encounters
 -- ============================================================
 ip_evidence AS (
-    SELECT DISTINCT e.patient_id, 'dementia_encounter' AS pathway,
-           'Encounter' AS resource_type, e.id AS resource_id,
+    -- Source from dementia_encounter (encounter WITH overlapping active dementia condition)
+    -- — that's the joint condition that makes a patient IP-eligible.
+    SELECT DISTINCT de.patient_id, 'dementia_encounter' AS pathway,
+           'Encounter' AS resource_type, de.encounter_id AS resource_id,
            e.type_code AS code, vs.display AS code_display,
-           e.period_start AS event_date, 'initial_population' AS source_cte
-    FROM encounter_flat e
-    JOIN initial_population ip ON ip.patient_id = e.patient_id
-    JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
-    CROSS JOIN mp
-    WHERE e.period_start >= mp.mp_start AND e.period_end <= mp.mp_end
+           de.period_start AS event_date, 'initial_population' AS source_cte
+    FROM dementia_encounter de
+    JOIN initial_population ip ON ip.patient_id = de.patient_id
+    JOIN encounter_flat e ON e.id = de.encounter_id AND e.patient_id = de.patient_id
+    LEFT JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code
 ),
 
 numerator_evidence AS (
@@ -96,6 +97,8 @@ SELECT
     ee.exclusion_pathway,
     ee.exc_resource_type,
     ee.exc_resource_id,
+    ie.pathway AS ip_pathway,
+    ie.source_cte AS ip_source_cte,
     ie.resource_type AS ip_resource_type,
     ie.resource_id AS ip_resource_id,
     ie.code_display AS ip_code_display,

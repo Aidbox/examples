@@ -104,6 +104,32 @@ exclusion_evidence AS (
     JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code
         AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.378'
     WHERE c.patient_id IN (SELECT patient_id FROM pregnancy_exclusion)
+),
+
+-- ============================================================
+-- EVIDENCE: Initial Population qualifying encounters (strict)
+-- ============================================================
+ip_evidence AS (
+    SELECT DISTINCT e.patient_id, 'qualifying_encounter' AS pathway,
+           'Encounter' AS resource_type, e.id AS resource_id,
+           e.type_code AS code, c.display AS code_display,
+           e.period_start AS event_date, 'initial_population' AS source_cte
+    FROM encounter_flat e
+    JOIN initial_population ip ON ip.patient_id = e.patient_id
+    JOIN concepts c ON c.system = e.type_system AND c.code = e.type_code
+        AND c.valueset_url IN (
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1001',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1026',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1024',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1022',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1027',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1016',
+            'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1080'
+        )
+    CROSS JOIN mp
+    WHERE e.status = 'finished'
+        AND e.period_start >= mp.mp_start
+        AND e.period_start <= mp.mp_end
 )
 
 -- ============================================================
@@ -124,8 +150,15 @@ SELECT
     ne.source_cte,
     ee.exclusion_pathway,
     ee.exc_resource_type,
-    ee.exc_resource_id
+    ee.exc_resource_id,
+    ie.pathway AS ip_pathway,
+    ie.source_cte AS ip_source_cte,
+    ie.resource_type AS ip_resource_type,
+    ie.resource_id AS ip_resource_id,
+    ie.code_display AS ip_code_display,
+    ie.event_date AS ip_event_date
 FROM measure_results mr
+LEFT JOIN ip_evidence ie ON ie.patient_id = mr.patient_id
 LEFT JOIN numerator_evidence ne ON ne.patient_id = mr.patient_id
 LEFT JOIN exclusion_evidence ee ON ee.patient_id = mr.patient_id
 ORDER BY mr.patient_id, pathway;

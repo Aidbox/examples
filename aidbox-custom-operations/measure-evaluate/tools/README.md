@@ -55,6 +55,32 @@ diff <(jq -r '.measures | to_entries[] | "\(.key) \(.value.median_ms)"' tools/pe
      <(jq -r '.measures | to_entries[] | "\(.key) \(.value.median_ms)"' tools/perf-after.json)
 ```
 
+## `refresh_sof.py` — rebuild sof.*_flat materialized tables
+
+After bulk imports or any change to raw FHIR resources, the `sof.*_flat`
+materialized tables go stale — `$materialize` does a full rebuild, there is no
+incremental refresh. Schedule this script from cron or run it on demand.
+
+```bash
+# default — POSTs to http://localhost:8888 with root/secret
+python3 tools/refresh_sof.py
+
+# remote Aidbox
+python3 tools/refresh_sof.py \
+    --base-url https://aidbox.example.com \
+    --user $AIDBOX_USER --password $AIDBOX_PASS
+```
+
+What it does:
+1. `DROP VIEW IF EXISTS` for each wrapper view CASCADE — PostgreSQL refuses to
+   drop a table while a view depends on it, so wrappers must go first.
+2. `POST /fhir/ViewDefinition/{id}/$materialize` for each of 9 ViewDefinitions.
+3. Re-apply `sql/01-wrapper-views.sql` (recreate wrappers).
+4. Re-apply `sql/03-sof-indexes.sql` (CREATE INDEX IF NOT EXISTS + ANALYZE).
+
+Exits non-zero if any `$materialize` call fails — safe for cron monitoring.
+On 100k patients the full cycle runs in ~3 seconds; on 1M ~1–2 minutes.
+
 ## Other scripts
 
 - `scale_test.py` — multiply the 485 reference patients by N for scale testing.
