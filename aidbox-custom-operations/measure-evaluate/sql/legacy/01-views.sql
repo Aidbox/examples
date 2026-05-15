@@ -132,12 +132,17 @@ SELECT
     r.resource->'value'->'CodeableConcept'->'coding'->0->>'code' AS value_code,
     CASE WHEN r.resource->'value' IS NOT NULL THEN true ELSE false END AS has_value,
     parse_fhir_datetime(r.resource->>'issued') AS issued,
-    -- qicore-notDoneReason extension (CMS143/CMS149 use it for exception logic)
-    (SELECT ext->'value'->'CodeableConcept'->'coding'->0->>'system'
+    -- qicore-notDoneReason extension (CMS143/CMS149 use it for denominator-exception logic)
+    -- Aidbox edge: value.CodeableConcept.coding, Aidbox 2506: valueCodeableConcept.coding — support both
+    (SELECT COALESCE(
+        ext->'value'->'CodeableConcept'->'coding'->0->>'system',
+        ext->'valueCodeableConcept'->'coding'->0->>'system')
      FROM jsonb_array_elements(r.resource->'extension') ext
      WHERE ext->>'url' = 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason'
      LIMIT 1) AS not_done_reason_system,
-    (SELECT ext->'value'->'CodeableConcept'->'coding'->0->>'code'
+    (SELECT COALESCE(
+        ext->'value'->'CodeableConcept'->'coding'->0->>'code',
+        ext->'valueCodeableConcept'->'coding'->0->>'code')
      FROM jsonb_array_elements(r.resource->'extension') ext
      WHERE ext->>'url' = 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason'
      LIMIT 1) AS not_done_reason_code
