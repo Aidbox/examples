@@ -306,7 +306,9 @@ def main():
             urllib.request.urlopen(req, timeout=300)
         except Exception as e:
             print(f"  WARN: $materialize failed for {vd_id}: {e}")
-            print(f"  Falling back to legacy views...")
+            print(f"  Check your Aidbox version: $materialize on ViewDefinition needs Aidbox 2508 or later.")
+            print(f"  Run: curl -s {BASE_URL}/health | jq -r '.about.version'")
+            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work — Aidbox 2508+ recommended).")
             execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
             execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
             execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
