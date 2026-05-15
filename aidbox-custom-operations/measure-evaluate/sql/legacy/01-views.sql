@@ -39,20 +39,21 @@ SELECT
     r.resource->>'birthDate' AS birth_date,
     r.resource->>'gender' AS gender,
     -- us-core-sex extension: Patient.sex in QICore (SNOMED code, e.g. 248152002 = Female)
-    (SELECT ext->'value'->>'code'
+    -- Aidbox edge stores as value.code, Aidbox 2506 stores as valueCode — support both
+    (SELECT COALESCE(ext->'value'->>'code', ext->>'valueCode')
      FROM jsonb_array_elements(r.resource->'extension') ext
      WHERE ext->>'url' = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-sex'
      LIMIT 1) AS sex,
     -- us-core-race extension: ombCategory code (e.g. 1002-5 = American Indian, 2054-5 = Black, 2106-3 = White, 2028-9 = Asian)
-    -- Aidbox polymorphic: value.Coding.code (not value.code)
-    (SELECT COALESCE(sub_ext->'value'->'Coding'->>'code', sub_ext->'value'->>'code')
+    -- Aidbox edge: value.Coding.code, Aidbox 2506: valueCoding.code — support both
+    (SELECT COALESCE(sub_ext->'value'->'Coding'->>'code', sub_ext->'valueCoding'->>'code', sub_ext->'value'->>'code')
      FROM jsonb_array_elements(r.resource->'extension') ext,
           LATERAL jsonb_array_elements(ext->'extension') sub_ext
      WHERE ext->>'url' = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
        AND sub_ext->>'url' = 'ombCategory'
      LIMIT 1) AS race_code,
     -- us-core-ethnicity extension: ombCategory code (e.g. 2135-2 = Hispanic, 2186-5 = Non-Hispanic)
-    (SELECT COALESCE(sub_ext->'value'->'Coding'->>'code', sub_ext->'value'->>'code')
+    (SELECT COALESCE(sub_ext->'value'->'Coding'->>'code', sub_ext->'valueCoding'->>'code', sub_ext->'value'->>'code')
      FROM jsonb_array_elements(r.resource->'extension') ext,
           LATERAL jsonb_array_elements(ext->'extension') sub_ext
      WHERE ext->>'url' = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity'
