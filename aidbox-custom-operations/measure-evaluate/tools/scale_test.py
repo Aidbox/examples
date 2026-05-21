@@ -16,6 +16,7 @@ Usage:
     python3 tools/scale_test.py --multiplier 10        # ×10 = ~4 850 patients
     python3 tools/scale_test.py --multiplier 100       # ×100 = ~48 500 patients
     python3 tools/scale_test.py --measure cms130       # restrict to one measure
+    python3 tools/scale_test.py --multiplier 200 --load-only  # load only, no evaluate
     python3 tools/scale_test.py --cleanup              # remove all multiplied data
     python3 tools/scale_test.py --base-url http://localhost:9999
 """
@@ -259,6 +260,10 @@ def main():
                    help=f"Aidbox base URL (default: {BASE_URL})")
     p.add_argument("--cleanup", action="store_true",
                    help="remove all scale-test data and exit")
+    p.add_argument("--load-only", action="store_true",
+                   help="load multiplied data and exit; skip measure evaluation")
+    p.add_argument("--evaluate-only", action="store_true",
+                   help="skip data loading; run measure evaluation on existing data")
     args = p.parse_args()
 
     BASE_URL = args.base_url
@@ -267,7 +272,11 @@ def main():
         cleanup_scale_test_data()
         return
 
-    if args.multiplier < 1:
+    if args.load_only and args.evaluate_only:
+        print("--load-only and --evaluate-only are mutually exclusive", file=sys.stderr)
+        sys.exit(2)
+
+    if not args.evaluate_only and args.multiplier < 1:
         print("--multiplier must be >= 1", file=sys.stderr)
         sys.exit(2)
 
@@ -279,62 +288,80 @@ def main():
 
     print(f"Scale test on {BASE_URL}")
     print(f"  Baseline patient count: {patient_count()}")
-    print(f"  Multiplier: ×{args.multiplier}")
+    if not args.evaluate_only:
+        print(f"  Multiplier: ×{args.multiplier}")
     print(f"  Measures: {', '.join(measures)}")
     print()
 
-    # Phase 1 — load multiplied clinical data (parallel across measures)
-    print("[1/2] Loading multiplied clinical data...")
-    total = 0
-    t0 = time.time()
-    results = {}
+    if args.evaluate_only:
+        print("[1/2] Skipping load (--evaluate-only)")
+    else:
+        # Phase 1 — load multiplied clinical data (parallel across measures)
+        print("[1/2] Loading multiplied clinical data...")
+        total = 0
+        t0 = time.time()
+        results = {}
 
-    def load_measure_copies(m):
-        n = 0
-        for i in range(1, args.multiplier + 1):
-            try:
-                n += load_copy(m, i)
-            except Exception as e:
-                print(f"  FAIL {m} copy {i}: {str(e)[:80]}")
-                break
-        return m, n
+        def load_measure_copies(m):
+            n = 0
+            for i in range(1, args.multiplier + 1):
+                try:
+                    n += load_copy(m, i)
+                except Exception as e:
+                    print(f"  FAIL {m} copy {i}: {str(e)[:80]}")
+                    break
+            return m, n
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as ex:
-        for m, n in ex.map(load_measure_copies, measures):
-            results[m] = n
-            total += n
-            print(f"  {m}: {n} resources across {args.multiplier} copies")
-    print(f"  Total: {total} resources in {time.time() - t0:.1f}s")
-    print(f"  Patient count now: {patient_count()}")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as ex:
+            for m, n in ex.map(load_measure_copies, measures):
+                results[m] = n
+                total += n
+                print(f"  {m}: {n} resources across {args.multiplier} copies")
+        print(f"  Total: {total} resources in {time.time() - t0:.1f}s")
+        print(f"  Patient count now: {patient_count()}")
 
-    # Verify: count resources per type in DB vs expected
-    print("  Verifying resource counts...")
-    by_type = {}
-    for m in measures:
-        path = os.path.join(DATA_DIR, f"{m}-clinical-data.json")
-        if not os.path.exists(path):
-            continue
-        with open(path) as f:
-            bundle = json.load(f)
-        for entry in bundle.get("entry", []):
-            r = entry.get("resource", {})
-            rt = r.get("resourceType")
-            rid = r.get("id")
-            if rt and rid:
-                by_type.setdefault(rt, set()).add(rid)
-    ok = True
-    for rt, ids in sorted(by_type.items()):
-        expected = len(ids) * (1 + args.multiplier)
+    if not args.evaluate_only:
+        # Detect whether baseline 485 dqm-content patients are loaded.
+        # Multiplied copies get '-stNNNN' suffix; baseline ids don't.
         try:
-            actual = http("POST", "/$sql", [f"SELECT count(*) AS n FROM {rt.lower()}"])[0]["n"]
+            baseline = http("POST", "/$sql",
+                ["SELECT count(*) AS n FROM patient WHERE id NOT LIKE '%-st____'"])[0]["n"]
         except Exception:
-            actual = 0
-        if actual < expected:
-            print(f"  WARN {rt}: expected {expected}, got {actual} (missing {expected - actual})")
-            ok = False
-    if ok:
-        print("  OK — all resource counts match")
+            baseline = 0
+        copies = args.multiplier + (1 if baseline > 0 else 0)
+        print(f"  Verifying resource counts (baseline {'present' if baseline > 0 else 'absent'})...")
+
+        # Verify: count resources per type in DB vs expected
+        by_type = {}
+        for m in measures:
+            path = os.path.join(DATA_DIR, f"{m}-clinical-data.json")
+            if not os.path.exists(path):
+                continue
+            with open(path) as f:
+                bundle = json.load(f)
+            for entry in bundle.get("entry", []):
+                r = entry.get("resource", {})
+                rt = r.get("resourceType")
+                rid = r.get("id")
+                if rt and rid:
+                    by_type.setdefault(rt, set()).add(rid)
+        ok = True
+        for rt, ids in sorted(by_type.items()):
+            expected = len(ids) * copies
+            try:
+                actual = http("POST", "/$sql", [f"SELECT count(*) AS n FROM {rt.lower()}"])[0]["n"]
+            except Exception:
+                actual = 0
+            if actual < expected:
+                print(f"  WARN {rt}: expected {expected}, got {actual} (missing {expected - actual})")
+                ok = False
+        if ok:
+            print("  OK — all resource counts match")
     print()
+
+    if args.load_only:
+        print("Done (--load-only). Re-run without --load-only to evaluate measures.")
+        return
 
     # Phase 2 — measure timings
     print("[2/2] Running measures...")
