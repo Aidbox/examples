@@ -28,6 +28,15 @@ MEASURES = [
     "cms149", "cms153", "cms155", "cms143",
 ]
 
+# Wrapper views that depend on sof.*_flat tables. Must be dropped before
+# $materialize because Postgres refuses to DROP TABLE while a view depends
+# on it. Recreated from 01-wrapper-views.sql after $materialize completes.
+WRAPPER_VIEWS = [
+    "patient_flat", "encounter_flat", "condition_flat", "procedure_flat",
+    "observation_flat", "observation_bp_flat",
+    "servicerequest_flat", "medicationrequest_flat", "devicerequest_flat",
+]
+
 
 def auth_header():
     return base64.b64encode(f"{USER}:{PASS}".encode()).decode()
@@ -295,6 +304,14 @@ def main():
 
     # Materialize ViewDefinitions (after data loaded)
     print("\n[7/8] Materializing ViewDefinitions → sof.* tables...")
+    # Drop wrapper views (CASCADE) first — $materialize re-creates the sof.* tables
+    # via DROP TABLE, which Postgres refuses while wrapper views depend on them.
+    # IF EXISTS makes this a no-op on first run.
+    for view in WRAPPER_VIEWS:
+        try:
+            run_sql(f"DROP VIEW IF EXISTS {view} CASCADE")
+        except Exception as e:
+            print(f"  WARN: DROP VIEW {view} — {str(e)[:80]}")
     mat_body = json.dumps({"resourceType": "Parameters", "parameter": [{"name": "type", "valueCode": "table"}]}).encode()
     sof_ok = True
     for vd_id in vd_ids:
@@ -330,7 +347,7 @@ def main():
         print(f"  Patients: {patients[0]['n']}")
         print(f"  Concepts: {concepts[0]['n']}")
         print(f"  Measures: {len(MEASURES)}")
-        print(f"\n  Demo: open demo/app.html in browser")
+        print(f"\n  Demo: python3 -m http.server 3000 → http://localhost:3000/demo/app.html")
         print(f"  API:  POST {BASE_URL}/Measure/$evaluate-measure")
         print(f"{'='*50}")
     except Exception:
