@@ -18,13 +18,13 @@
         {"name": "encounter_id", "path": "encounter.getReferenceKey(Encounter)"},
         {
           "name": "systolic",
-          "description": "Systolic BP component (LOINC 8480-6)",
-          "path": "component.where(code.coding.where(code = '8480-6').exists()).value.ofType(Quantity).value"
+          "description": "Systolic BP component (LOINC 8480-6). .first() — assumes one systolic per BP panel; if a single observation has multiple matching components (series of readings or duplicates), we pick the first by document order. For clinically rigorous aggregation (avg/max/last), use a custom transformation downstream.",
+          "path": "component.where(code.coding.where(code = '8480-6').exists()).first().value.ofType(Quantity).value"
         },
         {
           "name": "diastolic",
-          "description": "Diastolic BP component (LOINC 8462-4)",
-          "path": "component.where(code.coding.where(code = '8462-4').exists()).value.ofType(Quantity).value"
+          "description": "Diastolic BP component (LOINC 8462-4). .first() — see systolic for assumption details.",
+          "path": "component.where(code.coding.where(code = '8462-4').exists()).first().value.ofType(Quantity).value"
         }
       ]
     }
