@@ -127,12 +127,10 @@ One command loads all non-clinical artifacts into your Aidbox:
 - Stub `Organization`, `Practitioner`, `Device` resources referenced by measures
 
 ```bash
-python3 setup.py \
-  --base-url=https://aidbox.example.com \
-  --skip-clinical
+python3 setup.py --base-url=https://aidbox.example.com
 ```
 
-The `--skip-clinical` flag tells setup.py to **not** load the 485 sample dqm-content test patients. Your clinical data stays untouched.
+By default setup.py does **not** load the 485 sample dqm-content test patients — your clinical data stays untouched. Pass `--demo-patients` if you want the sample patients loaded (rarely needed for an existing Aidbox).
 
 Setup is idempotent — safe to re-run. Expected output ends with:
 
@@ -252,7 +250,7 @@ Measure SQL queries the wrapper views — `encounter_flat`, `condition_flat`, et
 ### `Measure/$evaluate-measure` returns 500
 
 - Check sql-evaluate-app logs: `docker logs sql-evaluate-app`
-- Most common cause: Step 3 (`python3 setup.py --skip-clinical`) didn't run or failed partway — re-run it (idempotent)
+- Most common cause: Step 3 (`python3 setup.py`) didn't run or failed partway — re-run it (idempotent)
 - Flask dev server can drop connections on rapid sequential requests — for production, replace with gunicorn/waitress
 
 ### MeasureReport shows `initial-population = 0`
@@ -267,7 +265,7 @@ Quickest debug: evaluate for one known-good patient (`?subject=Patient/<id>&repo
 
 ### Concepts table is smaller than expected
 
-Re-run `python3 setup.py --skip-clinical` — it's idempotent (`DELETE WHERE valueset_url = X` before INSERT per ValueSet).
+Re-run `python3 setup.py` — it's idempotent (`DELETE WHERE valueset_url = X` before INSERT per ValueSet).
 
 ### `$evaluate-measure` times out or is slow on a large dataset
 
