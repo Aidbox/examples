@@ -43,10 +43,12 @@ Open http://localhost:8888 in your browser and follow the activation prompt.
 In a second terminal, from this directory:
 
 ```bash
-python3 setup.py
+python3 setup.py --demo-patients
 ```
 
-This creates shared views, loads terminology and clinical data for all 12 measures (~2 min).
+This creates shared views, loads terminology, and loads the 485 sample dqm-content patients used by the demo app (~2 min).
+
+For an existing Aidbox with real patient data, omit `--demo-patients` to install only the infrastructure (ViewDefinitions, concepts, Measure resources) without polluting the database. See [install-to-existing-aidbox.md](install-to-existing-aidbox.md).
 
 ### 4. Try Measure/$evaluate-measure
 

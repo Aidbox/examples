@@ -104,17 +104,49 @@ def table_count(vd_id: str, base_url: str, auth: str) -> int | None:
         return None
 
 
-def apply_sql_file(path: str, base_url: str, auth: str) -> int:
+def apply_sql_file(path: str, base_url: str, auth: str, timeout: int = 1800) -> int:
     """Apply a SQL file as a single statement. Returns count of warnings."""
     with open(path) as fh:
         text = fh.read()
     text = "SET LOCAL lock_timeout = '60s';\n" + text
     try:
-        run_sql(text, base_url, auth, timeout=300)
+        run_sql(text, base_url, auth, timeout=timeout)
         return 0
     except Exception as e:
         print(f"  WARN: {os.path.basename(path)}: {str(e)[:120]}")
         return 1
+
+
+def apply_sql_per_statement(path: str, base_url: str, auth: str, timeout: int = 1800) -> int:
+    """Run each SQL statement separately, log per-statement timing.
+
+    Useful for CREATE INDEX / ANALYZE on big tables, where one slow statement
+    must not block our diagnostic view of the others, and where per-stmt
+    timing pinpoints the offender.
+    """
+    with open(path) as fh:
+        text = fh.read()
+    # naive split on ';' — fine for index/analyze files (no procedures, no $$ bodies)
+    statements = [s.strip() for s in text.split(';') if s.strip()]
+    warnings = 0
+    for stmt in statements:
+        # short label = first non-comment, non-blank line, truncated
+        first_line = next(
+            (l.strip() for l in stmt.split('\n')
+             if l.strip() and not l.strip().startswith('--')),
+            stmt[:60]
+        )
+        short = first_line[:70]
+        t0 = time.time()
+        try:
+            run_sql(stmt, base_url, auth, timeout=timeout)
+            dt = time.time() - t0
+            print(f"  OK   {dt:>7.2f}s  {short}")
+        except Exception as e:
+            dt = time.time() - t0
+            warnings += 1
+            print(f"  FAIL {dt:>7.2f}s  {short}  — {str(e)[:120]}")
+    return warnings
 
 
 def drop_wrapper_views(base_url: str, auth: str) -> None:
@@ -165,10 +197,13 @@ def main():
     warnings_w = apply_sql_file(WRAPPER_VIEWS_SQL, args.base_url, auth)
     print(f"  Done in {time.time()-t_wrap:.2f}s ({warnings_w} warnings)")
 
-    # Step 4: re-apply indexes + ANALYZE
+    # Step 4: re-apply indexes + ANALYZE — per-statement so a slow CREATE INDEX
+    # or ANALYZE on production-sized tables (10M+ observations) doesn't hide
+    # behind a single file-level timeout, and so each statement's runtime
+    # is visible in the log.
     print(f"\n[refresh_sof] Re-applying indexes + ANALYZE from 03-sof-indexes.sql ...")
     t_idx = time.time()
-    warnings_i = apply_sql_file(SOF_INDEXES_SQL, args.base_url, auth)
+    warnings_i = apply_sql_per_statement(SOF_INDEXES_SQL, args.base_url, auth)
     print(f"  Done in {time.time()-t_idx:.2f}s ({warnings_i} warnings)")
 
     elapsed = time.time() - t0

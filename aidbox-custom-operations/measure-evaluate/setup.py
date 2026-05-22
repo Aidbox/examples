@@ -13,6 +13,7 @@ Usage:
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 import base64
 import time
@@ -42,14 +43,14 @@ def auth_header():
     return base64.b64encode(f"{USER}:{PASS}".encode()).decode()
 
 
-def run_sql(sql):
+def run_sql(sql, timeout=60):
     req = urllib.request.Request(
         f"{BASE_URL}/$sql", method="POST",
         data=json.dumps([sql]).encode(),
     )
     req.add_header("Authorization", f"Basic {auth_header()}")
     req.add_header("Content-Type", "application/json")
-    resp = urllib.request.urlopen(req, timeout=60)
+    resp = urllib.request.urlopen(req, timeout=timeout)
     body = resp.read().decode()
     return json.loads(body) if body.strip() else []
 
@@ -186,7 +187,7 @@ def create_stubs():
     print("  OK Stubs — Organization, Practitioner, Device")
 
 
-def execute_sql_file(filepath, label):
+def execute_sql_file(filepath, label, timeout=60):
     if not os.path.exists(filepath):
         print(f"  SKIP {label} — not found")
         return
@@ -201,7 +202,7 @@ def execute_sql_file(filepath, label):
     try:
         # Aidbox $sql wraps the whole call in one transaction — a mid-file
         # error rolls back every preceding statement, so this is safe to retry.
-        run_sql(content)
+        run_sql(content, timeout=timeout)
         # Rough count of '`;`' for the log line — not used for execution, just diagnostics.
         print(f"  OK {label} — {content.count(';')} SQL statements")
     except Exception as e:
@@ -211,13 +212,19 @@ def execute_sql_file(filepath, label):
 def main():
     global BASE_URL
 
-    skip_clinical = False
+    # Default: do NOT load the 485 dqm-content demo patients — safe for
+    # production installs. Pass --demo-patients to load them (for demo/dev).
+    # --skip-clinical kept as silent no-op for backward compatibility.
+    load_demo_patients = False
     args = sys.argv[1:]
     i = 0
     while i < len(args):
         a = args[i]
-        if a == "--skip-clinical":
-            skip_clinical = True
+        if a == "--demo-patients":
+            load_demo_patients = True
+            i += 1
+        elif a == "--skip-clinical":
+            # backward-compat: this is now the default
             i += 1
         elif a.startswith("--base-url"):
             if "=" in a:
@@ -228,10 +235,13 @@ def main():
                 i += 2
         else:
             i += 1
+    skip_clinical = not load_demo_patients
 
     print(f"Setting up measure-evaluate on {BASE_URL}")
     if skip_clinical:
-        print("  --skip-clinical: will NOT load the 485 sample dqm-content patients")
+        print("  Loading infrastructure only (pass --demo-patients to load 485 sample dqm-content patients)")
+    else:
+        print("  --demo-patients: will load 485 sample dqm-content patients")
     print(f"Data directory: {SCRIPT_DIR}")
     print()
 
@@ -321,11 +331,37 @@ def main():
             req.add_header("Authorization", f"Basic {auth_header()}")
             req.add_header("Content-Type", "application/json")
             urllib.request.urlopen(req, timeout=300)
+        except urllib.error.HTTPError as e:
+            body = e.read()[:300].decode(errors='replace') if e.fp else ''
+            code = e.code
+            print(f"  WARN: $materialize failed for {vd_id}: HTTP {code}")
+            if body:
+                print(f"    {body[:200]}")
+            # Match against known causes — give targeted hint, not generic version warning.
+            if code == 504 or 'Gateway Time-out' in body:
+                print(f"  → Likely nginx proxy_read_timeout is shorter than the materialize runtime.")
+                print(f"    Bump nginx config in front of Aidbox:")
+                print(f"      proxy_read_timeout 1800s;")
+                print(f"      proxy_send_timeout 1800s;")
+            elif code == 404:
+                print(f"  → $materialize requires Aidbox 2508+. Check your version:")
+                print(f"    curl -s {BASE_URL}/health | jq -r '.about.version'")
+            elif 'multiple values found' in body:
+                print(f"  → Data shape: a resource has multiple matching values for a single-value FHIRPath.")
+                print(f"    The ViewDefinition may need .first() or a stricter filter — see viewdefinitions/{vd_id}.json.")
+            elif 'depend on it' in body:
+                print(f"  → Wrapper view dependency conflict (pre-fix setup.py). Pull latest and re-run.")
+            else:
+                print(f"  → Aidbox returned {code} with an unrecognized error — see body above.")
+            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work).")
+            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
+            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
+            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
+            sof_ok = False
+            break
         except Exception as e:
             print(f"  WARN: $materialize failed for {vd_id}: {e}")
-            print(f"  Check your Aidbox version: $materialize on ViewDefinition needs Aidbox 2508 or later.")
-            print(f"  Run: curl -s {BASE_URL}/health | jq -r '.about.version'")
-            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work — Aidbox 2508+ recommended).")
+            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work).")
             execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
             execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
             execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
@@ -334,7 +370,10 @@ def main():
     if sof_ok:
         print(f"  OK — {len(vd_ids)} tables materialized")
         print("[8/8] Creating indexes + wrapper views + shared functions...")
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes")
+        # 03-sof-indexes.sql can take 5-20 min on production-sized observation tables
+        # (10M+ rows). CREATE INDEX without CONCURRENTLY (not available via /$sql since
+        # it wraps statements in transactions), and ANALYZE on big tables, both eat time.
+        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes", timeout=1800)
         execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
         execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
 
