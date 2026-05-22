@@ -42,14 +42,14 @@ def auth_header():
     return base64.b64encode(f"{USER}:{PASS}".encode()).decode()
 
 
-def run_sql(sql):
+def run_sql(sql, timeout=60):
     req = urllib.request.Request(
         f"{BASE_URL}/$sql", method="POST",
         data=json.dumps([sql]).encode(),
     )
     req.add_header("Authorization", f"Basic {auth_header()}")
     req.add_header("Content-Type", "application/json")
-    resp = urllib.request.urlopen(req, timeout=60)
+    resp = urllib.request.urlopen(req, timeout=timeout)
     body = resp.read().decode()
     return json.loads(body) if body.strip() else []
 
@@ -186,7 +186,7 @@ def create_stubs():
     print("  OK Stubs — Organization, Practitioner, Device")
 
 
-def execute_sql_file(filepath, label):
+def execute_sql_file(filepath, label, timeout=60):
     if not os.path.exists(filepath):
         print(f"  SKIP {label} — not found")
         return
@@ -201,7 +201,7 @@ def execute_sql_file(filepath, label):
     try:
         # Aidbox $sql wraps the whole call in one transaction — a mid-file
         # error rolls back every preceding statement, so this is safe to retry.
-        run_sql(content)
+        run_sql(content, timeout=timeout)
         # Rough count of '`;`' for the log line — not used for execution, just diagnostics.
         print(f"  OK {label} — {content.count(';')} SQL statements")
     except Exception as e:
@@ -211,13 +211,19 @@ def execute_sql_file(filepath, label):
 def main():
     global BASE_URL
 
-    skip_clinical = False
+    # Default: do NOT load the 485 dqm-content demo patients — safe for
+    # production installs. Pass --demo-patients to load them (for demo/dev).
+    # --skip-clinical kept as silent no-op for backward compatibility.
+    load_demo_patients = False
     args = sys.argv[1:]
     i = 0
     while i < len(args):
         a = args[i]
-        if a == "--skip-clinical":
-            skip_clinical = True
+        if a == "--demo-patients":
+            load_demo_patients = True
+            i += 1
+        elif a == "--skip-clinical":
+            # backward-compat: this is now the default
             i += 1
         elif a.startswith("--base-url"):
             if "=" in a:
@@ -228,10 +234,13 @@ def main():
                 i += 2
         else:
             i += 1
+    skip_clinical = not load_demo_patients
 
     print(f"Setting up measure-evaluate on {BASE_URL}")
     if skip_clinical:
-        print("  --skip-clinical: will NOT load the 485 sample dqm-content patients")
+        print("  Loading infrastructure only (pass --demo-patients to load 485 sample dqm-content patients)")
+    else:
+        print("  --demo-patients: will load 485 sample dqm-content patients")
     print(f"Data directory: {SCRIPT_DIR}")
     print()
 
@@ -334,7 +343,10 @@ def main():
     if sof_ok:
         print(f"  OK — {len(vd_ids)} tables materialized")
         print("[8/8] Creating indexes + wrapper views + shared functions...")
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes")
+        # 03-sof-indexes.sql can take 5-20 min on production-sized observation tables
+        # (10M+ rows). CREATE INDEX without CONCURRENTLY (not available via /$sql since
+        # it wraps statements in transactions), and ANALYZE on big tables, both eat time.
+        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes", timeout=1800)
         execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
         execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
 
