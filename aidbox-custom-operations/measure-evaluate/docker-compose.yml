@@ -41,6 +41,11 @@ services:
       AIDBOX_PORT: 8888
       BOX_INIT_BUNDLE: file:///tmp/init.json
       BOX_WEB_BASE_URL: http://localhost:8888
+      # Raise worker pool above default 8 to mitigate the known
+      # `server/with-channel` race condition in Aidbox HTTP-RPC dispatch
+      # (Sansara box/src/box/app/operations.clj:293-295 — FIXME). Manifests
+      # as 30s idle-timeout 500s on slow custom-operation paths.
+      BOX_WEB_THREAD: "32"
   sql-evaluate-app:
     build:
       context: .
