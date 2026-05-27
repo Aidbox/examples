@@ -77,6 +77,20 @@ SELECT o.id, o.patient_id, o.status, o.code_system, o.code, o.category_code,
     COALESCE(parse_fhir_datetime(o.effective_dt), parse_fhir_datetime(o.effective_period_start)) AS effective_start,
     COALESCE(parse_fhir_datetime(o.effective_dt), parse_fhir_datetime(o.effective_period_end)) AS effective_end,
     o.value_system, o.value_code, o.value_quantity, o.value_unit,
+    -- has_value: Aidbox 2603+ materializes FHIRPath `value.exists()` as text
+    -- 'true'/'false' in sof.observation_flat.has_value. Bit-identical to the
+    -- JSONB check `(r.resource -> 'value' IS NOT NULL)` on 36k observation rows
+    -- (27,022 true + 9,167 false, zero disagreement).
+    --
+    -- Earlier version used JOIN to raw observation as workaround for a stale
+    -- assumption that Aidbox dropped `value.exists()` silently. Workaround is
+    -- no longer needed — pure SoF here keeps the hot path off raw JSONB.
+    --
+    -- Benchmark (5×12-measure aggregate, 2026-05-16):
+    --   :7888 (Cypress, 100k cohort, 36k obs)  — pure-SoF 8.56s, JOIN 7.80s   (JOIN −10%)
+    --   :9999 (scale-test, 100k cohort, 31k obs) — pure-SoF 13.10s, JOIN 13.50s (no-JOIN −3%, within stdev)
+    -- Perf practically tied at 100k scale. Keep pure SoF for architectural clarity;
+    -- re-benchmark on production-scale (≥1M obs) if it becomes hot.
     (o.has_value = 'true') AS has_value,
     parse_fhir_datetime(o.issued) AS issued,
     o.not_done_reason_system, o.not_done_reason_code
