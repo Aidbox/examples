@@ -184,6 +184,18 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 .evt-row .res-link{font-family:var(--mono);font-size:0.6rem}
 .evt-summary{color:var(--fg3);margin-left:.2rem}
 
+/* ── Evidence table (port from oracle report) ─────────────── */
+.ev-table{width:100%;border-collapse:collapse;font-size:0.68rem;margin-top:.3rem}
+.ev-table th{font-size:0.55rem;font-weight:600;color:var(--fg3);padding:.3rem .5rem;background:var(--bg2);text-transform:uppercase;letter-spacing:.04em;text-align:left;border-bottom:1px solid var(--line)}
+.ev-table td{padding:.32rem .5rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--fg2)}
+.ev-table tr:last-child td{border-bottom:none}
+.ev-table td.mono{font-family:var(--mono);font-size:0.62rem;color:var(--fg3)}
+.ev-table .cte-tag{margin-left:0}
+.ev-pop-ip{background:var(--blue-bg);color:var(--blue)}
+.ev-pop-num{background:var(--green-bg);color:var(--green)}
+.ev-pop-exc{background:var(--amber-bg);color:var(--amber)}
+.code-mono{font-family:var(--mono);font-size:0.6rem;color:var(--fg3)}
+
 /* ── Care gap specific ─────────────── */
 .cat-badge{font-size:0.5rem;font-weight:600;padding:.08rem .3rem;border-radius:3px;display:inline-block;margin-right:.15rem}
 .cat-Screening{background:var(--blue-bg);color:var(--blue)}.cat-Lab{background:var(--violet-bg);color:var(--violet)}
@@ -671,45 +683,51 @@ async function loadEvidence(mid,pid,targetId){
   try{let diag=m.diagnostic_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/\{PATIENT_ID\}/g,pid);const d=(await sql(diag))[0]||{};let evRows=[];if(m.evidence_sql_subject){try{const evQuery=m.evidence_sql_subject.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/\{PATIENT_ID\}/g,pid);evRows=await sql(evQuery)}catch(e){}}else if(m.evidence_sql){try{const all=await sql(m.evidence_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end));evRows=all.filter(r=>r.patient_id===pid)}catch(e){}}
   let html='<div class="evidence-panel open"><table class="decision-table"><thead><tr><th>Step</th><th>CTE</th><th>Result</th></tr></thead><tbody>';
   for(const step of m.steps){const val=d[step.cte],isYes=val==='YES';const isSummary=['denominator_exclusion','numerator','initial_population'].includes(step.cte);html+=`<tr${isSummary?' class="step-summary"':''}><td>${isSummary?'<strong>'+step.label+'</strong>':step.label}</td><td><code>${step.cte}</code></td><td class="${isYes?'yes':'no'}">${isSummary?'<strong>'+(isYes?'YES':'no')+'</strong>':(val||'—')}</td></tr>`}html+='</tbody></table>';
-  const ipItems=evRows.filter(r=>r.ip_code_display);const numItems=evRows.filter(r=>r.code_display||r.exclusion_pathway);
-  if(ipItems.length||numItems.length){
+  // Port of oracle report's _build_evidence_html: collect IP/NUM/EXC sides uniformly,
+  // render as 4-column table with clickable FHIR resource refs and CTE tags.
+  const evItems=[];const evSeen=new Set();
+  function addEvItem(pop,cte,rt,rid,codeDisplay,code,date){
+    if(cte==='none'||!cte)cte='';
+    if(!rid&&!cte&&!codeDisplay)return;
+    const k=`${pop}|${rt}|${rid}|${cte}|${codeDisplay}`;
+    if(evSeen.has(k))return;evSeen.add(k);
+    evItems.push({pop,cte,rt,rid,codeDisplay,code,date});
+  }
+  for(const r of evRows){
+    if(!r||typeof r!=='object')continue;
+    if(r.ip&&(r.ip_resource_id||r.ip_pathway)){
+      addEvItem('IP',r.ip_source_cte||r.ip_pathway||'',r.ip_resource_type||'',r.ip_resource_id||'',r.ip_code_display||'','',r.ip_event_date||'');
+    }
+    if(r.num&&(r.resource_id||r.pathway)){
+      addEvItem('NUM',r.source_cte||r.pathway||'',r.resource_type||'',r.resource_id||'',r.code_display||'',r.code||'',r.event_date||'');
+    }
+    if(r.exc&&(r.exc_resource_id||r.exclusion_pathway)){
+      addEvItem('EXC',r.exclusion_pathway||'',r.exc_resource_type||'',r.exc_resource_id||'','','','');
+    }
+  }
+  if(evItems.length){
+    const popOrder={IP:0,NUM:1,EXC:2};
+    evItems.sort((a,b)=>(popOrder[a.pop]-popOrder[b.pop])||a.cte.localeCompare(b.cte)||a.rid.localeCompare(b.rid));
     html+='<div class="evidence-box"><div class="evidence-box-title">Evidence</div>';
-    const shown=new Set();
-    for(const r of ipItems){
-      const rt=r.ip_resource_type||'Encounter',rid=r.ip_resource_id||'',src=r.ip_source_cte||r.ip_pathway||'';
-      const key=rid?`${rt}/${rid}|${src}`:`ip|${r.ip_code_display}|${r.ip_event_date}|${src}`;
-      if(shown.has(key))continue;shown.add(key);
-      const date=r.ip_event_date?' — '+r.ip_event_date.substring(0,10):'';
-      const tag=src?` <span class="cte-tag">${escapeHtml(src)}</span>`:'';
-      if(rid){
-        const sRt=escapeHtml(rt),sRid=escapeHtml(rid);
-        html+=`<div class="evidence-box-item"><a class="res-link" href="#" onclick="return loadResource(event,this,'${sRt}','${sRid}')"><strong>${sRt}:</strong> ${escapeHtml(r.ip_code_display)}</a> <a class="res-console" href="#" onclick="return openConsole(event,'${sRt}','${sRid}')" title="Open in Aidbox REST console (copies GET to clipboard)">↗</a>${date}${tag}<pre class="res-preview" style="display:none"></pre></div>`;
+    html+='<table class="ev-table"><thead><tr><th style="width:42px">Pop</th><th>Source CTE</th><th>Resource</th><th style="width:80px">Date</th></tr></thead><tbody>';
+    for(const it of evItems){
+      const popCls=it.pop==='IP'?'ev-pop-ip':it.pop==='NUM'?'ev-pop-num':'ev-pop-exc';
+      const cteHtml=it.cte?`<span class="cte-tag">${escapeHtml(it.cte)}</span>`:'';
+      const codeNum=it.code?` <span class="code-mono">(${escapeHtml(it.code)})</span>`:'';
+      let resHtml;
+      if(it.rid){
+        const sRt=escapeHtml(it.rt||'?'),sRid=escapeHtml(it.rid);
+        const disp=it.codeDisplay?` ${escapeHtml(it.codeDisplay)}`:'';
+        resHtml=`<a class="res-link" href="#" onclick="return loadResource(event,this,'${sRt}','${sRid}')"><strong>${sRt}:</strong></a>${disp}${codeNum} <a class="res-console" href="#" onclick="return openConsole(event,'${sRt}','${sRid}')" title="Open in Aidbox REST console (copies GET to clipboard)">↗</a><pre class="res-preview" style="display:none"></pre>`;
+      }else if(it.rt||it.codeDisplay){
+        resHtml=`<strong>${escapeHtml(it.rt||'?')}:</strong> ${escapeHtml(it.codeDisplay||'')}${codeNum}`;
       }else{
-        html+=`<div class="evidence-box-item"><strong>${escapeHtml(rt)}:</strong> ${escapeHtml(r.ip_code_display)}${date}${tag}</div>`;
+        resHtml='<em style="color:var(--fg3)">—</em>';
       }
+      const dateShort=it.date?String(it.date).substring(0,10):'';
+      html+=`<tr><td><span class="badge ${popCls}">${it.pop}</span></td><td>${cteHtml}</td><td>${resHtml}</td><td class="mono">${escapeHtml(dateShort)}</td></tr>`;
     }
-    for(const r of numItems){
-      if(r.code_display){
-        const rt=r.resource_type||'Resource',rid=r.resource_id||'',src=(r.source_cte&&r.source_cte!=='none'?r.source_cte:'')||(r.pathway&&r.pathway!=='none'?r.pathway:'')||'';
-        const key=rid?`${rt}/${rid}|${src}`:`num|${r.code_display}|${r.event_date}|${src}`;
-        if(shown.has(key))continue;shown.add(key);
-        const date=r.event_date?' — '+r.event_date.substring(0,10):'';
-        const codeStr=r.code?` (${escapeHtml(r.code)})`:'';
-        const tag=src?` <span class="cte-tag">${escapeHtml(src)}</span>`:'';
-        if(rid){
-          const sRt=escapeHtml(rt),sRid=escapeHtml(rid);
-          html+=`<div class="evidence-box-item"><a class="res-link" href="#" onclick="return loadResource(event,this,'${sRt}','${sRid}')"><strong>${sRt}:</strong> ${escapeHtml(r.code_display)}</a>${codeStr} <a class="res-console" href="#" onclick="return openConsole(event,'${sRt}','${sRid}')" title="Open in Aidbox REST console (copies GET to clipboard)">↗</a>${date}${tag}<pre class="res-preview" style="display:none"></pre></div>`;
-        }else{
-          html+=`<div class="evidence-box-item"><strong>${escapeHtml(rt)}:</strong> ${escapeHtml(r.code_display)}${codeStr}${date}${tag}</div>`;
-        }
-      }else if(r.exclusion_pathway){
-        // Exception row: body already shows the pathway, no separate cte-tag needed.
-        const key=`exc|${r.exclusion_pathway}`;
-        if(shown.has(key))continue;shown.add(key);
-        html+=`<div class="evidence-box-item"><strong>Exception:</strong> ${escapeHtml(r.exclusion_pathway)}</div>`;
-      }
-    }
-    html+='</div>';
+    html+='</tbody></table></div>';
   }
   const ip=d.initial_population==='YES',num=d.numerator==='YES',exc=d.denominator_exclusion==='YES';html+=`<div class="ev-conclusion">${!ip?'<span class="outcome-notip"><strong>Not in IP</strong></span>':exc?'<span class="outcome-excluded"><strong>Excluded</strong></span>':num?'<span class="outcome-closed"><strong>Gap Closed</strong></span>':'<span class="outcome-open"><strong>Gap Open</strong></span>'}</div></div>`;el.innerHTML=html}catch(e){el.innerHTML=`<div class="evidence-panel open"><span class="ev-none">Error: ${e.message}</span></div>`}}
 
