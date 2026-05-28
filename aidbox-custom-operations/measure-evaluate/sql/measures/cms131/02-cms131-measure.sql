@@ -3,10 +3,6 @@
 -- Translates CQL logic from CMS131FHIRDiabetesEyeExam v1.0.000
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, concepts table populated
---
--- Subject push-down markers (same pattern as CMS130, CMS125):
---   `-- $SUBJ$ <col>` and `/*$SUBJ_PARAM$*/` are no-ops in population mode;
---   `build_patient_sql()` rewrites them when a subject is given.
 
 WITH mp AS (
     SELECT
