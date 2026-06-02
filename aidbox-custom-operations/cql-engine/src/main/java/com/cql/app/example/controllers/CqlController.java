@@ -23,7 +23,9 @@ public class CqlController {
     if (patientId == null || patientId.isEmpty()) {
       patientId = body.path("request").path("params").path("patient").asText(null);
     }
-    return evaluateService.evaluate(libraryName, patientId);
+    String periodStart = body.path("request").path("params").path("periodStart").asText(null);
+    String periodEnd = body.path("request").path("params").path("periodEnd").asText(null);
+    return evaluateService.evaluate(libraryName, patientId, periodStart, periodEnd);
   }
 
   @PostMapping("/")
