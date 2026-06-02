@@ -21,11 +21,6 @@
 CREATE INDEX IF NOT EXISTS ix_patient_birthdate ON patient ((resource->>'birthDate'));
 CREATE INDEX IF NOT EXISTS ix_patient_gender ON patient ((resource->>'gender'));
 
--- status columns are deliberately NOT indexed across all resources: the column
--- has 3–5 distinct values in real data with one value (finished / final /
--- completed / active) covering 90 %+ of rows, so the planner will prefer a
--- sequential scan over a low-selectivity btree.
-
 -- Encounter: subject, type coding
 CREATE INDEX IF NOT EXISTS ix_encounter_subject ON encounter ((resource->'subject'->>'id'));
 CREATE INDEX IF NOT EXISTS ix_encounter_type_code ON encounter ((resource->'type'->0->'coding'->0->>'system'), (resource->'type'->0->'coding'->0->>'code'));
@@ -64,8 +59,6 @@ CREATE INDEX IF NOT EXISTS ix_encounter_class ON encounter ((resource->'class'->
 
 -- ============================================================
 -- 2. Update planner statistics
--- On a fresh sample these complete in seconds. On a production-scale install
--- with millions of rows each ANALYZE may take minutes — budget accordingly.
 -- ============================================================
 ANALYZE concepts;
 ANALYZE patient;
