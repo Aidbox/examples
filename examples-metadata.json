@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-22T12:30:11.852964Z",
+  "timestamp": "2026-06-03T09:26:27.290042Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -401,23 +401,6 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/de-identification/README.md"
     },
     {
-      "id": "aidbox-features-smart-app-launch-smartbox",
-      "title": "Example: SMART App Launch using Smartbox and Keycloak",
-      "description": "This example showcases the Smart App EHR and Patient [launch flows](https://hl7.org/fhir/smart-app-launch/app-launch.html).",
-      "features": [
-        "SMART on FHIR",
-        "Growth chart",
-        "Aidbox only",
-        "App launch",
-        "FHIR client"
-      ],
-      "languages": [
-        "YAML"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/smart-app-launch-smartbox",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/smart-app-launch-smartbox/README.md"
-    },
-    {
       "id": "aidbox-custom-operations-dollar-purge-operation",
       "title": "FHIR $purge Operation with Aidbox",
       "description": "This example demonstrates the implementation of the [FHIR $purge operation](https://build.fhir.org/patient-operation-purge.html) using TypeScript and Aidbox. The $purge operation removes all current and historical versions of resources associated with a specific patient.",
@@ -554,36 +537,6 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/grafana-dashboard/README.md"
     },
     {
-      "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
-      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
-      "features": [
-        "IPS",
-        "Subscriptions",
-        "International Patient Summary"
-      ],
-      "languages": [
-        "TypeScript"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
-    },
-    {
-      "id": "aidbox-custom-operations-ips-subscriptions",
-      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
-      "features": [
-        "IPS",
-        "Subscriptions",
-        "International Patient Summary"
-      ],
-      "languages": [
-        "TypeScript"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
-    },
-    {
       "id": "aidbox-custom-operations-ips-ig",
       "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
       "description": "[Demo](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)",
@@ -601,6 +554,21 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig/README.md"
     },
     {
+      "id": "aidbox-custom-operations-ips-subscriptions",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
+      "features": [
+        "IPS",
+        "Subscriptions",
+        "International Patient Summary"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
+    },
+    {
       "id": "aidbox-custom-operations-ips-ig-cl",
       "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
       "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS.",
@@ -616,6 +584,21 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig-cl",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig-cl/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
+      "features": [
+        "IPS",
+        "Subscriptions",
+        "International Patient Summary"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
     },
     {
       "id": "aidbox-features-init-bundle-env-template",
@@ -876,11 +859,9 @@
     "AI assisted",
     "API",
     "API override",
-    "Aidbox only",
     "Analytics",
     "Angular",
     "App framework",
-    "App launch",
     "Async operations",
     "Attachments",
     "Automation",
