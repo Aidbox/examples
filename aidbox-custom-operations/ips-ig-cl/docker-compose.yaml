@@ -23,6 +23,8 @@ services:
       - "${AIDBOX_PORT}:${AIDBOX_PORT}"
     env_file:
       - .env
+    environment:
+      BOX_FHIR_SEARCH_TOKEN_OPERATOR: "#>>"
 
   node-app:
     hostname: node-app

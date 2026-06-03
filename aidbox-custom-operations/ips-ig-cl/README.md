@@ -205,5 +205,43 @@ stringData:
 
 ## Indexes
 
-If your requests spend to much time on getting patient's resources, you may apply the [bundle](./idxs_init_bundle.json)
-to create indexes that will improve performance of your requests. 
+`$summary` issues `GET /fhir/<Type>?patient=Patient/<id>` for 13 clinical resource types. To make these fast, the bundled `docker-compose.yaml` runs Aidbox with `BOX_FHIR_SEARCH_TOKEN_OPERATOR=#>>` so that `?patient=` compiles to `(resource #>> '{...,id}') = '<id>'`, which can be served by a small per-type btree.
+
+Create the indexes (one statement per `POST /$sql` — `CONCURRENTLY` cannot run inside a transaction):
+
+```sql
+-- SP `patient` resolves to .subject (10 types)
+CREATE INDEX CONCURRENTLY IF NOT EXISTS observation_subject_id_idx         ON observation         ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS condition_subject_id_idx           ON condition           ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS procedure_subject_id_idx           ON procedure           ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS diagnosticreport_subject_id_idx    ON diagnosticreport    ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS medicationrequest_subject_id_idx   ON medicationrequest   ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS medicationstatement_subject_id_idx ON medicationstatement ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS careplan_subject_id_idx            ON careplan            ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS deviceusestatement_subject_id_idx  ON deviceusestatement  ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS flag_subject_id_idx                ON flag                ((resource #>> '{subject,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS clinicalimpression_subject_id_idx  ON clinicalimpression  ((resource #>> '{subject,id}'));
+
+-- SP `patient` resolves to .patient (3 types)
+CREATE INDEX CONCURRENTLY IF NOT EXISTS allergyintolerance_patient_id_idx  ON allergyintolerance  ((resource #>> '{patient,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS immunization_patient_id_idx        ON immunization        ((resource #>> '{patient,id}'));
+CREATE INDEX CONCURRENTLY IF NOT EXISTS consent_patient_id_idx             ON consent             ((resource #>> '{patient,id}'));
+```
+
+After building the indexes (and after any bulk load), refresh statistics so the planner picks them up:
+
+```sql
+ANALYZE observation;
+ANALYZE condition;
+ANALYZE procedure;
+ANALYZE diagnosticreport;
+ANALYZE medicationrequest;
+ANALYZE medicationstatement;
+ANALYZE careplan;
+ANALYZE deviceusestatement;
+ANALYZE flag;
+ANALYZE clinicalimpression;
+ANALYZE allergyintolerance;
+ANALYZE immunization;
+ANALYZE consent;
+```
