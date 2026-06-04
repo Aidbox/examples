@@ -3,11 +3,6 @@
 -- Translates CQL logic from CMS165FHIRControllingHighBP v1.0.000
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, concepts table populated
---
--- Subject push-down markers (same pattern as CMS125/130/131):
---   `-- $SUBJ$ <col-expr>` and `/*$SUBJ_PARAM$*/` are no-ops in population mode.
---   bp_observations uses a raw JSONB path (`o.resource->'subject'->>'id'`)
---   because it goes directly to the observation table for BP component extraction.
 
 WITH mp AS (
     SELECT

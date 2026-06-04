@@ -4,13 +4,6 @@
 --
 -- Prerequisites: shared/sql/00-terminology.sql, shared/sql/01-views.sql, cms130/sql/00-terminology-data.sql
 -- Uses timestamptz for MP boundaries (Aidbox stores dates as text)
---
--- Subject push-down markers:
---   `-- $SUBJ$ e.patient_id` placeholders are no-op in population mode.
---   `build_patient_sql()` rewrites them to `AND e.patient_id = '<pid>'` when
---   a subject is given, enabling index-only scans via ix_*_subject.
---   `/*$SUBJ_PARAM$*/` markers are replaced with `, '<pid>'` to pass the
---   subject to shared functions (defaults to NULL = no-op in population mode).
 
 WITH mp AS (
     SELECT

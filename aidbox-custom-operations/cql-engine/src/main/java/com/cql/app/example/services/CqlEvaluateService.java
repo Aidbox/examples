@@ -259,7 +259,32 @@ public class CqlEvaluateService {
     }
 
     public String evaluate(String libraryName, String patientId) {
-        logger.info("Evaluating library: {} for patient: {}", libraryName, patientId != null ? patientId : "(all)");
+        return evaluate(libraryName, patientId, null, null);
+    }
+
+    public String evaluate(String libraryName, String patientId, String periodStart, String periodEnd) {
+        logger.info("Evaluating library: {} for patient: {} period: {}..{}",
+                libraryName, patientId != null ? patientId : "(all)",
+                periodStart != null ? periodStart : "(default)",
+                periodEnd != null ? periodEnd : "(default)");
+
+        // Bind the CQL "Measurement Period" parameter from the request period.
+        // Without this, the engine falls back to the library's default MP
+        // (`default Interval[@YYYY-01-01, ...]`) and ignores periodStart/periodEnd
+        // entirely — so patients whose data lies outside the default year evaluate
+        // to all-false. Closed-closed interval, periodEnd inclusive to end-of-day
+        // to match clinical-reasoning / FHIR $evaluate semantics.
+        final Map<String, Object> cqlParameters = new HashMap<>();
+        if (periodStart != null && !periodStart.isEmpty()
+                && periodEnd != null && !periodEnd.isEmpty()) {
+            var mpLow = new org.opencds.cqf.cql.engine.runtime.DateTime(
+                    periodStart + "T00:00:00.000", java.time.ZoneOffset.UTC);
+            var mpHigh = new org.opencds.cqf.cql.engine.runtime.DateTime(
+                    periodEnd + "T23:59:59.999", java.time.ZoneOffset.UTC);
+            var measurementPeriod = new org.opencds.cqf.cql.engine.runtime.Interval(
+                    mpLow, true, mpHigh, true);
+            cqlParameters.put("Measurement Period", measurementPeriod);
+        }
 
         // 4.x: evaluate() uses builder pattern, returns EvaluationResults (plural)
         EvaluationResults results;
@@ -267,11 +292,13 @@ public class CqlEvaluateService {
             results = engine.evaluate(builder -> {
                 builder.library(libraryName, libBuilder -> { return kotlin.Unit.INSTANCE; });
                 builder.setContextParameter(new kotlin.Pair<>("Patient", patientId));
+                if (!cqlParameters.isEmpty()) { builder.setParameters(cqlParameters); }
                 return kotlin.Unit.INSTANCE;
             });
         } else {
             results = engine.evaluate(builder -> {
                 builder.library(libraryName, libBuilder -> { return kotlin.Unit.INSTANCE; });
+                if (!cqlParameters.isEmpty()) { builder.setParameters(cqlParameters); }
                 return kotlin.Unit.INSTANCE;
             });
         }

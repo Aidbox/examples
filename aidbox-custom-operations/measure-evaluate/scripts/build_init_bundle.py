@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Build a comprehensive init-bundle for the measure-evaluate sample.
+"""Build the init-bundle for the measure-evaluate sample.
 
-Aggregates:
-  - the App resource (custom operation routing),
-  - every unique ValueSet referenced by the 12 measures, deduplicated.
+Contains only the App resource (custom operation routing for Measure/$evaluate-measure).
+Aidbox picks this file up via BOX_INIT_BUNDLE on startup.
 
-Outputs to init.json in the repository root. Aidbox picks this file up via
-BOX_INIT_BUNDLE on startup, so after `docker compose up` every measure
-ValueSet is addressable via `GET /ValueSet` and `$expand` without running
-setup.py first.
+ValueSets are NOT pre-loaded here: the SQL measure evaluation uses the `concepts`
+table (built by setup.py), not the FHIR ValueSet resources. setup.py loads the
+ValueSets (data/*-valuesets.json) when run; there is no consumer of them before that.
 
 Usage:
     python3 scripts/build_init_bundle.py
@@ -16,14 +14,12 @@ Usage:
 from __future__ import annotations
 import json
 import os
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = ROOT / "data"
 OUTPUT = ROOT / "init.json"
 
-# 1. The single App resource that registers Measure/$evaluate-measure with Aidbox.
+# The single App resource that registers Measure/$evaluate-measure with Aidbox.
 APP_ENTRY = {
     "request": {"method": "PUT", "url": "/App/com.sql.evaluate.app"},
     "resource": {
@@ -49,47 +45,16 @@ APP_ENTRY = {
 }
 
 
-def collect_valueset_entries() -> list[dict]:
-    """Walk data/*-valuesets.json, return unique ValueSets by canonical URL.
-
-    When the same URL appears in multiple files, the first occurrence wins
-    (they should be identical — we preload from the same NLM expansions).
-    """
-    vs_files = sorted(DATA_DIR.glob("*-valuesets.json"))
-    if not vs_files:
-        print(f"ERROR: no *-valuesets.json files under {DATA_DIR}")
-        sys.exit(1)
-
-    seen: dict[str, dict] = {}
-    for f in vs_files:
-        bundle = json.loads(f.read_text())
-        for entry in bundle.get("entry", []):
-            resource = entry.get("resource", {})
-            if resource.get("resourceType") != "ValueSet":
-                continue
-            url = resource.get("url")
-            if not url or url in seen:
-                continue
-            oid = resource.get("id") or url.rsplit("/", 1)[-1]
-            seen[url] = {
-                "request": {"method": "PUT", "url": f"/ValueSet/{oid}"},
-                "resource": resource,
-            }
-    return list(seen.values())
-
-
 def main() -> None:
-    vs_entries = collect_valueset_entries()
     bundle = {
         "type": "batch",
-        "entry": [APP_ENTRY, *vs_entries],
+        "entry": [APP_ENTRY],
     }
     OUTPUT.write_text(json.dumps(bundle, indent=2) + "\n")
     size = os.path.getsize(OUTPUT)
     print(f"Wrote {OUTPUT}")
     print(f"  App entries: 1")
-    print(f"  ValueSet entries: {len(vs_entries)}")
-    print(f"  Size: {size:,} bytes ({size / 1024 / 1024:.2f} MB)")
+    print(f"  Size: {size:,} bytes")
 
 
 if __name__ == "__main__":
