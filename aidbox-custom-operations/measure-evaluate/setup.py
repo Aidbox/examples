@@ -125,45 +125,44 @@ def load_bundle(filepath, label):
 
 
 def populate_concepts(valueset_path):
+    """Build the flat `concepts` table from Aidbox's far.valueset registry (no row loader).
+
+    The ValueSets were already loaded into Aidbox by load_bundle (-> far.valueset). This
+    flattens their expansion.contains into `concepts` with ONE SQL per measure. Idempotent
+    per valueset_url (DELETE + INSERT). Reads the Aidbox-internal `far` schema.
+    """
     if not os.path.exists(valueset_path):
         return 0
 
     with open(valueset_path) as f:
         bundle = json.load(f)
 
-    total = 0
-    for entry in bundle.get("entry", []):
-        vs = entry.get("resource", {})
-        if vs.get("resourceType") != "ValueSet":
-            continue
-        url = vs.get("url", "")
-        name = vs.get("name", "")
-        codes = vs.get("expansion", {}).get("contains", [])
-        if not url or not codes:
-            continue
+    urls = sorted({
+        e.get("resource", {}).get("url")
+        for e in bundle.get("entry", [])
+        if e.get("resource", {}).get("resourceType") == "ValueSet" and e.get("resource", {}).get("url")
+    })
+    if not urls:
+        return 0
 
-        try:
-            run_sql(f"DELETE FROM concepts WHERE valueset_url = '{url}'")
-        except Exception:
-            pass
-
-        values = []
-        for c in codes:
-            s = c.get("system", "").replace("'", "''")
-            code = c.get("code", "").replace("'", "''")
-            display = c.get("display", "").replace("'", "''")[:200]
-            values.append(f"('{url}', '{name}', '{s}', '{code}', '{display}')")
-
-        for i in range(0, len(values), 500):
-            chunk = values[i:i + 500]
-            sql = "INSERT INTO concepts (valueset_url, valueset_name, system, code, display) VALUES\n" + ",\n".join(chunk)
-            try:
-                run_sql(sql)
-            except Exception as e:
-                print(f"  FAIL concepts for {name}: {e}")
-                break
-        total += len(codes)
-    return total
+    url_list = "(" + ",".join("'" + u.replace("'", "''") + "'" for u in urls) + ")"
+    run_sql(f"DELETE FROM concepts WHERE valueset_url IN {url_list}")
+    run_sql(
+        f"""INSERT INTO concepts (valueset_url, valueset_name, system, code, display)
+            SELECT DISTINCT
+                resource->>'url'  AS valueset_url,
+                resource->>'name' AS valueset_name,
+                c->>'system'      AS system,
+                c->>'code'        AS code,
+                left(c->>'display', 200) AS display
+            FROM far.valueset,
+                 jsonb_array_elements(resource->'expansion'->'contains') AS c
+            WHERE resource->>'url' IN {url_list}
+              AND c->>'code' IS NOT NULL
+              AND c->>'system' IS NOT NULL"""
+    )
+    r = run_sql(f"SELECT count(*) AS n FROM concepts WHERE valueset_url IN {url_list}")
+    return r[0]["n"] if r else 0
 
 
 def create_stubs():
