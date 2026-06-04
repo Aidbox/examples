@@ -7,7 +7,15 @@
   UNSCOPED  GET /Coverage?type=...  (fetches all Coverage across all patients,
   filters in memory) — O(total patients), times out at scale. With one, the
   retrieve scopes to  GET /Coverage?type=...&beneficiary=Patient/X .
-  Correctness unchanged; perf-only. BOOT-INF/classes shadows the jar copy.
+  Why beneficiary and not the others: in the Patient context, beneficiary is
+  the only role where the patient IS the coverage's patient. policyHolder /
+  subscriber typically reference a different person (RelatedPerson, e.g. a parent
+  on a dependent's plan) and payor is the insurer — no quality measure retrieves
+  "coverages where this patient is the policyHolder/payor". So this is a
+  measure-evaluation-tuned model-info, not a general-purpose one. If a future use
+  case needs the other roles scoped, the proper fix is in the engine
+  (SearchParamFhirRetrieveProvider should try multiple relations by target type),
+  not the model-info. Correctness unchanged; perf-only. BOOT-INF/classes shadows the jar copy.
 -->
 <modelInfo name="QICore" version="6.0.0" url="http://hl7.org/fhir/us/qicore" targetUrl="http://hl7.org/fhir" targetQualifier="qicore" patientClassName="Patient" patientBirthDatePropertyName="birthDate" xmlns="urn:hl7-org:elm-modelinfo:r1" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <requiredModelInfo name="System" version="1.0.0"/>
