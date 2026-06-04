@@ -322,59 +322,41 @@ def main():
         except Exception as e:
             print(f"  WARN: DROP VIEW {view} — {str(e)[:80]}")
     mat_body = json.dumps({"resourceType": "Parameters", "parameter": [{"name": "type", "valueCode": "table"}]}).encode()
-    sof_ok = True
+    # $materialize can run long on large data — no client timeout (Aidbox has no POST timeout).
+    # On failure we surface a targeted hint and raise (no silent fallback to legacy views).
     for vd_id in vd_ids:
+        print(f"  materializing {vd_id}...")
         try:
             req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}/$materialize", method="POST",
                 data=mat_body)
             req.add_header("Authorization", f"Basic {auth_header()}")
             req.add_header("Content-Type", "application/json")
-            urllib.request.urlopen(req, timeout=300)
+            urllib.request.urlopen(req)
         except urllib.error.HTTPError as e:
             body = e.read()[:300].decode(errors='replace') if e.fp else ''
             code = e.code
-            print(f"  WARN: $materialize failed for {vd_id}: HTTP {code}")
+            print(f"  ERROR: $materialize failed for {vd_id}: HTTP {code}")
             if body:
                 print(f"    {body[:200]}")
-            # Match against known causes — give targeted hint, not generic version warning.
             if code == 504 or 'Gateway Time-out' in body:
-                print(f"  → Likely nginx proxy_read_timeout is shorter than the materialize runtime.")
-                print(f"    Bump nginx config in front of Aidbox:")
-                print(f"      proxy_read_timeout 1800s;")
-                print(f"      proxy_send_timeout 1800s;")
+                print(f"  → nginx proxy_read_timeout is shorter than the materialize runtime. Bump:")
+                print(f"      proxy_read_timeout 1800s;  proxy_send_timeout 1800s;")
             elif code == 404:
-                print(f"  → $materialize requires Aidbox 2508+. Check your version:")
-                print(f"    curl -s {BASE_URL}/health | jq -r '.about.version'")
+                print(f"  → $materialize requires Aidbox 2508+. Check: curl -s {BASE_URL}/health | jq -r '.about.version'")
             elif 'multiple values found' in body:
-                print(f"  → Data shape: a resource has multiple matching values for a single-value FHIRPath.")
-                print(f"    The ViewDefinition may need .first() or a stricter filter — see viewdefinitions/{vd_id}.json.")
+                print(f"  → A resource has multiple matching values for a single-value FHIRPath; the")
+                print(f"    ViewDefinition needs .first() or a stricter filter — see viewdefinitions/{vd_id}.json.")
             elif 'depend on it' in body:
-                print(f"  → Wrapper view dependency conflict (pre-fix setup.py). Pull latest and re-run.")
-            else:
-                print(f"  → Aidbox returned {code} with an unrecognized error — see body above.")
-            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work).")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
-            sof_ok = False
-            break
-        except Exception as e:
-            print(f"  WARN: $materialize failed for {vd_id}: {e}")
-            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work).")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
-            sof_ok = False
-            break
-    if sof_ok:
-        print(f"  OK — {len(vd_ids)} tables materialized")
-        print("[8/8] Creating indexes + wrapper views + shared functions...")
-        # 03-sof-indexes.sql can take 5-20 min on production-sized observation tables
-        # (10M+ rows). CREATE INDEX without CONCURRENTLY (not available via /$sql since
-        # it wraps statements in transactions), and ANALYZE on big tables, both eat time.
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes", timeout=1800)
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
+                print(f"  → Wrapper view dependency conflict. Pull latest and re-run.")
+            raise
+    print(f"  OK — {len(vd_ids)} tables materialized")
+    print("[8/8] Creating indexes + wrapper views + shared functions...")
+    # 03-sof-indexes.sql can take 5-20 min on production-sized observation tables
+    # (10M+ rows). CREATE INDEX without CONCURRENTLY (not available via /$sql since
+    # it wraps statements in transactions), and ANALYZE on big tables, both eat time.
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes", timeout=1800)
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
 
     # Summary
     try:
