@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-04T11:06:21.029541Z",
+  "timestamp": "2026-06-05T11:43:30.359184Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -261,6 +261,23 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-forms/aidbox-forms-renderer-react-controlled",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-forms/aidbox-forms-renderer-react-controlled/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-fhir-api-intersept",
+      "title": "Aidbox: Intercept a FHIR endpoint",
+      "description": "This example demonstrates how to intercept a standard Aidbox FHIR endpoint with a custom application, apply extra logic, and then continue the normal persistence flow through Aidbox.",
+      "features": [
+        "API interception",
+        "Custom operations",
+        "Fastify",
+        "App framework",
+        "FHIR extensions"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/fhir-api-intersept",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/fhir-api-intersept/README.md"
     },
     {
       "id": "aidbox-custom-operations-fhir-api-override",
@@ -858,6 +875,7 @@
     ".NET",
     "AI assisted",
     "API",
+    "API interception",
     "API override",
     "Analytics",
     "Angular",
