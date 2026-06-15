@@ -45,6 +45,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Topic-Based Subscription to Kafka](aidbox-features/aidbox-subscriptions-to-kafka/)
 - [Aidbox with read-only replica](aidbox-features/aidbox-with-ro-replica/)
 - [AWS S3 Aidbox integration](aidbox-features/aws-s3-aidbox-integration/)
+- [Medicare Plan Finder (MPF)](aidbox-features/medicare-plan-finder/)
 - [Init bundle with environment template](aidbox-features/init-bundle-env-template/)
 - [OpenTelemetry](aidbox-features/OpenTelemetry/)
 - [Organization-Based Access Control (OrgBAC) Practitioner Application](aidbox-features/orgbac-practitioner-application/)

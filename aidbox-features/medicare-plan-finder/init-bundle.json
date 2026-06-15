@@ -1,0 +1,501 @@
+{
+  "resourceType": "Bundle",
+  "type": "batch",
+  "entry": [
+    {
+      "request": {
+        "method": "PUT",
+        "url": "AwsAccount/minio"
+      },
+      "resource": {
+        "resourceType": "AwsAccount",
+        "id": "minio",
+        "access-key-id": "minioadmin",
+        "secret-access-key": "minioadmin",
+        "region": "us-east-1",
+        "host": "minio:9000",
+        "path-style": true,
+        "use-ssl": false
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Client/provider-export"
+      },
+      "resource": {
+        "resourceType": "Client",
+        "id": "provider-export",
+        "secret": "provider-export-secret",
+        "grant_types": [
+          "client_credentials"
+        ],
+        "auth": {
+          "client_credentials": {
+            "access_token_expiration": 3600
+          }
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "AccessPolicy/provider-export-policy"
+      },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "provider-export-policy",
+        "engine": "matcho",
+        "matcho": {
+          "$one-of": [
+            {
+              "client": {
+                "id": "provider-export"
+              },
+              "request-method": "get",
+              "uri": "#^/fhir/\\$export(\\?|$)"
+            },
+            {
+              "client": {
+                "id": "provider-export"
+              },
+              "request-method": "get",
+              "uri": "#^/fhir/\\$export-status/"
+            },
+            {
+              "client": {
+                "id": "provider-export"
+              },
+              "request-method": "post",
+              "uri": "#^/aws/storage/"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Organization/payer-acme"
+      },
+      "resource": {
+        "resourceType": "Organization",
+        "id": "payer-acme",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Organization"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "active": true,
+        "name": "Acme Health Plan",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-pdex-plan-net/CodeSystem/OrgTypeCS",
+                "code": "pay",
+                "display": "Payer"
+              }
+            ]
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "100 Main St"
+            ],
+            "city": "Springfield",
+            "state": "NY",
+            "postalCode": "10001",
+            "country": "US"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Organization/network-first"
+      },
+      "resource": {
+        "resourceType": "Organization",
+        "id": "network-first",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Network"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "active": true,
+        "name": "Acme First Network",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-pdex-plan-net/CodeSystem/OrgTypeCS",
+                "code": "ntwk",
+                "display": "Network"
+              }
+            ]
+          }
+        ],
+        "partOf": {
+          "reference": "Organization/payer-acme"
+        },
+        "address": [
+          {
+            "line": [
+              "100 Main St"
+            ],
+            "city": "Springfield",
+            "state": "NY",
+            "postalCode": "10001",
+            "country": "US"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Organization/network-other"
+      },
+      "resource": {
+        "resourceType": "Organization",
+        "id": "network-other",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Network"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "active": true,
+        "name": "Other Network",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-pdex-plan-net/CodeSystem/OrgTypeCS",
+                "code": "ntwk",
+                "display": "Network"
+              }
+            ]
+          }
+        ],
+        "partOf": {
+          "reference": "Organization/payer-acme"
+        },
+        "address": [
+          {
+            "line": [
+              "100 Main St"
+            ],
+            "city": "Springfield",
+            "state": "NY",
+            "postalCode": "10001",
+            "country": "US"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Organization/facility-downtown"
+      },
+      "resource": {
+        "resourceType": "Organization",
+        "id": "facility-downtown",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Organization"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "active": true,
+        "name": "Downtown Clinic",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-pdex-plan-net/CodeSystem/OrgTypeCS",
+                "code": "fac",
+                "display": "Facility"
+              }
+            ]
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "100 Main St"
+            ],
+            "city": "Springfield",
+            "state": "NY",
+            "postalCode": "10001",
+            "country": "US"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "InsurancePlan/plan-sunrise-advantage"
+      },
+      "resource": {
+        "resourceType": "InsurancePlan",
+        "id": "plan-sunrise-advantage",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-InsurancePlan"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "name": "Sunrise Advantage Plan",
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/davinci-pdex-plan-net/CodeSystem/InsuranceProductTypeCS",
+                "code": "mediadv",
+                "display": "Medicare Advantage"
+              }
+            ]
+          }
+        ],
+        "ownedBy": {
+          "reference": "Organization/payer-acme"
+        },
+        "administeredBy": {
+          "reference": "Organization/payer-acme"
+        },
+        "network": [
+          {
+            "reference": "Organization/network-first"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Practitioner/dr-chen"
+      },
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "dr-chen",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Practitioner"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "active": true,
+        "name": [
+          {
+            "family": "Chen",
+            "given": [
+              "Maria"
+            ],
+            "text": "Maria Chen, MD"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "100 Main St"
+            ],
+            "city": "Springfield",
+            "state": "NY",
+            "postalCode": "10001",
+            "country": "US"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "9941339108"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Practitioner/dr-rivera"
+      },
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "dr-rivera",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Practitioner"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "active": true,
+        "name": [
+          {
+            "family": "Rivera",
+            "given": [
+              "Luis"
+            ],
+            "text": "Luis Rivera, MD"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "100 Main St"
+            ],
+            "city": "Springfield",
+            "state": "NY",
+            "postalCode": "10001",
+            "country": "US"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "value": "9941339116"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "Location/loc-downtown"
+      },
+      "resource": {
+        "resourceType": "Location",
+        "id": "loc-downtown",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-Location"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "status": "active",
+        "name": "Downtown Clinic, Main St",
+        "managingOrganization": {
+          "reference": "Organization/facility-downtown"
+        },
+        "address": {
+          "line": [
+            "100 Main St"
+          ],
+          "city": "Springfield",
+          "state": "NY",
+          "postalCode": "10001",
+          "country": "US"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "PractitionerRole/role-chen-in-network"
+      },
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "role-chen-in-network",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-PractitionerRole"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/network-reference",
+            "valueReference": {
+              "reference": "Organization/network-first"
+            }
+          }
+        ],
+        "active": true,
+        "practitioner": {
+          "reference": "Practitioner/dr-chen"
+        },
+        "organization": {
+          "reference": "Organization/facility-downtown"
+        },
+        "location": [
+          {
+            "reference": "Location/loc-downtown"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "PractitionerRole/role-rivera-other-network"
+      },
+      "resource": {
+        "resourceType": "PractitionerRole",
+        "id": "role-rivera-other-network",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-PractitionerRole"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/network-reference",
+            "valueReference": {
+              "reference": "Organization/network-other"
+            }
+          }
+        ],
+        "active": true,
+        "practitioner": {
+          "reference": "Practitioner/dr-rivera"
+        },
+        "organization": {
+          "reference": "Organization/facility-downtown"
+        },
+        "location": [
+          {
+            "reference": "Location/loc-downtown"
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "url": "OrganizationAffiliation/oa-downtown-first"
+      },
+      "resource": {
+        "resourceType": "OrganizationAffiliation",
+        "id": "oa-downtown-first",
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/plannet-OrganizationAffiliation"
+          ],
+          "lastUpdated": "2026-01-01T00:00:00Z"
+        },
+        "active": true,
+        "organization": {
+          "reference": "Organization/facility-downtown"
+        },
+        "network": [
+          {
+            "reference": "Organization/network-first"
+          }
+        ],
+        "location": [
+          {
+            "reference": "Location/loc-downtown"
+          }
+        ]
+      }
+    }
+  ]
+}
