@@ -1,0 +1,84 @@
+volumes:
+  aidbox_pg_data: {}
+  minio_data: {}
+
+services:
+  aidbox_db:
+    image: healthsamurai/aidboxdb:17
+    volumes:
+      - aidbox_pg_data:/var/lib/postgresql/data:delegated
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: jcRsTCRWqi
+
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    depends_on:
+      - aidbox_db
+      - createbucket
+    ports:
+      - 8888:8888
+    volumes:
+      - ./init-bundle.json:/init-bundle/init-bundle.json:ro
+    environment:
+      BOX_LICENSE: ${AIDBOX_LICENSE}
+      AIDBOX_PORT: 8888
+      AIDBOX_BASE_URL: http://aidbox:8888
+      AIDBOX_ADMIN_PASSWORD: secret
+      AIDBOX_CLIENT_SECRET: secret
+      PGHOST: aidbox_db
+      PGPORT: "5432"
+      PGUSER: aidbox
+      PGPASSWORD: jcRsTCRWqi
+      PGDATABASE: aidbox
+      AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1:hl7.fhir.us.davinci-pdex-plan-net#1.1.0
+      AIDBOX_FHIR_SCHEMA_VALIDATION: true
+      BOX_FHIR_TERMINOLOGY_ENGINE: hybrid
+      BOX_FHIR_TERMINOLOGY_ENGINE_HYBRID_EXTERNAL_TX_SERVER: https://tx.health-samurai.io/fhir
+      BOX_INIT_BUNDLE: file:///init-bundle/init-bundle.json
+      BOX_FHIR_BULK_STORAGE_PROVIDER: aws
+      BOX_FHIR_BULK_STORAGE_AWS_ACCOUNT: minio
+      BOX_FHIR_BULK_STORAGE_AWS_BUCKET: provider-directory-export
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z-cpuv1
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+
+  createbucket:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z-cpuv1
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done;
+      mc mb --ignore-existing local/provider-directory-export;
+      mc mb --ignore-existing local/provider-directory-publish;
+      mc anonymous set download local/provider-directory-publish;
+      exit 0"
+
+  export:
+    image: oven/bun:1
+    profiles: ["export"]
+    depends_on:
+      - aidbox
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      AIDBOX_URL: http://aidbox:8888
+      CLIENT_ID: provider-export
+      CLIENT_SECRET: provider-export-secret
+      PUBLISH_ACCOUNT: minio
+      PUBLISH_BUCKET: provider-directory-publish
+      PUBLIC_BASE: http://localhost:9000/provider-directory-publish
+    command: bun src/main.ts
