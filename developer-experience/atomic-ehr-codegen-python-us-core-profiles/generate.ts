@@ -13,7 +13,7 @@ const main = async () => {
           "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient": {},
           "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure": {},
         },
-        "hl7.fhir.r4.core": {
+        "hl7.fhir.r4.core": { // hl7.fhir.us.core depends on hl7.fhir.r4.core
           "http://hl7.org/fhir/StructureDefinition/Bundle": {},
         },
       },

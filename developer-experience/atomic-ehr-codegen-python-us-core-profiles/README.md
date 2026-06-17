@@ -5,7 +5,7 @@ A small CSV-to-FHIR converter demonstrating [`@atomic-ehr/codegen`](https://gith
 The example:
 
 1. generates profile classes for [US Core Patient](https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-patient.html) and [US Core Blood Pressure](https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-blood-pressure.html) plus base `Bundle` from `hl7.fhir.r4.core`,
-2. loads `patients.csv` (5 rows: MRN, name, demographics, race, one BP reading each),
+2. loads `patients.csv` (each row: MRN, name, demographics, race, one BP reading each),
 3. converts each row into a validated `UscorePatientProfile` + `UscoreBloodPressureProfile`,
 4. packages them as a `Bundle[Patient | Observation]` transaction with `urn:uuid` cross-references,
 5. reads `bundle.json` back, selects the US Core BP observations, and prints the average BP.
@@ -54,6 +54,8 @@ Run [Aidbox](https://www.health-samurai.io/fhir-server) locally:
 ```bash
 curl -JO https://aidbox.app/runme && docker compose up -d
 ```
+
+Open `http://localhost:8080` and issue license if not already done.
 
 Then POST `bundle.json` and read the stored observations back as typed resources:
 

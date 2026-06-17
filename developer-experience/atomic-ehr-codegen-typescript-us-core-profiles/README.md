@@ -47,7 +47,11 @@ Run [Aidbox](https://www.health-samurai.io/fhir-server) locally and POST `bundle
 ```bash
 curl -JO https://aidbox.app/runme && docker compose up -d
 SECRET=$(awk '/BOX_ROOT_CLIENT_SECRET:/{print $2}' docker-compose.yaml)
+```
 
+Open `http://localhost:8080` and issue license if not already done.
+
+```bash
 curl -u "root:$SECRET" -X POST -H "Content-Type: application/fhir+json" \
   -d @bundle.json http://localhost:8080/fhir
 ```
