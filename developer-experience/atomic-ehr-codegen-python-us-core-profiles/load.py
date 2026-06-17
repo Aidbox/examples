@@ -5,10 +5,8 @@ import json
 import uuid
 import warnings
 
-from fhir_types.hl7_fhir_r4_core.base import Identifier, HumanName, Reference
-from fhir_types.hl7_fhir_r4_core.patient import Patient
-from fhir_types.hl7_fhir_r4_core.observation import Observation
-from fhir_types.hl7_fhir_r4_core.bundle import Bundle, BundleEntry, BundleEntryRequest
+from fhir_types.hl7_fhir_r4_core import Identifier, HumanName, Reference, Patient, Observation, Bundle, BundleEntry, BundleEntryRequest
+
 from fhir_types.hl7_fhir_us_core.profiles import (
     UscorePatientProfile,
     UscoreBloodPressureProfile,
@@ -77,12 +75,16 @@ def main() -> None:
     bundle = Bundle[Patient | Observation](
         resource_type="Bundle",
         type="transaction",
-        entry=[entry for row in rows for entry in row_to_entries(row)],
+        entry=[entry
+            for row in rows
+            for entry in row_to_entries(row)],
     )
 
     with open("bundle.json", "w") as f:
         json.dump(bundle.model_dump(by_alias=True, exclude_none=True), f, indent=2)
-    print(f"Wrote bundle with {len(bundle.entry)} entries")
+    entries = bundle.entry
+    if entries is None: raise ValueError("entries is None")
+    print(f"Wrote bundle with {len(entries)} entries")
 
 
 if __name__ == "__main__":

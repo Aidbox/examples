@@ -28,8 +28,8 @@ def main() -> None:
     def avg(xs: list[float]) -> float:
         return sum(xs) / len(xs)
 
-    systolic = [bp.get_systolic()["value"] for bp in bps]
-    diastolic = [bp.get_diastolic()["value"] for bp in bps]
+    systolic = [systolic["value"] for bp in bps if (systolic := bp.get_systolic()) is not None]
+    diastolic = [diastolic["value"] for bp in bps if (diastolic := bp.get_diastolic()) is not None]
 
     print(f"Avg BP: {avg(systolic):.1f}/{avg(diastolic):.1f} mmHg (n={len(bps)})")
 
