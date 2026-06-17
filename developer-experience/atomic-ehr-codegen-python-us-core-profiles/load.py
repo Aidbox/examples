@@ -5,7 +5,16 @@ import json
 import uuid
 import warnings
 
-from fhir_types.hl7_fhir_r4_core import Identifier, HumanName, Reference, Patient, Observation, Bundle, BundleEntry, BundleEntryRequest
+from fhir_types.hl7_fhir_r4_core import (
+    Identifier,
+    HumanName,
+    Reference,
+    Patient,
+    Observation,
+    Bundle,
+    BundleEntry,
+    BundleEntryRequest,
+)
 
 from fhir_types.hl7_fhir_us_core.profiles import (
     UscorePatientProfile,
@@ -20,16 +29,22 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 def row_to_patient(row: dict[str, str]) -> UscorePatientProfile:
     base_patient = Patient(
         resource_type="Patient",
-        identifier=[Identifier(system="http://hospital.example.org/mrn", value=row["mrn"])],
+        identifier=[
+            Identifier(system="http://hospital.example.org/mrn", value=row["mrn"])
+        ],
         name=[HumanName(family=row["family"], given=[row["given"]])],
-        gender=row["gender"],          # Literal-typed; Pydantic validates the value
-        birth_date=row["birthDate"],   # snake_case attr; serializes back to "birthDate"
+        gender=row["gender"],  # Literal-typed; Pydantic validates the value
+        birth_date=row["birthDate"],  # snake_case attr; serializes back to "birthDate"
     )
 
     patient = UscorePatientProfile.apply(base_patient)
     patient.set_race(
         {
-            "ombCategory": {"system": "urn:oid:2.16.840.1.113883.6.238", "code": row["raceCode"], "display": row["raceDisplay"]},
+            "ombCategory": {
+                "system": "urn:oid:2.16.840.1.113883.6.238",
+                "code": row["raceCode"],
+                "display": row["raceDisplay"],
+            },
             "text": row["raceDisplay"],
         }
     )
@@ -44,8 +59,22 @@ def row_to_bp(row: dict[str, str], patient_urn: str) -> UscoreBloodPressureProfi
 
     (
         bp.set_effective_date_time(row["effectiveDateTime"])
-          .set_systolic({"value": float(row["systolic"]), "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]"})
-          .set_diastolic({"value": float(row["diastolic"]), "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]"})
+        .set_systolic(
+            {
+                "value": float(row["systolic"]),
+                "unit": "mmHg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mm[Hg]",
+            }
+        )
+        .set_diastolic(
+            {
+                "value": float(row["diastolic"]),
+                "unit": "mmHg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mm[Hg]",
+            }
+        )
     )
 
     errors = bp.validate()["errors"]
@@ -60,10 +89,16 @@ def row_to_entries(row: dict[str, str]) -> list[BundleEntry[Patient | Observatio
     bp = row_to_bp(row, patient_urn)
 
     return [
-        BundleEntry(full_url=patient_urn, resource=patient.to_resource(),
-                    request=BundleEntryRequest(method="POST", url="Patient")),
-        BundleEntry(full_url=f"urn:uuid:{uuid.uuid4()}", resource=bp.to_resource(),
-                    request=BundleEntryRequest(method="POST", url="Observation")),
+        BundleEntry(
+            full_url=patient_urn,
+            resource=patient.to_resource(),
+            request=BundleEntryRequest(method="POST", url="Patient"),
+        ),
+        BundleEntry(
+            full_url=f"urn:uuid:{uuid.uuid4()}",
+            resource=bp.to_resource(),
+            request=BundleEntryRequest(method="POST", url="Observation"),
+        ),
     ]
 
 
@@ -75,15 +110,14 @@ def main() -> None:
     bundle = Bundle[Patient | Observation](
         resource_type="Bundle",
         type="transaction",
-        entry=[entry
-            for row in rows
-            for entry in row_to_entries(row)],
+        entry=[entry for row in rows for entry in row_to_entries(row)],
     )
 
     with open("bundle.json", "w") as f:
         json.dump(bundle.model_dump(by_alias=True, exclude_none=True), f, indent=2)
     entries = bundle.entry
-    if entries is None: raise ValueError("entries is None")
+    if entries is None:
+        raise ValueError("entries is None")
     print(f"Wrote bundle with {len(entries)} entries")
 
 

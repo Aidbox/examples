@@ -26,7 +26,12 @@ from fhir_types.hl7_fhir_r4_core.observation import Observation
 
 
 def make_client() -> AsyncFHIRClient:
-    url = os.environ.get("FHIR_URL") or os.environ.get("AIDBOX_URL") or "http://localhost:8080/fhir"
+    url = (
+        os.environ.get("FHIR_URL")
+        or os.environ.get("AIDBOX_URL")
+        or "http://localhost:8080/fhir"
+    )
+
     def dump(r):
         return r.model_dump(by_alias=True, exclude_none=True)
 
@@ -51,7 +56,11 @@ async def main() -> None:
     print("Transaction committed:", response.get("type"))
 
     # Read the stored US Core Blood Pressure observations back as typed resources.
-    observations = await client.resources(Observation).search(code="http://loinc.org|85354-9").fetch()
+    observations = (
+        await client.resources(Observation)
+        .search(code="http://loinc.org|85354-9")
+        .fetch()
+    )
     print(f"Stored BP observations: {len(observations)}")
     for obs in observations:
         assert isinstance(obs, Observation)
