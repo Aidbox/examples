@@ -21,11 +21,11 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 def row_to_patient(row: dict[str, str]) -> UscorePatientProfile:
     base_patient = Patient(
-        resource_type="Patient",
+        resourceType="Patient",
         identifier=[Identifier(system="http://hospital.example.org/mrn", value=row["mrn"])],
         name=[HumanName(family=row["family"], given=[row["given"]])],
-        gender=row["gender"],          # Literal-typed; Pydantic validates the value
-        birth_date=row["birthDate"],   # snake_case attr; serializes back to "birthDate"
+        gender=row["gender"],         # Literal-typed; Pydantic validates the value
+        birthDate=row["birthDate"],   # camelCase attr (fieldFormat: "camelCase")
     )
 
     patient = UscorePatientProfile.apply(base_patient)
@@ -62,9 +62,9 @@ def row_to_entries(row: dict[str, str]) -> list[BundleEntry[Patient | Observatio
     bp = row_to_bp(row, patient_urn)
 
     return [
-        BundleEntry(full_url=patient_urn, resource=patient.to_resource(),
+        BundleEntry(fullUrl=patient_urn, resource=patient.to_resource(),
                     request=BundleEntryRequest(method="POST", url="Patient")),
-        BundleEntry(full_url=f"urn:uuid:{uuid.uuid4()}", resource=bp.to_resource(),
+        BundleEntry(fullUrl=f"urn:uuid:{uuid.uuid4()}", resource=bp.to_resource(),
                     request=BundleEntryRequest(method="POST", url="Observation")),
     ]
 
@@ -74,15 +74,16 @@ def main() -> None:
         rows = list(csv.DictReader(f))
     print(f"Loaded {len(rows)} rows")
 
+    entries = [entry for row in rows for entry in row_to_entries(row)]
     bundle = Bundle[Patient | Observation](
-        resource_type="Bundle",
+        resourceType="Bundle",
         type="transaction",
-        entry=[entry for row in rows for entry in row_to_entries(row)],
+        entry=entries,
     )
 
     with open("bundle.json", "w") as f:
         json.dump(bundle.model_dump(by_alias=True, exclude_none=True), f, indent=2)
-    print(f"Wrote bundle with {len(bundle.entry)} entries")
+    print(f"Wrote bundle with {len(entries)} entries")
 
 
 if __name__ == "__main__":

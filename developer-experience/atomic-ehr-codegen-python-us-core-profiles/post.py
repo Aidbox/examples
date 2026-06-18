@@ -19,15 +19,19 @@ import asyncio
 import base64
 import json
 import os
+from typing import Any
 
 from fhirpy import AsyncFHIRClient
+from pydantic import BaseModel
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 
 
 def make_client() -> AsyncFHIRClient:
     url = os.environ.get("FHIR_URL") or os.environ.get("AIDBOX_URL", "http://localhost:8080/fhir")
-    dump = lambda r: r.model_dump(by_alias=True, exclude_none=True)
+
+    def dump(resource: BaseModel) -> dict[str, Any]:
+        return resource.model_dump(by_alias=True, exclude_none=True)
 
     # Basic auth when a secret is provided (Aidbox); otherwise an open server.
     secret = os.environ.get("AIDBOX_SECRET")

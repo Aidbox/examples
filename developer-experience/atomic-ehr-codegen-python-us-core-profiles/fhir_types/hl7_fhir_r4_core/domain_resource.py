@@ -17,7 +17,7 @@ T = TypeVar('T', bound=Resource, default=Resource)
 
 class DomainResource(Resource, Generic[T]):
     model_config = ConfigDict(validate_by_name=True, serialize_by_alias=True, extra="forbid")
-    resource_type: str = Field(
+    resourceType: str = Field(
         default='DomainResource',
         alias='resourceType',
         serialization_alias='resourceType',
@@ -25,7 +25,7 @@ class DomainResource(Resource, Generic[T]):
     )
     contained: PyList[T] | None = Field(None, alias="contained", serialization_alias="contained")
     extension: PyList[Extension] | None = Field(None, alias="extension", serialization_alias="extension")
-    modifier_extension: PyList[Extension] | None = Field(None, alias="modifierExtension", serialization_alias="modifierExtension")
+    modifierExtension: PyList[Extension] | None = Field(None, alias="modifierExtension", serialization_alias="modifierExtension")
     text: Narrative | None = Field(None, alias="text", serialization_alias="text")
 
     def model_post_init(self, __context: Any) -> None:
