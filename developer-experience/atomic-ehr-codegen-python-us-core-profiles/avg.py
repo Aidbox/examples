@@ -1,12 +1,13 @@
 """Read bundle.json back, select US Core Blood Pressure observations, print average BP."""
 
 import json
+from typing import Any
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_us_core.profiles import UscoreBloodPressureProfile
 
 
-def is_us_core_bp(resource: dict) -> bool:
+def is_us_core_bp(resource: dict[str, Any]) -> bool:
     # Python profiles have no `is()` type guard (unlike the TS API); select on
     # resourceType + meta.profile, then hand the survivors to from_resource().
     return resource.get(

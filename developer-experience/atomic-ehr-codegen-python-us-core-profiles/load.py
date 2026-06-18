@@ -28,13 +28,13 @@ warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 def row_to_patient(row: dict[str, str]) -> UscorePatientProfile:
     base_patient = Patient(
-        resource_type="Patient",
+        resourceType="Patient",
         identifier=[
             Identifier(system="http://hospital.example.org/mrn", value=row["mrn"])
         ],
         name=[HumanName(family=row["family"], given=[row["given"]])],
         gender=row["gender"],  # Literal-typed; Pydantic validates the value
-        birth_date=row["birthDate"],  # snake_case attr; serializes back to "birthDate"
+        birthDate=row["birthDate"],  # camelCase attr (fieldFormat: "camelCase")
     )
 
     patient = UscorePatientProfile.apply(base_patient)
@@ -90,12 +90,12 @@ def row_to_entries(row: dict[str, str]) -> list[BundleEntry[Patient | Observatio
 
     return [
         BundleEntry(
-            full_url=patient_urn,
+            fullUrl=patient_urn,
             resource=patient.to_resource(),
             request=BundleEntryRequest(method="POST", url="Patient"),
         ),
         BundleEntry(
-            full_url=f"urn:uuid:{uuid.uuid4()}",
+            fullUrl=f"urn:uuid:{uuid.uuid4()}",
             resource=bp.to_resource(),
             request=BundleEntryRequest(method="POST", url="Observation"),
         ),
@@ -108,7 +108,7 @@ def main() -> None:
     print(f"Loaded {len(rows)} rows")
 
     bundle = Bundle[Patient | Observation](
-        resource_type="Bundle",
+        resourceType="Bundle",
         type="transaction",
         entry=[entry for row in rows for entry in row_to_entries(row)],
     )

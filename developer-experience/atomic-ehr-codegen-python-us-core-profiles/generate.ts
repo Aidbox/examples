@@ -21,7 +21,7 @@ const main = async () => {
     .python({
       generateProfile: true,
       fhirpyClient: true,
-      fieldFormat: "snake_case",
+      fieldFormat: "camelCase",
       allowExtraFields: false,
       primitiveTypeExtension: true,
     })
