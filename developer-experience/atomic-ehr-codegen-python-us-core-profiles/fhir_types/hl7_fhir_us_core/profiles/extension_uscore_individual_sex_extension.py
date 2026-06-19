@@ -4,9 +4,11 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Coding
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     build_resource, validate_choice_required, validate_fixed_value, validate_required
 )
 
@@ -35,25 +37,25 @@ class UscoreIndividualSexExtension:
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, value_coding: Coding) -> Extension:
-        return build_resource(Extension, url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", value_coding=value_coding)
+    def create_resource(cls, *, valueCoding: Coding) -> Extension:
+        return build_resource(Extension, url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", valueCoding=valueCoding)
 
     @classmethod
-    def create(cls, *, value_coding: Coding) -> "UscoreIndividualSexExtension":
-        return cls.apply(cls.create_resource(value_coding=value_coding))
+    def create(cls, *, valueCoding: Coding) -> "UscoreIndividualSexExtension":
+        return cls.apply(cls.create_resource(valueCoding=valueCoding))
 
     def to_resource(self) -> Extension:
         return self._resource
 
     def get_value_coding(self) -> Coding | None:
-        return getattr(self._resource, "value_coding", None)
+        return cast('Coding | None', getattr(self._resource, "valueCoding", None))
 
     def set_value_coding(self, value: Coding) -> "UscoreIndividualSexExtension":
-        setattr(self._resource, "value_coding", value)
+        setattr(self._resource, "valueCoding", value)
         return self
 
     def get_url(self) -> str | None:
-        return getattr(self._resource, "url", None)
+        return cast('str | None', getattr(self._resource, "url", None))
 
     def set_url(self, value: str) -> "UscoreIndividualSexExtension":
         setattr(self._resource, "url", value)
@@ -65,6 +67,6 @@ class UscoreIndividualSexExtension:
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "url"))
         errors.extend(validate_fixed_value(self._resource, profile_name, "url", "http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex"))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["value_coding"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["valueCoding"]))
         return {"errors": errors, "warnings": warnings}
 

@@ -7,21 +7,21 @@ from __future__ import annotations
 from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
-from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Reference
+from fhir_types.hl7_fhir_r4_core.base import CodeableConcept, Period, Quantity, Reference
 from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \
-    set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_must_support, validate_reference, \
-    validate_required, validate_slice_cardinality
+    set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_fixed_value, validate_must_support, \
+    validate_reference, validate_required, validate_slice_cardinality
 )
 
 
-class ObservationVitalsignsProfile:
-    """FHIR Vital Signs Profile
+class ObservationBodyweightProfile:
+    """FHIR Body Weight Profile
 
-    CanonicalURL: http://hl7.org/fhir/StructureDefinition/vitalsigns
+    CanonicalURL: http://hl7.org/fhir/StructureDefinition/bodyweight
     """
 
-    canonical_url: str = "http://hl7.org/fhir/StructureDefinition/vitalsigns"
+    canonical_url: str = "http://hl7.org/fhir/StructureDefinition/bodyweight"
 
     _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
 
@@ -29,11 +29,11 @@ class ObservationVitalsignsProfile:
         self._resource = resource
 
     @classmethod
-    def from_resource(cls, resource: Observation) -> "ObservationVitalsignsProfile":
+    def from_resource(cls, resource: Observation) -> "ObservationBodyweightProfile":
         meta = getattr(resource, "meta", None)
         profiles = getattr(meta, "profile", None) if meta is not None else None
         if profiles is None or cls.canonical_url not in profiles:
-            raise ValueError(f"ObservationVitalsignsProfile: meta.profile must include {cls.canonical_url}")
+            raise ValueError(f"ObservationBodyweightProfile: meta.profile must include {cls.canonical_url}")
         profile = cls(resource)
         result = profile.validate()
         if result["errors"]:
@@ -41,27 +41,27 @@ class ObservationVitalsignsProfile:
         return profile
 
     @classmethod
-    def apply(cls, resource: Observation) -> "ObservationVitalsignsProfile":
+    def apply(cls, resource: Observation) -> "ObservationBodyweightProfile":
         ensure_profile(resource, cls.canonical_url)
         return cls(resource)
 
     @classmethod
-    def create_resource(cls, *, category: list[CodeableConcept] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], code: CodeableConcept, subject: Reference) -> Observation:
+    def create_resource(cls, *, category: list[CodeableConcept] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference) -> Observation:
         category_with_defaults = ensure_slice_defaults(list(category or []), cls._vscat_slice_match)
 
         return build_resource(
             Observation,
             resourceType="Observation",
+            code={"coding":[{"code":"29463-7","system":"http://loinc.org"}]},
             category=category_with_defaults,
             status=status,
-            code=code,
             subject=subject,
             meta={"profile": [cls.canonical_url]},
         )
 
     @classmethod
-    def create(cls, *, category: list[CodeableConcept] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], code: CodeableConcept, subject: Reference) -> "ObservationVitalsignsProfile":
-        return cls.apply(cls.create_resource(category=category, status=status, code=code, subject=subject))
+    def create(cls, *, category: list[CodeableConcept] | None = None, status: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"], subject: Reference) -> "ObservationBodyweightProfile":
+        return cls.apply(cls.create_resource(category=category, status=status, subject=subject))
 
     def to_resource(self) -> Observation:
         return self._resource
@@ -69,35 +69,35 @@ class ObservationVitalsignsProfile:
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
         return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
-    def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "ObservationVitalsignsProfile":
+    def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "ObservationBodyweightProfile":
         setattr(self._resource, "status", value)
-        return self
-
-    def get_code(self) -> CodeableConcept | None:
-        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
-
-    def set_code(self, value: CodeableConcept) -> "ObservationVitalsignsProfile":
-        setattr(self._resource, "code", value)
         return self
 
     def get_subject(self) -> Reference | None:
         return cast('Reference | None', getattr(self._resource, "subject", None))
 
-    def set_subject(self, value: Reference) -> "ObservationVitalsignsProfile":
+    def set_subject(self, value: Reference) -> "ObservationBodyweightProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
         return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
-    def set_category(self, value: list[CodeableConcept]) -> "ObservationVitalsignsProfile":
+    def set_category(self, value: list[CodeableConcept]) -> "ObservationBodyweightProfile":
         setattr(self._resource, "category", value)
+        return self
+
+    def get_code(self) -> CodeableConcept | None:
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
+
+    def set_code(self, value: CodeableConcept) -> "ObservationBodyweightProfile":
+        setattr(self._resource, "code", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
         return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
-    def set_effective_date_time(self, value: str) -> "ObservationVitalsignsProfile":
+    def set_effective_date_time(self, value: str) -> "ObservationBodyweightProfile":
         setattr(self._resource, "effectivePeriod", None)
         setattr(self._resource, "effectiveDateTime", value)
         return self
@@ -105,9 +105,16 @@ class ObservationVitalsignsProfile:
     def get_effective_period(self) -> Period | None:
         return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
-    def set_effective_period(self, value: Period) -> "ObservationVitalsignsProfile":
+    def set_effective_period(self, value: Period) -> "ObservationBodyweightProfile":
         setattr(self._resource, "effectiveDateTime", None)
         setattr(self._resource, "effectivePeriod", value)
+        return self
+
+    def get_value_quantity(self) -> Quantity | None:
+        return cast('Quantity | None', getattr(self._resource, "valueQuantity", None))
+
+    def set_value_quantity(self, value: Quantity) -> "ObservationBodyweightProfile":
+        setattr(self._resource, "valueQuantity", value)
         return self
 
     @overload
@@ -122,7 +129,7 @@ class ObservationVitalsignsProfile:
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def set_vscat(self, value: dict[str, Any] | None = None) -> "ObservationVitalsignsProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "ObservationBodyweightProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)
@@ -132,7 +139,7 @@ class ObservationVitalsignsProfile:
         return self
 
     def validate(self) -> dict[str, list[str]]:
-        profile_name = "ObservationVitalsignsProfile"
+        profile_name = "ObservationBodyweightProfile"
         errors: list[str] = []
         warnings: list[str] = []
         errors.extend(validate_required(self._resource, profile_name, "status"))
@@ -140,6 +147,7 @@ class ObservationVitalsignsProfile:
         errors.extend(validate_required(self._resource, profile_name, "category"))
         errors.extend(validate_slice_cardinality(self._resource, profile_name, "category", {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}, "VSCat", 1, 1))
         errors.extend(validate_required(self._resource, profile_name, "code"))
+        errors.extend(validate_fixed_value(self._resource, profile_name, "code", {"coding":[{"code":"29463-7","system":"http://loinc.org"}]}))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
         errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))

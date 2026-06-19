@@ -16,6 +16,8 @@ from fhir_types.hl7_fhir_r4_core.domain_resource import DomainResource
 from fhir_types.hl7_fhir_r4_core.observation import (
     Observation, ObservationComponent, ObservationReferenceRange
 )
+from fhir_types.hl7_fhir_r4_core.operation_outcome import OperationOutcome, OperationOutcomeIssue
+from fhir_types.hl7_fhir_r4_core.organization import Organization, OrganizationContact
 from fhir_types.hl7_fhir_r4_core.patient import (
     Patient, PatientCommunication, PatientContact, PatientLink
 )
@@ -54,6 +56,10 @@ Narrative.model_rebuild()
 Observation.model_rebuild()
 ObservationComponent.model_rebuild()
 ObservationReferenceRange.model_rebuild()
+OperationOutcome.model_rebuild()
+OperationOutcomeIssue.model_rebuild()
+Organization.model_rebuild()
+OrganizationContact.model_rebuild()
 ParameterDefinition.model_rebuild()
 Patient.model_rebuild()
 PatientCommunication.model_rebuild()

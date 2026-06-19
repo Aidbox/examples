@@ -4,13 +4,13 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal, cast, overload
 
 from fhir_types.hl7_fhir_r4_core.observation import Observation
 from fhir_types.hl7_fhir_r4_core.base import (
     CodeableConcept, Period, Quantity, Range, Ratio, Reference, SampledData
 )
-from .profile_helpers import (
+from fhir_types.profile_helpers import (
     apply_slice_match, build_resource, ensure_profile, ensure_slice_defaults, get_array_slice, matches_value, \
     set_array_slice, strip_match_keys, validate_choice_required, validate_enum, validate_must_support, validate_reference, \
     validate_required, validate_slice_cardinality
@@ -25,7 +25,7 @@ class UscoreVitalSignsProfile:
 
     canonical_url: str = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs"
 
-    _vscat_slice_match: dict = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
+    _vscat_slice_match: dict[str, Any] = {"coding":[{"code":"vital-signs","system":"http://terminology.hl7.org/CodeSystem/observation-category"}]}
 
     def __init__(self, resource: Observation) -> None:
         self._resource = resource
@@ -53,7 +53,7 @@ class UscoreVitalSignsProfile:
 
         return build_resource(
             Observation,
-            resource_type="Observation",
+            resourceType="Observation",
             category=category_with_defaults,
             status=status,
             code=code,
@@ -69,245 +69,249 @@ class UscoreVitalSignsProfile:
         return self._resource
 
     def get_status(self) -> Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None:
-        return getattr(self._resource, "status", None)
+        return cast('Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"] | None', getattr(self._resource, "status", None))
 
     def set_status(self, value: Literal["registered", "preliminary", "final", "amended", "corrected", "cancelled", "entered-in-error", "unknown"]) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "status", value)
         return self
 
     def get_code(self) -> CodeableConcept | None:
-        return getattr(self._resource, "code", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "code", None))
 
     def set_code(self, value: CodeableConcept) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "code", value)
         return self
 
     def get_subject(self) -> Reference | None:
-        return getattr(self._resource, "subject", None)
+        return cast('Reference | None', getattr(self._resource, "subject", None))
 
     def set_subject(self, value: Reference) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "subject", value)
         return self
 
     def get_category(self) -> list[CodeableConcept] | None:
-        return getattr(self._resource, "category", None)
+        return cast('list[CodeableConcept] | None', getattr(self._resource, "category", None))
 
     def set_category(self, value: list[CodeableConcept]) -> "UscoreVitalSignsProfile":
         setattr(self._resource, "category", value)
         return self
 
     def get_effective_date_time(self) -> str | None:
-        return getattr(self._resource, "effective_date_time", None)
+        return cast('str | None', getattr(self._resource, "effectiveDateTime", None))
 
     def set_effective_date_time(self, value: str) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "effective_period", None)
-        setattr(self._resource, "effective_date_time", value)
+        setattr(self._resource, "effectivePeriod", None)
+        setattr(self._resource, "effectiveDateTime", value)
         return self
 
     def get_effective_period(self) -> Period | None:
-        return getattr(self._resource, "effective_period", None)
+        return cast('Period | None', getattr(self._resource, "effectivePeriod", None))
 
     def set_effective_period(self, value: Period) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "effective_date_time", None)
-        setattr(self._resource, "effective_period", value)
+        setattr(self._resource, "effectiveDateTime", None)
+        setattr(self._resource, "effectivePeriod", value)
         return self
 
     def get_value_quantity(self) -> Quantity | None:
-        return getattr(self._resource, "value_quantity", None)
+        return cast('Quantity | None', getattr(self._resource, "valueQuantity", None))
 
     def set_value_quantity(self, value: Quantity) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_quantity", value)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueQuantity", value)
         return self
 
     def get_value_codeable_concept(self) -> CodeableConcept | None:
-        return getattr(self._resource, "value_codeable_concept", None)
+        return cast('CodeableConcept | None', getattr(self._resource, "valueCodeableConcept", None))
 
     def set_value_codeable_concept(self, value: CodeableConcept) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_codeable_concept", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueCodeableConcept", value)
         return self
 
     def get_value_string(self) -> str | None:
-        return getattr(self._resource, "value_string", None)
+        return cast('str | None', getattr(self._resource, "valueString", None))
 
     def set_value_string(self, value: str) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_string", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueString", value)
         return self
 
     def get_value_boolean(self) -> bool | None:
-        return getattr(self._resource, "value_boolean", None)
+        return cast('bool | None', getattr(self._resource, "valueBoolean", None))
 
     def set_value_boolean(self, value: bool) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_boolean", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueBoolean", value)
         return self
 
     def get_value_integer(self) -> int | None:
-        return getattr(self._resource, "value_integer", None)
+        return cast('int | None', getattr(self._resource, "valueInteger", None))
 
     def set_value_integer(self, value: int) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_integer", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueInteger", value)
         return self
 
     def get_value_range(self) -> Range | None:
-        return getattr(self._resource, "value_range", None)
+        return cast('Range | None', getattr(self._resource, "valueRange", None))
 
     def set_value_range(self, value: Range) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_range", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueRange", value)
         return self
 
     def get_value_ratio(self) -> Ratio | None:
-        return getattr(self._resource, "value_ratio", None)
+        return cast('Ratio | None', getattr(self._resource, "valueRatio", None))
 
     def set_value_ratio(self, value: Ratio) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_ratio", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueRatio", value)
         return self
 
     def get_value_sampled_data(self) -> SampledData | None:
-        return getattr(self._resource, "value_sampled_data", None)
+        return cast('SampledData | None', getattr(self._resource, "valueSampledData", None))
 
     def set_value_sampled_data(self, value: SampledData) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_sampled_data", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueSampledData", value)
         return self
 
     def get_value_time(self) -> str | None:
-        return getattr(self._resource, "value_time", None)
+        return cast('str | None', getattr(self._resource, "valueTime", None))
 
     def set_value_time(self, value: str) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_time", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueTime", value)
         return self
 
     def get_value_date_time(self) -> str | None:
-        return getattr(self._resource, "value_date_time", None)
+        return cast('str | None', getattr(self._resource, "valueDateTime", None))
 
     def set_value_date_time(self, value: str) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_period", None)
-        setattr(self._resource, "value_date_time", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valuePeriod", None)
+        setattr(self._resource, "valueDateTime", value)
         return self
 
     def get_value_period(self) -> Period | None:
-        return getattr(self._resource, "value_period", None)
+        return cast('Period | None', getattr(self._resource, "valuePeriod", None))
 
     def set_value_period(self, value: Period) -> "UscoreVitalSignsProfile":
-        setattr(self._resource, "value_quantity", None)
-        setattr(self._resource, "value_codeable_concept", None)
-        setattr(self._resource, "value_string", None)
-        setattr(self._resource, "value_boolean", None)
-        setattr(self._resource, "value_integer", None)
-        setattr(self._resource, "value_range", None)
-        setattr(self._resource, "value_ratio", None)
-        setattr(self._resource, "value_sampled_data", None)
-        setattr(self._resource, "value_time", None)
-        setattr(self._resource, "value_date_time", None)
-        setattr(self._resource, "value_period", value)
+        setattr(self._resource, "valueQuantity", None)
+        setattr(self._resource, "valueCodeableConcept", None)
+        setattr(self._resource, "valueString", None)
+        setattr(self._resource, "valueBoolean", None)
+        setattr(self._resource, "valueInteger", None)
+        setattr(self._resource, "valueRange", None)
+        setattr(self._resource, "valueRatio", None)
+        setattr(self._resource, "valueSampledData", None)
+        setattr(self._resource, "valueTime", None)
+        setattr(self._resource, "valueDateTime", None)
+        setattr(self._resource, "valuePeriod", value)
         return self
 
-    def get_vscat(self, mode: str | None = None) -> dict | None:
+    @overload
+    def get_vscat(self) -> dict[str, Any] | None: ...
+    @overload
+    def get_vscat(self, mode: Literal["raw"]) -> CodeableConcept | None: ...
+    def get_vscat(self, mode: Literal["raw"] | None = None) -> dict[str, Any] | CodeableConcept | None:
         match = self.__class__._vscat_slice_match
         item = get_array_slice(getattr(self._resource, "category", None), match)
         if mode == "raw":
-            return item
+            return cast('CodeableConcept | None', item)
         item_dict = item if isinstance(item, dict) else item.model_dump(by_alias=True, exclude_none=True)
         return strip_match_keys(item_dict, ["coding"])
 
-    def set_vscat(self, value: dict | None = None) -> "UscoreVitalSignsProfile":
+    def set_vscat(self, value: dict[str, Any] | None = None) -> "UscoreVitalSignsProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
         merged = CodeableConcept(**merged)
@@ -327,14 +331,14 @@ class UscoreVitalSignsProfile:
         errors.extend(validate_required(self._resource, profile_name, "code"))
         errors.extend(validate_required(self._resource, profile_name, "subject"))
         errors.extend(validate_reference(self._resource, profile_name, "subject", ["Patient"]))
-        errors.extend(validate_choice_required(self._resource, profile_name, ["effective_date_time","effective_period"]))
-        errors.extend(validate_reference(self._resource, profile_name, "has_member", ["MolecularSequence","QuestionnaireResponse","Observation"]))
-        errors.extend(validate_reference(self._resource, profile_name, "derived_from", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_choice_required(self._resource, profile_name, ["effectiveDateTime","effectivePeriod"]))
+        errors.extend(validate_reference(self._resource, profile_name, "hasMember", ["MolecularSequence","QuestionnaireResponse","Observation"]))
+        errors.extend(validate_reference(self._resource, profile_name, "derivedFrom", ["DocumentReference","ImagingStudy","Media","MolecularSequence","QuestionnaireResponse","Observation"]))
         errors.extend(validate_reference(self._resource, profile_name, "performer", ["PractitionerRole","USCoreCareTeam","USCoreOrganizationProfile","Patient","USCorePractitionerProfile","USCoreRelatedPersonProfile"]))
         warnings.extend(validate_enum(self._resource, profile_name, "category", ["social-history","vital-signs","imaging","laboratory","procedure","survey","exam","therapy","activity"]))
         warnings.extend(validate_enum(self._resource, profile_name, "code", ["2708-6","29463-7","3140-1","3150-0","3151-8","39156-5","59408-5","59575-1","59576-9","77606-2","8287-5","8289-1","8302-2","8306-3","8310-5","8462-4","8478-0","8480-6","8867-4","9279-1","9843-4"]))
-        warnings.extend(validate_enum(self._resource, profile_name, "data_absent_reason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
-        warnings.extend(validate_must_support(self._resource, profile_name, "data_absent_reason"))
+        warnings.extend(validate_enum(self._resource, profile_name, "dataAbsentReason", ["unknown","asked-unknown","temp-unknown","not-asked","asked-declined","masked","not-applicable","unsupported","as-text","error","not-a-number","negative-infinity","positive-infinity","not-performed","not-permitted"]))
+        warnings.extend(validate_must_support(self._resource, profile_name, "dataAbsentReason"))
         warnings.extend(validate_must_support(self._resource, profile_name, "performer"))
         return {"errors": errors, "warnings": warnings}
 
