@@ -100,7 +100,7 @@ class Observation(DomainResource):
     valueTimeExtension: Element | None = Field(None, alias="_valueTime", serialization_alias="_valueTime")
 
     def model_post_init(self, __context: Any) -> None:
-        self.__pydantic_fields_set__.add("resource_type")
+        self.__pydantic_fields_set__.add("resourceType")
 
     def to_json(self, indent: int | None = None) -> str:
         return self.model_dump_json(exclude_unset=True, exclude_none=True, indent=indent)
