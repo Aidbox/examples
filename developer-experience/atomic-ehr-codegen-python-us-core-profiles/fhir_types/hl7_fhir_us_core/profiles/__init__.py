@@ -3,6 +3,7 @@
 # Any manual changes made to this file may be overwritten.
 
 from .observation_uscore_blood_pressure_profile import UscoreBloodPressureProfile
+from .observation_uscore_body_weight_profile import UscoreBodyWeightProfile
 from .extension_uscore_ethnicity_extension import UscoreEthnicityExtension
 from .extension_uscore_individual_sex_extension import UscoreIndividualSexExtension
 from .extension_uscore_interpreter_needed_extension import UscoreInterpreterNeededExtension
@@ -10,3 +11,15 @@ from .patient_uscore_patient_profile import UscorePatientProfile
 from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from .observation_uscore_vital_signs_profile import UscoreVitalSignsProfile
+
+__all__ = [
+    'UscoreBloodPressureProfile',
+    'UscoreBodyWeightProfile',
+    'UscoreEthnicityExtension',
+    'UscoreIndividualSexExtension',
+    'UscoreInterpreterNeededExtension',
+    'UscorePatientProfile',
+    'UscoreRaceExtension',
+    'UscoreTribalAffiliationExtension',
+    'UscoreVitalSignsProfile',
+]
