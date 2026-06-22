@@ -8,7 +8,7 @@
     "generate": "tsx generate.ts"
   },
   "devDependencies": {
-    "@atomic-ehr/codegen": "^0.0.15-canary.20260619123134.2ecedd6",
+    "@atomic-ehr/codegen": "^0.0.16",
     "@types/node": "^25.6.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
