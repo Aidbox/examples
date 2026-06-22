@@ -32,13 +32,17 @@ npx tsx generate.ts                           # regenerate fhir_types/ (optional
 python3 -m venv venv && source venv/bin/activate
 pip install -r fhir_types/requirements.txt    # pydantic + fhirpy
 
+mypy .                                        # typecheck the example
 python load.py                                # reads patients.csv, writes bundle.json
 python avg.py                                 # reads bundle.json, prints the average BP
 ```
 
 Expected output:
 
-```
+```bash
+$ mypy .
+Success: no issues found in 35 source files
+
 $ python load.py
 Loaded 5 rows
 Wrote bundle with 10 entries
