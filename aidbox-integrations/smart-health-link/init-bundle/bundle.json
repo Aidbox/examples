@@ -1,0 +1,114 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Client",
+        "id": "shl-client",
+        "secret": "secret",
+        "grant_types": ["basic"]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Client/shl-client"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "shl-client-policy",
+        "engine": "allow",
+        "link": [
+          {
+            "id": "shl-client",
+            "resourceType": "Client"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AccessPolicy/shl-client-policy"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "StructureDefinition",
+        "id": "SHLink",
+        "url": "http://example.org/fhir/StructureDefinition/SHLink",
+        "name": "SHLink",
+        "status": "active",
+        "kind": "resource",
+        "abstract": false,
+        "type": "SHLink",
+        "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+        "derivation": "specialization",
+        "differential": {
+          "element": [
+            { "id": "SHLink", "path": "SHLink", "min": 0, "max": "*" },
+            { "id": "SHLink.key", "path": "SHLink.key", "min": 1, "max": "1", "type": [{ "code": "string" }] },
+            { "id": "SHLink.label", "path": "SHLink.label", "min": 1, "max": "1", "type": [{ "code": "string" }] },
+            { "id": "SHLink.jobStatus", "path": "SHLink.jobStatus", "min": 1, "max": "1", "type": [{ "code": "code" }] },
+            { "id": "SHLink.contentType", "path": "SHLink.contentType", "min": 0, "max": "1", "type": [{ "code": "string" }] },
+            { "id": "SHLink.sourceRef", "path": "SHLink.sourceRef", "min": 0, "max": "1", "type": [{ "code": "string" }] },
+            { "id": "SHLink.encryptedFile", "path": "SHLink.encryptedFile", "min": 0, "max": "1", "type": [{ "code": "string" }] },
+            { "id": "SHLink.exp", "path": "SHLink.exp", "min": 0, "max": "1", "type": [{ "code": "integer" }] },
+            { "id": "SHLink.passcode", "path": "SHLink.passcode", "min": 0, "max": "1", "type": [{ "code": "string" }] },
+            { "id": "SHLink.remainingAttempts", "path": "SHLink.remainingAttempts", "min": 0, "max": "1", "type": [{ "code": "integer" }] },
+            { "id": "SHLink.lastManifestAtMs", "path": "SHLink.lastManifestAtMs", "min": 0, "max": "1", "type": [{ "code": "decimal" }] },
+            { "id": "SHLink.fileTokens", "path": "SHLink.fileTokens", "min": 0, "max": "*", "type": [{ "code": "BackboneElement" }] },
+            { "id": "SHLink.fileTokens.token", "path": "SHLink.fileTokens.token", "min": 1, "max": "1", "type": [{ "code": "string" }] },
+            { "id": "SHLink.fileTokens.expiresAtMs", "path": "SHLink.fileTokens.expiresAtMs", "min": 1, "max": "1", "type": [{ "code": "decimal" }] }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "StructureDefinition/SHLink"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "App",
+        "id": "shl-app",
+        "type": "app",
+        "apiVersion": 1,
+        "endpoint": {
+          "type": "http-rpc",
+          "url": "http://shl-app:3000/shl-app",
+          "secret": "shl-app-secret"
+        },
+        "operations": {
+          "shl-kickoff": {
+            "method": "POST",
+            "path": ["shl-app", "eligibility", "$kickoff"]
+          },
+          "shl-manifest": {
+            "method": "POST",
+            "path": ["shl-app", "manifest", { "name": "shlId" }],
+            "policies": {
+              "shl-manifest-public": { "engine": "allow" }
+            }
+          },
+          "shl-file": {
+            "method": "GET",
+            "path": ["shl-app", "file", { "name": "fileId" }],
+            "policies": {
+              "shl-file-public": { "engine": "allow" }
+            }
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "App/shl-app"
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "$drop-cache"
+      }
+    }
+  ]
+}
