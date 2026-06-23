@@ -1,0 +1,1277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SMART Health Link Viewer</title>
+<style>
+  :root {
+    --ground: #0F1729;
+    --panel: #16203A;
+    --panel-2: #1E2B4A;
+    --line: #2B3A5E;
+    --text: #E6EAF2;
+    --muted: #93A1C0;
+    --accent: #5EEAD4;   /* unlocked / verified */
+    --locked: #F4A259;   /* locked / pending */
+    --danger: #F47174;
+    --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --display: "Space Grotesk", var(--sans);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 600px at 70% -10%, #1b2747 0%, transparent 60%),
+      var(--ground);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* ---- header ---- */
+  header { margin-bottom: 36px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 12px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 40px);
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .sub { color: var(--muted); margin: 0; max-width: 56ch; }
+
+  /* ---- input card ---- */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  label.fld {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 84px;
+    resize: vertical;
+    background: var(--ground);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+    word-break: break-all;
+  }
+  textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .row { display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+  button {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ground);
+    background: var(--accent);
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 20px;
+    cursor: pointer;
+    transition: transform .08s ease, filter .15s ease;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  button.ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+  }
+  button.small { padding: 7px 14px; font-size: 13px; }
+  .recipient-note {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .recipient-note #recipient-open { color: var(--text); }
+
+  /* ---- tabs ---- */
+  .tabs { display: flex; gap: 4px; margin-bottom: 18px; }
+  .tab {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .tab[aria-selected="true"] {
+    color: var(--ground);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---- form inputs ---- */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid2 .span2 { grid-column: 1 / -1; }
+  @media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+  .opt { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+  input[type="text"] {
+    width: 100%;
+    background: var(--ground);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 13px;
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+  input[type="text"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ---- minted link box ---- */
+  .linkbox {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 16px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .linkbox-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); white-space: nowrap;
+  }
+  .linkbox code {
+    flex: 1; min-width: 0;
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* ---- QR code ---- */
+  .qrbox {
+    margin-top: 12px;
+    display: flex; align-items: center; gap: 16px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .qrbox canvas {
+    width: 140px; height: 140px;
+    image-rendering: pixelated;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    flex: none;
+  }
+  .qrbox .qr-caption {
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+  }
+  .qrbox .qr-caption b { color: var(--text); font-weight: 600; }
+
+  /* ---- stepper ---- */
+  .steps-hint {
+    margin: 28px 0 8px; font-size: 12px; color: var(--muted); font-family: var(--mono);
+    letter-spacing: .04em;
+  }
+  .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+  .step { background: var(--panel); border: 1px solid var(--line); }
+  .step:first-child { border-radius: 12px 12px 0 0; }
+  .step:last-child { border-radius: 0 0 12px 12px; }
+
+  .step-head {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 40px 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: none;
+    border: 0;
+    border-radius: inherit;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .step-head:hover { background: var(--panel-2); }
+  .step-head:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    height: 28px; width: 28px;
+    display: grid; place-items: center;
+  }
+  .step-body { min-width: 0; }
+  .name { font-weight: 500; display: block; }
+  .detail { font-size: 13px; color: var(--muted); margin-top: 3px; font-family: var(--mono); display: block; }
+  .state {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .chev {
+    font-family: var(--mono); color: var(--muted); font-size: 18px; line-height: 1;
+    transition: transform .15s ease;
+  }
+  .step-head[aria-expanded="true"] .chev { transform: rotate(90deg); }
+
+  .step[data-state="active"] { border-color: var(--locked); }
+  .step[data-state="active"] .num { border-color: var(--locked); color: var(--locked); }
+  .step[data-state="active"] .state { color: var(--locked); }
+  .step[data-state="done"] .num { border-color: var(--accent); color: var(--accent); }
+  .step[data-state="done"] .state { color: var(--accent); }
+  .step[data-state="error"] { border-color: var(--danger); }
+  .step[data-state="error"] .num,
+  .step[data-state="error"] .state { color: var(--danger); border-color: var(--danger); }
+
+  /* ---- per-step API panel ---- */
+  .api {
+    border-top: 1px solid var(--line);
+    padding: 14px 16px 16px;
+    display: grid;
+    gap: 12px;
+  }
+  .api-block .api-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 6px;
+  }
+  .api pre {
+    margin: 0; max-height: 220px; padding: 12px 14px; font-size: 12px; border-radius: 8px;
+  }
+  .api .req .verb { color: var(--accent); }
+  .api .note { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .api .note code { font-family: var(--mono); color: var(--text); }
+  .status-ok { color: var(--accent); }
+  .status-bad { color: var(--danger); }
+  .status-wait { color: var(--locked); }
+
+  /* ---- reveal ---- */
+  .reveal { margin-top: 28px; }
+  .reveal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .reveal-head h2 {
+    font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .badge {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+  }
+  .badge.locked { color: var(--locked); border-color: var(--locked); }
+  .badge.unlocked { color: var(--accent); border-color: var(--accent); }
+
+  pre {
+    margin: 0;
+    background: var(--ground);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    max-height: 460px;
+    overflow-y: auto;
+  }
+  pre.cipher { color: #6E7DA3; word-break: break-all; white-space: pre-wrap; }
+  /* JSON syntax tint */
+  .k { color: var(--accent); }
+  .s { color: #C3E88D; }
+  .n { color: var(--locked); }
+  .b { color: #82AAFF; }
+
+  .meta { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 16px; padding: 0; list-style: none; }
+  .meta li { font-size: 13px; color: var(--muted); }
+  .meta b { color: var(--text); font-weight: 600; }
+
+  .err {
+    margin-top: 14px;
+    border: 1px solid var(--danger);
+    background: rgba(244,113,116,.08);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  .err code { font-family: var(--mono); font-size: 12px; color: var(--danger); }
+
+  .hidden { display: none !important; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  a { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">SMART Health Link · End-to-end demo</p>
+      <h1>Check eligibility, then unlock the result</h1>
+      <p class="sub">Start an eligibility check the way a prospective member would — before signing up. You get back a <code>shlink:</code> whose key only you hold. The result is produced asynchronously, fetched encrypted, and decrypted right here in your browser. Nothing readable ever touches the server.</p>
+    </header>
+
+    <div class="card">
+      <div class="tabs" role="tablist">
+        <button class="tab" id="tab-start" role="tab" aria-selected="true">Start a check</button>
+        <button class="tab" id="tab-open" role="tab" aria-selected="false">Open a link</button>
+      </div>
+
+      <!-- Mode: start a check -->
+      <div class="pane" id="pane-start">
+        <div class="grid2">
+          <div>
+            <label class="fld" for="memberName">Member name</label>
+            <input id="memberName" type="text" value="Jane Prospect" spellcheck="false" />
+          </div>
+          <div>
+            <label class="fld" for="payerName">Payer</label>
+            <input id="payerName" type="text" value="Acme Health" spellcheck="false" />
+          </div>
+          <div>
+            <label class="fld" for="memberId">Member ID</label>
+            <input id="memberId" type="text" value="M-99887" spellcheck="false" />
+          </div>
+          <div>
+            <label class="fld" for="recipient">Recipient (you)</label>
+            <input id="recipient" type="text" value="SHL Viewer (demo)" spellcheck="false" />
+          </div>
+          <div class="span2">
+            <label class="fld" for="passcode">Passcode <span class="opt">— optional, adds the P flag</span></label>
+            <input id="passcode" type="text" value="" placeholder="leave empty for an L-only link" spellcheck="false" />
+          </div>
+        </div>
+        <div class="row">
+          <button id="start">Start check</button>
+          <span class="recipient-note">runs <code>$kickoff</code>, then polls until ready</span>
+        </div>
+      </div>
+
+      <!-- Mode: open an existing link -->
+      <div class="pane hidden" id="pane-open">
+        <label class="fld" for="shl">SMART Health Link</label>
+        <textarea id="shl" placeholder="shlink:/eyJ1cmwiOiJodHRw…  (or a viewer URL containing one)" spellcheck="false"></textarea>
+        <div class="grid2" style="margin-top:14px">
+          <div>
+            <label class="fld" for="passcode-open">Passcode <span class="opt">— if the link has the P flag</span></label>
+            <input id="passcode-open" type="text" value="" placeholder="only if required" spellcheck="false" />
+          </div>
+          <div>
+            <label class="fld" for="recipient-open-input">Recipient (you)</label>
+            <input id="recipient-open-input" type="text" value="SHL Viewer (demo)" spellcheck="false" />
+          </div>
+        </div>
+        <div class="row">
+          <button id="open">Resolve &amp; decrypt</button>
+          <button id="clear" class="ghost" type="button">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Minted link, shown after kickoff -->
+    <div class="linkbox hidden" id="linkbox">
+      <span class="linkbox-label">Your SMART Health Link</span>
+      <code id="shlink-out"></code>
+      <button class="ghost small" id="copy" type="button">Copy</button>
+    </div>
+
+    <!-- QR encoding of the link, shown after kickoff -->
+    <div class="qrbox hidden" id="qrbox">
+      <canvas id="qr" width="140" height="140" aria-label="QR code for the SMART Health Link"></canvas>
+      <p class="qr-caption">Scan with a <b>SMART Health Links</b> wallet to open the result on a phone. The QR encodes the same <code>shlink:</code> above — the decryption key travels in it, so treat it like a secret.</p>
+    </div>
+
+    <p class="steps-hint">Click any step to see the HTTP call behind it.</p>
+    <ol class="steps" id="steps">
+      <li class="step" data-step="kickoff">
+        <button class="step-head" aria-expanded="false" aria-controls="api-kickoff">
+          <span class="num">00</span>
+          <span class="step-body"><span class="name">Start the check</span><span class="detail" id="d-kickoff">mint a shlink: and begin the eligibility job</span></span>
+          <span class="state" id="s-kickoff">idle</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </button>
+        <div class="api hidden" id="api-kickoff"></div>
+      </li>
+      <li class="step" data-step="decode">
+        <button class="step-head" aria-expanded="false" aria-controls="api-decode">
+          <span class="num">01</span>
+          <span class="step-body"><span class="name">Decode the link</span><span class="detail" id="d-decode">read url + key from the shlink payload</span></span>
+          <span class="state" id="s-decode">idle</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </button>
+        <div class="api hidden" id="api-decode"></div>
+      </li>
+      <li class="step" data-step="manifest">
+        <button class="step-head" aria-expanded="false" aria-controls="api-manifest">
+          <span class="num">02</span>
+          <span class="step-body"><span class="name">Poll the manifest</span><span class="detail" id="d-manifest">can-change while the job runs, then finalized</span></span>
+          <span class="state" id="s-manifest">idle</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </button>
+        <div class="api hidden" id="api-manifest"></div>
+      </li>
+      <li class="step" data-step="fetch">
+        <button class="step-head" aria-expanded="false" aria-controls="api-fetch">
+          <span class="num">03</span>
+          <span class="step-body"><span class="name">Get the encrypted file</span><span class="detail" id="d-fetch">embedded JWE, or fetch the location URL</span></span>
+          <span class="state" id="s-fetch">idle</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </button>
+        <div class="api hidden" id="api-fetch"></div>
+      </li>
+      <li class="step" data-step="decrypt">
+        <button class="step-head" aria-expanded="false" aria-controls="api-decrypt">
+          <span class="num">04</span>
+          <span class="step-body"><span class="name">Decrypt with your key</span><span class="detail" id="d-decrypt">AES-256-GCM, client-side</span></span>
+          <span class="state" id="s-decrypt">idle</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </button>
+        <div class="api hidden" id="api-decrypt"></div>
+      </li>
+    </ol>
+
+    <div class="reveal hidden" id="reveal">
+      <div class="reveal-head">
+        <h2 id="reveal-title">Encrypted payload</h2>
+        <span class="badge locked" id="badge">locked</span>
+      </div>
+      <ul class="meta hidden" id="meta"></ul>
+      <pre id="out" class="cipher"></pre>
+    </div>
+
+    <div class="err hidden" id="error"></div>
+
+    <footer>
+      Pending jobs report <code style="font-family:var(--mono)">can-change</code>; poll until <code style="font-family:var(--mono)">finalized</code>. This viewer follows the
+      <a href="https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/links-specification.html">SMART Health Links</a> spec.
+    </footer>
+  </div>
+
+<script type="module">
+  const $ = (id) => document.getElementById(id);
+  const STEPS = ["kickoff", "decode", "manifest", "fetch", "decrypt"];
+
+  // ---- tiny QR encoder (byte mode, EC level M) --------------------------------
+  // Self-contained so the viewer needs no external library (strict CSP, no CDN).
+  const QR = (() => {
+    // Galois field tables for Reed–Solomon over GF(256), primitive poly 0x11d.
+    const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+    for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11d; }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+    const gmul = (a, b) => (a && b ? EXP[LOG[a] + LOG[b]] : 0);
+
+    // Generator polynomial ∏(x − α^i), coefficients high-degree-first (leading 1).
+    function rsGenerator(deg) {
+      let poly = [1];
+      for (let i = 0; i < deg; i++) {
+        const next = new Array(poly.length + 1).fill(0);
+        for (let j = 0; j < poly.length; j++) {
+          next[j] ^= gmul(poly[j], EXP[i]);
+          next[j + 1] ^= poly[j];
+        }
+        poly = next;
+      }
+      return poly.reverse();
+    }
+    function rsEncode(data, ecLen) {
+      const gen = rsGenerator(ecLen);   // length ecLen+1, gen[0] === 1
+      const res = new Array(ecLen).fill(0);
+      for (const d of data) {
+        const factor = d ^ res[0];
+        res.shift(); res.push(0);
+        if (factor) for (let i = 0; i < ecLen; i++) res[i] ^= gmul(gen[i + 1], factor);
+      }
+      return res;
+    }
+
+    // Per-version, EC level M: total data codewords, EC codewords/block, block counts.
+    // [version] -> { data, ecPerBlock, blocks:[[count, dataCodewords], ...] }
+    const VERSIONS = {
+      1:  { ec: 10, groups: [[1, 16]] },
+      2:  { ec: 16, groups: [[1, 28]] },
+      3:  { ec: 26, groups: [[1, 44]] },
+      4:  { ec: 18, groups: [[2, 32]] },
+      5:  { ec: 24, groups: [[2, 43]] },
+      6:  { ec: 16, groups: [[4, 27]] },
+      7:  { ec: 18, groups: [[4, 31]] },
+      8:  { ec: 22, groups: [[2, 38], [2, 39]] },
+      9:  { ec: 22, groups: [[3, 36], [2, 37]] },
+      10: { ec: 26, groups: [[4, 43], [1, 44]] },
+      11: { ec: 30, groups: [[1, 50], [4, 51]] },
+      12: { ec: 22, groups: [[6, 36], [2, 37]] },
+      13: { ec: 22, groups: [[8, 37], [1, 38]] },
+      14: { ec: 24, groups: [[4, 40], [5, 41]] },
+      15: { ec: 24, groups: [[5, 41], [5, 42]] },
+      16: { ec: 28, groups: [[7, 45], [3, 46]] },
+      17: { ec: 28, groups: [[10, 46], [1, 47]] },
+      18: { ec: 26, groups: [[9, 43], [4, 44]] },
+      19: { ec: 26, groups: [[3, 44], [11, 45]] },
+      20: { ec: 26, groups: [[3, 41], [13, 42]] },
+    };
+    const dataCapacity = (v) => VERSIONS[v].groups.reduce((n, [c, d]) => n + c * d, 0);
+
+    function pickVersion(byteLen) {
+      // Byte-mode header: 4-bit mode + 8 or 16-bit length, then 8 bits/char.
+      for (let v = 1; v <= 20; v++) {
+        const lenBits = v <= 9 ? 8 : 16;
+        const need = Math.ceil((4 + lenBits + byteLen * 8) / 8);
+        if (need <= dataCapacity(v)) return v;
+      }
+      throw new Error("Data too large for QR (max version 20).");
+    }
+
+    function buildData(bytes, v) {
+      const lenBits = v <= 9 ? 8 : 16;
+      const bits = [];
+      const push = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+      push(0b0100, 4);            // byte mode
+      push(bytes.length, lenBits);
+      for (const b of bytes) push(b, 8);
+      const cap = dataCapacity(v) * 8;
+      push(0, Math.min(4, cap - bits.length)); // terminator
+      while (bits.length % 8) bits.push(0);
+      const codewords = [];
+      for (let i = 0; i < bits.length; i += 8) {
+        let c = 0; for (let j = 0; j < 8; j++) c = (c << 1) | bits[i + j];
+        codewords.push(c);
+      }
+      const pads = [0xec, 0x11];
+      let pi = 0;
+      while (codewords.length < dataCapacity(v)) codewords.push(pads[pi++ % 2]);
+      return codewords;
+    }
+
+    function interleave(codewords, v) {
+      const { ec, groups } = VERSIONS[v];
+      const blocks = [];
+      let pos = 0;
+      for (const [count, dlen] of groups) {
+        for (let i = 0; i < count; i++) {
+          const data = codewords.slice(pos, pos + dlen); pos += dlen;
+          blocks.push({ data, ec: rsEncode(data, ec) });
+        }
+      }
+      const maxData = Math.max(...blocks.map((b) => b.data.length));
+      const out = [];
+      for (let i = 0; i < maxData; i++) for (const b of blocks) if (i < b.data.length) out.push(b.data[i]);
+      for (let i = 0; i < ec; i++) for (const b of blocks) out.push(b.ec[i]);
+      return out;
+    }
+
+    // ---- matrix placement ----
+    const size = (v) => v * 4 + 17;
+
+    function placeFunctionPatterns(m, reserved, v) {
+      const n = size(v);
+      const finder = (r, c) => {
+        for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) {
+          const rr = r + dr, cc = c + dc;
+          if (rr < 0 || cc < 0 || rr >= n || cc >= n) continue;
+          const inRing = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6 &&
+            (dr === 0 || dr === 6 || dc === 0 || dc === 6);
+          const inCore = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4;
+          m[rr][cc] = inRing || inCore ? 1 : 0;
+          reserved[rr][cc] = 1;
+        }
+      };
+      finder(0, 0); finder(0, n - 7); finder(n - 7, 0);
+      // timing patterns
+      for (let i = 8; i < n - 8; i++) {
+        m[6][i] = i % 2 === 0 ? 1 : 0; reserved[6][i] = 1;
+        m[i][6] = i % 2 === 0 ? 1 : 0; reserved[i][6] = 1;
+      }
+      // alignment patterns — omit the three that would collide with a finder
+      // (centers near the top-left, top-right, and bottom-left finder cores).
+      const centers = ALIGN[v] || [];
+      const last = centers.length - 1;
+      const collides = (ri, ci) =>
+        (ri === 0 && ci === 0) ||        // top-left finder
+        (ri === 0 && ci === last) ||     // top-right finder
+        (ri === last && ci === 0);       // bottom-left finder
+      for (let ri = 0; ri < centers.length; ri++) for (let ci = 0; ci < centers.length; ci++) {
+        if (collides(ri, ci)) continue;
+        const r = centers[ri], c = centers[ci];
+        for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+          const isDark = Math.max(Math.abs(dr), Math.abs(dc)) !== 1;
+          m[r + dr][c + dc] = isDark ? 1 : 0; reserved[r + dr][c + dc] = 1;
+        }
+      }
+      // dark module + reserve format/version areas
+      m[n - 8][8] = 1; reserved[n - 8][8] = 1;
+      for (let i = 0; i < 9; i++) { reserved[8][i] = 1; reserved[i][8] = 1; }
+      for (let i = 0; i < 8; i++) { reserved[8][n - 1 - i] = 1; reserved[n - 1 - i][8] = 1; }
+      if (v >= 7) {
+        for (let i = 0; i < 6; i++) for (let j = 0; j < 3; j++) {
+          reserved[i][n - 11 + j] = 1; reserved[n - 11 + j][i] = 1;
+        }
+      }
+    }
+
+    // Alignment-pattern center coordinates per version (versions 2–20).
+    const ALIGN = {
+      2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34],
+      7: [6, 22, 38], 8: [6, 24, 42], 9: [6, 26, 46], 10: [6, 28, 50],
+      11: [6, 30, 54], 12: [6, 32, 58], 13: [6, 34, 62],
+      14: [6, 26, 46, 66], 15: [6, 26, 48, 70], 16: [6, 26, 50, 74],
+      17: [6, 30, 54, 78], 18: [6, 30, 56, 82], 19: [6, 30, 58, 86],
+      20: [6, 34, 62, 90],
+    };
+
+    function placeData(m, reserved, codewords, v) {
+      const n = size(v);
+      let bitIdx = 0;
+      const totalBits = codewords.length * 8;
+      const bitAt = (i) => i < totalBits ? (codewords[i >> 3] >> (7 - (i & 7))) & 1 : 0;
+      let upward = true;
+      for (let col = n - 1; col > 0; col -= 2) {
+        if (col === 6) col--; // skip vertical timing column
+        for (let i = 0; i < n; i++) {
+          const row = upward ? n - 1 - i : i;
+          for (let c = 0; c < 2; c++) {
+            const cc = col - c;
+            if (reserved[row][cc]) continue;
+            m[row][cc] = bitAt(bitIdx++);
+          }
+        }
+        upward = !upward;
+      }
+    }
+
+    function applyMask(m, reserved, v, mask) {
+      const n = size(v);
+      const out = m.map((r) => r.slice());
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+        if (reserved[r][c]) continue;
+        let flip = false;
+        switch (mask) {
+          case 0: flip = (r + c) % 2 === 0; break;
+          case 1: flip = r % 2 === 0; break;
+          case 2: flip = c % 3 === 0; break;
+          case 3: flip = (r + c) % 3 === 0; break;
+          case 4: flip = (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0; break;
+          case 5: flip = ((r * c) % 2) + ((r * c) % 3) === 0; break;
+          case 6: flip = (((r * c) % 2) + ((r * c) % 3)) % 2 === 0; break;
+          case 7: flip = (((r + c) % 2) + ((r * c) % 3)) % 2 === 0; break;
+        }
+        if (flip) out[r][c] ^= 1;
+      }
+      return out;
+    }
+
+    // Format info (EC level M = 0b00) with mask, BCH(15,5) + XOR mask.
+    // bit i runs 0 (LSB) … 14 (MSB). Coordinates verified against the spec.
+    function placeFormat(m, v, mask) {
+      const n = size(v);
+      let data = (0b00 << 3) | mask;
+      let rem = data;
+      for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >> 9) & 1 ? 0x537 : 0);
+      const bits = (((data << 10) | rem) ^ 0x5412);
+      const get = (i) => (bits >> i) & 1;
+      // Copy 1 — wraps the top-left finder (skipping the timing row/col at 6).
+      const tl = [
+        [8, 0, 14], [8, 1, 13], [8, 2, 12], [8, 3, 11], [8, 4, 10], [8, 5, 9],
+        [8, 7, 8], [8, 8, 7], [7, 8, 6], [5, 8, 5], [4, 8, 4], [3, 8, 3],
+        [2, 8, 2], [1, 8, 1], [0, 8, 0],
+      ];
+      for (const [r, c, i] of tl) m[r][c] = get(i);
+      // Copy 2 — bottom-left strip holds the high bits, top-right strip the low bits.
+      for (let i = 0; i < 7; i++) m[n - 1 - i][8] = get(8 + i);     // rows n-1..n-7  ← bits 8..14
+      for (let i = 0; i < 8; i++) m[8][n - 1 - i] = get(i);          // cols n-1..n-8  ← bits 0..7
+    }
+
+    function placeVersion(m, v) {
+      if (v < 7) return;
+      const n = size(v);
+      let rem = v;
+      for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >> 11) & 1 ? 0x1f25 : 0);
+      const bits = (v << 12) | rem;
+      for (let i = 0; i < 18; i++) {
+        const bit = (bits >> i) & 1;
+        const r = Math.floor(i / 3), c = i % 3;
+        m[r][n - 11 + c] = bit; m[n - 11 + c][r] = bit;
+      }
+    }
+
+    function penalty(m, n) {
+      let score = 0;
+      // Rule 1: runs of 5+ same-color in rows/cols
+      for (let r = 0; r < n; r++) {
+        for (const line of [m[r], m.map((row) => row[r])]) {
+          let run = 1;
+          for (let i = 1; i < n; i++) {
+            if (line[i] === line[i - 1]) { run++; if (run === 5) score += 3; else if (run > 5) score++; }
+            else run = 1;
+          }
+        }
+      }
+      // Rule 3: finder-like 1:1:3:1:1 patterns
+      const pat = [1, 0, 1, 1, 1, 0, 1];
+      for (let r = 0; r < n; r++) for (let c = 0; c <= n - 7; c++) {
+        let h = true, vt = true;
+        for (let k = 0; k < 7; k++) { if (m[r][c + k] !== pat[k]) h = false; if (m[c + k][r] !== pat[k]) vt = false; }
+        if (h) score += 40; if (vt) score += 40;
+      }
+      return score;
+    }
+
+    function generate(text) {
+      const bytes = new TextEncoder().encode(text);
+      const v = pickVersion(bytes.length);
+      const n = size(v);
+      const codewords = interleave(buildData(bytes, v), v);
+
+      const base = Array.from({ length: n }, () => new Array(n).fill(0));
+      const reserved = Array.from({ length: n }, () => new Array(n).fill(0));
+      placeFunctionPatterns(base, reserved, v);
+      placeData(base, reserved, codewords, v);
+
+      let best = null;
+      for (let mask = 0; mask < 8; mask++) {
+        const masked = applyMask(base, reserved, v, mask);
+        placeFormat(masked, v, mask);
+        placeVersion(masked, v);
+        const p = penalty(masked, n);
+        if (!best || p < best.p) best = { matrix: masked, p, mask };
+      }
+      return best.matrix;
+    }
+
+    function draw(canvas, text) {
+      const matrix = generate(text);
+      const n = matrix.length;
+      const quiet = 4;
+      const total = n + quiet * 2;
+      canvas.width = total; canvas.height = total;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, total, total);
+      ctx.fillStyle = "#000";
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+        if (matrix[r][c]) ctx.fillRect(c + quiet, r + quiet, 1, 1);
+      }
+    }
+    return { draw };
+  })();
+  const POLL_INTERVAL_MS = 2000;
+  const POLL_TIMEOUT_MS = 60000;
+
+  function setStep(step, state, detail) {
+    const el = document.querySelector(`.step[data-step="${step}"]`);
+    if (el) el.dataset.state = state;
+    const s = $(`s-${step}`);
+    if (s) s.textContent = state;
+    if (detail) $(`d-${step}`).textContent = detail;
+  }
+  function resetSteps() {
+    for (const s of STEPS) { setStep(s, "idle"); }
+    $("error").classList.add("hidden");
+    $("reveal").classList.add("hidden");
+    $("meta").classList.add("hidden");
+    $("meta").innerHTML = "";
+    seedApiTemplates();
+  }
+  function fail(step, message) {
+    setStep(step, "error");
+    const e = $("error");
+    e.innerHTML = message;
+    e.classList.remove("hidden");
+  }
+
+  // ---- per-step API panels --------------------------------------------------
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const apiLog = {};   // step -> { request, response?, note?, status?, ok? }
+
+  function blocks(step) {
+    const e = apiLog[step];
+    if (!e) return '<p class="note">No call recorded yet.</p>';
+    let html = "";
+    if (e.note) html += `<p class="note">${e.note}</p>`;
+    if (e.request) {
+      html += `<div class="api-block req"><p class="api-label">Request</p><pre>${e.request}</pre></div>`;
+    }
+    if (e.response !== undefined) {
+      const cls = e.ok === false ? "status-bad" : e.status === "waiting" ? "status-wait" : "status-ok";
+      const label = e.status ? `Response · <span class="${cls}">${esc(e.status)}</span>` : "Response";
+      html += `<div class="api-block"><p class="api-label">${label}</p><pre>${e.response}</pre></div>`;
+    }
+    return html;
+  }
+  function renderApi(step) {
+    const panel = $(`api-${step}`);
+    if (panel && !panel.classList.contains("hidden")) panel.innerHTML = blocks(step);
+  }
+  function setApi(step, entry) {
+    apiLog[step] = { ...(apiLog[step] || {}), ...entry };
+    renderApi(step);
+  }
+
+  // Informative request templates before anything has run.
+  function seedApiTemplates() {
+    for (const k of Object.keys(apiLog)) delete apiLog[k];
+    apiLog.kickoff = {
+      note: 'The real kickoff is the authenticated Aidbox operation below. This demo page calls an unauthenticated stand-in on the app instead (<code>POST /demo/kickoff</code>) so no Aidbox credentials live in the browser.',
+      request:
+`<span class="verb">POST</span> /shl-app/eligibility/$kickoff
+content-type: application/fhir+json
+authorization: Basic <client:secret>
+
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    { "name": "memberName", "valueString": "…" },
+    { "name": "payerName", "valueString": "…" },
+    { "name": "memberId", "valueString": "…" }
+  ]
+}`,
+    };
+    apiLog.decode = {
+      note: 'No network call — the <code>shlink:</code> is base64url-decoded in the browser to read its <code>url</code> and <code>key</code>.',
+    };
+    apiLog.manifest = {
+      note: 'Public. Polled until <code>status: finalized</code>. If the link has the <code>P</code> flag, the body also carries <code>passcode</code> — a wrong one returns <code>401 { remainingAttempts }</code>, and too-frequent polls return <code>429</code> with <code>Retry-After</code>.',
+      request:
+`<span class="verb">POST</span> {shlink.url}
+content-type: application/json
+
+{ "recipient": "…" }`,
+    };
+    apiLog.fetch = {
+      note: 'If the manifest inlines the file as <code>embedded</code>, no call is needed. Otherwise GET the short-lived <code>location</code> URL (returns <code>application/jose</code>); an expired URL returns <code>410 Gone</code>.',
+      request: `<span class="verb">GET</span> {file.location}`,
+    };
+    apiLog.decrypt = {
+      note: 'No network call — AES-256-GCM (JWE <code>alg=dir</code>) decryption happens in the browser with the key from the link.',
+    };
+    for (const s of STEPS) renderApi(s);
+  }
+
+  // Toggle a step's API panel.
+  function toggleStep(head) {
+    const open = head.getAttribute("aria-expanded") === "true";
+    head.setAttribute("aria-expanded", String(!open));
+    const panel = $(head.getAttribute("aria-controls"));
+    const step = head.closest(".step").dataset.step;
+    panel.classList.toggle("hidden", open);
+    if (!open) renderApi(step);
+  }
+  document.querySelectorAll(".step-head").forEach((h) =>
+    h.addEventListener("click", () => toggleStep(h))
+  );
+
+  // ---- shlink decode ----
+  function b64urlToBytes(s) {
+    s = s.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    const bin = atob(s);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  function decodeShlink(input) {
+    const marker = "shlink:/";
+    const idx = input.indexOf(marker);
+    if (idx === -1) throw new Error("That doesn't look like a shlink: — no <code>shlink:/</code> marker found.");
+    const encoded = input.slice(idx + marker.length).trim();
+    const json = new TextDecoder().decode(b64urlToBytes(encoded));
+    return JSON.parse(json);
+  }
+
+  // ---- JWE (compact, alg=dir, enc=A256GCM) decryption via WebCrypto ----
+  async function decryptJwe(jwe, keyB64url) {
+    const parts = jwe.split(".");
+    if (parts.length !== 5) throw new Error("Malformed JWE (expected 5 segments).");
+    const [headerB64, , ivB64, ctB64, tagB64] = parts;
+    const header = JSON.parse(new TextDecoder().decode(b64urlToBytes(headerB64)));
+    if (header.alg !== "dir" || header.enc !== "A256GCM") {
+      throw new Error(`Unsupported JWE (alg=${header.alg}, enc=${header.enc}).`);
+    }
+    const keyBytes = b64urlToBytes(keyB64url);
+    const key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["decrypt"]);
+    // WebCrypto expects ciphertext||tag together.
+    const ct = b64urlToBytes(ctB64), tag = b64urlToBytes(tagB64);
+    const combined = new Uint8Array(ct.length + tag.length);
+    combined.set(ct); combined.set(tag, ct.length);
+    const aad = new TextEncoder().encode(headerB64);
+    const plain = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: b64urlToBytes(ivB64), additionalData: aad },
+      key, combined
+    );
+    let text = new TextDecoder().decode(plain);
+    if (header.zip === "DEF") {
+      const ds = new DecompressionStream("deflate-raw");
+      const buf = await new Response(new Blob([plain]).stream().pipeThrough(ds)).arrayBuffer();
+      text = new TextDecoder().decode(buf);
+    }
+    return text;
+  }
+
+  // ---- tiny JSON highlighter ----
+  function highlight(jsonText) {
+    const esc = jsonText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return esc.replace(
+      /("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+      (m) => {
+        let cls = "n";
+        if (/^"/.test(m)) cls = /:$/.test(m) ? "k" : "s";
+        else if (/true|false/.test(m)) cls = "b";
+        else if (/null/.test(m)) cls = "b";
+        return `<span class="${cls}">${m}</span>`;
+      }
+    );
+  }
+
+  function showCipher(jwe) {
+    $("reveal").classList.remove("hidden");
+    $("reveal-title").textContent = "Encrypted payload";
+    $("badge").textContent = "locked";
+    $("badge").className = "badge locked";
+    const out = $("out");
+    out.className = "cipher";
+    out.textContent = jwe;
+  }
+  function showResult(jsonText, payload) {
+    $("reveal-title").textContent = "Decrypted result";
+    const badge = $("badge");
+    badge.textContent = "unlocked";
+    badge.className = "badge unlocked";
+    let parsed; try { parsed = JSON.parse(jsonText); } catch { parsed = null; }
+    const meta = $("meta");
+    meta.innerHTML = "";
+    const items = [];
+    if (payload.label) items.push(`<li>label <b>${payload.label}</b></li>`);
+    if (parsed?.resourceType) items.push(`<li>resource <b>${parsed.resourceType}</b></li>`);
+    if (parsed?.outcome) items.push(`<li>outcome <b>${parsed.outcome}</b></li>`);
+    if (items.length) { meta.innerHTML = items.join(""); meta.classList.remove("hidden"); }
+    const out = $("out");
+    out.className = "";
+    out.innerHTML = parsed ? highlight(JSON.stringify(parsed, null, 2)) : jsonText;
+  }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  let running = false;
+
+  function setBusy(b) {
+    running = b;
+    $("start").disabled = b;
+    $("open").disabled = b;
+  }
+
+  /**
+   * Resolve a shlink: → poll the manifest → fetch the JWE → decrypt.
+   * `recipient` is the string sent in the manifest request.
+   * The kickoff step is marked done by the caller (or n/a when opening a link).
+   */
+  async function resolveAndDecrypt(raw, recipient, passcode) {
+    let payload;
+    // 01 decode (client-side, no network)
+    setStep("decode", "active");
+    try {
+      payload = decodeShlink(raw);
+      if (!payload.url || !payload.key) throw new Error("Link is missing <code>url</code> or <code>key</code>.");
+      const needsPasscode = (payload.flag || "").includes("P");
+      setStep("decode", "done", `key ${payload.key.slice(0, 6)}… · flag ${payload.flag || "—"}`);
+      setApi("decode", {
+        note: needsPasscode
+          ? "Flag includes <code>P</code> — the manifest request must carry a passcode."
+          : undefined,
+        response: JSON.stringify({ ...payload, key: payload.key.slice(0, 8) + "…(redacted)" }, null, 2),
+        status: "decoded locally",
+      });
+      if (needsPasscode && !passcode) {
+        fail("manifest", "This link has the <code>P</code> flag — enter the passcode and try again.");
+        return;
+      }
+    } catch (e) { fail("decode", e.message); return; }
+
+    // 02 poll the manifest until finalized
+    setStep("manifest", "active");
+    const reqBody = passcode ? { recipient, passcode } : { recipient };
+    const reqBodyShown = passcode ? { recipient, passcode: "••••" } : { recipient };
+    let manifest;
+    const manifestReq =
+`<span class="verb">POST</span> ${esc(payload.url)}
+content-type: application/json
+
+${JSON.stringify(reqBodyShown, null, 2)}`;
+    const deadline = Date.now() + POLL_TIMEOUT_MS;
+    let polls = 0;
+    try {
+      while (true) {
+        const res = await fetch(payload.url, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(reqBody),
+        });
+
+        // 429: server is throttling polls — honor Retry-After.
+        if (res.status === 429) {
+          const ra = parseInt(res.headers.get("retry-after") || "1", 10) || 1;
+          setApi("manifest", {
+            note: `Server throttled this poll (429). Honoring <code>Retry-After: ${ra}</code>s.`,
+            request: manifestReq,
+            response: `HTTP 429 Too Many Requests\nretry-after: ${ra}`,
+            status: "HTTP 429",
+            ok: false,
+          });
+          setStep("manifest", "active", `rate-limited · retrying in ${ra}s…`);
+          await sleep(ra * 1000);
+          continue;
+        }
+
+        // 401: passcode required or invalid.
+        if (res.status === 401) {
+          const data = await res.json().catch(() => ({}));
+          setApi("manifest", {
+            note: "Passcode rejected. The server enforces a lifetime cap on incorrect attempts.",
+            request: manifestReq,
+            response: JSON.stringify(data, null, 2),
+            status: "HTTP 401",
+            ok: false,
+          });
+          const ra = "remainingAttempts" in data
+            ? ` ${data.remainingAttempts} attempt(s) left.`
+            : "";
+          fail("manifest", `Passcode rejected.${ra}`);
+          return;
+        }
+
+        manifest = await res.json();
+        polls++;
+        setApi("manifest", {
+          note: `Public${passcode ? ", passcode-gated" : ", unauthenticated"}. Poll ${polls}${manifest.status === "finalized" ? " — finalized." : " — still " + esc(manifest.status) + ", will retry."}`,
+          request: manifestReq,
+          response: JSON.stringify(redactManifest(manifest), null, 2),
+          status: `HTTP ${res.status} · ${manifest.status}`,
+          ok: res.ok,
+        });
+        if (!res.ok) throw new Error(`Manifest request failed: HTTP ${res.status}`);
+
+        if (manifest.status === "finalized" && manifest.files?.length) {
+          setStep("manifest", "done", `finalized after ${polls} poll(s) · ${manifest.files.length} file(s)`);
+          break;
+        }
+        if (manifest.status === "no-longer-valid") {
+          throw new Error("This link is no longer valid.");
+        }
+        if (Date.now() > deadline) {
+          throw new Error(`Still ${manifest.status} after ${Math.round(POLL_TIMEOUT_MS / 1000)}s — giving up.`);
+        }
+        // can-change: job still running — keep polling.
+        setStep("manifest", "active", `can-change · polling (${polls})…`);
+        await sleep(POLL_INTERVAL_MS);
+      }
+    } catch (e) { fail("manifest", e.message); return; }
+
+    // 03 fetch the JWE (embedded or via location)
+    setStep("fetch", "active");
+    let jwe;
+    try {
+      const file = manifest.files[0];
+      if (file.embedded) {
+        jwe = file.embedded;
+        setStep("fetch", "done", "used embedded JWE");
+        setApi("fetch", {
+          note: "The manifest inlined the file as <code>embedded</code> — no extra request needed.",
+          request: undefined,
+          response: jwe.slice(0, 120) + "…  (JWE compact serialization, application/jose)",
+          status: "embedded in manifest",
+        });
+      } else if (file.location) {
+        const fr = await fetch(file.location);
+        const body = (await fr.text()).trim();
+        const gone = fr.status === 410;
+        setApi("fetch", {
+          note: gone
+            ? "The short-lived <code>location</code> URL has expired (410 Gone). Re-request the manifest for a fresh one."
+            : "Short-lived <code>location</code> URL from the manifest (expires; spec allows ≤ 1 hour).",
+          request: `<span class="verb">GET</span> ${esc(file.location)}`,
+          response: gone
+            ? body || "HTTP 410 Gone"
+            : `content-type: ${fr.headers.get("content-type") || "application/jose"}\n\n${body.slice(0, 120)}…  (JWE)`,
+          status: `HTTP ${fr.status}`,
+          ok: fr.ok,
+        });
+        if (!fr.ok) throw new Error(`File fetch failed: HTTP ${fr.status}`);
+        jwe = body;
+        setStep("fetch", "done", "fetched from location URL");
+      } else {
+        throw new Error("File entry has neither embedded nor location.");
+      }
+      showCipher(jwe);
+    } catch (e) { fail("fetch", e.message); return; }
+
+    // 04 decrypt (client-side, no network)
+    setStep("decrypt", "active");
+    try {
+      const text = await decryptJwe(jwe, payload.key);
+      setStep("decrypt", "done", "decrypted in-browser");
+      setApi("decrypt", {
+        response: "Decrypted in-browser with WebCrypto (AES-256-GCM). The plaintext FHIR resource is shown below — it never traveled over the network.",
+        status: "decrypted locally",
+      });
+      showResult(text, payload);
+    } catch (e) {
+      fail("decrypt", `Couldn't decrypt — the key may not match this file. <code>${e.message}</code>`);
+    }
+  }
+
+  // Trim the long embedded JWE in a manifest for readable display.
+  function redactManifest(m) {
+    const copy = JSON.parse(JSON.stringify(m));
+    for (const f of copy.files || []) {
+      if (f.embedded) f.embedded = f.embedded.slice(0, 48) + "…(JWE truncated)";
+    }
+    return copy;
+  }
+
+  // Start a fresh check: kickoff (step 00) → resolve/poll/decrypt.
+  async function startCheck() {
+    if (running) return;
+    resetSteps();
+    $("linkbox").classList.add("hidden");
+    $("qrbox").classList.add("hidden");
+    setBusy(true);
+
+    setStep("kickoff", "active");
+    let shlink;
+    const recipient = $("recipient").value.trim() || "SHL Viewer (demo)";
+    const passcode = $("passcode").value.trim();
+    const kickBody = {
+      memberName: $("memberName").value.trim(),
+      payerName: $("payerName").value.trim(),
+      memberId: $("memberId").value.trim(),
+      ...(passcode ? { passcode } : {}),
+    };
+    try {
+      const res = await fetch("/demo/kickoff", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(kickBody),
+      });
+      const data = await res.json();
+      const kickoffParams = {
+        resourceType: "Parameters",
+        parameter: [
+          { name: "memberName", valueString: kickBody.memberName },
+          { name: "payerName", valueString: kickBody.payerName },
+          { name: "memberId", valueString: kickBody.memberId },
+          ...(passcode ? [{ name: "passcode", valueString: "••••" }] : []),
+        ],
+      };
+      setApi("kickoff", {
+        note: `The real kickoff is the authenticated Aidbox operation shown below. This demo page can't hold Aidbox credentials in the browser, so it actually called an unauthenticated stand-in on the app: <code>POST /demo/kickoff</code>.${passcode ? " A passcode was supplied, so the link gets the <code>P</code> flag." : ""}`,
+        request:
+`<span class="verb">POST</span> /shl-app/eligibility/$kickoff
+content-type: application/fhir+json
+authorization: Basic <client:secret>
+
+${JSON.stringify(kickoffParams, null, 2)}`,
+        response: JSON.stringify(
+          data.shlink ? { ...data, shlink: data.shlink.split("shlink:/")[0] + "shlink:/…(payload)" } : data,
+          null, 2),
+        status: `HTTP ${res.status}`,
+        ok: res.ok,
+      });
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      shlink = data.shlink;
+      setStep("kickoff", "done", passcode ? "job started · P flag" : "job started");
+      $("shlink-out").textContent = shlink;
+      $("linkbox").classList.remove("hidden");
+      showQr(shlink);
+    } catch (e) { fail("kickoff", `Couldn't start the check — <code>${e.message}</code>`); setBusy(false); return; }
+
+    await resolveAndDecrypt(shlink, recipient, passcode);
+    setBusy(false);
+  }
+
+  // Open an existing link: skip kickoff, just resolve/decrypt.
+  async function openLink() {
+    if (running) return;
+    resetSteps();
+    setStep("kickoff", "done", "n/a — opened an existing link");
+    const raw = $("shl").value.trim();
+    if (!raw) { fail("decode", "Paste a <code>shlink:</code> first."); return; }
+    setBusy(true);
+    const recipient = $("recipient-open-input").value.trim() || "SHL Viewer (demo)";
+    const passcode = $("passcode-open").value.trim();
+    await resolveAndDecrypt(raw, recipient, passcode);
+    setBusy(false);
+  }
+
+  // ---- tabs ----
+  function selectTab(which) {
+    const start = which === "start";
+    $("tab-start").setAttribute("aria-selected", String(start));
+    $("tab-open").setAttribute("aria-selected", String(!start));
+    $("pane-start").classList.toggle("hidden", !start);
+    $("pane-open").classList.toggle("hidden", start);
+  }
+  $("tab-start").addEventListener("click", () => selectTab("start"));
+  $("tab-open").addEventListener("click", () => selectTab("open"));
+
+  $("start").addEventListener("click", startCheck);
+  $("open").addEventListener("click", openLink);
+  $("clear").addEventListener("click", () => { $("shl").value = ""; resetSteps(); });
+  // Render the minted link as a scannable QR code.
+  function showQr(shlink) {
+    try {
+      QR.draw($("qr"), shlink);
+      $("qrbox").classList.remove("hidden");
+    } catch (e) {
+      // Link too long to encode — keep the textual link, skip the QR.
+      $("qrbox").classList.add("hidden");
+    }
+  }
+
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("shlink-out").textContent); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy"), 1200); }
+    catch { /* clipboard may be blocked; ignore */ }
+  });
+
+  // Seed the API panels with request templates so they're informative pre-run.
+  seedApiTemplates();
+
+  // Prefill from the URL fragment (viewer-URL form: …/#shlink:/…) or ?shlink=
+  const frag = location.hash.slice(1);
+  const q = new URLSearchParams(location.search).get("shlink");
+  const prefill = (frag && frag.includes("shlink:/")) ? frag : (q || "");
+  if (prefill) { selectTab("open"); $("shl").value = decodeURIComponent(prefill); openLink(); }
+</script>
+</body>
+</html>
