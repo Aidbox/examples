@@ -45,20 +45,20 @@
         "derivation": "specialization",
         "differential": {
           "element": [
-            { "id": "SHLink", "path": "SHLink", "min": 0, "max": "*" },
-            { "id": "SHLink.key", "path": "SHLink.key", "min": 1, "max": "1", "type": [{ "code": "string" }] },
-            { "id": "SHLink.label", "path": "SHLink.label", "min": 1, "max": "1", "type": [{ "code": "string" }] },
-            { "id": "SHLink.jobStatus", "path": "SHLink.jobStatus", "min": 1, "max": "1", "type": [{ "code": "code" }] },
-            { "id": "SHLink.contentType", "path": "SHLink.contentType", "min": 0, "max": "1", "type": [{ "code": "string" }] },
-            { "id": "SHLink.sourceRef", "path": "SHLink.sourceRef", "min": 0, "max": "1", "type": [{ "code": "string" }] },
-            { "id": "SHLink.encryptedFile", "path": "SHLink.encryptedFile", "min": 0, "max": "1", "type": [{ "code": "string" }] },
-            { "id": "SHLink.exp", "path": "SHLink.exp", "min": 0, "max": "1", "type": [{ "code": "integer" }] },
-            { "id": "SHLink.passcode", "path": "SHLink.passcode", "min": 0, "max": "1", "type": [{ "code": "string" }] },
-            { "id": "SHLink.remainingAttempts", "path": "SHLink.remainingAttempts", "min": 0, "max": "1", "type": [{ "code": "integer" }] },
-            { "id": "SHLink.lastManifestAtMs", "path": "SHLink.lastManifestAtMs", "min": 0, "max": "1", "type": [{ "code": "decimal" }] },
-            { "id": "SHLink.fileTokens", "path": "SHLink.fileTokens", "min": 0, "max": "*", "type": [{ "code": "BackboneElement" }] },
-            { "id": "SHLink.fileTokens.token", "path": "SHLink.fileTokens.token", "min": 1, "max": "1", "type": [{ "code": "string" }] },
-            { "id": "SHLink.fileTokens.expiresAtMs", "path": "SHLink.fileTokens.expiresAtMs", "min": 1, "max": "1", "type": [{ "code": "decimal" }] }
+            { "id": "SHLink", "path": "SHLink", "min": 0, "max": "*", "short": "A SMART Health Link", "definition": "Server-side state for one SMART Health Link (SHL): the encryption key, the encrypted payload, and the protocol bookkeeping (passcode, expiry, throttling, file tokens) needed to resolve it." },
+            { "id": "SHLink.key", "path": "SHLink.key", "min": 1, "max": "1", "type": [{ "code": "string" }], "short": "Content-encryption key", "definition": "The base64url-encoded 256-bit AES key that encrypts this link's file. It also travels inside the shlink: URI, so only the holder of the link can decrypt the result. The server stores it here only so the background worker can encrypt the result once the job finishes." },
+            { "id": "SHLink.label", "path": "SHLink.label", "min": 1, "max": "1", "type": [{ "code": "string" }], "short": "Human-readable label", "definition": "Short description of what the link carries, shown to the receiver (e.g. \"Eligibility result for Jane Prospect\")." },
+            { "id": "SHLink.jobStatus", "path": "SHLink.jobStatus", "min": 1, "max": "1", "type": [{ "code": "code" }], "short": "Async job lifecycle: pending | ready", "definition": "Lifecycle of the content-producing job. 'pending' while the (long-running) job is in flight — the manifest reports 'can-change'; 'ready' once the encrypted file is attached — the manifest reports 'finalized'." },
+            { "id": "SHLink.contentType", "path": "SHLink.contentType", "min": 0, "max": "1", "type": [{ "code": "string" }], "short": "MIME type of the decrypted file", "definition": "Content type of the payload after decryption, reported in the manifest (e.g. 'application/fhir+json' for a CoverageEligibilityResponse)." },
+            { "id": "SHLink.sourceRef", "path": "SHLink.sourceRef", "min": 0, "max": "1", "type": [{ "code": "string" }], "short": "Reference to the source FHIR resource", "definition": "Reference to the FHIR resource the encrypted content was produced from (e.g. 'CoverageEligibilityResponse/123'), for traceability." },
+            { "id": "SHLink.encryptedFile", "path": "SHLink.encryptedFile", "min": 0, "max": "1", "type": [{ "code": "string" }], "short": "Encrypted payload (JWE)", "definition": "The link's content encrypted as a JWE compact serialization (alg 'dir', enc 'A256GCM') under SHLink.key. This is the only form of the content the server stores or serves; it is set when the job becomes 'ready'." },
+            { "id": "SHLink.exp", "path": "SHLink.exp", "min": 0, "max": "1", "type": [{ "code": "integer" }], "short": "Expiration (epoch seconds)", "definition": "Optional absolute expiry as a Unix timestamp in seconds. After this moment the link resolves to 'no-longer-valid' and file fetches return 410 Gone." },
+            { "id": "SHLink.passcode", "path": "SHLink.passcode", "min": 0, "max": "1", "type": [{ "code": "string" }], "short": "Optional passcode (P flag)", "definition": "When set, the link carries the 'P' flag and the manifest requires this passcode (delivered out-of-band, never inside the shlink:) to resolve. A second secret guarding against link interception." },
+            { "id": "SHLink.remainingAttempts", "path": "SHLink.remainingAttempts", "min": 0, "max": "1", "type": [{ "code": "integer" }], "short": "Remaining passcode attempts", "definition": "Lifetime count of incorrect-passcode attempts left before the link locks permanently. Decremented (and persisted) before responding, so parallel guesses cannot bypass the limit." },
+            { "id": "SHLink.lastManifestAtMs", "path": "SHLink.lastManifestAtMs", "min": 0, "max": "1", "type": [{ "code": "decimal" }], "short": "Last manifest poll (epoch ms)", "definition": "Timestamp of the most recent successful manifest poll, in milliseconds. Used to throttle frequent polling of the same link (429 + Retry-After)." },
+            { "id": "SHLink.fileTokens", "path": "SHLink.fileTokens", "min": 0, "max": "*", "type": [{ "code": "BackboneElement" }], "short": "Short-lived file-location tokens", "definition": "Tokens minted when the manifest returns a 'location' URL (instead of embedding the file). Each grants a short, time-bounded fetch of the encrypted file." },
+            { "id": "SHLink.fileTokens.token", "path": "SHLink.fileTokens.token", "min": 1, "max": "1", "type": [{ "code": "string" }], "short": "Opaque file token", "definition": "The token value, of the form '<shlId>~<random>', embedded in the manifest's 'location' URL so the file endpoint can resolve the link without a custom search parameter." },
+            { "id": "SHLink.fileTokens.expiresAtMs", "path": "SHLink.fileTokens.expiresAtMs", "min": 1, "max": "1", "type": [{ "code": "decimal" }], "short": "Token expiry (epoch ms)", "definition": "Absolute expiry of the file token in milliseconds. After it, fetching the location returns 410 Gone." }
           ]
         }
       },
@@ -102,12 +102,6 @@
       "request": {
         "method": "PUT",
         "url": "App/shl-app"
-      }
-    },
-    {
-      "request": {
-        "method": "POST",
-        "url": "$drop-cache"
       }
     }
   ]

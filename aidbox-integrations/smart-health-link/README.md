@@ -3,26 +3,28 @@ features: [SMART Health Links, Async eligibility (RTE), JWE encryption, Custom r
 languages: [TypeScript]
 runtimes: [Bun]
 ---
-# SMART Health Links — Async Eligibility Sharing
+# SMART Health Links: Async Eligibility Sharing
 
-A minimal TypeScript ([Bun](https://bun.sh)) implementation of [SMART Health Links (SHL)](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/links-specification.html), integrated with Aidbox, that securely shares the result of a long-running **real-time eligibility (RTE)** check with an **unauthenticated** client.
+A small TypeScript ([Bun](https://bun.sh)) implementation of [SMART Health Links (SHL)](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/links-specification.html) on Aidbox. It shares the result of a slow **real-time eligibility (RTE)** check with a client that has no account, and keeps that result private to the client.
 
 ## Use case
 
-A prospective member wants to check whether they're eligible for a service **before** registering — so there is no authenticated user yet. The eligibility lookup is asynchronous and can take a while:
+Someone is thinking about signing up. First they want to know: *am I covered, and what will it cost me?* They have no account yet, so nothing can log them in. The answer also takes a few seconds, because the app has to check coverage with the payer.
 
-1. The client **kicks off** the check and immediately receives a `shlink:` (containing a one-time encryption key).
-2. The client **polls** the SHL manifest. While the job runs, the manifest reports `can-change`.
-3. When the result is ready, the manifest reports `finalized` and serves the result **encrypted**.
-4. The client **decrypts** the result with the key from its `shlink:`.
+From the person's side:
 
-The security property that makes this work without auth: **the SHL key is the only secret**. The server only ever stores ciphertext, the manifest/file endpoints are public, and only the client that kicked off the job (the holder of the key) can read the result — exactly the requirement that motivated this example.
+1. **They enter their details** (name, insurance/payer, member ID) and start the check.
+2. **They get a link back right away** (a `shlink:`). It carries a one-time key that only they hold. The coverage check runs in the background.
+3. **They wait** while the app asks "is the result ready yet?" until the payer answers.
+4. **They see the result.** The app fetches the encrypted answer and decrypts it on their device with the key from the link.
+
+The link carries a key because there is no logged-in user to protect the data, and the answer isn't ready when the request comes in. The key is the only secret: the server stores nothing but ciphertext, the endpoints that serve it stay public, and only the person holding the link can read the result. No account, and nothing readable sits on the server.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Client[Client<br/>prospective member]
+    Client[Prospective member<br/>client app]
     Aidbox[Aidbox<br/>FHIR Server]
     App[SHL App<br/>Bun + TypeScript]
 
@@ -42,7 +44,21 @@ flowchart LR
 **Components:**
 - **FHIR Server**: Aidbox with [custom operation routing](https://www.health-samurai.io/docs/aidbox/app-development/aidbox-sdk/apps) and a `SHLink` [custom resource](https://www.health-samurai.io/docs/aidbox/tutorials/artifact-registry-tutorials/custom-resources).
 - **Application**: Bun/TypeScript service implementing the SHL kickoff, manifest, and file operations.
-- **Result**: A FHIR `CoverageEligibilityResponse`, encrypted as a JWE (`alg: dir`, `enc: A256GCM`) under the SHL key.
+
+**Output:** the content shared through the link is a FHIR `CoverageEligibilityResponse`, encrypted as a JWE (`alg: dir`, `enc: A256GCM`) under the SHL key.
+
+## Aidbox resources
+
+The [init bundle](init-bundle/bundle.json) provisions four resources at startup. The flow creates two more at runtime.
+
+| Resource | Created | Why |
+|----------|---------|-----|
+| `Client/shl-client` | init bundle | The M2M client the Bun app uses to call Aidbox's FHIR API (Basic auth). |
+| `AccessPolicy/shl-client-policy` | init bundle | Grants `shl-client` access to Aidbox (`allow` engine). |
+| `StructureDefinition/SHLink` | init bundle | Defines the `SHLink` [custom resource](https://www.health-samurai.io/docs/aidbox/tutorials/artifact-registry-tutorials/custom-resources): the server-side state of one link (key, encrypted file, job status, passcode, throttling, file tokens). |
+| `App/shl-app` | init bundle | Registers the app and routes the three operations: `$kickoff` (authenticated), `manifest` and `file` (public). |
+| `SHLink/{id}` | runtime, one per kickoff | Holds that link's key and job status, then the encrypted JWE once the result is ready. |
+| `CoverageEligibilityResponse/{id}` | runtime, one per check | The eligibility result the job produces. Its JSON is what gets encrypted into the link. |
 
 ## SHL endpoints
 
@@ -54,7 +70,7 @@ All three are Aidbox App operations, proxied to the Bun service. Manifest and fi
 | `shl-manifest` | POST | `/shl-app/manifest/{shlId}` | public | SHL manifest request |
 | `shl-file` | GET | `/shl-app/file/{fileId}` | public | Short-lived encrypted file fetch |
 
-The Bun app also serves the demo UI directly (not via Aidbox): `GET /` (the viewer) and `POST /demo/kickoff` (an unauthenticated convenience trigger the viewer uses to start a check — see the note under "Testing the flow").
+The Bun app also serves the demo UI directly (not via Aidbox): `GET /` (the viewer) and `POST /demo/kickoff` (an unauthenticated convenience trigger the viewer uses to start a check; see the note under "Testing the flow").
 
 ## Quick Start
 
@@ -64,7 +80,7 @@ The Bun app also serves the demo UI directly (not via Aidbox): `GET /` (the view
 
 ### Running the application
 
-1. **Create .env file** (optional — defaults match `docker-compose.yaml`):
+1. **Create .env file** (optional; defaults match `docker-compose.yaml`):
    ```bash
    cp .env.example .env
    ```
@@ -89,13 +105,13 @@ bun run dev      # watch mode
 
 ### The whole flow in the browser (recommended)
 
-Open the viewer at **[http://localhost:3000](http://localhost:3000)** — it drives the entire use case end to end:
+Open the viewer at **[http://localhost:3000](http://localhost:3000)**. It runs the entire use case end to end:
 
-1. **Start a check** — enter a member name, payer, and member ID, then press **Start check**. This mints a `shlink:` (shown with a copy button) and starts the async eligibility job.
-2. **Watch it resolve** — the stepper runs the real receiver protocol: decode the link → **poll the manifest** (`can-change` while the job runs, then `finalized`) → fetch the encrypted file → **decrypt in your browser** (WebCrypto AES-256-GCM). **Click any step** to expand the exact HTTP call behind it — the real request and the live response it received (long keys/JWEs truncated for readability).
-3. **Read the result** — the decrypted `CoverageEligibilityResponse` renders inline. The key never leaves the page; the server only ever sees ciphertext.
+1. **Start a check.** Enter a member name, payer, and member ID, then press **Start check**. This mints a `shlink:` (shown with a copy button) and starts the async eligibility job.
+2. **Watch it resolve.** The stepper runs the real receiver protocol: decode the link → **poll the manifest** (`can-change` while the job runs, then `finalized`) → fetch the encrypted file → **decrypt in your browser** (WebCrypto AES-256-GCM). Click any step to expand the exact HTTP call behind it: the real request and the live response it received (long keys and JWEs truncated for readability).
+3. **Read the result.** The decrypted `CoverageEligibilityResponse` renders inline. The key never leaves the page, and the server only ever sees ciphertext.
 
-The **Open a link** tab does just the receiver half — paste any `shlink:` (or open a viewer-prefixed link, which fills it in and runs automatically).
+The **Open a link** tab runs just the receiver half. Paste any `shlink:`, or open a viewer-prefixed link, which fills it in and runs automatically.
 
 > The viewer's **Start check** calls an unauthenticated demo route (`POST /demo/kickoff`) on the app so the browser holds no Aidbox credentials. In production, kickoff is the authenticated `shl-kickoff` operation triggered by a back-office service.
 
@@ -162,7 +178,7 @@ GET /shl-app/file/{fileId}    # returns the JWE as application/jose
 
 #### 3. Decrypt the result
 
-In the browser, use the viewer above. In code, the `shlink:` payload (base64url JSON) contains the `key` — decode it and decrypt the JWE with AES-256-GCM:
+In the browser, use the viewer above. In code, the `shlink:` payload (base64url JSON) contains the `key`. Decode it and decrypt the JWE with AES-256-GCM:
 
 ```ts
 import { decodeShlink } from "./src/utils/shl-encode.ts";
@@ -173,7 +189,7 @@ const fhir = JSON.parse(await decryptJwe(jwe, payload.key));
 // -> CoverageEligibilityResponse
 ```
 
-Only the `key` from the `shlink:` decrypts the file. Without it, the ciphertext is unreadable — which is how the result stays private to the client that started the job.
+Only the `key` from the `shlink:` decrypts the file. Without it the ciphertext is unreadable, so the result stays private to the client that started the job.
 
 ## Project layout
 
@@ -200,16 +216,16 @@ src/
 
 ## Protocol hardening
 
-Beyond the happy path, the example implements the security-sensitive plumbing of the SHL spec — the parts you don't want every integrator reimplementing:
+The example also implements the security-sensitive plumbing of the SHL spec, the parts you don't want every integrator reimplementing:
 
-- **Passcode (`P` flag)** — pass a `passcode` to kickoff and the link carries `flag: "LP"`. The manifest then requires it: a missing one returns `401 { "message": "Passcode required" }`, a wrong one returns `401 { "remainingAttempts": N }`. The attempt counter is a **lifetime** total persisted on the `SHLink` (and decremented before responding), so it holds up against parallel guessing. Once it hits zero the link locks — even the correct passcode then resolves to `no-longer-valid`.
-- **Short-lived `location` URLs** — when the manifest hands back a `location` instead of an `embedded` file, it mints a per-request token with an expiry (`SHL_FILE_TOKEN_TTL_SECONDS`, default 60s; the spec allows ≤ 1 hour). Fetching after it expires returns `410 Gone`.
-- **Poll throttling** — polling one link's manifest faster than `SHL_MANIFEST_MIN_INTERVAL_SECONDS` returns `429` with a `Retry-After` header; the viewer honors it.
+- **Passcode (`P` flag)**: pass a `passcode` to kickoff and the link carries `flag: "LP"`. The manifest then requires it. A missing one returns `401 { "message": "Passcode required" }`, a wrong one returns `401 { "remainingAttempts": N }`. The attempt counter is a **lifetime** total persisted on the `SHLink` (and decremented before responding), so it holds up against parallel guessing. Once it hits zero the link locks, and even the correct passcode then resolves to `no-longer-valid`.
+- **Short-lived `location` URLs**: when the manifest hands back a `location` instead of an `embedded` file, it mints a per-request token with an expiry (`SHL_FILE_TOKEN_TTL_SECONDS`, default 60s; the spec allows ≤ 1 hour). Fetching after it expires returns `410 Gone`.
+- **Poll throttling**: polling one link's manifest faster than `SHL_MANIFEST_MIN_INTERVAL_SECONDS` returns `429` with a `Retry-After` header, which the viewer honors.
 
 Tunable via env (see `.env.example`): `SHL_PASSCODE_MAX_ATTEMPTS`, `SHL_FILE_TOKEN_TTL_SECONDS`, `SHL_MANIFEST_MIN_INTERVAL_SECONDS`.
 
 ## Notes & scope
 
-- **Flags**: uses `L` (long-term, since the manifest evolves pending → ready) and optionally `P` (passcode). It does not implement `U` (direct file) — see the SHL spec.
-- **Key storage**: the SHL key is persisted on the `SHLink` resource so the background worker can encrypt the result once the RTE job finishes. In production you'd avoid long-term key storage (hold it only in the worker, or encrypt-on-write and discard) — this is the one deliberate simplification, flagged because it's the central security tradeoff of the design.
+- **Flags**: uses `L` (long-term, since the manifest evolves pending → ready) and optionally `P` (passcode). It does not implement `U` (direct file); see the SHL spec.
+- **Key storage**: the SHL key is persisted on the `SHLink` resource so the background worker can encrypt the result once the RTE job finishes. In production you'd avoid long-term key storage (hold it only in the worker, or encrypt-on-write and discard). This is the one deliberate simplification, called out because it's the central security tradeoff of the design.
 - **Out of scope**: real payer RTE (270/271) integration, `location` single-use enforcement (only expiry is enforced here), key rotation.

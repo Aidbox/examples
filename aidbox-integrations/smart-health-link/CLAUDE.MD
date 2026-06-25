@@ -33,7 +33,7 @@ docker compose up --build   # full stack (Aidbox + app)
 
 ## Project Scope
 
-- **Backend only**: no frontend UI.
-- **Core functionality**: mint SHL, async RTE job, manifest lifecycle (can-change → finalized), encrypted file delivery, decryption.
+- **Backend + a self-contained demo viewer**: the focus is the backend SHL flow; `src/viewer.html` is a single-file browser receiver (no build, no framework) included to exercise it end to end.
+- **Core functionality**: mint SHL, async RTE job, manifest lifecycle (can-change → finalized), encrypted file delivery, and client-side decryption in the viewer.
 - **Runtime**: Bun (native `Bun.serve` HTTP, auto-loaded `.env`, direct TypeScript execution — no `tsc`/`ts-node`/`nodemon`).
 - **FHIR access**: the official `@health-samurai/aidbox-client` (Basic auth via `BasicAuthProvider`, typed `AidboxClient` returning a `Result`), as in `aidbox-features/aidbox-orchestration-service`.
