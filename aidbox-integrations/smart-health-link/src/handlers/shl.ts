@@ -48,6 +48,8 @@ export class ShlHandler {
       payerName,
       memberId: memberId ?? 'unknown',
       passcode: params.passcode,
+      // Optional demo control: pass eligible=false to synthesize a not-eligible result.
+      eligible: params.eligible !== 'false',
     });
 
     return json({
