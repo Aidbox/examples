@@ -36,6 +36,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [Real-Time Analytics with Aidbox, ClickHouse, and Superset](aidbox-integrations/clickhouse-superset/)
 - [GraphQL Federation](aidbox-integrations/apollo-graphql-federation/)
 - [FHIR R5 Topic-Based Subscriptions](aidbox-integrations/r5-subscriptions/)
+- [SMART Health Links for eligibility results](aidbox-integrations/smart-health-link/)
 
 ## Aidbox Features
 

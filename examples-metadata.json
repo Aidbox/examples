@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-22T07:46:00.356975Z",
+  "timestamp": "2026-06-25T15:20:06.026271Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -805,6 +805,23 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/aidbox-health-card-issue/README.md"
     },
     {
+      "id": "aidbox-integrations-smart-health-link",
+      "title": "SMART Health Links: Async Eligibility Sharing",
+      "description": "A small TypeScript ([Bun](https://bun.sh)) implementation of [SMART Health Links (SHL)](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/links-specification.html) on Aidbox. It shares the result of a slow **real-time eligibility (RTE)** check with a client that has no account, and keeps that result private to the client.",
+      "features": [
+        "SMART Health Links",
+        "Async eligibility (RTE)",
+        "JWE encryption",
+        "Custom resources",
+        "Aidbox Apps"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/smart-health-link",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/smart-health-link/README.md"
+    },
+    {
       "id": "aidbox-forms-aidbox-forms-builder-custom-renderer-smart-forms-renderer",
       "title": "smart-forms-renderer",
       "description": "This package builds a static renderer page (`index.html` + `src/index.ts`) that mounts the SmartForms renderer and speaks [SDC SMART Web Messaging](https://github.com/brianpos/sdc-smart-web-messaging).",
@@ -897,9 +914,11 @@
     "API",
     "API interception",
     "API override",
+    "Aidbox Apps",
     "Analytics",
     "Angular",
     "App framework",
+    "Async eligibility (RTE)",
     "Async operations",
     "Attachments",
     "Automation",
@@ -971,6 +990,7 @@
     "Init bundle",
     "Integration",
     "International Patient Summary",
+    "JWE encryption",
     "JWKS",
     "JWS signing",
     "JWT auth",
@@ -1022,6 +1042,7 @@
     "S3",
     "SDC QRF",
     "SDK integration",
+    "SMART Health Links",
     "SMART Web Messaging",
     "SMART health cards",
     "SMART on FHIR",
