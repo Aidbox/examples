@@ -24,21 +24,15 @@ The link carries a key because there is no logged-in user to protect the data, a
 
 ```mermaid
 flowchart LR
-    Client[Prospective member<br/>client app]
-    Aidbox[Aidbox<br/>FHIR Server]
-    App[SHL App<br/>Bun + TypeScript]
+    C["Client (browser)<br/>prospective member"]
+    A["Aidbox (FHIR server)<br/>routes operations, stores the SHLink"]
+    S["SHL App (Bun backend)<br/>SHL logic + eligibility job"]
+    P["Payer<br/>eligibility source (simulated)"]
 
-    Client -->|1. POST $kickoff| Aidbox
-    Aidbox -->|operation| App
-    App -->|shlink: + key| Client
-    App -.->|async: produce + encrypt result| Aidbox
-    Client -->|2. POST manifest no-auth| Aidbox
-    Aidbox -->|operation| App
-    App -->|status + encrypted file| Client
-
-    style Aidbox fill:#e1f5fe
-    style App fill:#f3e5f5
-    style Client fill:#e8f5e8
+    C <-->|"HTTP: kickoff / manifest / file"| A
+    A -->|"proxies operations"| S
+    S -->|"stores the encrypted SHLink"| A
+    S -->|"checks eligibility (RTE)"| P
 ```
 
 **Components:**
@@ -46,6 +40,30 @@ flowchart LR
 - **Application**: Bun/TypeScript service implementing the SHL kickoff, manifest, and file operations.
 
 **Output:** the content shared through the link is a FHIR `CoverageEligibilityResponse`, encrypted as a JWE (`alg: dir`, `enc: A256GCM`) under the SHL key.
+
+## Flow
+
+```mermaid
+sequenceDiagram
+    actor C as Client (browser)
+    participant A as Aidbox (FHIR server)
+    participant S as SHL App (Bun backend)
+    participant P as Payer
+
+    C->>A: POST $kickoff (member details)
+    A->>S: Aidbox routes the call to the backend
+    S-->>C: shlink: + key (returned right away)
+
+    Note over S,P: background job (the payer call is simulated here)
+    S->>P: check eligibility (RTE)
+    P-->>S: eligibility result
+    S->>A: encrypt the result, store it on the SHLink
+
+    C->>A: POST manifest (poll, no auth)
+    A->>S: Aidbox routes the call to the backend
+    S-->>C: status; once ready, the encrypted file
+    Note over C: decrypt locally with the key from the link
+```
 
 ## Aidbox resources
 
