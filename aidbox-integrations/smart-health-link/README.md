@@ -61,7 +61,7 @@ sequenceDiagram
 
     C->>A: POST manifest (poll, no auth)
     A->>S: Aidbox routes the call to the backend
-    S-->>C: status; once ready, the encrypted file
+    S-->>C: status, then the encrypted file once ready
     Note over C: decrypt locally with the key from the link
 ```
 
