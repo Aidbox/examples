@@ -18,10 +18,47 @@ export class EligibilityService {
     memberName: string;
     payerName: string;
     memberId: string;
+    eligible?: boolean;
   }): Promise<{ id: string; resource: Record<string, unknown> }> {
-    // No registered patient or stored Coverage yet — the prospective member is
+    const isEligible = input.eligible !== false;
+    // No registered patient or stored Coverage yet: the prospective member is
     // pre-registration. We carry the coverage and the originating request as
     // contained resources so the response validates while staying self-contained.
+    const insurance = isEligible
+      ? [
+          {
+            coverage: { reference: '#coverage' },
+            inforce: true,
+            item: [
+              {
+                category: {
+                  coding: [
+                    {
+                      system: 'http://terminology.hl7.org/CodeSystem/ex-benefitcategory',
+                      code: '30',
+                      display: 'Health Benefit Plan Coverage',
+                    },
+                  ],
+                },
+                benefit: [
+                  {
+                    type: {
+                      coding: [
+                        {
+                          system: 'http://terminology.hl7.org/CodeSystem/benefit-type',
+                          code: 'copay',
+                          display: 'Copayment per service',
+                        },
+                      ],
+                    },
+                    allowedMoney: { value: 0, currency: 'USD' },
+                  },
+                ],
+              },
+            ],
+          },
+        ]
+      : [{ coverage: { reference: '#coverage' }, inforce: false }];
     const resource: Record<string, unknown> = {
       resourceType: 'CoverageEligibilityResponse',
       status: 'active',
@@ -50,42 +87,11 @@ export class EligibilityService {
       created: new Date().toISOString(),
       request: { reference: '#request' },
       outcome: 'complete',
-      disposition: `Member ${input.memberName} is eligible for services under ${input.payerName}.`,
+      disposition: isEligible
+        ? `Member ${input.memberName} is eligible for services under ${input.payerName}.`
+        : `Member ${input.memberName} is not eligible for services under ${input.payerName}.`,
       insurer: { display: input.payerName },
-      insurance: [
-        {
-          coverage: { reference: '#coverage' },
-          inforce: true,
-          item: [
-            {
-              category: {
-                coding: [
-                  {
-                    system: 'http://terminology.hl7.org/CodeSystem/ex-benefitcategory',
-                    code: '30',
-                    display: 'Health Benefit Plan Coverage',
-                  },
-                ],
-              },
-              benefit: [
-                {
-                  type: {
-                    coding: [
-                      {
-                        system:
-                          'http://terminology.hl7.org/CodeSystem/benefit-type',
-                        code: 'copay',
-                        display: 'Copayment per service',
-                      },
-                    ],
-                  },
-                  allowedMoney: { value: 0, currency: 'USD' },
-                },
-              ],
-            },
-          ],
-        },
-      ],
+      insurance,
     };
 
     const created = await this.fhir.create<{ id: string }>(

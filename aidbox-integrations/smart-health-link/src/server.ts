@@ -71,6 +71,7 @@ const server = Bun.serve({
         payerName?: string;
         memberId?: string;
         passcode?: string;
+        eligible?: boolean;
       };
       try {
         body = (await req.json()) as typeof body;
@@ -89,6 +90,7 @@ const server = Bun.serve({
           payerName: body.payerName,
           memberId: body.memberId ?? 'unknown',
           passcode: body.passcode,
+          eligible: body.eligible,
         });
         return Response.json({
           shlinkId: result.shlinkId,

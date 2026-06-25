@@ -33,6 +33,7 @@ export class EligibilityWorkflow {
     payerName: string;
     memberId: string;
     passcode?: string;
+    eligible?: boolean;
   }): Promise<{ shlinkId: string; shlink: string; payload: SHLPayload }> {
     const minted = await this.shl.mintLink({
       label: `Eligibility result for ${input.memberName}`,
@@ -47,7 +48,7 @@ export class EligibilityWorkflow {
 
   private async runJob(
     shlinkId: string,
-    input: { memberName: string; payerName: string; memberId: string }
+    input: { memberName: string; payerName: string; memberId: string; eligible?: boolean }
   ): Promise<void> {
     try {
       await new Promise((resolve) =>

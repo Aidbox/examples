@@ -145,7 +145,7 @@
   .grid2 .span2 { grid-column: 1 / -1; }
   @media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
   .opt { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
-  input[type="text"] {
+  input[type="text"], select {
     width: 100%;
     background: var(--ground);
     color: var(--text);
@@ -155,7 +155,8 @@
     font-family: var(--sans);
     font-size: 14px;
   }
-  input[type="text"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  input[type="text"]:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  input[readonly] { color: var(--muted); cursor: default; }
 
   /* ---- minted link box ---- */
   .linkbox {
@@ -310,6 +311,12 @@
   }
   .badge.locked { color: var(--locked); border-color: var(--locked); }
   .badge.unlocked { color: var(--accent); border-color: var(--accent); }
+  .verdict {
+    margin: 0 0 14px; padding: 12px 14px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; border: 1px solid;
+  }
+  .verdict.eligible { color: var(--accent); border-color: var(--accent); background: rgba(94,234,212,.08); }
+  .verdict.ineligible { color: var(--danger); border-color: var(--danger); background: rgba(244,113,116,.08); }
 
   pre {
     margin: 0;
@@ -371,26 +378,23 @@
 
       <!-- Mode: start a check -->
       <div class="pane" id="pane-start">
-        <div class="grid2">
+        <label class="fld" for="scenario">Member</label>
+        <select id="scenario">
+          <option value="eligible">Eligible: Jane Prospect (Acme Health)</option>
+          <option value="ineligible">Not eligible: John Doe (Acme Health)</option>
+        </select>
+        <div class="grid2" style="margin-top:14px">
           <div>
             <label class="fld" for="memberName">Member name</label>
-            <input id="memberName" type="text" value="Jane Prospect" spellcheck="false" />
+            <input id="memberName" type="text" readonly />
           </div>
           <div>
             <label class="fld" for="payerName">Payer</label>
-            <input id="payerName" type="text" value="Acme Health" spellcheck="false" />
+            <input id="payerName" type="text" readonly />
           </div>
           <div>
             <label class="fld" for="memberId">Member ID</label>
-            <input id="memberId" type="text" value="M-99887" spellcheck="false" />
-          </div>
-          <div>
-            <label class="fld" for="recipient">Recipient (you)</label>
-            <input id="recipient" type="text" value="SHL Viewer (demo)" spellcheck="false" />
-          </div>
-          <div class="span2">
-            <label class="fld" for="passcode">Passcode <span class="opt">(optional, adds the P flag)</span></label>
-            <input id="passcode" type="text" value="" placeholder="leave empty for an L-only link" spellcheck="false" />
+            <input id="memberId" type="text" readonly />
           </div>
         </div>
         <div class="row">
@@ -404,8 +408,8 @@
         <textarea id="shl" placeholder="shlink:/eyJ1cmwiOiJodHRw…  (or a viewer URL containing one)" spellcheck="false"></textarea>
         <div class="grid2" style="margin-top:14px">
           <div>
-            <label class="fld" for="passcode-open">Passcode <span class="opt">(if the link has the P flag)</span></label>
-            <input id="passcode-open" type="text" value="" placeholder="only if required" spellcheck="false" />
+            <label class="fld" for="passcode-open">Passcode <span class="opt">(only if the link is locked)</span></label>
+            <input id="passcode-open" type="text" value="" placeholder="only if the link is locked" spellcheck="false" />
           </div>
           <div>
             <label class="fld" for="recipient-open-input">Recipient (you)</label>
@@ -425,15 +429,12 @@
         <h2 id="reveal-title">Encrypted payload</h2>
         <span class="badge locked" id="badge">locked</span>
       </div>
+      <div class="verdict hidden" id="verdict"></div>
       <ul class="meta hidden" id="meta"></ul>
       <pre id="out" class="cipher"></pre>
     </div>
 
-    <!-- Behind the scenes: the minted link, its QR, and the HTTP steps -->
-    <button class="bts-toggle" id="bts-toggle" type="button" aria-expanded="true">Behind the scenes <span class="bts-chev" aria-hidden="true">›</span></button>
-    <div class="bts" id="bts">
-
-    <!-- Minted link, shown after kickoff -->
+    <!-- The link this check produced (the SHL artifact) -->
     <div class="linkbox hidden" id="linkbox">
       <span class="linkbox-label">Your SMART Health Link</span>
       <code id="shlink-out"></code>
@@ -443,15 +444,18 @@
     <!-- QR encoding of the link, shown after kickoff -->
     <div class="qrbox hidden" id="qrbox">
       <canvas id="qr" width="140" height="140" aria-label="QR code for the SMART Health Link"></canvas>
-      <p class="qr-caption">Scan with a <b>SMART Health Links</b> wallet to open it on a phone. The QR holds the same <code>shlink:</code>, key included, so treat it as a secret.</p>
+      <p class="qr-caption">The QR holds the same <code>shlink:</code>, key included, so treat it as a secret.</p>
     </div>
 
+    <!-- Behind the scenes: the HTTP steps -->
+    <button class="bts-toggle" id="bts-toggle" type="button" aria-expanded="true">Behind the scenes <span class="bts-chev" aria-hidden="true">›</span></button>
+    <div class="bts" id="bts">
     <ol class="steps" id="steps">
       <li class="step" data-step="kickoff" data-where="server">
         <button class="step-head" aria-expanded="false" aria-controls="api-kickoff">
           <span class="num">01</span>
-          <span class="step-body"><span class="name">Start the check</span><span class="detail" id="d-kickoff">mint a shlink: and begin the eligibility job</span></span>
-          <span class="where server">server</span>
+          <span class="step-body"><span class="name">Start the check</span><span class="detail" id="d-kickoff">the backend mints the link and starts the eligibility job</span></span>
+          <span class="where server">Aidbox → backend</span>
           <span class="state" id="s-kickoff">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
@@ -460,7 +464,7 @@
       <li class="step" data-step="decode" data-where="browser">
         <button class="step-head" aria-expanded="false" aria-controls="api-decode">
           <span class="num">02</span>
-          <span class="step-body"><span class="name">Read the link</span><span class="detail" id="d-decode">decode url + key from the shlink: payload</span></span>
+          <span class="step-body"><span class="name">Read the link</span><span class="detail" id="d-decode">pull the Aidbox manifest URL + the decryption key out of the link</span></span>
           <span class="where browser">browser</span>
           <span class="state" id="s-decode">idle</span>
           <span class="chev" aria-hidden="true">›</span>
@@ -470,8 +474,8 @@
       <li class="step" data-step="manifest" data-where="server">
         <button class="step-head" aria-expanded="false" aria-controls="api-manifest">
           <span class="num">03</span>
-          <span class="step-body"><span class="name">Wait for the eligibility result</span><span class="detail" id="d-manifest">the server is checking your coverage with the payer; poll until it's ready</span></span>
-          <span class="where server">server</span>
+          <span class="step-body"><span class="name">Wait for the eligibility result</span><span class="detail" id="d-manifest">poll Aidbox until the result is ready (the backend is checking the payer)</span></span>
+          <span class="where server">Aidbox → backend</span>
           <span class="state" id="s-manifest">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
@@ -480,8 +484,8 @@
       <li class="step" data-step="fetch" data-where="server">
         <button class="step-head" aria-expanded="false" aria-controls="api-fetch">
           <span class="num">04</span>
-          <span class="step-body"><span class="name">Download the result</span><span class="detail" id="d-fetch">encrypted (JWE), embedded or via a location URL</span></span>
-          <span class="where server">server</span>
+          <span class="step-body"><span class="name">Download the result</span><span class="detail" id="d-fetch">fetch the encrypted result (JWE) from Aidbox</span></span>
+          <span class="where server">Aidbox → backend</span>
           <span class="state" id="s-fetch">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
@@ -820,12 +824,13 @@
     if (el) el.dataset.state = state;
     const s = $(`s-${step}`);
     if (s) s.textContent = state;
-    if (detail) $(`d-${step}`).textContent = detail;
+    if (detail) { const d = $(`d-${step}`); if (d) d.textContent = detail; }
   }
   function resetSteps() {
     for (const s of STEPS) { setStep(s, "idle"); }
     $("error").classList.add("hidden");
     $("reveal").classList.add("hidden");
+    $("verdict").classList.add("hidden");
     $("meta").classList.add("hidden");
     $("meta").innerHTML = "";
     seedApiTemplates();
@@ -985,6 +990,7 @@ content-type: application/json
     $("reveal-title").textContent = "Encrypted payload";
     $("badge").textContent = "locked";
     $("badge").className = "badge locked";
+    $("verdict").classList.add("hidden");
     const out = $("out");
     out.className = "cipher";
     out.textContent = jwe;
@@ -995,6 +1001,14 @@ content-type: application/json
     badge.textContent = "unlocked";
     badge.className = "badge unlocked";
     let parsed; try { parsed = JSON.parse(jsonText); } catch { parsed = null; }
+    const verdict = $("verdict");
+    const inforce = parsed?.insurance?.[0]?.inforce;
+    if (inforce === true || inforce === false) {
+      verdict.className = "verdict " + (inforce ? "eligible" : "ineligible");
+      verdict.textContent = (inforce ? "✓ " : "✕ ") + (parsed.disposition || (inforce ? "Eligible" : "Not eligible"));
+    } else {
+      verdict.className = "verdict hidden";
+    }
     const meta = $("meta");
     meta.innerHTML = "";
     const items = [];
@@ -1033,7 +1047,7 @@ content-type: application/json
       setApi("decode", {
         note: needsPasscode
           ? "Flag includes <code>P</code>, so the manifest request must carry a passcode."
-          : undefined,
+          : "A <code>shlink:</code> is just an opaque string. The browser unpacks it to get the two things the rest of the flow needs: the <code>url</code> (the Aidbox manifest, polled in step 03) and the <code>key</code> (used to decrypt the result in step 05). No network call; everything here is read from the link itself.",
         response: JSON.stringify({ ...payload, key: payload.key.slice(0, 8) + "…(redacted)" }, null, 2),
         status: "decoded locally",
       });
@@ -1055,6 +1069,7 @@ content-type: application/json
 ${JSON.stringify(reqBodyShown, null, 2)}`;
     const deadline = Date.now() + POLL_TIMEOUT_MS;
     let polls = 0;
+    const pollLines = [];
     try {
       while (true) {
         const res = await fetch(payload.url, {
@@ -1097,10 +1112,11 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
 
         manifest = await res.json();
         polls++;
+        pollLines.push(`poll ${polls}: HTTP ${res.status} → ${manifest.status}`);
         setApi("manifest", {
-          note: `Public${passcode ? ", passcode-gated" : ", unauthenticated"}. Poll ${polls}${manifest.status === "finalized" ? ", finalized." : ", still " + esc(manifest.status) + ", will retry."}`,
+          note: `The browser POSTs the manifest URL on Aidbox (public, no auth) with body <code>{ recipient }</code>, then re-polls until the status is <code>finalized</code>. Every poll's outcome is listed below.`,
           request: manifestReq,
-          response: JSON.stringify(redactManifest(manifest), null, 2),
+          response: pollLines.join("\n") + "\n\n" + JSON.stringify(redactManifest(manifest), null, 2),
           status: `HTTP ${res.status} · ${manifest.status}`,
           ok: res.ok,
         });
@@ -1131,7 +1147,7 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
         jwe = file.embedded;
         setStep("fetch", "done", "used embedded JWE");
         setApi("fetch", {
-          note: "The manifest inlined the file as <code>embedded</code>, so no extra request is needed.",
+          note: "The encrypted result came back inside the manifest itself (its <code>embedded</code> field), so the browser already has it and skips a separate download. Small files are inlined like this; large ones come back as a <code>location</code> URL to GET instead.",
           request: undefined,
           response: jwe.slice(0, 120) + "…  (JWE compact serialization, application/jose)",
           status: "embedded in manifest",
@@ -1184,7 +1200,7 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
     return copy;
   }
 
-  // Start a fresh check: kickoff (step 00) → resolve/poll/decrypt.
+  // Start a fresh check: kickoff (step 01) → resolve/poll/decrypt.
   async function startCheck() {
     if (running) return;
     resetSteps();
@@ -1194,13 +1210,12 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
 
     setStep("kickoff", "active");
     let shlink;
-    const recipient = $("recipient").value.trim() || "SHL Viewer (demo)";
-    const passcode = $("passcode").value.trim();
+    const recipient = "SHL Viewer (demo)";
     const kickBody = {
-      memberName: $("memberName").value.trim(),
-      payerName: $("payerName").value.trim(),
-      memberId: $("memberId").value.trim(),
-      ...(passcode ? { passcode } : {}),
+      memberName: $("memberName").value,
+      payerName: $("payerName").value,
+      memberId: $("memberId").value,
+      eligible: $("scenario").value !== "ineligible",
     };
     try {
       const res = await fetch("/demo/kickoff", {
@@ -1215,11 +1230,10 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
           { name: "memberName", valueString: kickBody.memberName },
           { name: "payerName", valueString: kickBody.payerName },
           { name: "memberId", valueString: kickBody.memberId },
-          ...(passcode ? [{ name: "passcode", valueString: "••••" }] : []),
         ],
       };
       setApi("kickoff", {
-        note: `The real kickoff is the authenticated Aidbox operation shown below. This demo page can't hold Aidbox credentials in the browser, so it actually called an unauthenticated stand-in on the app: <code>POST /demo/kickoff</code>.${passcode ? " A passcode was supplied, so the link gets the <code>P</code> flag." : ""}`,
+        note: `The real kickoff is the authenticated Aidbox operation shown below. This demo page can't hold Aidbox credentials in the browser, so it actually called an unauthenticated stand-in on the app: <code>POST /demo/kickoff</code>.`,
         request:
 `<span class="verb">POST</span> /shl-app/eligibility/$kickoff
 content-type: application/fhir+json
@@ -1234,13 +1248,13 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
       });
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
       shlink = data.shlink;
-      setStep("kickoff", "done", passcode ? "job started · P flag" : "job started");
+      setStep("kickoff", "done", "job started");
       $("shlink-out").textContent = shlink;
       $("linkbox").classList.remove("hidden");
       showQr(shlink);
     } catch (e) { fail("kickoff", `Couldn't start the check. <code>${e.message}</code>`); setBusy(false); return; }
 
-    await resolveAndDecrypt(shlink, recipient, passcode);
+    await resolveAndDecrypt(shlink, recipient);
     setBusy(false);
   }
 
@@ -1248,7 +1262,6 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
   async function openLink() {
     if (running) return;
     resetSteps();
-    setStep("kickoff", "done", "n/a, opened an existing link");
     const raw = $("shl").value.trim();
     if (!raw) { fail("decode", "Paste a <code>shlink:</code> first."); return; }
     setBusy(true);
@@ -1265,8 +1278,9 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
     $("tab-open").setAttribute("aria-selected", String(!start));
     $("pane-start").classList.toggle("hidden", !start);
     $("pane-open").classList.toggle("hidden", start);
-    // Step 00 (kickoff) only applies when you start a check; hide it when opening an existing link.
-    document.querySelector('.step[data-step="kickoff"]').classList.toggle("hidden", !start);
+    // "Start the check" (kickoff) only happens when you start a check, not when opening an existing link.
+    const k = document.querySelector('.step[data-step="kickoff"]');
+    if (k) k.classList.toggle("hidden", !start);
   }
   $("tab-start").addEventListener("click", () => selectTab("start"));
   $("tab-open").addEventListener("click", () => selectTab("open"));
@@ -1279,6 +1293,21 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
 
   $("start").addEventListener("click", startCheck);
   $("open").addEventListener("click", openLink);
+
+  // Preset member data per scenario; the fields are read-only and just show
+  // who the selected scenario stands for.
+  const PRESETS = {
+    eligible:   { memberName: "Jane Prospect", payerName: "Acme Health", memberId: "M-99887" },
+    ineligible: { memberName: "John Doe",      payerName: "Acme Health", memberId: "M-55501" },
+  };
+  function fillScenarioFields() {
+    const p = PRESETS[$("scenario").value] || PRESETS.eligible;
+    $("memberName").value = p.memberName;
+    $("payerName").value = p.payerName;
+    $("memberId").value = p.memberId;
+  }
+  $("scenario").addEventListener("change", fillScenarioFields);
+  fillScenarioFields();
   $("clear").addEventListener("click", () => { $("shl").value = ""; resetSteps(); });
   // Render the minted link as a scannable QR code.
   function showQr(shlink) {
