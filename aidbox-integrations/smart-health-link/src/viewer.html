@@ -12,7 +12,8 @@
     --line: #2B3A5E;
     --text: #E6EAF2;
     --muted: #93A1C0;
-    --accent: #5EEAD4;   /* unlocked / verified */
+    --accent: #5EEAD4;   /* unlocked / verified / runs in the browser */
+    --server: #b794f4;   /* runs on the server (Aidbox + backend) */
     --locked: #F4A259;   /* locked / pending */
     --danger: #F47174;
     --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
@@ -198,10 +199,15 @@
   .qrbox .qr-caption b { color: var(--text); font-weight: 600; }
 
   /* ---- stepper ---- */
-  .steps-hint {
-    margin: 28px 0 8px; font-size: 12px; color: var(--muted); font-family: var(--mono);
-    letter-spacing: .04em;
+  .bts-toggle {
+    margin: 32px 0 12px; padding: 0; background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--display); font-weight: 600; font-size: 18px; color: var(--text);
+    letter-spacing: -0.01em;
   }
+  .bts-chev { color: var(--muted); transition: transform .15s; }
+  .bts-toggle[aria-expanded="true"] .bts-chev { transform: rotate(90deg); }
+  .bts.collapsed { display: none; }
   .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
   .step { background: var(--panel); border: 1px solid var(--line); }
   .step:first-child { border-radius: 12px 12px 0 0; }
@@ -210,7 +216,7 @@
   .step-head {
     width: 100%;
     display: grid;
-    grid-template-columns: 40px 1fr auto auto;
+    grid-template-columns: 40px 1fr auto auto auto;
     align-items: center;
     gap: 14px;
     padding: 14px 16px;
@@ -254,6 +260,14 @@
   .step[data-state="active"] .state { color: var(--locked); }
   .step[data-state="done"] .num { border-color: var(--accent); color: var(--accent); }
   .step[data-state="done"] .state { color: var(--accent); }
+
+  /* where each step runs */
+  .where {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap;
+  }
+  .where.browser { color: var(--accent); border-color: var(--accent); }
+  .where.server  { color: var(--server); border-color: var(--server); }
   .step[data-state="error"] { border-color: var(--danger); }
   .step[data-state="error"] .num,
   .step[data-state="error"] .state { color: var(--danger); border-color: var(--danger); }
@@ -271,6 +285,7 @@
   }
   .api pre {
     margin: 0; max-height: 220px; padding: 12px 14px; font-size: 12px; border-radius: 8px;
+    white-space: pre-wrap; word-break: break-all; overflow-x: hidden;
   }
   .api .req .verb { color: var(--accent); }
   .api .note { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
@@ -344,8 +359,8 @@
   <div class="wrap">
     <header>
       <p class="eyebrow">SMART Health Link · End-to-end demo</p>
-      <h1>Check eligibility, then unlock the result</h1>
-      <p class="sub">Start an eligibility check the way a prospective member would — before signing up. You get back a <code>shlink:</code> whose key only you hold. The result is produced asynchronously, fetched encrypted, and decrypted right here in your browser. Nothing readable ever touches the server.</p>
+      <h1>Check your coverage before signing up</h1>
+      <p class="sub">Fill in your details and start a check. You get back a private link, and this page fetches the result and unlocks it right in your browser. The server never sees the readable answer.</p>
     </header>
 
     <div class="card">
@@ -374,13 +389,12 @@
             <input id="recipient" type="text" value="SHL Viewer (demo)" spellcheck="false" />
           </div>
           <div class="span2">
-            <label class="fld" for="passcode">Passcode <span class="opt">— optional, adds the P flag</span></label>
+            <label class="fld" for="passcode">Passcode <span class="opt">(optional, adds the P flag)</span></label>
             <input id="passcode" type="text" value="" placeholder="leave empty for an L-only link" spellcheck="false" />
           </div>
         </div>
         <div class="row">
           <button id="start">Start check</button>
-          <span class="recipient-note">runs <code>$kickoff</code>, then polls until ready</span>
         </div>
       </div>
 
@@ -390,7 +404,7 @@
         <textarea id="shl" placeholder="shlink:/eyJ1cmwiOiJodHRw…  (or a viewer URL containing one)" spellcheck="false"></textarea>
         <div class="grid2" style="margin-top:14px">
           <div>
-            <label class="fld" for="passcode-open">Passcode <span class="opt">— if the link has the P flag</span></label>
+            <label class="fld" for="passcode-open">Passcode <span class="opt">(if the link has the P flag)</span></label>
             <input id="passcode-open" type="text" value="" placeholder="only if required" spellcheck="false" />
           </div>
           <div>
@@ -405,6 +419,20 @@
       </div>
     </div>
 
+    <!-- Decrypted result / encrypted payload, shown first, above the details -->
+    <div class="reveal hidden" id="reveal">
+      <div class="reveal-head">
+        <h2 id="reveal-title">Encrypted payload</h2>
+        <span class="badge locked" id="badge">locked</span>
+      </div>
+      <ul class="meta hidden" id="meta"></ul>
+      <pre id="out" class="cipher"></pre>
+    </div>
+
+    <!-- Behind the scenes: the minted link, its QR, and the HTTP steps -->
+    <button class="bts-toggle" id="bts-toggle" type="button" aria-expanded="true">Behind the scenes <span class="bts-chev" aria-hidden="true">›</span></button>
+    <div class="bts" id="bts">
+
     <!-- Minted link, shown after kickoff -->
     <div class="linkbox hidden" id="linkbox">
       <span class="linkbox-label">Your SMART Health Link</span>
@@ -415,66 +443,62 @@
     <!-- QR encoding of the link, shown after kickoff -->
     <div class="qrbox hidden" id="qrbox">
       <canvas id="qr" width="140" height="140" aria-label="QR code for the SMART Health Link"></canvas>
-      <p class="qr-caption">Scan with a <b>SMART Health Links</b> wallet to open the result on a phone. The QR encodes the same <code>shlink:</code> above — the decryption key travels in it, so treat it like a secret.</p>
+      <p class="qr-caption">Scan with a <b>SMART Health Links</b> wallet to open it on a phone. The QR holds the same <code>shlink:</code>, key included, so treat it as a secret.</p>
     </div>
 
-    <p class="steps-hint">Click any step to see the HTTP call behind it.</p>
     <ol class="steps" id="steps">
-      <li class="step" data-step="kickoff">
+      <li class="step" data-step="kickoff" data-where="server">
         <button class="step-head" aria-expanded="false" aria-controls="api-kickoff">
-          <span class="num">00</span>
+          <span class="num">01</span>
           <span class="step-body"><span class="name">Start the check</span><span class="detail" id="d-kickoff">mint a shlink: and begin the eligibility job</span></span>
+          <span class="where server">server</span>
           <span class="state" id="s-kickoff">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
         <div class="api hidden" id="api-kickoff"></div>
       </li>
-      <li class="step" data-step="decode">
+      <li class="step" data-step="decode" data-where="browser">
         <button class="step-head" aria-expanded="false" aria-controls="api-decode">
-          <span class="num">01</span>
-          <span class="step-body"><span class="name">Decode the link</span><span class="detail" id="d-decode">read url + key from the shlink payload</span></span>
+          <span class="num">02</span>
+          <span class="step-body"><span class="name">Read the link</span><span class="detail" id="d-decode">decode url + key from the shlink: payload</span></span>
+          <span class="where browser">browser</span>
           <span class="state" id="s-decode">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
         <div class="api hidden" id="api-decode"></div>
       </li>
-      <li class="step" data-step="manifest">
+      <li class="step" data-step="manifest" data-where="server">
         <button class="step-head" aria-expanded="false" aria-controls="api-manifest">
-          <span class="num">02</span>
-          <span class="step-body"><span class="name">Poll the manifest</span><span class="detail" id="d-manifest">can-change while the job runs, then finalized</span></span>
+          <span class="num">03</span>
+          <span class="step-body"><span class="name">Wait for the eligibility result</span><span class="detail" id="d-manifest">the server is checking your coverage with the payer; poll until it's ready</span></span>
+          <span class="where server">server</span>
           <span class="state" id="s-manifest">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
         <div class="api hidden" id="api-manifest"></div>
       </li>
-      <li class="step" data-step="fetch">
+      <li class="step" data-step="fetch" data-where="server">
         <button class="step-head" aria-expanded="false" aria-controls="api-fetch">
-          <span class="num">03</span>
-          <span class="step-body"><span class="name">Get the encrypted file</span><span class="detail" id="d-fetch">embedded JWE, or fetch the location URL</span></span>
+          <span class="num">04</span>
+          <span class="step-body"><span class="name">Download the result</span><span class="detail" id="d-fetch">encrypted (JWE), embedded or via a location URL</span></span>
+          <span class="where server">server</span>
           <span class="state" id="s-fetch">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
         <div class="api hidden" id="api-fetch"></div>
       </li>
-      <li class="step" data-step="decrypt">
+      <li class="step" data-step="decrypt" data-where="browser">
         <button class="step-head" aria-expanded="false" aria-controls="api-decrypt">
-          <span class="num">04</span>
-          <span class="step-body"><span class="name">Decrypt with your key</span><span class="detail" id="d-decrypt">AES-256-GCM, client-side</span></span>
+          <span class="num">05</span>
+          <span class="step-body"><span class="name">Decrypt with your key</span><span class="detail" id="d-decrypt">decrypt locally (AES-256-GCM), no network</span></span>
+          <span class="where browser">browser</span>
           <span class="state" id="s-decrypt">idle</span>
           <span class="chev" aria-hidden="true">›</span>
         </button>
         <div class="api hidden" id="api-decrypt"></div>
       </li>
     </ol>
-
-    <div class="reveal hidden" id="reveal">
-      <div class="reveal-head">
-        <h2 id="reveal-title">Encrypted payload</h2>
-        <span class="badge locked" id="badge">locked</span>
-      </div>
-      <ul class="meta hidden" id="meta"></ul>
-      <pre id="out" class="cipher"></pre>
-    </div>
+    </div><!-- /bts -->
 
     <div class="err hidden" id="error"></div>
 
@@ -617,7 +641,7 @@
         m[6][i] = i % 2 === 0 ? 1 : 0; reserved[6][i] = 1;
         m[i][6] = i % 2 === 0 ? 1 : 0; reserved[i][6] = 1;
       }
-      // alignment patterns — omit the three that would collide with a finder
+      // alignment patterns: omit the three that would collide with a finder
       // (centers near the top-left, top-right, and bottom-left finder cores).
       const centers = ALIGN[v] || [];
       const last = centers.length - 1;
@@ -704,14 +728,14 @@
       for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >> 9) & 1 ? 0x537 : 0);
       const bits = (((data << 10) | rem) ^ 0x5412);
       const get = (i) => (bits >> i) & 1;
-      // Copy 1 — wraps the top-left finder (skipping the timing row/col at 6).
+      // Copy 1: wraps the top-left finder (skipping the timing row/col at 6).
       const tl = [
         [8, 0, 14], [8, 1, 13], [8, 2, 12], [8, 3, 11], [8, 4, 10], [8, 5, 9],
         [8, 7, 8], [8, 8, 7], [7, 8, 6], [5, 8, 5], [4, 8, 4], [3, 8, 3],
         [2, 8, 2], [1, 8, 1], [0, 8, 0],
       ];
       for (const [r, c, i] of tl) m[r][c] = get(i);
-      // Copy 2 — bottom-left strip holds the high bits, top-right strip the low bits.
+      // Copy 2: bottom-left strip holds the high bits, top-right strip the low bits.
       for (let i = 0; i < 7; i++) m[n - 1 - i][8] = get(8 + i);     // rows n-1..n-7  ← bits 8..14
       for (let i = 0; i < 8; i++) m[8][n - 1 - i] = get(i);          // cols n-1..n-8  ← bits 0..7
     }
@@ -861,10 +885,10 @@ authorization: Basic <client:secret>
 }`,
     };
     apiLog.decode = {
-      note: 'No network call — the <code>shlink:</code> is base64url-decoded in the browser to read its <code>url</code> and <code>key</code>.',
+      note: 'No network call. The browser base64url-decodes the <code>shlink:</code> to read its <code>url</code> and <code>key</code>.',
     };
     apiLog.manifest = {
-      note: 'Public. Polled until <code>status: finalized</code>. If the link has the <code>P</code> flag, the body also carries <code>passcode</code> — a wrong one returns <code>401 { remainingAttempts }</code>, and too-frequent polls return <code>429</code> with <code>Retry-After</code>.',
+      note: 'Public. Polled until <code>status: finalized</code>. If the link has the <code>P</code> flag, the body also carries <code>passcode</code>; a wrong one returns <code>401 { remainingAttempts }</code>, and too-frequent polls return <code>429</code> with <code>Retry-After</code>.',
       request:
 `<span class="verb">POST</span> {shlink.url}
 content-type: application/json
@@ -876,7 +900,7 @@ content-type: application/json
       request: `<span class="verb">GET</span> {file.location}`,
     };
     apiLog.decrypt = {
-      note: 'No network call — AES-256-GCM (JWE <code>alg=dir</code>) decryption happens in the browser with the key from the link.',
+      note: 'No network call. The browser runs AES-256-GCM (JWE <code>alg=dir</code>) decryption with the key from the link.',
     };
     for (const s of STEPS) renderApi(s);
   }
@@ -906,7 +930,7 @@ content-type: application/json
   function decodeShlink(input) {
     const marker = "shlink:/";
     const idx = input.indexOf(marker);
-    if (idx === -1) throw new Error("That doesn't look like a shlink: — no <code>shlink:/</code> marker found.");
+    if (idx === -1) throw new Error("That doesn't look like a shlink:. No <code>shlink:/</code> marker found.");
     const encoded = input.slice(idx + marker.length).trim();
     const json = new TextDecoder().decode(b64urlToBytes(encoded));
     return JSON.parse(json);
@@ -1005,16 +1029,16 @@ content-type: application/json
       payload = decodeShlink(raw);
       if (!payload.url || !payload.key) throw new Error("Link is missing <code>url</code> or <code>key</code>.");
       const needsPasscode = (payload.flag || "").includes("P");
-      setStep("decode", "done", `key ${payload.key.slice(0, 6)}… · flag ${payload.flag || "—"}`);
+      setStep("decode", "done", `key ${payload.key.slice(0, 6)}… · flag ${payload.flag || "none"}`);
       setApi("decode", {
         note: needsPasscode
-          ? "Flag includes <code>P</code> — the manifest request must carry a passcode."
+          ? "Flag includes <code>P</code>, so the manifest request must carry a passcode."
           : undefined,
         response: JSON.stringify({ ...payload, key: payload.key.slice(0, 8) + "…(redacted)" }, null, 2),
         status: "decoded locally",
       });
       if (needsPasscode && !passcode) {
-        fail("manifest", "This link has the <code>P</code> flag — enter the passcode and try again.");
+        fail("manifest", "This link has the <code>P</code> flag. Enter the passcode and try again.");
         return;
       }
     } catch (e) { fail("decode", e.message); return; }
@@ -1039,7 +1063,7 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
           body: JSON.stringify(reqBody),
         });
 
-        // 429: server is throttling polls — honor Retry-After.
+        // 429: server is throttling polls, honor Retry-After.
         if (res.status === 429) {
           const ra = parseInt(res.headers.get("retry-after") || "1", 10) || 1;
           setApi("manifest", {
@@ -1074,7 +1098,7 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
         manifest = await res.json();
         polls++;
         setApi("manifest", {
-          note: `Public${passcode ? ", passcode-gated" : ", unauthenticated"}. Poll ${polls}${manifest.status === "finalized" ? " — finalized." : " — still " + esc(manifest.status) + ", will retry."}`,
+          note: `Public${passcode ? ", passcode-gated" : ", unauthenticated"}. Poll ${polls}${manifest.status === "finalized" ? ", finalized." : ", still " + esc(manifest.status) + ", will retry."}`,
           request: manifestReq,
           response: JSON.stringify(redactManifest(manifest), null, 2),
           status: `HTTP ${res.status} · ${manifest.status}`,
@@ -1090,9 +1114,9 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
           throw new Error("This link is no longer valid.");
         }
         if (Date.now() > deadline) {
-          throw new Error(`Still ${manifest.status} after ${Math.round(POLL_TIMEOUT_MS / 1000)}s — giving up.`);
+          throw new Error(`Still ${manifest.status} after ${Math.round(POLL_TIMEOUT_MS / 1000)}s, giving up.`);
         }
-        // can-change: job still running — keep polling.
+        // can-change: job still running, keep polling.
         setStep("manifest", "active", `can-change · polling (${polls})…`);
         await sleep(POLL_INTERVAL_MS);
       }
@@ -1107,7 +1131,7 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
         jwe = file.embedded;
         setStep("fetch", "done", "used embedded JWE");
         setApi("fetch", {
-          note: "The manifest inlined the file as <code>embedded</code> — no extra request needed.",
+          note: "The manifest inlined the file as <code>embedded</code>, so no extra request is needed.",
           request: undefined,
           response: jwe.slice(0, 120) + "…  (JWE compact serialization, application/jose)",
           status: "embedded in manifest",
@@ -1142,12 +1166,12 @@ ${JSON.stringify(reqBodyShown, null, 2)}`;
       const text = await decryptJwe(jwe, payload.key);
       setStep("decrypt", "done", "decrypted in-browser");
       setApi("decrypt", {
-        response: "Decrypted in-browser with WebCrypto (AES-256-GCM). The plaintext FHIR resource is shown below — it never traveled over the network.",
+        response: "Decrypted in-browser with WebCrypto (AES-256-GCM). The plaintext FHIR resource appears below. It never traveled over the network.",
         status: "decrypted locally",
       });
       showResult(text, payload);
     } catch (e) {
-      fail("decrypt", `Couldn't decrypt — the key may not match this file. <code>${e.message}</code>`);
+      fail("decrypt", `Couldn't decrypt; the key may not match this file. <code>${e.message}</code>`);
     }
   }
 
@@ -1214,7 +1238,7 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
       $("shlink-out").textContent = shlink;
       $("linkbox").classList.remove("hidden");
       showQr(shlink);
-    } catch (e) { fail("kickoff", `Couldn't start the check — <code>${e.message}</code>`); setBusy(false); return; }
+    } catch (e) { fail("kickoff", `Couldn't start the check. <code>${e.message}</code>`); setBusy(false); return; }
 
     await resolveAndDecrypt(shlink, recipient, passcode);
     setBusy(false);
@@ -1224,7 +1248,7 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
   async function openLink() {
     if (running) return;
     resetSteps();
-    setStep("kickoff", "done", "n/a — opened an existing link");
+    setStep("kickoff", "done", "n/a, opened an existing link");
     const raw = $("shl").value.trim();
     if (!raw) { fail("decode", "Paste a <code>shlink:</code> first."); return; }
     setBusy(true);
@@ -1241,9 +1265,17 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
     $("tab-open").setAttribute("aria-selected", String(!start));
     $("pane-start").classList.toggle("hidden", !start);
     $("pane-open").classList.toggle("hidden", start);
+    // Step 00 (kickoff) only applies when you start a check; hide it when opening an existing link.
+    document.querySelector('.step[data-step="kickoff"]').classList.toggle("hidden", !start);
   }
   $("tab-start").addEventListener("click", () => selectTab("start"));
   $("tab-open").addEventListener("click", () => selectTab("open"));
+  $("bts-toggle").addEventListener("click", () => {
+    const b = $("bts-toggle");
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    $("bts").classList.toggle("collapsed", open);
+  });
 
   $("start").addEventListener("click", startCheck);
   $("open").addEventListener("click", openLink);
@@ -1254,7 +1286,7 @@ ${JSON.stringify(kickoffParams, null, 2)}`,
       QR.draw($("qr"), shlink);
       $("qrbox").classList.remove("hidden");
     } catch (e) {
-      // Link too long to encode — keep the textual link, skip the QR.
+      // Link too long to encode: keep the textual link, skip the QR.
       $("qrbox").classList.add("hidden");
     }
   }
