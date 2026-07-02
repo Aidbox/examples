@@ -1,6 +1,6 @@
 # US Core Profiles in Python with @atomic-ehr/codegen
 
-A small CSV-to-FHIR converter demonstrating [`@atomic-ehr/codegen`](https://github.com/atomic-ehr/codegen) profile class generation for US Core. The Python counterpart of [atomic-ehr-codegen-typescript-us-core-profiles](../atomic-ehr-codegen-typescript-us-core-profiles), generated for **Pydantic** with the **[fhirpy](https://github.com/beda-software/fhirpy)** async client enabled (`fhirpyClient: true`).
+A small CSV-to-FHIR converter demonstrating [`@atomic-ehr/codegen`](https://github.com/atomic-ehr/codegen) profile class generation for US Core. The Python counterpart of [atomic-ehr-codegen-typescript-us-core-profiles](../atomic-ehr-codegen-typescript-us-core-profiles), generated for **Pydantic** with the **[fhirpy](https://github.com/beda-software/fhirpy)** async client enabled (`client: "fhirpy"`).
 
 The example:
 
@@ -73,7 +73,7 @@ python post.py
 ## Notes on the Code
 
 - **The generator is a Node tool; the output is Python.** `generate.ts` runs once to emit `fhir_types/`. After that you only need Python + Pydantic (and fhirpy for `post.py`).
-- **`fhirpyClient: true`** makes the generated resources extend `FhirpyBaseModel`: they expose `resourceType` at class level and serialize via `model_dump`, which is everything fhirpy's typed client needs to `create` / `search` / `fetch` them.
+- **`client: "fhirpy"`** makes the generated resources extend `FhirpyBaseModel`: they expose `resourceType` at class level and serialize via `model_dump`, which is everything fhirpy's typed client needs to `create` / `search` / `fetch` them.
 - **camelCase attributes (`fieldFormat: "camelCase"`).** Resource fields use the FHIR wire names (`resourceType`, `birthDate`, `effectiveDateTime`), so attribute names match the JSON. This is what lets `client.resources(Observation).search(...).fetch()` be statically typed: fhirpy's `ResourceProtocol` looks for a `resourceType` attribute, which only exists as a real attribute under camelCase. (The generator also supports `snake_case`, but then `resourceType` is injected only at runtime and fhirpy's typed client can't see it statically.) Profile **method** names stay snake_case (`set_systolic`, `set_race`, `from_resource`).
 - **Must-support base fields** (`gender`, `birthDate`) aren't profiled further by US Core, so the profile class emits no `.set_gender()`-style setters. `load.py` sets them on the base `Patient`, then calls `UscorePatientProfile.apply()`. `validate()` warns if a must-support field is missing.
 - **No `is()` type guard.** Unlike the TypeScript API, the Python classes don't ship a `.filter()`-style guard. `avg.py` selects BP observations by `resourceType` + `meta.profile`, then calls `from_resource()`.

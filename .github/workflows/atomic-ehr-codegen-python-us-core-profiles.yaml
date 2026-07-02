@@ -1,0 +1,122 @@
+name: atomic-ehr-codegen-python-us-core-profiles
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'developer-experience/atomic-ehr-codegen-python-us-core-profiles/**'
+      - '.github/workflows/atomic-ehr-codegen-python-us-core-profiles.yaml'
+  pull_request:
+    paths:
+      - 'developer-experience/atomic-ehr-codegen-python-us-core-profiles/**'
+      - '.github/workflows/atomic-ehr-codegen-python-us-core-profiles.yaml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: developer-experience/atomic-ehr-codegen-python-us-core-profiles
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      aidbox_db:
+        image: healthsamurai/aidboxdb:17
+        env:
+          POSTGRES_USER: aidbox
+          POSTGRES_PASSWORD: aidboxpwd
+          POSTGRES_DB: aidbox
+        options: >-
+          --health-cmd "pg_isready -U aidbox"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+      aidbox:
+        image: healthsamurai/aidboxone:edge
+        ports:
+          - 8080:8080
+        env:
+          AIDBOX_LICENSE: ${{ secrets.AIDBOX_LICENSE }}
+          AIDBOX_CLIENT_ID: root
+          AIDBOX_CLIENT_SECRET: secret
+          AIDBOX_ADMIN_PASSWORD: secret
+          AIDBOX_PORT: 8080
+          AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+          AIDBOX_FHIR_SCHEMA_VALIDATION: true
+          BOX_SETTINGS_MODE: read-write
+          PGHOST: aidbox_db
+          PGPORT: 5432
+          PGUSER: aidbox
+          PGPASSWORD: aidboxpwd
+          PGDATABASE: aidbox
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Install @atomic-ehr/codegen 0.0.17
+        run: npm install --save-dev @atomic-ehr/codegen@0.0.17
+
+      - name: Regenerate fhir_types
+        run: npx tsx generate.ts
+
+      - name: Check generated fhir_types are up to date
+        run: |
+          if [ -n "$(git status --porcelain -- fhir_types)" ]; then
+            echo "::error::fhir_types/ changed after regeneration. Run 'npx tsx generate.ts' and commit the result."
+            git status --porcelain -- fhir_types
+            git diff -- fhir_types
+            exit 1
+          fi
+
+      - name: Install Python dependencies
+        run: pip install -r fhir_types/requirements.txt
+
+      - name: Typecheck
+        run: mypy .
+
+      - name: Build bundle
+        run: |
+          out=$(python load.py)
+          echo "$out"
+          echo "$out" | grep -qF 'Wrote bundle with 10 entries'
+
+      - name: Compute average BP and check output
+        run: |
+          out=$(python avg.py)
+          echo "$out"
+          echo "$out" | grep -qF 'Avg BP: 125.2/82.0 mmHg (n=5)'
+
+      - name: Wait for Aidbox
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/health >/dev/null 2>&1; then
+              echo "Aidbox is up"; exit 0
+            fi
+            echo "waiting for Aidbox ($i)"; sleep 3
+          done
+          echo "Aidbox did not become healthy in time"; exit 1
+
+      - name: POST bundle to Aidbox with fhirpy and read it back
+        env:
+          AIDBOX_URL: http://localhost:8080/fhir
+          AIDBOX_SECRET: secret
+        run: |
+          out=$(python post.py)
+          echo "$out"
+          echo "$out" | grep -qF 'Stored BP observations: 5'

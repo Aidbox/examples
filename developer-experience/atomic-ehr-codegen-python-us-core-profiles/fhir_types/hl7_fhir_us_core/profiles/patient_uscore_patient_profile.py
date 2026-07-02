@@ -16,7 +16,7 @@ from .extension_uscore_race_extension import UscoreRaceExtension
 from .extension_uscore_tribal_affiliation_extension import UscoreTribalAffiliationExtension
 from fhir_types.profile_helpers import (
     _get_key, build_resource, ensure_profile, extract_complex_extension, get_extension_value, is_extension, \
-    push_extension, validate_must_support, validate_required
+    is_record, push_extension, validate_must_support, validate_required
 )
 
 
@@ -106,6 +106,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             sub_extensions = []
             if value.get("ombCategory") is not None:
                 sub_extensions.append({"url": "ombCategory", "valueCoding": value["ombCategory"]})
@@ -143,6 +144,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             sub_extensions = []
             if value.get("ombCategory") is not None:
                 sub_extensions.append({"url": "ombCategory", "valueCoding": value["ombCategory"]})
@@ -180,6 +182,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             sub_extensions = []
             if value.get("tribalAffiliation") is not None:
                 sub_extensions.append({"url": "tribalAffiliation", "valueCodeableConcept": value["tribalAffiliation"]})
@@ -206,7 +209,7 @@ class UscorePatientProfile:
             return UscoreIndividualSexExtension.apply(ext_obj)
         return cast('Coding | None', get_extension_value(ext, "valueCoding"))
 
-    def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Any") -> "UscorePatientProfile":
+    def set_sex(self, value: "UscoreIndividualSexExtension | Extension | Coding") -> "UscorePatientProfile":
         if isinstance(value, UscoreIndividualSexExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -214,6 +217,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert not isinstance(value, Extension)
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex", valueCoding=value))
         return self
 
@@ -235,7 +239,7 @@ class UscorePatientProfile:
             return UscoreInterpreterNeededExtension.apply(ext_obj)
         return cast('Coding | None', get_extension_value(ext, "valueCoding"))
 
-    def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Any") -> "UscorePatientProfile":
+    def set_interpreter_required(self, value: "UscoreInterpreterNeededExtension | Extension | Coding") -> "UscorePatientProfile":
         if isinstance(value, UscoreInterpreterNeededExtension):
             push_extension(self._resource, value.to_resource())
         elif is_extension(value):
@@ -243,6 +247,7 @@ class UscorePatientProfile:
                 raise ValueError(f"Expected extension url 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert not isinstance(value, Extension)
             push_extension(self._resource, Extension(url="http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed", valueCoding=value))
         return self
 

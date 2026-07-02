@@ -354,9 +354,9 @@ class UscoreBloodPressureProfile:
     def set_vscat(self, value: dict[str, Any] | None = None) -> "UscoreBloodPressureProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
-        merged = CodeableConcept(**merged)
+        element = CodeableConcept(**merged)
         items = getattr(self._resource, "category", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "category", items)
         return self
 
@@ -364,9 +364,9 @@ class UscoreBloodPressureProfile:
         match = self.__class__._systolic_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)
-        merged = ObservationComponent(**merged)
+        element = ObservationComponent(**merged)
         items = getattr(self._resource, "component", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "component", items)
         return self
 
@@ -374,9 +374,9 @@ class UscoreBloodPressureProfile:
         match = self.__class__._diastolic_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueQuantity")
         merged = apply_slice_match(wrapped, match)
-        merged = ObservationComponent(**merged)
+        element = ObservationComponent(**merged)
         items = getattr(self._resource, "component", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "component", items)
         return self
 

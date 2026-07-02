@@ -10,8 +10,8 @@ from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.profile_helpers import (
     _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \
-    is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \
-    validate_required, validate_slice_cardinality, wrap_slice_choice
+    is_extension, is_record, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, \
+    validate_fixed_value, validate_required, validate_slice_cardinality, wrap_slice_choice
 )
 
 
@@ -95,6 +95,7 @@ class UscoreRaceExtension:
                 raise ValueError(f"Expected extension url 'ombCategory', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             push_extension(self._resource, {"url": "ombCategory", **value})
         return self
 
@@ -118,6 +119,7 @@ class UscoreRaceExtension:
                 raise ValueError(f"Expected extension url 'detailed', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             push_extension(self._resource, {"url": "detailed", **value})
         return self
 
@@ -141,6 +143,7 @@ class UscoreRaceExtension:
                 raise ValueError(f"Expected extension url 'text', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             push_extension(self._resource, {"url": "text", **value})
         return self
 
@@ -184,9 +187,9 @@ class UscoreRaceExtension:
         match = self.__class__._omb_category_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCoding")
         merged = apply_slice_match(wrapped, match)
-        merged = Extension(**merged)
+        element = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "extension", items)
         return self
 
@@ -194,18 +197,18 @@ class UscoreRaceExtension:
         match = self.__class__._detailed_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCoding")
         merged = apply_slice_match(wrapped, match)
-        merged = Extension(**merged)
+        element = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "extension", items)
         return self
 
     def set_extension_text(self, value: dict[str, Any] | None = None) -> "UscoreRaceExtension":
         match = self.__class__._text_slice_match
         merged = apply_slice_match((value or {}), match)
-        merged = Extension(**merged)
+        element = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "extension", items)
         return self
 

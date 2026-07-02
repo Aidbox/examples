@@ -26,6 +26,8 @@ from __future__ import annotations
 import copy
 from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence, Sequence, TypeVar
 
+from typing_extensions import TypeGuard
+
 T = TypeVar("T")
 
 # ---------------------------------------------------------------------------
@@ -33,9 +35,9 @@ T = TypeVar("T")
 # ---------------------------------------------------------------------------
 
 
-def is_record(value: Any) -> bool:
+def is_record(value: Any) -> TypeGuard[MutableMapping[str, Any]]:
     """True when ``value`` is a non-None mapping (dict-like, not a list)."""
-    return isinstance(value, Mapping)
+    return isinstance(value, MutableMapping)
 
 
 def ensure_path(root: MutableMapping[str, Any], path: Sequence[str]) -> MutableMapping[str, Any]:
