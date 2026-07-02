@@ -1,8 +1,4 @@
-import * as Path from "node:path";
-import { fileURLToPath } from "node:url";
 import { APIBuilder, mkCodegenLogger, prettyReport } from "@atomic-ehr/codegen";
-
-const __dirname = Path.dirname(fileURLToPath(import.meta.url));
 
 const main = async () => {
   console.log("📦 Generating Python FHIR R4 Core + US Core Types...");
@@ -21,8 +17,12 @@ const main = async () => {
     .fromPackage("hl7.fhir.us.core", "8.0.1")
     .localStructureDefinitions({
       package: { name: "example.folder.structures", version: "0.0.1" },
-      path: Path.join(__dirname, "structure-definitions"),
-      dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
+      path: "./structure-definitions",
+      // No `dependencies` here: hl7.fhir.r4.core is already provided by
+      // fromPackage("hl7.fhir.us.core"). Declaring it again makes the canonical
+      // manager re-run `npm install hl7.fhir.r4.core`, which on npm 10 prunes
+      // this just-copied local package ("Package example.folder.structures not
+      // found"). Resolving r4.core from the shared package set avoids that.
     })
     .python({
       allowExtraFields: false,
