@@ -132,9 +132,9 @@ class ObservationBodyweightProfile:
     def set_vscat(self, value: dict[str, Any] | None = None) -> "ObservationBodyweightProfile":
         match = self.__class__._vscat_slice_match
         merged = apply_slice_match((value or {}), match)
-        merged = CodeableConcept(**merged)
+        element = CodeableConcept(**merged)
         items = getattr(self._resource, "category", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "category", items)
         return self
 

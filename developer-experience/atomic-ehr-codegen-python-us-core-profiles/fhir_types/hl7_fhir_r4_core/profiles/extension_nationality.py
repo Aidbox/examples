@@ -69,12 +69,13 @@ class NationalityExtension:
             return ext_obj
         return cast('CodeableConcept | None', get_extension_value(ext, "valueCodeableConcept"))
 
-    def set_code(self, value: "Extension | Any") -> "NationalityExtension":
+    def set_code(self, value: "Extension | CodeableConcept") -> "NationalityExtension":
         if is_extension(value):
             if _get_key(value, "url") != "code":
                 raise ValueError(f"Expected extension url 'code', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert not isinstance(value, Extension)
             push_extension(self._resource, Extension(url="code", valueCodeableConcept=value))
         return self
 
@@ -92,12 +93,13 @@ class NationalityExtension:
             return ext_obj
         return cast('Period | None', get_extension_value(ext, "valuePeriod"))
 
-    def set_period(self, value: "Extension | Any") -> "NationalityExtension":
+    def set_period(self, value: "Extension | Period") -> "NationalityExtension":
         if is_extension(value):
             if _get_key(value, "url") != "period":
                 raise ValueError(f"Expected extension url 'period', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert not isinstance(value, Extension)
             push_extension(self._resource, Extension(url="period", valuePeriod=value))
         return self
 

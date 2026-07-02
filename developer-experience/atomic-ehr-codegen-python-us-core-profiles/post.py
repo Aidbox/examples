@@ -9,7 +9,7 @@ For an open server (e.g. a local HAPI FHIR), just set FHIR_URL and omit the secr
 
     FHIR_URL=http://localhost:8090/fhir python post.py
 
-fhirpy is wired in because the types were generated with `fhirpyClient: true`:
+fhirpy is wired in because the types were generated with `client: "fhirpy"`:
 the generated resources extend FhirpyBaseModel, expose `resourceType` at class
 level, and serialize via `model_dump`, which is everything fhirpy's typed client
 needs to create/search/deserialize them.

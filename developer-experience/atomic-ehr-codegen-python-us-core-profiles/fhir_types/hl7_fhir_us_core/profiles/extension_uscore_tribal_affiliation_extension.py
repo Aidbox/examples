@@ -10,8 +10,8 @@ from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.hl7_fhir_r4_core.base import Extension
 from fhir_types.profile_helpers import (
     _get_key, apply_slice_match, build_resource, ensure_slice_defaults, get_array_slice, get_extension_value, \
-    is_extension, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, validate_fixed_value, \
-    validate_required, validate_slice_cardinality, wrap_slice_choice
+    is_extension, is_record, matches_value, push_extension, set_array_slice, strip_match_keys, unwrap_slice_choice, \
+    validate_fixed_value, validate_required, validate_slice_cardinality, wrap_slice_choice
 )
 
 
@@ -88,6 +88,7 @@ class UscoreTribalAffiliationExtension:
                 raise ValueError(f"Expected extension url 'tribalAffiliation', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             push_extension(self._resource, {"url": "tribalAffiliation", **value})
         return self
 
@@ -111,6 +112,7 @@ class UscoreTribalAffiliationExtension:
                 raise ValueError(f"Expected extension url 'isEnrolled', got {_get_key(value, 'url')!r}")
             push_extension(self._resource, value)
         else:
+            assert is_record(value)
             push_extension(self._resource, {"url": "isEnrolled", **value})
         return self
 
@@ -142,18 +144,18 @@ class UscoreTribalAffiliationExtension:
         match = self.__class__._tribal_affiliation_slice_match
         wrapped = wrap_slice_choice((value or {}), "valueCodeableConcept")
         merged = apply_slice_match(wrapped, match)
-        merged = Extension(**merged)
+        element = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "extension", items)
         return self
 
     def set_extension_is_enrolled(self, value: dict[str, Any] | None = None) -> "UscoreTribalAffiliationExtension":
         match = self.__class__._is_enrolled_slice_match
         merged = apply_slice_match((value or {}), match)
-        merged = Extension(**merged)
+        element = Extension(**merged)
         items = getattr(self._resource, "extension", None) or []
-        set_array_slice(items, match, merged)
+        set_array_slice(items, match, element)
         setattr(self._resource, "extension", items)
         return self
 
