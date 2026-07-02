@@ -1,17 +1,4 @@
-import * as Path from "node:path";
-import { fileURLToPath } from "node:url";
 import { APIBuilder, mkCodegenLogger, prettyReport } from "@atomic-ehr/codegen";
-
-const __dirname = Path.dirname(fileURLToPath(import.meta.url));
-
-// The canonical manager copies the local structure-definitions folder into
-// node_modules, then runs `npm install` for each declared dependency. On npm 10
-// (Node 22, e.g. CI) that reify step prunes the just-copied local package as
-// "extraneous", so it disappears before scanning and generation fails with
-// "Package example.folder.structures not found". This flag skips the redundant
-// dependency install (hl7.fhir.r4.core is already pulled in by hl7.fhir.us.core)
-// while keeping the dependency metadata, so the local package survives the scan.
-process.env.FCM_SKIP_LOCAL_DEP_INSTALL = "1";
 
 const main = async () => {
   console.log("📦 Generating Python FHIR R4 Core + US Core Types...");
@@ -30,8 +17,12 @@ const main = async () => {
     .fromPackage("hl7.fhir.us.core", "8.0.1")
     .localStructureDefinitions({
       package: { name: "example.folder.structures", version: "0.0.1" },
-      path: Path.join(__dirname, "structure-definitions"),
-      dependencies: [{ name: "hl7.fhir.r4.core", version: "4.0.1" }],
+      path: "./structure-definitions",
+      // No `dependencies` here: hl7.fhir.r4.core is already provided by
+      // fromPackage("hl7.fhir.us.core"). Declaring it again makes the canonical
+      // manager re-run `npm install hl7.fhir.r4.core`, which on npm 10 prunes
+      // this just-copied local package ("Package example.folder.structures not
+      // found"). Resolving r4.core from the shared package set avoids that.
     })
     .python({
       allowExtraFields: false,
