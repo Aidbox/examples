@@ -64,8 +64,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install @atomic-ehr/codegen canary
-        run: npm install --save-dev @atomic-ehr/codegen@canary
+      - name: Install @atomic-ehr/codegen 0.0.17
+        run: npm install --save-dev @atomic-ehr/codegen@0.0.17
 
       - name: Regenerate fhir-types
         run: npx tsx generate.ts
