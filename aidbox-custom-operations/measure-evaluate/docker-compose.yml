@@ -2,7 +2,8 @@ volumes:
   pg_data: {}
 services:
   db:
-    image: healthsamurai/aidboxdb:17
+    image: postgres:17
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
     volumes:
       - pg_data:/var/lib/postgresql/data:delegated
     environment:
@@ -11,7 +12,7 @@ services:
       POSTGRES_DB: aidbox
       POSTGRES_PASSWORD: M3ya7uZxdJ
   aidbox:
-    image: healthsamurai/aidboxone:2603
+    image: healthsamurai/aidboxone:2606.2
     depends_on:
       - db
     ports:
