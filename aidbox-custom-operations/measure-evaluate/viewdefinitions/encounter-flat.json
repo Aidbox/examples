@@ -44,6 +44,10 @@
         {
           "name": "type_code",
           "path": "code"
+        },
+        {
+          "name": "type_display",
+          "path": "display"
         }
       ],
       "forEachOrNull": "type.coding"

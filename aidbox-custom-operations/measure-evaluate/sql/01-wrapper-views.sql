@@ -52,7 +52,7 @@ FROM sof.patient_flat;
 -- ============================================================
 DROP VIEW IF EXISTS encounter_flat CASCADE;
 CREATE VIEW encounter_flat AS
-SELECT id, patient_id, status, type_system, type_code,
+SELECT id, patient_id, status, type_system, type_code, type_display,
     parse_fhir_datetime(period_start) AS period_start,
     parse_fhir_datetime(period_end) AS period_end,
     class_code, discharge_code
@@ -63,7 +63,7 @@ FROM sof.encounter_flat;
 -- ============================================================
 DROP VIEW IF EXISTS procedure_flat CASCADE;
 CREATE VIEW procedure_flat AS
-SELECT id, patient_id, status, code_system, code,
+SELECT id, patient_id, status, code_system, code, display, has_outcome,
     COALESCE(parse_fhir_datetime(performed_start), parse_fhir_datetime(performed_period_start)) AS performed_start,
     COALESCE(parse_fhir_datetime(performed_start), parse_fhir_datetime(performed_period_end)) AS performed_end
 FROM sof.procedure_flat;
@@ -73,10 +73,10 @@ FROM sof.procedure_flat;
 -- ============================================================
 DROP VIEW IF EXISTS observation_flat CASCADE;
 CREATE VIEW observation_flat AS
-SELECT o.id, o.patient_id, o.status, o.code_system, o.code, o.category_code,
+SELECT o.id, o.patient_id, o.status, o.code_system, o.code, o.display, o.category_code,
     COALESCE(parse_fhir_datetime(o.effective_dt), parse_fhir_datetime(o.effective_period_start)) AS effective_start,
     COALESCE(parse_fhir_datetime(o.effective_dt), parse_fhir_datetime(o.effective_period_end)) AS effective_end,
-    o.value_system, o.value_code, o.value_quantity, o.value_unit,
+    o.value_system, o.value_code, o.value_display, o.value_quantity, o.value_unit,
     -- has_value: Aidbox 2603+ materializes FHIRPath `value.exists()` as text
     -- 'true'/'false' in sof.observation_flat.has_value. Bit-identical to the
     -- JSONB check `(r.resource -> 'value' IS NOT NULL)` on 36k observation rows
@@ -101,7 +101,7 @@ FROM sof.observation_flat o;
 -- ============================================================
 DROP VIEW IF EXISTS condition_flat CASCADE;
 CREATE VIEW condition_flat AS
-SELECT id, patient_id, code_system, code, clinical_status, verification_status,
+SELECT id, patient_id, code_system, code, display, clinical_status, verification_status,
     COALESCE(parse_fhir_datetime(onset_dt), parse_fhir_datetime(onset_period_start)) AS onset_date,
     COALESCE(parse_fhir_datetime(abatement_dt), parse_fhir_datetime(abatement_period_end)) AS abatement_date,
     category_code, body_site_code
@@ -112,7 +112,7 @@ FROM sof.condition_flat;
 -- ============================================================
 DROP VIEW IF EXISTS servicerequest_flat CASCADE;
 CREATE VIEW servicerequest_flat AS
-SELECT id, patient_id, status, intent, code_system, code,
+SELECT id, patient_id, status, intent, code_system, code, display,
     parse_fhir_datetime(authored_on) AS authored_on
 FROM sof.servicerequest_flat;
 
@@ -125,6 +125,7 @@ SELECT mr.id, mr.patient_id, mr.status, mr.intent,
     -- COALESCE: prefer CodeableConcept from VD, fallback to medication Reference JOIN
     COALESCE(mr.med_system, m.resource->'code'->'coding'->0->>'system') AS med_system,
     COALESCE(mr.med_code, m.resource->'code'->'coding'->0->>'code') AS med_code,
+    COALESCE(mr.med_display, m.resource->'code'->'coding'->0->>'display') AS med_display,
     parse_fhir_datetime(mr.validity_start) AS validity_start,
     parse_fhir_datetime(mr.validity_end) AS validity_end,
     parse_fhir_datetime(mr.authored_on) AS authored_on
@@ -137,7 +138,7 @@ LEFT JOIN medication m ON m.id = raw.resource->'medication'->'Reference'->>'id';
 -- ============================================================
 DROP VIEW IF EXISTS devicerequest_flat CASCADE;
 CREATE VIEW devicerequest_flat AS
-SELECT id, patient_id, status, intent, code_system, code,
+SELECT id, patient_id, status, intent, code_system, code, display,
     parse_fhir_datetime(authored_on) AS authored_on
 FROM sof.devicerequest_flat;
 
