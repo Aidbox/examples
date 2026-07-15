@@ -354,6 +354,15 @@ def main():
     execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
     execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
 
+    # Lineage normalizer nodes: project each wrapper view as a SQLQuery Library so
+    # downstream relatedArtifact chains read normalized columns. Rebuilt from
+    # pg_get_viewdef after the wrapper views, so each node matches its view.
+    print("Building lineage normalizer Library nodes...")
+    sys.path.insert(0, os.path.join(SCRIPT_DIR, "scripts"))
+    from build_normalizer_libraries import build_normalizers
+    n_ok, n_total = build_normalizers(BASE_URL, f"Basic {auth_header()}", verbose=False)
+    print(f"  OK — {n_ok}/{n_total} normalizer nodes")
+
     # Summary
     try:
         patients = run_sql("SELECT COUNT(*) AS n FROM patient")
