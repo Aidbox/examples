@@ -123,7 +123,7 @@ One command loads all non-clinical artifacts into your Aidbox:
 - `concepts` table schema + ValueSets and codes used by the 12 measures
 - Shared exclusion helper functions (`02-shared-exclusions.sql`)
 - Btree indexes on `sof.*_flat` tables (`03-sof-indexes.sql`) — patient_id, code/system, plus a composite covering for condition
-- CodeSystem bundle + 12 FHIR `Measure` / `Library` resources
+- 12 FHIR `Measure` / `Library` resources
 - Stub `Organization`, `Practitioner`, `Device` resources referenced by measures
 
 ```bash

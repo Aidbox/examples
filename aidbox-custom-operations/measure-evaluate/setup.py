@@ -284,10 +284,6 @@ def main():
     print("[4/8] Creating stub resources...")
     create_stubs()
 
-    # Load shared CodeSystems
-    print("[5/8] Loading shared CodeSystems...")
-    load_bundle(os.path.join(SCRIPT_DIR, "data", "codesystems-bundle.json"), "CodeSystems")
-
     # Load FHIR Measure resources
     print("[5/8] Loading FHIR Measure resources...")
     load_bundle(os.path.join(SCRIPT_DIR, "data", "measures-bundle.json"), "Measure resources")
