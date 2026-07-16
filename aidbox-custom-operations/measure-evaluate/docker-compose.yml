@@ -2,10 +2,10 @@ volumes:
   pg_data: {}
 services:
   db:
-    image: postgres:17
+    image: postgres:18
     command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
     volumes:
-      - pg_data:/var/lib/postgresql/data:delegated
+      - pg_data:/var/lib/postgresql/18/docker:delegated
     environment:
       POSTGRES_USER: aidbox
       POSTGRES_PORT: "5432"
