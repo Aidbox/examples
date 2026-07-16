@@ -235,17 +235,29 @@ def measure_evaluate(body, persist=False):
                 measure_id = mid
                 break
 
-    # Validate version if specified (canonical|version)
-    if requested_version and measure_id in MEASURES:
-        meta = fetch_measure_metadata(measure_id)
-        actual_version = meta.get('version') if meta else None
-        if actual_version and requested_version != actual_version:
+    # Fetch Measure resource from Aidbox (primary metadata source)
+    measure_meta = fetch_measure_metadata(measure_id) if measure_id in MEASURES else None
+
+    # Version validation: Measure.version (or requested version) vs registry supported_version
+    if measure_id in MEASURES:
+        supported = MEASURES[measure_id].get('supported_version')
+        actual_version = (measure_meta.get('version') if measure_meta else None) or requested_version
+        if actual_version and supported and actual_version != supported:
             return jsonify({
                 'resourceType': 'OperationOutcome',
-                'issue': [{'severity': 'error', 'code': 'not-found',
-                            'diagnostics': f'Measure version mismatch: requested {requested_version}, '
-                                           f'available {actual_version}'}]
-            }), 404
+                'issue': [{'severity': 'error', 'code': 'business-rule',
+                            'diagnostics': f'Measure version mismatch: version {actual_version}, '
+                                           f'SQL implementation supports {supported}'}]
+            }), 422
+        # Explicit requested version must also match the Measure resource version
+        if requested_version and measure_meta and measure_meta.get('version'):
+            if requested_version != measure_meta['version']:
+                return jsonify({
+                    'resourceType': 'OperationOutcome',
+                    'issue': [{'severity': 'error', 'code': 'not-found',
+                                'diagnostics': f'Requested version {requested_version} does not match '
+                                               f'Measure resource version {measure_meta["version"]}'}]
+                }), 404
 
     subject = params.get('subject')
     report_type = params.get('reportType')

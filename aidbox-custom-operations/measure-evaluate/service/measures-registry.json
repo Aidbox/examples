@@ -5,7 +5,8 @@
     "name": "Children Who Have Dental Decay or Cavities",
     "exc_type": "denominator-exclusion",
     "library": "CMS75FHIRChildrenDentalDecay",
-    "bundle_dir": "CMS75FHIRChildrenDentalDecay"
+    "bundle_dir": "CMS75FHIRChildrenDentalDecay",
+    "supported_version": "1.0.000"
   },
   "cms124": {
     "sql": "sql/measures/cms124/02-cms124-measure.sql",
@@ -13,7 +14,8 @@
     "name": "Cervical Cancer Screening",
     "exc_type": "denominator-exclusion",
     "library": "CMS124FHIRCervicalCancerScreen",
-    "bundle_dir": "CMS124FHIRCervicalCancerScreen"
+    "bundle_dir": "CMS124FHIRCervicalCancerScreen",
+    "supported_version": "1.0.000"
   },
   "cms125": {
     "sql": "sql/measures/cms125/02-cms125-measure.sql",
@@ -21,7 +23,8 @@
     "name": "Breast Cancer Screening",
     "exc_type": "denominator-exclusion",
     "library": "CMS125FHIRBreastCancerScreen",
-    "bundle_dir": "CMS125FHIRBreastCancerScreen"
+    "bundle_dir": "CMS125FHIRBreastCancerScreen",
+    "supported_version": "1.0.000"
   },
   "cms130": {
     "sql": "sql/measures/cms130/02-cms130-measure.sql",
@@ -29,7 +32,8 @@
     "name": "Colorectal Cancer Screening",
     "exc_type": "denominator-exclusion",
     "library": "CMS130FHIRColorectalCancerScrn",
-    "bundle_dir": "CMS130FHIRColorectalCancerScrn"
+    "bundle_dir": "CMS130FHIRColorectalCancerScrn",
+    "supported_version": "1.0.000"
   },
   "cms131": {
     "sql": "sql/measures/cms131/02-cms131-measure.sql",
@@ -37,7 +41,8 @@
     "name": "Diabetes: Eye Exam",
     "exc_type": "denominator-exclusion",
     "library": "CMS131FHIRDiabetesEyeExam",
-    "bundle_dir": "CMS131FHIRDiabetesEyeExam"
+    "bundle_dir": "CMS131FHIRDiabetesEyeExam",
+    "supported_version": "1.0.000"
   },
   "cms139": {
     "sql": "sql/measures/cms139/02-cms139-measure.sql",
@@ -45,7 +50,8 @@
     "name": "Screening for Future Fall Risk",
     "exc_type": "denominator-exclusion",
     "library": "CMS139FHIRFallRiskScreening",
-    "bundle_dir": "CMS139FHIRFallRiskScreening"
+    "bundle_dir": "CMS139FHIRFallRiskScreening",
+    "supported_version": "1.0.000"
   },
   "cms143": {
     "sql": "sql/measures/cms143/02-cms143-measure.sql",
@@ -53,7 +59,8 @@
     "name": "POAG Optic Nerve Evaluation",
     "exc_type": "denominator-exception",
     "library": "CMS143FHIRPOAGOpticNerveEval",
-    "bundle_dir": "CMS143FHIRPOAGOpticNerveEval"
+    "bundle_dir": "CMS143FHIRPOAGOpticNerveEval",
+    "supported_version": "1.0.000"
   },
   "cms149": {
     "sql": "sql/measures/cms149/02-cms149-measure.sql",
@@ -61,7 +68,8 @@
     "name": "Dementia: Cognitive Assessment",
     "exc_type": "denominator-exception",
     "library": "CMS149FHIRDementiaCognitiveAssess",
-    "bundle_dir": "CMS149FHIRDementiaCognitiveAssess"
+    "bundle_dir": "CMS149FHIRDementiaCognitiveAssess",
+    "supported_version": "1.0.000"
   },
   "cms153": {
     "sql": "sql/measures/cms153/02-cms153-measure.sql",
@@ -69,7 +77,8 @@
     "name": "Chlamydia Screening",
     "exc_type": "denominator-exclusion",
     "library": "CMS153FHIRChlamydiaScreening",
-    "bundle_dir": "CMS153FHIRChlamydiaScreening"
+    "bundle_dir": "CMS153FHIRChlamydiaScreening",
+    "supported_version": "1.0.000"
   },
   "cms155": {
     "sql": "sql/measures/cms155/02-cms155-measure.sql",
@@ -77,7 +86,8 @@
     "name": "Weight Assessment / Counseling BMI Children",
     "exc_type": "denominator-exclusion",
     "library": "CMS155FHIRWgtAssessCounseling",
-    "bundle_dir": "CMS155FHIRWgtAssessCounseling"
+    "bundle_dir": "CMS155FHIRWgtAssessCounseling",
+    "supported_version": "1.0.000"
   },
   "cms165": {
     "sql": "sql/measures/cms165/02-cms165-measure.sql",
@@ -85,7 +95,8 @@
     "name": "Controlling High Blood Pressure",
     "exc_type": "denominator-exclusion",
     "library": "CMS165FHIRControllingHighBP",
-    "bundle_dir": "CMS165FHIRControllingHighBP"
+    "bundle_dir": "CMS165FHIRControllingHighBP",
+    "supported_version": "1.0.000"
   },
   "cms1154": {
     "sql": "sql/measures/cms1154/02-cms1154-measure.sql",
@@ -93,6 +104,7 @@
     "name": "Screening for Prediabetes",
     "exc_type": "denominator-exclusion",
     "library": "CMS1154ScreeningPrediabetesFHIR",
-    "bundle_dir": "CMS1154ScreeningPrediabetesFHIR"
+    "bundle_dir": "CMS1154ScreeningPrediabetesFHIR",
+    "supported_version": "1.0.000"
   }
 }

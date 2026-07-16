@@ -125,45 +125,44 @@ def load_bundle(filepath, label):
 
 
 def populate_concepts(valueset_path):
+    """Build the flat `concepts` table from Aidbox's far.valueset registry (no row loader).
+
+    The ValueSets were already loaded into Aidbox by load_bundle (-> far.valueset). This
+    flattens their expansion.contains into `concepts` with ONE SQL per measure. Idempotent
+    per valueset_url (DELETE + INSERT). Reads the Aidbox-internal `far` schema.
+    """
     if not os.path.exists(valueset_path):
         return 0
 
     with open(valueset_path) as f:
         bundle = json.load(f)
 
-    total = 0
-    for entry in bundle.get("entry", []):
-        vs = entry.get("resource", {})
-        if vs.get("resourceType") != "ValueSet":
-            continue
-        url = vs.get("url", "")
-        name = vs.get("name", "")
-        codes = vs.get("expansion", {}).get("contains", [])
-        if not url or not codes:
-            continue
+    urls = sorted({
+        e.get("resource", {}).get("url")
+        for e in bundle.get("entry", [])
+        if e.get("resource", {}).get("resourceType") == "ValueSet" and e.get("resource", {}).get("url")
+    })
+    if not urls:
+        return 0
 
-        try:
-            run_sql(f"DELETE FROM concepts WHERE valueset_url = '{url}'")
-        except Exception:
-            pass
-
-        values = []
-        for c in codes:
-            s = c.get("system", "").replace("'", "''")
-            code = c.get("code", "").replace("'", "''")
-            display = c.get("display", "").replace("'", "''")[:200]
-            values.append(f"('{url}', '{name}', '{s}', '{code}', '{display}')")
-
-        for i in range(0, len(values), 500):
-            chunk = values[i:i + 500]
-            sql = "INSERT INTO concepts (valueset_url, valueset_name, system, code, display) VALUES\n" + ",\n".join(chunk)
-            try:
-                run_sql(sql)
-            except Exception as e:
-                print(f"  FAIL concepts for {name}: {e}")
-                break
-        total += len(codes)
-    return total
+    url_list = "(" + ",".join("'" + u.replace("'", "''") + "'" for u in urls) + ")"
+    run_sql(f"DELETE FROM concepts WHERE valueset_url IN {url_list}")
+    run_sql(
+        f"""INSERT INTO concepts (valueset_url, valueset_name, system, code, display)
+            SELECT DISTINCT
+                resource->>'url'  AS valueset_url,
+                resource->>'name' AS valueset_name,
+                c->>'system'      AS system,
+                c->>'code'        AS code,
+                left(c->>'display', 200) AS display
+            FROM far.valueset,
+                 jsonb_array_elements(resource->'expansion'->'contains') AS c
+            WHERE resource->>'url' IN {url_list}
+              AND c->>'code' IS NOT NULL
+              AND c->>'system' IS NOT NULL"""
+    )
+    r = run_sql(f"SELECT count(*) AS n FROM concepts WHERE valueset_url IN {url_list}")
+    return r[0]["n"] if r else 0
 
 
 def create_stubs():
@@ -285,10 +284,6 @@ def main():
     print("[4/8] Creating stub resources...")
     create_stubs()
 
-    # Load shared CodeSystems
-    print("[5/8] Loading shared CodeSystems...")
-    load_bundle(os.path.join(SCRIPT_DIR, "data", "codesystems-bundle.json"), "CodeSystems")
-
     # Load FHIR Measure resources
     print("[5/8] Loading FHIR Measure resources...")
     load_bundle(os.path.join(SCRIPT_DIR, "data", "measures-bundle.json"), "Measure resources")
@@ -323,59 +318,50 @@ def main():
         except Exception as e:
             print(f"  WARN: DROP VIEW {view} — {str(e)[:80]}")
     mat_body = json.dumps({"resourceType": "Parameters", "parameter": [{"name": "type", "valueCode": "table"}]}).encode()
-    sof_ok = True
+    # $materialize can run long on large data — no client timeout (Aidbox has no POST timeout).
+    # On failure we surface a targeted hint and raise (no silent fallback to legacy views).
     for vd_id in vd_ids:
+        print(f"  materializing {vd_id}...")
         try:
             req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}/$materialize", method="POST",
                 data=mat_body)
             req.add_header("Authorization", f"Basic {auth_header()}")
             req.add_header("Content-Type", "application/json")
-            urllib.request.urlopen(req, timeout=300)
+            urllib.request.urlopen(req)
         except urllib.error.HTTPError as e:
             body = e.read()[:300].decode(errors='replace') if e.fp else ''
             code = e.code
-            print(f"  WARN: $materialize failed for {vd_id}: HTTP {code}")
+            print(f"  ERROR: $materialize failed for {vd_id}: HTTP {code}")
             if body:
                 print(f"    {body[:200]}")
-            # Match against known causes — give targeted hint, not generic version warning.
             if code == 504 or 'Gateway Time-out' in body:
-                print(f"  → Likely nginx proxy_read_timeout is shorter than the materialize runtime.")
-                print(f"    Bump nginx config in front of Aidbox:")
-                print(f"      proxy_read_timeout 1800s;")
-                print(f"      proxy_send_timeout 1800s;")
+                print(f"  → nginx proxy_read_timeout is shorter than the materialize runtime. Bump:")
+                print(f"      proxy_read_timeout 1800s;  proxy_send_timeout 1800s;")
             elif code == 404:
-                print(f"  → $materialize requires Aidbox 2508+. Check your version:")
-                print(f"    curl -s {BASE_URL}/health | jq -r '.about.version'")
+                print(f"  → $materialize requires Aidbox 2508+. Check: curl -s {BASE_URL}/health | jq -r '.about.version'")
             elif 'multiple values found' in body:
-                print(f"  → Data shape: a resource has multiple matching values for a single-value FHIRPath.")
-                print(f"    The ViewDefinition may need .first() or a stricter filter — see viewdefinitions/{vd_id}.json.")
+                print(f"  → A resource has multiple matching values for a single-value FHIRPath; the")
+                print(f"    ViewDefinition needs .first() or a stricter filter — see viewdefinitions/{vd_id}.json.")
             elif 'depend on it' in body:
-                print(f"  → Wrapper view dependency conflict (pre-fix setup.py). Pull latest and re-run.")
-            else:
-                print(f"  → Aidbox returned {code} with an unrecognized error — see body above.")
-            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work).")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
-            sof_ok = False
-            break
-        except Exception as e:
-            print(f"  WARN: $materialize failed for {vd_id}: {e}")
-            print(f"  Falling back to legacy SQL views (some measures using value_quantity / notDoneReason may not work).")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "legacy", "01-views.sql"), "Legacy views")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
-            execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-performance.sql"), "Performance indexes")
-            sof_ok = False
-            break
-    if sof_ok:
-        print(f"  OK — {len(vd_ids)} tables materialized")
-        print("[8/8] Creating indexes + wrapper views + shared functions...")
-        # 03-sof-indexes.sql can take 5-20 min on production-sized observation tables
-        # (10M+ rows). CREATE INDEX without CONCURRENTLY (not available via /$sql since
-        # it wraps statements in transactions), and ANALYZE on big tables, both eat time.
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes", timeout=1800)
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
-        execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
+                print(f"  → Wrapper view dependency conflict. Pull latest and re-run.")
+            raise
+    print(f"  OK — {len(vd_ids)} tables materialized")
+    print("[8/8] Creating indexes + wrapper views + shared functions...")
+    # 03-sof-indexes.sql can take 5-20 min on production-sized observation tables
+    # (10M+ rows). CREATE INDEX without CONCURRENTLY (not available via /$sql since
+    # it wraps statements in transactions), and ANALYZE on big tables, both eat time.
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "03-sof-indexes.sql"), "sof indexes", timeout=1800)
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "01-wrapper-views.sql"), "Wrapper views")
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "02-shared-exclusions.sql"), "Shared exclusions")
+
+    # Lineage normalizer nodes: project each wrapper view as a SQLQuery Library so
+    # downstream relatedArtifact chains read normalized columns. Rebuilt from
+    # pg_get_viewdef after the wrapper views, so each node matches its view.
+    print("Building lineage normalizer Library nodes...")
+    sys.path.insert(0, os.path.join(SCRIPT_DIR, "scripts"))
+    from build_normalizer_libraries import build_normalizers
+    n_ok, n_total = build_normalizers(BASE_URL, f"Basic {auth_header()}", verbose=False)
+    print(f"  OK — {n_ok}/{n_total} normalizer nodes")
 
     # Summary
     try:

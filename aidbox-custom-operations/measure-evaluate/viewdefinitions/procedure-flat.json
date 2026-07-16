@@ -26,6 +26,10 @@
         {
           "name": "performed_period_end",
           "path": "performed.ofType(Period).end"
+        },
+        {
+          "name": "has_outcome",
+          "path": "outcome.exists()"
         }
       ]
     },
@@ -38,6 +42,10 @@
         {
           "name": "code",
           "path": "code"
+        },
+        {
+          "name": "display",
+          "path": "display"
         }
       ],
       "forEachOrNull": "code.coding"

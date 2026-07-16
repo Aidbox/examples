@@ -70,6 +70,10 @@
         {
           "name": "code",
           "path": "code"
+        },
+        {
+          "name": "display",
+          "path": "display"
         }
       ],
       "forEachOrNull": "code.coding"
@@ -83,6 +87,10 @@
         {
           "name": "value_code",
           "path": "code"
+        },
+        {
+          "name": "value_display",
+          "path": "display"
         }
       ],
       "forEachOrNull": "value.ofType(CodeableConcept).coding"

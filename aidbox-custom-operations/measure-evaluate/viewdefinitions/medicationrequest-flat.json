@@ -42,6 +42,10 @@
         {
           "name": "med_code",
           "path": "code"
+        },
+        {
+          "name": "med_display",
+          "path": "display"
         }
       ],
       "forEachOrNull": "medication.ofType(CodeableConcept).coding"
