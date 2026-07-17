@@ -1,0 +1,10 @@
+{
+  "name": "myorg.example.ig",
+  "version": "1.0.0",
+  "description": "A minimal custom FHIR IG for the init-bundle example",
+  "author": "Health Samurai Examples",
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1",
+    "hl7.fhir.us.core": "6.1.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "resourceType": "AccessPolicy",
+  "id": "as-data-analyst-read-only",
+  "engine": "matcho",
+  "link": [
+    {
+      "reference": "Client/data-analyst"
+    }
+  ],
+  "matcho": {
+    "request-method": "get"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "resourceType": "Client",
+  "id": "data-analyst",
+  "secret": "data-analyst-secret",
+  "grant_types": [
+    "basic"
+  ]
+}

@@ -1,0 +1,42 @@
+# Illustrative workflow for this example — NOT run by this repository.
+# GitHub only runs workflows placed in `.github/workflows/` at the REPOSITORY
+# ROOT. To use it in your own project, copy this file there and adjust the
+# `paths:` values to match where you keep the sources.
+#
+# What it does: builds the custom IG, then one init bundle per environment, and
+# uploads them all as workflow artifacts.
+name: build-init-bundle
+
+on:
+  push:
+    paths:
+      - 'ig/**'
+      - 'common/**'
+      - 'dev/**'
+      - 'qa/**'
+      - 'prod/**'
+      - 'build-ig.sh'
+      - 'build-init-bundle.sh'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the custom IG
+        run: ./build-ig.sh
+
+      # jq is preinstalled on GitHub runners.
+      - name: Build an init bundle per environment
+        run: |
+          for env in dev qa prod; do
+            ./build-init-bundle.sh "$env" "dist/init-bundle.$env.json"
+          done
+
+      - name: Upload artifacts (IG tarball + per-environment bundles)
+        uses: actions/upload-artifact@v4
+        with:
+          name: init-bundles
+          path: dist/

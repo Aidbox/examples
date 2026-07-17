@@ -1,0 +1,9 @@
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "package",
+      "valueString": "file:///tmp/ig/custom-ig.tgz"
+    }
+  ]
+}
