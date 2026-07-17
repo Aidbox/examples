@@ -47,15 +47,22 @@ flowchart LR
 
 ## Run
 
-Needs `jq`.
+Needs `jq`. With `make`:
+
+```bash
+make up            # build (dev) + start Aidbox; activate on first launch
+make up ENV=prod   # build & run another environment
+make down          # stop (keep the database)
+make clean         # stop + wipe the database and dist/
+```
+
+Or step by step:
 
 ```bash
 ./build-ig.sh                # -> dist/custom-ig.tgz
 ./build-init-bundle.sh dev   # -> dist/init-bundle.json (common + dev)
 docker compose up            # Aidbox loads it at startup; activate on first launch
 ```
-
-Build another environment: `./build-init-bundle.sh prod` (common only, no demo).
 
 ## How it works
 
