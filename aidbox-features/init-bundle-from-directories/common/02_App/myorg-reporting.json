@@ -7,5 +7,15 @@
     "type": "http-rpc",
     "url": "https://reporting.internal:8888",
     "secret": "reporting-app-secret"
+  },
+  "operations": {
+    "generate-report": {
+      "method": "POST",
+      "path": ["reporting", "generate"]
+    },
+    "get-report": {
+      "method": "GET",
+      "path": ["reporting", "report", { "name": "reportId" }]
+    }
   }
 }
