@@ -1,0 +1,6 @@
+{
+  "resourceType": "Practitioner",
+  "id": "pr-house",
+  "identifier": [{ "system": "http://example.org/npi", "value": "1234567890" }],
+  "name": [{ "use": "official", "family": "House", "given": ["Gregory"], "prefix": ["Dr"] }]
+}

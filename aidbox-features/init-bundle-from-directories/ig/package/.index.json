@@ -1,0 +1,14 @@
+{
+  "index-version": 2,
+  "files": [
+    {
+      "filename": "myorg-patient.json",
+      "resourceType": "StructureDefinition",
+      "id": "myorg-patient",
+      "url": "http://example.org/fhir/StructureDefinition/myorg-patient",
+      "version": "1.0.0",
+      "kind": "resource",
+      "type": "Patient"
+    }
+  ]
+}

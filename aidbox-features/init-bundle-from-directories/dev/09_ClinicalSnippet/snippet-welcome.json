@@ -1,0 +1,7 @@
+{
+  "resourceType": "ClinicalSnippet",
+  "id": "snippet-welcome",
+  "title": "Welcome",
+  "category": "greeting",
+  "body": "Hello, and welcome to your visit today."
+}

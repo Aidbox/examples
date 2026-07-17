@@ -1,0 +1,25 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "myorg-patient",
+  "url": "http://example.org/fhir/StructureDefinition/myorg-patient",
+  "version": "1.0.0",
+  "name": "MyOrgPatient",
+  "title": "MyOrg Patient",
+  "status": "active",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient.birthDate",
+        "path": "Patient.birthDate",
+        "min": 1,
+        "mustSupport": true
+      }
+    ]
+  }
+}

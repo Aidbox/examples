@@ -1,0 +1,8 @@
+{
+  "resourceType": "Observation",
+  "id": "obs-demo-1",
+  "status": "final",
+  "code": { "coding": [{ "system": "http://loinc.org", "code": "29463-7", "display": "Body weight" }] },
+  "subject": { "reference": "Patient/pt-demo-1" },
+  "valueQuantity": { "value": 65, "unit": "kg", "system": "http://unitsofmeasure.org", "code": "kg" }
+}

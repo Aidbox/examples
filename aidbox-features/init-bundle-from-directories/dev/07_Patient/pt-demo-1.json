@@ -1,0 +1,11 @@
+{
+  "resourceType": "Patient",
+  "id": "pt-demo-1",
+  "meta": { "profile": ["http://example.org/fhir/StructureDefinition/myorg-patient"] },
+  "identifier": [{ "system": "http://example.org/mrn", "value": "MRN-001" }],
+  "name": [{ "use": "official", "family": "Demo", "given": ["Dana"] }],
+  "gender": "female",
+  "birthDate": "1990-05-01",
+  "managingOrganization": { "reference": "Organization/org-acme" },
+  "generalPractitioner": [{ "reference": "Practitioner/pr-house" }]
+}

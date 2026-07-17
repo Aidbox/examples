@@ -1,0 +1,18 @@
+{
+  "resourceType": "AccessPolicy",
+  "id": "as-my-app-crud-patients",
+  "engine": "matcho",
+  "link": [
+    {
+      "reference": "Client/my-app"
+    }
+  ],
+  "matcho": {
+    "params": {
+      "resource/type": "Patient"
+    },
+    "request-method": {
+      "$enum": ["get", "post", "put", "patch"]
+    }
+  }
+}
