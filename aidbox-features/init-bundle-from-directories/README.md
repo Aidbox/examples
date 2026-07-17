@@ -20,11 +20,22 @@ dev/                                 # → dev only (full demo/seed data)
 └── 05_Organization/ 06_Practitioner/ 07_Patient/ 08_Observation/ 09_ClinicalSnippet/
 qa/                                  # → qa only (minimal smoke subset)
 └── 05_Organization/ 07_Patient/
-prod/                                # → prod only (empty: prod = common only)
+prod/                                # → prod only (ops-monitor Client, prod-only)
+└── 03_Client/
 ```
 
-A bundle for an environment is `common/` + that environment's own folder, so
-the tree shows exactly what each env gets: `dev` = common + dev, `prod` = common.
+A bundle for an environment is `common/` + that environment's own folder, so the
+tree shows exactly what each env gets — `dev` = common + dev, `prod` = common + prod:
+
+```mermaid
+flowchart LR
+  common["common/ (config, all envs)"] --> devb & qab & prodb
+  dev["dev/ (full demo)"] --> devb["init-bundle.dev.json"]
+  qa["qa/ (smoke subset)"] --> qab["init-bundle.qa.json"]
+  prod["prod/ (ops client)"] --> prodb["init-bundle.prod.json"]
+```
+
+And the build/load pipeline:
 
 ```mermaid
 flowchart LR

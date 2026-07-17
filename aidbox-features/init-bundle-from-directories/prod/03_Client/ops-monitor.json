@@ -1,0 +1,6 @@
+{
+  "resourceType": "Client",
+  "id": "ops-monitor",
+  "secret": "ops-monitor-secret",
+  "grant_types": ["basic"]
+}
