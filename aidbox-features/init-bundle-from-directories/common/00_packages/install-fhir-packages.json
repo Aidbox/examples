@@ -1,9 +1,9 @@
 {
-  "resourceType": "Parameters",
-  "parameter": [
-    {
-      "name": "package",
-      "valueString": "file:///tmp/ig/custom-ig.tgz"
-    }
-  ]
+  "request": { "method": "POST", "url": "$fhir-package-install" },
+  "resource": {
+    "resourceType": "Parameters",
+    "parameter": [
+      { "name": "package", "valueString": "file:///tmp/ig/custom-ig.tgz" }
+    ]
+  }
 }

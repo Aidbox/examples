@@ -6,11 +6,15 @@
 #   dev/ qa/ prod/  resources specific to that environment (seed data;
 #                   prod adds nothing, so its bundle is common only)
 #
-# Files are ordered by directory number (00_ first). A Parameters resource
-# becomes POST $fhir-package-install (bundle-relative url — NOT
-# /fhir/$fhir-package-install, which 404s as /fhir/fhir/...); everything else is
-# an idempotent PUT-by-id in a "batch" bundle. Per-env secrets are out of scope —
-# inject them at container start (see the init-bundle-env-template example).
+# Files are ordered by directory number (00_ first). A bare resource file
+# becomes an idempotent PUT by resourceType/id; a file that carries its own
+# "request" (e.g. the $fhir-package-install operation) is used as a bundle entry
+# verbatim. Everything goes into one "batch" bundle. Per-env secrets are out of
+# scope — inject them at container start (see the init-bundle-env-template example).
+#
+# NOTE for operation entries: request.url is relative to the FHIR base —
+# "$fhir-package-install", NOT "/fhir/$fhir-package-install" (which 404s as
+# /fhir/fhir/...).
 #
 # Usage: ./build-init-bundle.sh [ENV] [OUTPUT_FILE]   (defaults: dev, dist/init-bundle.json)
 # Requires: bash, jq.
@@ -32,18 +36,17 @@ done
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 jq -s '
-  def to_entry:
-    if .resourceType == "Parameters"
-    then { resource: ., request: { method: "POST", url: "$fhir-package-install" } }
-    else { resource: ., request: { method: "PUT", url: (.resourceType + "/" + .id) } }
-    end;
-
+  # A file is either a full bundle entry (has its own "request" — used as-is,
+  # e.g. an operation like $fhir-package-install) or a bare resource, which
+  # becomes an idempotent PUT by resourceType/id.
   map(
-    if .resourceType == null then error("resource is missing resourceType")
-    elif .resourceType != "Parameters" and .id == null
-    then error("resource \(.resourceType) is missing id") else . end
+    if has("request") then .
+    elif .resourceType == null then error("file has no request and no resourceType")
+    elif .id == null then error("resource \(.resourceType) has no id (needed for PUT)")
+    else { resource: ., request: { method: "PUT", url: (.resourceType + "/" + .id) } }
+    end
   )
-  | { resourceType: "Bundle", type: "batch", entry: map(to_entry) }
+  | { resourceType: "Bundle", type: "batch", entry: . }
 ' "${files[@]}" > "$OUTPUT_FILE"
 
 echo "Wrote $(jq '.entry | length' "$OUTPUT_FILE") entries (env: $ENV_NAME) to $OUTPUT_FILE"

@@ -26,6 +26,14 @@ prod/                                # → prod only (empty: prod = common only)
 A bundle for an environment is `common/` + that environment's own folder, so
 the tree shows exactly what each env gets: `dev` = common + dev, `prod` = common.
 
+```mermaid
+flowchart LR
+  ig["ig/package/"] -->|build-ig.sh| tgz["dist/custom-ig.tgz"]
+  res["common/ + env/"] -->|build-init-bundle.sh env| bundle["dist/init-bundle.json"]
+  tgz --> box
+  bundle -->|BOX_INIT_BUNDLE| box["Aidbox: applies the bundle before HTTP opens"]
+```
+
 ## Run
 
 Needs `jq`.
@@ -47,8 +55,9 @@ and `jq`-wraps each into one `batch` bundle:
   is a no-op and doesn't grow history.
 - **Ordering = directory number** (`common/` is 00–04, env data 05+): `00_packages`
   (custom IG) and `01_StructureDefinition` (custom types) run first; env data last.
-- **A `Parameters` resource** is a package install → `POST $fhir-package-install`
-  (bundle-relative url, *not* `/fhir/$fhir-package-install`).
+- **A file with its own `request`** is used as a bundle entry verbatim — how the
+  `$fhir-package-install` operation is expressed (bundle-relative url, *not*
+  `/fhir/$fhir-package-install`). Bare resource files → `PUT` by id.
 
 ## Packages
 
@@ -64,6 +73,18 @@ and `jq`-wraps each into one `batch` bundle:
 (`derivation: specialization` → its own table). It's registered **and** an
 instance seeded in the same bundle (verified: `GET /fhir/ClinicalSnippet/snippet-welcome`).
 
+## CI
+
+[`.github/workflows/build-init-bundle.yml`](.github/workflows/build-init-bundle.yml)
+runs `build-ig.sh` and builds one bundle per environment
+(`dist/init-bundle.<env>.json`), then uploads `dist/` as artifacts. It only
+**builds** the bundles — it doesn't boot Aidbox or deploy; delivering them to a
+pod is a separate step (see Notes).
+
+It's illustrative: GitHub only runs workflows placed at the **repository root**
+`.github/workflows/`, so this copy inside the example folder never runs here —
+copy it to your repo root (and adjust `paths:`) to use it.
+
 ## Notes
 
 - **Secrets / per-env values** are out of scope — a committed bundle must not
@@ -71,9 +92,6 @@ instance seeded in the same bundle (verified: `GET /fhir/ClinicalSnippet/snippet
   [init-bundle-env-template](../init-bundle-env-template/).
 - **Delivering the bundle to a pod** (image / ConfigMap / init container / URL):
   see the [init bundle docs](https://www.health-samurai.io/docs/aidbox/configuration/init-bundle).
-- **CI** (`.github/workflows/build-init-bundle.yml`) is illustrative — GitHub
-  only runs workflows at the repo root, so copy it there. It just builds the IG
-  and one bundle per environment and uploads `dist/`.
 
 `dist/` is generated (`.gitignore`d); commit `ig/`, `common/`, `dev/`, `qa/`,
 `prod/`, and the two build scripts.
