@@ -1,0 +1,8 @@
+{
+  "resourceType": "Client",
+  "id": "my-app",
+  "secret": "my-app-secret",
+  "grant_types": [
+    "basic"
+  ]
+}

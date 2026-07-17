@@ -1,0 +1,3 @@
+# Generated artifacts — build them locally or in CI, don't commit them.
+# build-init-bundle.sh -> dist/init-bundle*.json ; build-ig.sh -> dist/custom-ig.tgz
+dist/

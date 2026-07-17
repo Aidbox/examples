@@ -1,0 +1,21 @@
+{
+  "resourceType": "App",
+  "id": "myorg.reporting",
+  "apiVersion": 1,
+  "type": "app",
+  "endpoint": {
+    "type": "http-rpc",
+    "url": "https://reporting.internal:8888",
+    "secret": "reporting-app-secret"
+  },
+  "operations": {
+    "generate-report": {
+      "method": "POST",
+      "path": ["reporting", "generate"]
+    },
+    "get-report": {
+      "method": "GET",
+      "path": ["reporting", "report", { "name": "reportId" }]
+    }
+  }
+}

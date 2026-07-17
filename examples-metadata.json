@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-16T16:48:04.975367Z",
+  "timestamp": "2026-07-17T13:06:54.230721Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -635,6 +635,28 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/init-bundle-env-template/README.md"
     },
     {
+      "id": "aidbox-features-init-bundle-from-directories",
+      "title": "Init Bundle from Resource Directories",
+      "description": "Compile a directory of per-resource-type JSON files into one Aidbox",
+      "features": [
+        "Configuration",
+        "Init bundle",
+        "Seed data",
+        "Custom resource",
+        "Custom FHIR IG",
+        "AccessPolicy",
+        "Client",
+        "App",
+        "CI/CD"
+      ],
+      "languages": [
+        "Shell",
+        "YAML"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-features/init-bundle-from-directories",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-features/init-bundle-from-directories/README.md"
+    },
+    {
       "id": "aidbox-forms-aidbox-forms-external-attachment-viewer",
       "title": "Integrating external attachment preview tool",
       "description": "Example of integration Aidbox Forms Renderer with React.js",
@@ -914,9 +936,11 @@
     "API",
     "API interception",
     "API override",
+    "AccessPolicy",
     "Aidbox Apps",
     "Analytics",
     "Angular",
+    "App",
     "App framework",
     "Async eligibility (RTE)",
     "Async operations",
@@ -926,6 +950,7 @@
     "Benchmarking",
     "Bulk API",
     "Bun",
+    "CI/CD",
     "CQL",
     "Canonical Mapping",
     "Care gaps",
@@ -933,6 +958,7 @@
     "Chile localization",
     "Claude Code",
     "Clickhouse",
+    "Client",
     "Clinical decision support",
     "Comparison",
     "ConceptMap",
@@ -940,8 +966,10 @@
     "Connection pooling",
     "Controlled",
     "Cross-platform",
+    "Custom FHIR IG",
     "Custom operations",
     "Custom renderer",
+    "Custom resource",
     "Custom resources",
     "Customization",
     "DICOM",
@@ -1049,6 +1077,7 @@
     "SQL on FHIR",
     "Scalability",
     "Security",
+    "Seed data",
     "Setup",
     "SmartForms",
     "Spring Boot",
@@ -1080,6 +1109,7 @@
     "Markdown",
     "Python",
     "SQL",
+    "Shell",
     "TypeScript",
     "YAML"
   ]

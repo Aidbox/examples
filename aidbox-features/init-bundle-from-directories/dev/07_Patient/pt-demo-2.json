@@ -1,0 +1,9 @@
+{
+  "resourceType": "Patient",
+  "id": "pt-demo-2",
+  "identifier": [{ "system": "http://example.org/mrn", "value": "MRN-002" }],
+  "name": [{ "use": "official", "family": "Demo", "given": ["Sam"] }],
+  "gender": "male",
+  "birthDate": "1985-11-20",
+  "managingOrganization": { "reference": "Organization/org-acme" }
+}

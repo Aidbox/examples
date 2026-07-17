@@ -1,0 +1,7 @@
+{
+  "resourceType": "Organization",
+  "id": "org-acme",
+  "identifier": [{ "system": "http://example.org/org", "value": "acme" }],
+  "active": true,
+  "name": "Acme Health"
+}

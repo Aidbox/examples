@@ -1,0 +1,115 @@
+---
+features: [Configuration, Init bundle, Seed data, Custom resource, Custom FHIR IG, AccessPolicy, Client, App, CI/CD]
+languages: [Shell, YAML]
+---
+
+# Init Bundle from Resource Directories
+
+Compile a directory of per-resource-type JSON files into one Aidbox
+[init bundle](https://www.health-samurai.io/docs/aidbox/configuration/init-bundle.md)
+(config + seed data) that loads at startup — instead of a hand-ordered script
+that POSTs resources one by one after boot.
+
+```
+ig/package/                          # source of the custom FHIR IG
+common/                              # → EVERY environment (config)
+├── 00_packages/                     #   installs the local custom IG ($fhir-package-install)
+├── 01_StructureDefinition/          #   custom resource TYPE (ClinicalSnippet)
+├── 02_App/  03_Client/  04_AccessPolicy/
+dev/                                 # → dev only (full demo/seed data)
+└── 05_Organization/ 06_Practitioner/ 07_Patient/ 08_Observation/ 09_ClinicalSnippet/
+qa/                                  # → qa only (minimal smoke subset)
+└── 05_Organization/ 07_Patient/
+prod/                                # → prod only (ops-monitor Client, prod-only)
+└── 03_Client/
+```
+
+A bundle for an environment is `common/` + that environment's own folder, so the
+tree shows exactly what each env gets — `dev` = common + dev, `prod` = common + prod:
+
+```mermaid
+flowchart LR
+  common["common/ (config, all envs)"] --> devb & qab & prodb
+  dev["dev/ (full demo)"] --> devb["init-bundle.dev.json"]
+  qa["qa/ (smoke subset)"] --> qab["init-bundle.qa.json"]
+  prod["prod/ (ops client)"] --> prodb["init-bundle.prod.json"]
+```
+
+And the build/load pipeline:
+
+```mermaid
+flowchart LR
+  ig["ig/package/"] -->|build-ig.sh| tgz["dist/custom-ig.tgz"]
+  res["common/ + env/"] -->|build-init-bundle.sh env| bundle["dist/init-bundle.json"]
+  tgz --> box
+  bundle -->|BOX_INIT_BUNDLE| box["Aidbox: applies the bundle before HTTP opens"]
+```
+
+## Run
+
+Needs `jq`. With `make`:
+
+```bash
+make up            # build (dev) + start Aidbox; activate on first launch
+make up ENV=prod   # build & run another environment
+make down          # stop (keep the database)
+make clean         # stop + wipe the database and dist/
+```
+
+Or step by step:
+
+```bash
+./build-ig.sh                # -> dist/custom-ig.tgz
+./build-init-bundle.sh dev   # -> dist/init-bundle.json (common + dev)
+docker compose up            # Aidbox loads it at startup; activate on first launch
+```
+
+## How it works
+
+`build-init-bundle.sh <env>` collects the `*.json` under `common/` and `<env>/`
+and `jq`-wraps each into one `batch` bundle:
+
+- **`PUT <type>/<id>`**, idempotent — Aidbox de-dupes identical PUTs, so a re-run
+  is a no-op and doesn't grow history.
+- **Ordering = directory number** (`common/` is 00–04, env data 05+): `00_packages`
+  (custom IG) and `01_StructureDefinition` (custom types) run first; env data last.
+- **A file with its own `request`** is used as a bundle entry verbatim — how the
+  `$fhir-package-install` operation is expressed (bundle-relative url, *not*
+  `/fhir/$fhir-package-install`). Bare resource files → `PUT` by id.
+
+## Packages
+
+- **Published IGs (us.core)** → `BOX_BOOTSTRAP_FHIR_PACKAGES` in
+  `docker-compose.yaml`. Runs **only on first startup** (fresh DB).
+- **Local custom IG** → built by `build-ig.sh`, installed in the bundle via
+  `$fhir-package-install` (`file://` to the mounted `.tgz`). Its `MyOrgPatient`
+  profile derives from `us-core-patient`.
+
+## Custom resource type
+
+`common/01_StructureDefinition/clinical-snippet.json` defines `ClinicalSnippet`
+(`derivation: specialization` → its own table). It's registered **and** an
+instance seeded in the same bundle (verified: `GET /fhir/ClinicalSnippet/snippet-welcome`).
+
+## CI
+
+[`.github/workflows/build-init-bundle.yml`](.github/workflows/build-init-bundle.yml)
+runs `build-ig.sh` and builds one bundle per environment
+(`dist/init-bundle.<env>.json`), then uploads `dist/` as artifacts. It only
+**builds** the bundles — it doesn't boot Aidbox or deploy; delivering them to a
+pod is a separate step (see Notes).
+
+It's illustrative: GitHub only runs workflows placed at the **repository root**
+`.github/workflows/`, so this copy inside the example folder never runs here —
+copy it to your repo root (and adjust `paths:`) to use it.
+
+## Notes
+
+- **Secrets / per-env values** are out of scope — a committed bundle must not
+  carry secrets. Inject them at container start; see
+  [init-bundle-env-template](../init-bundle-env-template/).
+- **Delivering the bundle to a pod** (image / ConfigMap / init container / URL):
+  see the [init bundle docs](https://www.health-samurai.io/docs/aidbox/configuration/init-bundle).
+
+`dist/` is generated (`.gitignore`d); commit `ig/`, `common/`, `dev/`, `qa/`,
+`prod/`, and the two build scripts.
