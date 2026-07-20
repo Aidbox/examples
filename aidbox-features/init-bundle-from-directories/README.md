@@ -1,5 +1,5 @@
 ---
-features: [Configuration, Init bundle, Seed data, Custom resource, Custom FHIR IG, AccessPolicy, Client, App, CI/CD]
+features: [Configuration, Init bundle, Seed data, Custom resource, Custom FHIR package, AccessPolicy, Client, App, CI/CD]
 languages: [Shell, YAML]
 ---
 
@@ -11,9 +11,9 @@ Compile a directory of per-resource-type JSON files into one Aidbox
 that POSTs resources one by one after boot.
 
 ```
-ig/package/                          # source of the custom FHIR IG
+ig/package/                          # source of the custom FHIR package
 common/                              # → EVERY environment (config)
-├── 00_packages/                     #   installs the local custom IG ($fhir-package-install)
+├── 00_packages/                     #   installs US Core + the local custom package
 ├── 01_StructureDefinition/          #   custom resource TYPE (ClinicalSnippet)
 ├── 02_App/  03_Client/  04_AccessPolicy/
 dev/                                 # → dev only (full demo/seed data)
@@ -72,18 +72,23 @@ and `jq`-wraps each into one `batch` bundle:
 - **`PUT <type>/<id>`**, idempotent — Aidbox de-dupes identical PUTs, so a re-run
   is a no-op and doesn't grow history.
 - **Ordering = directory number** (`common/` is 00–04, env data 05+): `00_packages`
-  (custom IG) and `01_StructureDefinition` (custom types) run first; env data last.
+  (packages) and `01_StructureDefinition` (custom types) run first; env data last.
 - **A file with its own `request`** is used as a bundle entry verbatim — how the
   `$fhir-package-install` operation is expressed (bundle-relative url, *not*
   `/fhir/$fhir-package-install`). Bare resource files → `PUT` by id.
 
 ## Packages
 
-- **Published IGs (us.core)** → `BOX_BOOTSTRAP_FHIR_PACKAGES` in
-  `docker-compose.yaml`. Runs **only on first startup** (fresh DB).
-- **Local custom IG** → built by `build-ig.sh`, installed in the bundle via
-  `$fhir-package-install` (`file://` to the mounted `.tgz`). Its `MyOrgPatient`
-  profile derives from `us-core-patient`.
+- **Base FHIR spec (r4.core)** → `BOX_BOOTSTRAP_FHIR_PACKAGES` in
+  `docker-compose.yaml` — the base every box needs.
+- **IGs / packages** load through the init bundle — one `$fhir-package-install`
+  entry, `common/00_packages/install-packages.json`, lists both (`package` is
+  repeatable) and Aidbox resolves the whole dependency graph together. Bumping a
+  version is just an edit here:
+  - **Published IG (US Core)** — `hl7.fhir.us.core@6.1.0` from the registry.
+  - **Local custom package** — the `.tgz` built by `build-ig.sh` (`file://` to
+    the mounted tarball). Its `MyOrgPatient` profile derives from
+    `us-core-patient`.
 
 ## Custom resource type
 

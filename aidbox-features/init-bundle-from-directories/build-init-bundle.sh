@@ -36,9 +36,6 @@ done
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
 jq -s '
-  # A file is either a full bundle entry (has its own "request" — used as-is,
-  # e.g. an operation like $fhir-package-install) or a bare resource, which
-  # becomes an idempotent PUT by resourceType/id.
   map(
     if has("request") then .
     elif .resourceType == null then error("file has no request and no resourceType")

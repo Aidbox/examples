@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-17T13:07:36.693341Z",
+  "timestamp": "2026-07-20T11:01:53.978378Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -643,7 +643,7 @@
         "Init bundle",
         "Seed data",
         "Custom resource",
-        "Custom FHIR IG",
+        "Custom FHIR package",
         "AccessPolicy",
         "Client",
         "App",
@@ -966,7 +966,7 @@
     "Connection pooling",
     "Controlled",
     "Cross-platform",
-    "Custom FHIR IG",
+    "Custom FHIR package",
     "Custom operations",
     "Custom renderer",
     "Custom resource",

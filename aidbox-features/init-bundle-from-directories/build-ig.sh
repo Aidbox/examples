@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
-# Pack the custom FHIR IG (ig/package/) into dist/custom-ig.tgz.
+# Pack the custom FHIR package (ig/package/) into dist/custom-ig.tgz.
 #
 # A FHIR npm package is just a gzipped tarball rooted at `package/`, so plain tar
 # is enough. The init bundle installs it via $fhir-package-install (see
-# common/00_packages/install-fhir-packages.json).
+# common/00_packages/install-packages.json).
 #
 # Usage: ./build-ig.sh [IG_SRC_DIR] [OUTPUT_DIR]   (defaults: ig, dist)
 
