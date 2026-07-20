@@ -3,6 +3,7 @@
   "resource": {
     "resourceType": "Parameters",
     "parameter": [
+      { "name": "package", "valueString": "hl7.fhir.us.core@6.1.0" },
       { "name": "package", "valueString": "file:///tmp/ig/custom-ig.tgz" }
     ]
   }
