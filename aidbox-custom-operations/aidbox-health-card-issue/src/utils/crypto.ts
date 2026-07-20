@@ -1,6 +1,9 @@
 import * as fs from 'fs';
-import { SignJWT, importPKCS8 } from 'jose';
+import { deflateRawSync } from 'zlib';
+import { CompactSign, importPKCS8 } from 'jose';
 import { HealthCardPayload, FHIRBundle } from '../types/health-card';
+
+const COVID19_TYPE = 'https://smarthealth.cards#covid19';
 
 export class CryptoUtils {
   private privateKey: any;
@@ -33,15 +36,12 @@ export class CryptoUtils {
       throw new Error('Private key not loaded');
     }
 
-    // Determine the credential type for VC
-    const vcType = this.getCredentialType(credentialTypes);
-
-    // Create the verifiable credential payload
+    // Build the verifiable credential payload (SMART Health Cards §5)
     const payload: HealthCardPayload = {
       iss: this.issuer,
-      nbf: Math.floor(Date.now() / 1000), // Current timestamp
+      nbf: Math.floor(Date.now() / 1000), // seconds since epoch
       vc: {
-        type: ['https://smarthealth.cards#health-card', vcType],
+        type: this.buildVcTypes(credentialTypes),
         credentialSubject: {
           fhirVersion: '4.0.1',
           fhirBundle: bundle,
@@ -49,26 +49,51 @@ export class CryptoUtils {
       },
     };
 
-    // Sign the payload using JWS
-    const jws = await new SignJWT(payload)
+    // The SMART Health Cards spec requires the JWS payload to be minified
+    // (JSON.stringify omits optional whitespace) and DEFLATE-compressed (raw,
+    // no zlib/gz header) BEFORE signing, with the header advertising zip:"DEF".
+    // jose's SignJWT does NOT compress for JWS, so we compress explicitly and
+    // sign the compressed bytes with CompactSign.
+    const compressed = deflateRawSync(Buffer.from(JSON.stringify(payload), 'utf8'));
+
+    const jws = await new CompactSign(compressed)
       .setProtectedHeader({
         alg: 'ES256',
         zip: 'DEF',
-        kid: this.keyId, // Use consistent key identifier
+        kid: this.keyId, // base64url SHA-256 JWK thumbprint (RFC 7638)
       })
       .sign(this.privateKey);
 
     return jws;
   }
 
-  private getCredentialType(credentialTypes: string[]): string {
-    // Map FHIR resource types to SMART Health Cards credential types
-    if (credentialTypes.includes('Immunization')) {
-      return 'https://smarthealth.cards#immunization';
-    } else if (credentialTypes.includes('Observation')) {
-      return 'https://smarthealth.cards#laboratory';
-    } else {
-      return 'https://smarthealth.cards#health-card';
+  /**
+   * Build the `vc.type` array. `https://smarthealth.cards#health-card` is always
+   * present; more specific types are added when they apply (spec: "other types
+   * SHOULD be included when they apply"). Supports both the generic FHIR
+   * resource-type credentials (Immunization/Observation) and the #covid19 VCI type.
+   */
+  private buildVcTypes(credentialTypes: string[]): string[] {
+    const types = new Set<string>(['https://smarthealth.cards#health-card']);
+
+    const wantsCovid = credentialTypes.includes(COVID19_TYPE);
+    const wantsImmunization = credentialTypes.some(
+      t => t.toLowerCase() === 'immunization'
+    );
+    const wantsObservation = credentialTypes.some(
+      t => t.toLowerCase() === 'observation'
+    );
+
+    if (wantsImmunization || wantsCovid) {
+      types.add('https://smarthealth.cards#immunization');
     }
+    if (wantsCovid) {
+      types.add(COVID19_TYPE);
+    }
+    if (wantsObservation) {
+      types.add('https://smarthealth.cards#laboratory');
+    }
+
+    return [...types];
   }
 }

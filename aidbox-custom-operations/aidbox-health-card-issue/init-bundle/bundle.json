@@ -52,7 +52,10 @@
               ".well-known",
               "jwks.json"
             ],
-            "method": "GET"
+            "method": "GET",
+            "policies": {
+              "jwks-public": { "engine": "allow" }
+            }
           }
         }
       },

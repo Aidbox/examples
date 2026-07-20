@@ -78,7 +78,11 @@ services:
       AIDBOX_CLIENT_SECRET: secret
       
       # Health Cards Configuration
-      HEALTH_CARDS_ISSUER: https://example.org/health-cards
+      # iss MUST be the base whose <iss>/.well-known/jwks.json serves the key.
+      # Here that is the namespaced Aidbox App operation (see init-bundle App).
+      # NOTE: the spec requires https + no trailing slash; http/localhost is a
+      # local-dev deviation (prod: https + TLS 1.2 + VCI directory enrollment).
+      HEALTH_CARDS_ISSUER: http://localhost:8080/health-cards-app
       HEALTH_CARDS_KEY_PATH: ./keys/private-key.pem
     volumes:
       - ./keys:/app/keys:ro

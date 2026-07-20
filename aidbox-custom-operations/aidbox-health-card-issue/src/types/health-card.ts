@@ -1,7 +1,8 @@
 
 export interface HealthCardPayload {
   iss: string; // Issuer URL
-  nbf: number; // Not before timestamp
+  nbf: number; // Not before (seconds since epoch)
+  exp?: number; // Optional expiration (seconds since epoch)
   vc: {
     type: string[];
     credentialSubject: {
@@ -16,6 +17,7 @@ export interface FHIRBundle {
   resourceType: 'Bundle';
   type: 'collection';
   entry: Array<{
+    fullUrl?: string; // short resource-scheme URI, e.g. "resource:0"
     resource: FHIRResource;
   }>;
 }

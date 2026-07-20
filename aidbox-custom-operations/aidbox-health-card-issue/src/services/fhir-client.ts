@@ -3,6 +3,13 @@ import { Config } from '../types/config';
 import {
   FHIRResource,
 } from '../types/health-card';
+import { COVID19_CREDENTIAL_TYPE } from '../utils/credential-utils';
+
+// CVX codes for COVID-19 vaccines (used to filter Immunizations for #covid19).
+const COVID19_CVX_CODES = [
+  '207', '208', '210', '211', '212', '213', '217', '218', '219', '221',
+  '225', '227', '228', '229', '230', '300', '301', '302',
+];
 
 export class FHIRClient {
   private client: AxiosInstance;
@@ -21,6 +28,21 @@ export class FHIRClient {
         Accept: 'application/fhir+json',
       },
     });
+  }
+
+  async listPatients(): Promise<Array<{ id: string; label: string }>> {
+    try {
+      const response = await this.client.get('/Patient?_count=50&_elements=name');
+      const bundle = response.data;
+      return (bundle.entry || []).map((entry: any) => {
+        const p = entry.resource;
+        const n = Array.isArray(p.name) ? p.name[0] : undefined;
+        const name = n ? `${(n.given || []).join(' ')} ${n.family || ''}`.trim() : '';
+        return { id: p.id, label: name ? `${name} (${p.id})` : p.id };
+      });
+    } catch {
+      return [];
+    }
   }
 
   async getPatient(patientId: string): Promise<FHIRResource> {
@@ -88,6 +110,13 @@ export class FHIRClient {
     const resources: FHIRResource[] = [];
 
     for (const type of credentialTypes) {
+      // VCI covid19 credential → COVID-19 Immunizations only.
+      if (type === COVID19_CREDENTIAL_TYPE) {
+        const immunizations = await this.getImmunizations(patientId, since);
+        resources.push(...immunizations.filter(isCovid19Immunization));
+        continue;
+      }
+
       switch (type.toLowerCase()) {
         case 'immunization':
           const immunizations = await this.getImmunizations(patientId, since);
@@ -105,4 +134,17 @@ export class FHIRClient {
 
     return resources;
   }
+}
+
+/**
+ * True when the Immunization carries a CVX code known to be a COVID-19 vaccine.
+ */
+function isCovid19Immunization(immunization: FHIRResource): boolean {
+  const codings = immunization?.vaccineCode?.coding;
+  if (!Array.isArray(codings)) return false;
+  return codings.some(
+    (c: any) =>
+      c?.system === 'http://hl7.org/fhir/sid/cvx' &&
+      COVID19_CVX_CODES.includes(String(c?.code))
+  );
 }
