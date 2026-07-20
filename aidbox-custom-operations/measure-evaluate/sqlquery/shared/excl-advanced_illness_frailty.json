@@ -1,0 +1,81 @@
+{
+  "resourceType": "Library",
+  "id": "excl-advanced_illness_frailty",
+  "url": "https://health-samurai.io/fhir/Library/excl-advanced_illness_frailty",
+  "name": "excl_advanced_illness_frailty",
+  "status": "active",
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLQuery"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-query"
+      }
+    ]
+  },
+  "parameter": [
+    {
+      "name": "period_start",
+      "use": "in",
+      "type": "date"
+    },
+    {
+      "name": "period_end",
+      "use": "in",
+      "type": "date"
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/concept",
+      "label": "vd_concept"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
+      "label": "vd_condition_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/devicerequest-flat",
+      "label": "vd_devicerequest_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/encounter-flat",
+      "label": "vd_encounter_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/medicationrequest-flat",
+      "label": "vd_medicationrequest_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/observation-flat",
+      "label": "vd_observation_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/patient-flat",
+      "label": "vd_patient_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "extension": [
+        {
+          "url": "https://sql-on-fhir.org/ig/StructureDefinition/sql-text",
+          "valueString": "-- Inlined composition of has_frailty + advanced_illness + dementia_meds (age >= 66).\n-- The three sub-parts are inline CTEs here (NOT separate SQLQueries) to stay single-level.\n, mp AS (SELECT ((:period_start)::text || 'T00:00:00Z')::timestamptz AS s,\n                ((:period_end)::text   || 'T23:59:59Z')::timestamptz AS e)\n, has_frailty AS (\n    SELECT DISTINCT patient_id FROM (\n        SELECT dr.patient_id FROM devicerequest_flat dr\n        JOIN concepts vs ON vs.system = dr.code_system AND vs.code = dr.code\n            AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.118.12.1300'\n        CROSS JOIN mp\n        WHERE dr.status IN ('active', 'completed')\n            AND dr.authored_on >= mp.s AND dr.authored_on <= mp.e\n        UNION ALL\n        SELECT c.patient_id FROM condition_flat c\n        JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code\n            AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.113.12.1074'\n        CROSS JOIN mp\n        WHERE (c.verification_status IS NULL\n            OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))\n            AND c.onset_date <= mp.e AND (c.abatement_date IS NULL OR c.abatement_date >= mp.s)\n        UNION ALL\n        SELECT e.patient_id FROM encounter_flat e\n        JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code\n            AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1088'\n        CROSS JOIN mp\n        WHERE e.status = 'finished' AND e.period_start <= mp.e\n            AND (e.period_end IS NULL OR e.period_end >= mp.s)\n        UNION ALL\n        SELECT o.patient_id FROM observation_flat o\n        JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code\n            AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.113.12.1075'\n        CROSS JOIN mp\n        WHERE o.status IN ('preliminary', 'final', 'amended', 'corrected')\n            AND o.effective_start <= mp.e AND (o.effective_end IS NULL OR o.effective_end >= mp.s)\n        UNION ALL\n        SELECT o.patient_id FROM observation_flat o\n        JOIN concepts vs ON vs.system = o.value_system AND vs.code = o.value_code\n            AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.118.12.1300'\n        CROSS JOIN mp\n        WHERE o.code = '98181-1' AND o.code_system = 'http://loinc.org'\n            AND o.status IN ('final', 'amended', 'corrected')\n            AND o.effective_end >= mp.s AND o.effective_end <= mp.e\n    ) f\n)\n, advanced_illness AS (\n    SELECT c.patient_id FROM condition_flat c\n    JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.110.12.1082'\n    CROSS JOIN mp\n    WHERE (c.verification_status IS NULL\n        OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))\n        AND c.onset_date >= (mp.s - INTERVAL '1 year') AND c.onset_date <= mp.e\n)\n, dementia_meds AS (\n    SELECT mr.patient_id FROM medicationrequest_flat mr\n    JOIN concepts vs ON vs.system = mr.med_system AND vs.code = mr.med_code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.196.12.1510'\n    CROSS JOIN mp\n    WHERE mr.status = 'active'\n        AND mr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')\n        AND COALESCE(mr.validity_start, mr.authored_on) <= mp.e\n        AND COALESCE(mr.validity_end, mr.authored_on) >= (mp.s - INTERVAL '1 year')\n)\nSELECT p.id AS patient_id\nFROM patient_flat p\nJOIN has_frailty f ON f.patient_id = p.id\nLEFT JOIN advanced_illness ai ON ai.patient_id = p.id\nLEFT JOIN dementia_meds dm ON dm.patient_id = p.id\nCROSS JOIN mp\nWHERE EXTRACT(YEAR FROM AGE(mp.e, p.birth_date::date)) >= 66\n    AND (ai.patient_id IS NOT NULL OR dm.patient_id IS NOT NULL)"
+        }
+      ],
+      "data": "LS0gSW5saW5lZCBjb21wb3NpdGlvbiBvZiBoYXNfZnJhaWx0eSArIGFkdmFuY2VkX2lsbG5lc3MgKyBkZW1lbnRpYV9tZWRzIChhZ2UgPj0gNjYpLgotLSBUaGUgdGhyZWUgc3ViLXBhcnRzIGFyZSBpbmxpbmUgQ1RFcyBoZXJlIChOT1Qgc2VwYXJhdGUgU1FMUXVlcmllcykgdG8gc3RheSBzaW5nbGUtbGV2ZWwuCiwgbXAgQVMgKFNFTEVDVCAoKDpwZXJpb2Rfc3RhcnQpOjp0ZXh0IHx8ICdUMDA6MDA6MDBaJyk6OnRpbWVzdGFtcHR6IEFTIHMsCiAgICAgICAgICAgICAgICAoKDpwZXJpb2RfZW5kKTo6dGV4dCAgIHx8ICdUMjM6NTk6NTlaJyk6OnRpbWVzdGFtcHR6IEFTIGUpCiwgaGFzX2ZyYWlsdHkgQVMgKAogICAgU0VMRUNUIERJU1RJTkNUIHBhdGllbnRfaWQgRlJPTSAoCiAgICAgICAgU0VMRUNUIGRyLnBhdGllbnRfaWQgRlJPTSBkZXZpY2VyZXF1ZXN0X2ZsYXQgZHIKICAgICAgICBKT0lOIGNvbmNlcHRzIHZzIE9OIHZzLnN5c3RlbSA9IGRyLmNvZGVfc3lzdGVtIEFORCB2cy5jb2RlID0gZHIuY29kZQogICAgICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExOC4xMi4xMzAwJwogICAgICAgIENST1NTIEpPSU4gbXAKICAgICAgICBXSEVSRSBkci5zdGF0dXMgSU4gKCdhY3RpdmUnLCAnY29tcGxldGVkJykKICAgICAgICAgICAgQU5EIGRyLmF1dGhvcmVkX29uID49IG1wLnMgQU5EIGRyLmF1dGhvcmVkX29uIDw9IG1wLmUKICAgICAgICBVTklPTiBBTEwKICAgICAgICBTRUxFQ1QgYy5wYXRpZW50X2lkIEZST00gY29uZGl0aW9uX2ZsYXQgYwogICAgICAgIEpPSU4gY29uY2VwdHMgdnMgT04gdnMuc3lzdGVtID0gYy5jb2RlX3N5c3RlbSBBTkQgdnMuY29kZSA9IGMuY29kZQogICAgICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExMy4xMi4xMDc0JwogICAgICAgIENST1NTIEpPSU4gbXAKICAgICAgICBXSEVSRSAoYy52ZXJpZmljYXRpb25fc3RhdHVzIElTIE5VTEwKICAgICAgICAgICAgT1IgYy52ZXJpZmljYXRpb25fc3RhdHVzIElOICgnY29uZmlybWVkJywgJ3VuY29uZmlybWVkJywgJ3Byb3Zpc2lvbmFsJywgJ2RpZmZlcmVudGlhbCcpKQogICAgICAgICAgICBBTkQgYy5vbnNldF9kYXRlIDw9IG1wLmUgQU5EIChjLmFiYXRlbWVudF9kYXRlIElTIE5VTEwgT1IgYy5hYmF0ZW1lbnRfZGF0ZSA+PSBtcC5zKQogICAgICAgIFVOSU9OIEFMTAogICAgICAgIFNFTEVDVCBlLnBhdGllbnRfaWQgRlJPTSBlbmNvdW50ZXJfZmxhdCBlCiAgICAgICAgSk9JTiBjb25jZXB0cyB2cyBPTiB2cy5zeXN0ZW0gPSBlLnR5cGVfc3lzdGVtIEFORCB2cy5jb2RlID0gZS50eXBlX2NvZGUKICAgICAgICAgICAgQU5EIHZzLnZhbHVlc2V0X3VybCA9ICdodHRwOi8vY3RzLm5sbS5uaWguZ292L2ZoaXIvVmFsdWVTZXQvMi4xNi44NDAuMS4xMTM4ODMuMy40NjQuMTAwMy4xMDEuMTIuMTA4OCcKICAgICAgICBDUk9TUyBKT0lOIG1wCiAgICAgICAgV0hFUkUgZS5zdGF0dXMgPSAnZmluaXNoZWQnIEFORCBlLnBlcmlvZF9zdGFydCA8PSBtcC5lCiAgICAgICAgICAgIEFORCAoZS5wZXJpb2RfZW5kIElTIE5VTEwgT1IgZS5wZXJpb2RfZW5kID49IG1wLnMpCiAgICAgICAgVU5JT04gQUxMCiAgICAgICAgU0VMRUNUIG8ucGF0aWVudF9pZCBGUk9NIG9ic2VydmF0aW9uX2ZsYXQgbwogICAgICAgIEpPSU4gY29uY2VwdHMgdnMgT04gdnMuc3lzdGVtID0gby5jb2RlX3N5c3RlbSBBTkQgdnMuY29kZSA9IG8uY29kZQogICAgICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExMy4xMi4xMDc1JwogICAgICAgIENST1NTIEpPSU4gbXAKICAgICAgICBXSEVSRSBvLnN0YXR1cyBJTiAoJ3ByZWxpbWluYXJ5JywgJ2ZpbmFsJywgJ2FtZW5kZWQnLCAnY29ycmVjdGVkJykKICAgICAgICAgICAgQU5EIG8uZWZmZWN0aXZlX3N0YXJ0IDw9IG1wLmUgQU5EIChvLmVmZmVjdGl2ZV9lbmQgSVMgTlVMTCBPUiBvLmVmZmVjdGl2ZV9lbmQgPj0gbXAucykKICAgICAgICBVTklPTiBBTEwKICAgICAgICBTRUxFQ1Qgby5wYXRpZW50X2lkIEZST00gb2JzZXJ2YXRpb25fZmxhdCBvCiAgICAgICAgSk9JTiBjb25jZXB0cyB2cyBPTiB2cy5zeXN0ZW0gPSBvLnZhbHVlX3N5c3RlbSBBTkQgdnMuY29kZSA9IG8udmFsdWVfY29kZQogICAgICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExOC4xMi4xMzAwJwogICAgICAgIENST1NTIEpPSU4gbXAKICAgICAgICBXSEVSRSBvLmNvZGUgPSAnOTgxODEtMScgQU5EIG8uY29kZV9zeXN0ZW0gPSAnaHR0cDovL2xvaW5jLm9yZycKICAgICAgICAgICAgQU5EIG8uc3RhdHVzIElOICgnZmluYWwnLCAnYW1lbmRlZCcsICdjb3JyZWN0ZWQnKQogICAgICAgICAgICBBTkQgby5lZmZlY3RpdmVfZW5kID49IG1wLnMgQU5EIG8uZWZmZWN0aXZlX2VuZCA8PSBtcC5lCiAgICApIGYKKQosIGFkdmFuY2VkX2lsbG5lc3MgQVMgKAogICAgU0VMRUNUIGMucGF0aWVudF9pZCBGUk9NIGNvbmRpdGlvbl9mbGF0IGMKICAgIEpPSU4gY29uY2VwdHMgdnMgT04gdnMuc3lzdGVtID0gYy5jb2RlX3N5c3RlbSBBTkQgdnMuY29kZSA9IGMuY29kZQogICAgICAgIEFORCB2cy52YWx1ZXNldF91cmwgPSAnaHR0cDovL2N0cy5ubG0ubmloLmdvdi9maGlyL1ZhbHVlU2V0LzIuMTYuODQwLjEuMTEzODgzLjMuNDY0LjEwMDMuMTEwLjEyLjEwODInCiAgICBDUk9TUyBKT0lOIG1wCiAgICBXSEVSRSAoYy52ZXJpZmljYXRpb25fc3RhdHVzIElTIE5VTEwKICAgICAgICBPUiBjLnZlcmlmaWNhdGlvbl9zdGF0dXMgSU4gKCdjb25maXJtZWQnLCAndW5jb25maXJtZWQnLCAncHJvdmlzaW9uYWwnLCAnZGlmZmVyZW50aWFsJykpCiAgICAgICAgQU5EIGMub25zZXRfZGF0ZSA+PSAobXAucyAtIElOVEVSVkFMICcxIHllYXInKSBBTkQgYy5vbnNldF9kYXRlIDw9IG1wLmUKKQosIGRlbWVudGlhX21lZHMgQVMgKAogICAgU0VMRUNUIG1yLnBhdGllbnRfaWQgRlJPTSBtZWRpY2F0aW9ucmVxdWVzdF9mbGF0IG1yCiAgICBKT0lOIGNvbmNlcHRzIHZzIE9OIHZzLnN5c3RlbSA9IG1yLm1lZF9zeXN0ZW0gQU5EIHZzLmNvZGUgPSBtci5tZWRfY29kZQogICAgICAgIEFORCB2cy52YWx1ZXNldF91cmwgPSAnaHR0cDovL2N0cy5ubG0ubmloLmdvdi9maGlyL1ZhbHVlU2V0LzIuMTYuODQwLjEuMTEzODgzLjMuNDY0LjEwMDMuMTk2LjEyLjE1MTAnCiAgICBDUk9TUyBKT0lOIG1wCiAgICBXSEVSRSBtci5zdGF0dXMgPSAnYWN0aXZlJwogICAgICAgIEFORCBtci5pbnRlbnQgSU4gKCdvcmRlcicsICdvcmlnaW5hbC1vcmRlcicsICdyZWZsZXgtb3JkZXInLCAnZmlsbGVyLW9yZGVyJywgJ2luc3RhbmNlLW9yZGVyJykKICAgICAgICBBTkQgQ09BTEVTQ0UobXIudmFsaWRpdHlfc3RhcnQsIG1yLmF1dGhvcmVkX29uKSA8PSBtcC5lCiAgICAgICAgQU5EIENPQUxFU0NFKG1yLnZhbGlkaXR5X2VuZCwgbXIuYXV0aG9yZWRfb24pID49IChtcC5zIC0gSU5URVJWQUwgJzEgeWVhcicpCikKU0VMRUNUIHAuaWQgQVMgcGF0aWVudF9pZApGUk9NIHBhdGllbnRfZmxhdCBwCkpPSU4gaGFzX2ZyYWlsdHkgZiBPTiBmLnBhdGllbnRfaWQgPSBwLmlkCkxFRlQgSk9JTiBhZHZhbmNlZF9pbGxuZXNzIGFpIE9OIGFpLnBhdGllbnRfaWQgPSBwLmlkCkxFRlQgSk9JTiBkZW1lbnRpYV9tZWRzIGRtIE9OIGRtLnBhdGllbnRfaWQgPSBwLmlkCkNST1NTIEpPSU4gbXAKV0hFUkUgRVhUUkFDVChZRUFSIEZST00gQUdFKG1wLmUsIHAuYmlydGhfZGF0ZTo6ZGF0ZSkpID49IDY2CiAgICBBTkQgKGFpLnBhdGllbnRfaWQgSVMgTk9UIE5VTEwgT1IgZG0ucGF0aWVudF9pZCBJUyBOT1QgTlVMTCk="
+    }
+  ]
+}

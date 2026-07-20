@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "medicationrequest-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/medicationrequest-flat",
   "name": "medicationrequest_flat",
+  "status": "active",
+  "resource": "MedicationRequest",
   "select": [
     {
       "column": [
@@ -50,9 +55,5 @@
       ],
       "forEachOrNull": "medication.ofType(CodeableConcept).coding"
     }
-  ],
-  "status": "active",
-  "resource": "MedicationRequest",
-  "id": "medicationrequest-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }

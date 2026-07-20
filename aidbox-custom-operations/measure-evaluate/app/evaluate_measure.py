@@ -92,6 +92,25 @@ def parameterize_sql(sql: str, period_start: str, period_end: str) -> str:
         "'2024-01-01T00:00:00Z'::timestamptz AS lb_start",
         f"'{lb_start}T00:00:00Z'::timestamptz AS lb_start"
     )
+    # Recalculate mammogram_lookback_start (Oct 1, two years prior to MP start) --
+    # CMS125. Hardcoded relative to the default 2026 MP; shift it with the MP.
+    lb_oct = f"{start_dt.year - 2}-10-01"
+    sql = sql.replace(
+        "'2024-10-01T00:00:00Z'::timestamptz AS mammogram_lookback_start",
+        f"'{lb_oct}T00:00:00Z'::timestamptz AS mammogram_lookback_start"
+    )
+    # Recalculate year_prior window (MP shifted back 1 year) -- CMS131.
+    end_dt = datetime.fromisoformat(period_end)
+    yp_start = start_dt.replace(year=start_dt.year - 1).strftime('%Y-%m-%d')
+    yp_end = end_dt.replace(year=end_dt.year - 1).strftime('%Y-%m-%d')
+    sql = sql.replace(
+        "'2025-01-01T00:00:00Z'::timestamptz AS year_prior_start",
+        f"'{yp_start}T00:00:00Z'::timestamptz AS year_prior_start"
+    )
+    sql = sql.replace(
+        "'2025-12-31T23:59:59Z'::timestamptz AS year_prior_end",
+        f"'{yp_end}T23:59:59Z'::timestamptz AS year_prior_end"
+    )
     return sql
 
 
@@ -233,6 +252,100 @@ LEFT JOIN numerator n ON n.patient_id = ap.patient_id{extra_join}"""
         + "\nORDER BY ap.patient_id;"
     )
     return patient_sql
+
+
+def build_summary_sql(measure_sql: str) -> str:
+    """Build cohort-aggregate SQL returning a single row with totals.
+
+    Columns: ip, den, exc, num. Plus num_2, num_3, ... for multi-numerator
+    measures. Population mode only.
+
+    This is the SQL that scripts/build_sqlquery_libraries.py packages into each
+    measure's <id>-summary SQLQuery Library (the $sqlquery-run runtime path); the
+    only edit that build applies is swapping the MP date literals for
+    :period_start / :period_end placeholders.
+    """
+    idx = measure_sql.rfind("\nSELECT\n    COUNT(*)")
+    if idx == -1:
+        idx = measure_sql.rfind("\nSELECT\n    count(*)")
+    if idx == -1:
+        idx = measure_sql.rfind("\nSELECT")
+
+    ctes = measure_sql[:idx]
+    # Population mode -- strip $SUBJ_PARAM$ markers (no subject filter).
+    ctes = ctes.replace("/*$SUBJ_PARAM$*/", "")
+
+    extra_nums = []
+    for i in range(2, 10):
+        if f"numerator_{i}" in ctes:
+            extra_nums.append(i)
+
+    extra_select = ""
+    extra_join = ""
+    for i in extra_nums:
+        extra_select += (
+            f",\n    SUM(CASE WHEN n{i}.patient_id IS NOT NULL "
+            f"THEN 1 ELSE 0 END) AS num_{i}"
+        )
+        extra_join += (
+            f"\nLEFT JOIN numerator_{i} n{i} "
+            f"ON n{i}.patient_id = ap.patient_id"
+        )
+
+    return (
+        ctes
+        + f"""
+SELECT
+    SUM(CASE WHEN ip.patient_id IS NOT NULL THEN 1 ELSE 0 END) AS ip,
+    SUM(CASE WHEN ip.patient_id IS NOT NULL THEN 1 ELSE 0 END) AS den,
+    SUM(CASE WHEN ip.patient_id IS NOT NULL AND de.patient_id IS NOT NULL THEN 1 ELSE 0 END) AS exc,
+    SUM(CASE WHEN ip.patient_id IS NOT NULL AND de.patient_id IS NULL AND n.patient_id IS NOT NULL THEN 1 ELSE 0 END) AS num{extra_select}
+FROM (SELECT id AS patient_id FROM patient_flat) ap
+LEFT JOIN initial_population ip ON ip.patient_id = ap.patient_id
+LEFT JOIN denominator_exclusion de ON de.patient_id = ap.patient_id
+LEFT JOIN numerator n ON n.patient_id = ap.patient_id{extra_join};"""
+    )
+
+
+def build_per_patient_sql(measure_sql: str) -> str:
+    """Build per-patient membership SQL: one row per patient with boolean flags
+    (patient_id, in_ip, in_exc, in_num [, in_num_2 ...]). Population mode only.
+
+    Same CTEs and join structure as build_summary_sql, but projected per patient
+    instead of aggregated. Packaged (with the MP literals parameterized) as each
+    measure's <id>-per-patient SQLQuery Library by build_sqlquery_libraries.py.
+    """
+    idx = measure_sql.rfind("\nSELECT\n    COUNT(*)")
+    if idx == -1:
+        idx = measure_sql.rfind("\nSELECT\n    count(*)")
+    if idx == -1:
+        idx = measure_sql.rfind("\nSELECT")
+
+    ctes = measure_sql[:idx]
+    ctes = ctes.replace("/*$SUBJ_PARAM$*/", "")  # population mode
+
+    extra_nums = [i for i in range(2, 10) if f"numerator_{i}" in ctes]
+    extra_select = "".join(
+        f",\n    (n{i}.patient_id IS NOT NULL) AS in_num_{i}" for i in extra_nums
+    )
+    extra_join = "".join(
+        f"\nLEFT JOIN numerator_{i} n{i} ON n{i}.patient_id = ap.patient_id"
+        for i in extra_nums
+    )
+
+    return (
+        ctes
+        + f"""
+SELECT
+    ap.patient_id,
+    (ip.patient_id IS NOT NULL) AS in_ip,
+    (ip.patient_id IS NOT NULL AND de.patient_id IS NOT NULL) AS in_exc,
+    (ip.patient_id IS NOT NULL AND de.patient_id IS NULL AND n.patient_id IS NOT NULL) AS in_num{extra_select}
+FROM (SELECT id AS patient_id FROM patient_flat) ap
+LEFT JOIN initial_population ip ON ip.patient_id = ap.patient_id
+LEFT JOIN denominator_exclusion de ON de.patient_id = ap.patient_id
+LEFT JOIN numerator n ON n.patient_id = ap.patient_id{extra_join}"""
+    )
 
 
 CQF_CRITERIA_REF = "http://hl7.org/fhir/StructureDefinition/cqf-criteriaReference"

@@ -1,0 +1,56 @@
+{
+  "resourceType": "Library",
+  "id": "excl-advanced_illness",
+  "url": "https://health-samurai.io/fhir/Library/excl-advanced_illness",
+  "name": "excl_advanced_illness",
+  "status": "active",
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLQuery"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-query"
+      }
+    ]
+  },
+  "parameter": [
+    {
+      "name": "period_start",
+      "use": "in",
+      "type": "date"
+    },
+    {
+      "name": "period_end",
+      "use": "in",
+      "type": "date"
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/concept",
+      "label": "vd_concept"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
+      "label": "vd_condition_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "extension": [
+        {
+          "url": "https://sql-on-fhir.org/ig/StructureDefinition/sql-text",
+          "valueString": ", mp AS (SELECT ((:period_start)::text || 'T00:00:00Z')::timestamptz AS s,\n                ((:period_end)::text   || 'T23:59:59Z')::timestamptz AS e)\nSELECT c.patient_id\nFROM condition_flat c\nJOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code\n    AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.110.12.1082'\nCROSS JOIN mp\nWHERE (c.verification_status IS NULL\n    OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))\n    AND c.onset_date >= (mp.s - INTERVAL '1 year') AND c.onset_date <= mp.e"
+        }
+      ],
+      "data": "LCBtcCBBUyAoU0VMRUNUICgoOnBlcmlvZF9zdGFydCk6OnRleHQgfHwgJ1QwMDowMDowMFonKTo6dGltZXN0YW1wdHogQVMgcywKICAgICAgICAgICAgICAgICgoOnBlcmlvZF9lbmQpOjp0ZXh0ICAgfHwgJ1QyMzo1OTo1OVonKTo6dGltZXN0YW1wdHogQVMgZSkKU0VMRUNUIGMucGF0aWVudF9pZApGUk9NIGNvbmRpdGlvbl9mbGF0IGMKSk9JTiBjb25jZXB0cyB2cyBPTiB2cy5zeXN0ZW0gPSBjLmNvZGVfc3lzdGVtIEFORCB2cy5jb2RlID0gYy5jb2RlCiAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExMC4xMi4xMDgyJwpDUk9TUyBKT0lOIG1wCldIRVJFIChjLnZlcmlmaWNhdGlvbl9zdGF0dXMgSVMgTlVMTAogICAgT1IgYy52ZXJpZmljYXRpb25fc3RhdHVzIElOICgnY29uZmlybWVkJywgJ3VuY29uZmlybWVkJywgJ3Byb3Zpc2lvbmFsJywgJ2RpZmZlcmVudGlhbCcpKQogICAgQU5EIGMub25zZXRfZGF0ZSA+PSAobXAucyAtIElOVEVSVkFMICcxIHllYXInKSBBTkQgYy5vbnNldF9kYXRlIDw9IG1wLmU="
+    }
+  ]
+}

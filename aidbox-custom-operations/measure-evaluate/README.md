@@ -26,19 +26,36 @@ Includes 12 CMS quality measures with sample data (484 test patients) and an int
 
 ## Quick Start
 
-### 1. Start the stack
+### 1. Build the FHIR package
+
+The measure *definitions* — terminology (CodeSystems + ValueSets), the SQL-on-FHIR
+ViewDefinitions, and the SQLQuery Libraries — ship as one FHIR NPM package that Aidbox
+installs at boot. Build it first:
+
+```bash
+python3 scripts/build_fhir_package.py    # -> dist/fhir-package/healthsamurai.measure-evaluate-0.1.0.tgz
+```
+
+`dist/` is gitignored (the `.tgz` is generated; the source resources under
+`viewdefinitions/`, `sqlquery/`, and `data/` are tracked). `docker-compose.yml` mounts
+`dist/fhir-package/` and `init.json` installs the package via a `$fhir-package-install`
+entry at boot.
+
+### 2. Start the stack
 
 ```bash
 docker compose up --build
 ```
 
-This starts three containers: PostgreSQL, Aidbox (port `8888`), and the SQL evaluate app (port `8090`).
+Three containers: PostgreSQL, Aidbox (port `8888`), and the SQL evaluate app (port
+`8090`). On boot the init bundle installs the FHIR package (definitions) and registers
+the `Measure/$evaluate-measure` App route.
 
-### 2. Activate Aidbox
+### 3. Activate Aidbox
 
 Open http://localhost:8888 in your browser and follow the activation prompt.
 
-### 3. Load data
+### 4. Load runtime state + data
 
 In a second terminal, from this directory:
 
@@ -46,11 +63,16 @@ In a second terminal, from this directory:
 python3 setup.py --demo-patients
 ```
 
-This creates shared views, loads terminology, and loads the 485 sample dqm-content patients used by the demo app (~2 min).
+The package delivered the *definitions*; `setup.py` builds the runtime *state* they need:
+it `$materialize`s the ViewDefinitions into `sof.*` tables (resolving the package's
+canonical urls to runtime ids), populates the `concepts` table, creates wrapper views +
+shared functions + indexes, and loads the 485 sample dqm-content patients (~2 min).
 
-For an existing Aidbox with real patient data, omit `--demo-patients` to install only the infrastructure (ViewDefinitions, concepts, Measure resources) without polluting the database. See [install-to-existing-aidbox.md](install-to-existing-aidbox.md).
+For an existing Aidbox with real patient data, omit `--demo-patients` to build only the
+infrastructure without loading sample patients. See
+[install-to-existing-aidbox.md](install-to-existing-aidbox.md).
 
-### 4. Try Measure/$evaluate-measure
+### 5. Try Measure/$evaluate-measure
 
 ```bash
 # Evaluate CMS130 for a single patient (R4 reportType "subject" = single patient)
@@ -64,7 +86,7 @@ curl -u root:secret -X POST \
 
 Response: FHIR MeasureReport with population counts (initial-population, denominator, exclusion, numerator) and measure score.
 
-### 5. Open the demo app
+### 6. Open the demo app
 
 Start a local HTTP server from this directory:
 
@@ -139,14 +161,21 @@ The `?stack=NAME` parameter loads `demo/config-NAME.json` instead of the default
 Client → POST /Measure/$evaluate-measure?measure=cms130&subject=Patient/123&reportType=subject
     → Aidbox (custom operation routing via App resource)
         → Flask app (port 8090)
-            → reads measure SQL from file
-            → executes on Aidbox PostgreSQL via $sql
-            → builds FHIR MeasureReport from results
+            → resolves the measure's SQLQuery Library by canonical url
+            → runs it via the SQL-on-FHIR $sqlquery-run operation
+            → builds FHIR MeasureReport from the returned rows
         ← MeasureReport response
     ← returned to client
 ```
 
-Each measure is a single SQL file (~200-400 lines) using shared flat views and a concepts table for terminology matching.
+The measure calculation SQL lives entirely in Aidbox as SQL-on-FHIR **SQLQuery Library**
+resources (installed from the FHIR package). The Flask app holds no measure SQL — it
+invokes the Libraries via `$sqlquery-run` and shapes the rows into a MeasureReport. Each
+Library declares `depends-on` lineage to the ViewDefinitions it reads.
+
+Each measure's SQL (~200-400 lines, using the shared flat views + concepts table for
+terminology matching) is authored in `sql/measures/<id>/` and packaged as SQLQuery
+Library resources — `<id>-summary`, `<id>-per-patient`, and `<id>-evidence`.
 
 ## Architecture
 

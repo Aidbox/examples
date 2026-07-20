@@ -18,6 +18,10 @@ services:
     ports:
       - 8888:8888
     volumes:
+      # init bundle is static (App route + $fhir-package-install); the FHIR package .tgz
+      # is generated — build it first: python3 scripts/build_fhir_package.py.
+      # $fhir-package-install resolves the .tgz at /srv/aidbox-fhir-packages/.
+      - ./dist/fhir-package:/srv/aidbox-fhir-packages:ro
       - ./init.json:/tmp/init.json
     environment:
       # ── Terminology ──

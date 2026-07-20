@@ -33,6 +33,21 @@
           }
         }
       }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "$fhir-package-install"
+      },
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          {
+            "name": "package",
+            "valueString": "file:///srv/aidbox-fhir-packages/healthsamurai.measure-evaluate-0.1.0.tgz"
+          }
+        ]
+      }
     }
   ]
 }

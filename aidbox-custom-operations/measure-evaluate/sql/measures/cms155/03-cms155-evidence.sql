@@ -104,6 +104,12 @@ exclusion_evidence AS (
     JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code
         AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.526.3.378'
     WHERE c.patient_id IN (SELECT patient_id FROM pregnancy_exclusion)
+
+
+    -- Catch-all coverage: one summary row per exclusion CTE so every excluded patient
+    -- has an exclusion_pathway even for shared-function paths / sub-paths not detailed above.
+    UNION ALL SELECT DISTINCT patient_id, 'hospice' AS exclusion_pathway, 'summary' AS exc_resource_type, NULL::text AS exc_resource_id FROM hospice
+    UNION ALL SELECT DISTINCT patient_id, 'pregnancy_exclusion' AS exclusion_pathway, 'summary' AS exc_resource_type, NULL::text AS exc_resource_id FROM pregnancy_exclusion
 ),
 
 -- ============================================================

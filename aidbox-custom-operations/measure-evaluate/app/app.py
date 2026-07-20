@@ -3,7 +3,10 @@
 SQL-based Measure/\$evaluate-measure — Aidbox custom operation handler.
 
 Receives HTTP-RPC requests from Aidbox for POST /Measure/{measureId}/\$evaluate-measure,
-executes the measure SQL via $sql, and returns a FHIR MeasureReport.
+runs the measure's stored SQLQuery Library resources via the SQL-on-FHIR $sqlquery-run
+operation, and returns a FHIR MeasureReport. The calculation SQL lives entirely in
+Aidbox (SQLQuery Libraries installed from the FHIR package); this adapter holds only
+row -> MeasureReport shaping.
 """
 
 import json
@@ -19,13 +22,10 @@ REPO_ROOT = os.environ.get('REPO_ROOT', os.path.dirname(os.path.dirname(os.path.
 sys.path.insert(0, os.path.join(REPO_ROOT, 'app'))
 from evaluate_measure import (
     MEASURES,
-    parameterize_sql,
-    build_patient_sql,
-    build_evidence_sql,
     build_measure_report,
     build_summary_report,
-    run_sql,
 )
+import sqlquery_transport as sqt
 
 app = Flask(__name__)
 
@@ -311,178 +311,73 @@ def measure_evaluate(body, persist=False):
         }), 404
 
     measure_info = MEASURES[measure_id]
-    sql_path = os.path.join(REPO_ROOT, measure_info['sql'])
-
-    # Read SQL
-    try:
-        with open(sql_path) as f:
-            measure_sql = f.read()
-    except FileNotFoundError:
-        return jsonify({
-            'resourceType': 'OperationOutcome',
-            'issue': [{'severity': 'error', 'code': 'not-found',
-                        'diagnostics': f'SQL file not found: {sql_path}'}]
-        }), 500
-
-    # Parameterize measurement period
-    measure_sql = parameterize_sql(measure_sql, period_start, period_end)
-
     exc_type = measure_info.get('exc_type', 'denominator-exclusion')
-
-    # Fast path for summary mode: run the aggregate SQL directly instead of
-    # building expensive patient-level SQL (which scans all patients with JOINs).
-    # The aggregate SQL (SELECT COUNT(*)) is 10-100× faster at scale.
-    if report_type == 'summary':
-        # CMS165: use PL/pgSQL wrapper that sets enable_nestloop = off.
-        # Without it, PG mis-estimates CTE cardinality (1 vs 15K rows)
-        # and picks nested loops → 75s.  The wrapper forces hash joins → 8s.
-        if measure_id == 'cms165':
-            measure_sql = (
-                f"SELECT * FROM cms165_aggregate("
-                f"'{period_start}T00:00:00Z'::timestamptz,"
-                f"'{period_end}T23:59:59Z'::timestamptz)"
-            )
-        try:
-            agg = run_sql(measure_sql, AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
-        except Exception as e:
-            return jsonify({
-                'resourceType': 'OperationOutcome',
-                'issue': [{'severity': 'error', 'code': 'exception',
-                            'diagnostics': f'SQL execution error: {e}'}]
-            }), 500
-
-        if not agg:
-            return jsonify({
-                'resourceType': 'OperationOutcome',
-                'issue': [{'severity': 'information', 'code': 'not-found',
-                            'diagnostics': 'No results. Is measure data loaded?'}]
-            }), 404
-
-        row = agg[0]
-        ip = row.get('initial_population', 0)
-        den = row.get('denominator', 0)
-        exc = row.get('denominator_exclusion') or row.get('denominator_exception') or 0
-        num = row.get('numerator', 0)
-        eligible = den - exc
-        score = round(num / eligible, 4) if eligible > 0 else None
-
-        group = {
-            "population": [
-                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "initial-population"}]}, "count": ip},
-                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "denominator"}]}, "count": den},
-                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": exc_type}]}, "count": exc},
-                {"code": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/measure-population", "code": "numerator"}]}, "count": num},
-            ],
-        }
-        if score is not None:
-            group["measureScore"] = {"value": score}
-
-        report = {
-            "resourceType": "MeasureReport",
-            "status": "complete",
-            "type": "summary",
-            "measure": measure_info["canonical"],
-            "date": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S+00:00"),
-            "period": {"start": f"{period_start}T00:00:00+00:00", "end": f"{period_end}T23:59:59+00:00"},
-            "group": [group],
-        }
-        report = enrich_measure_report(report, measure_id)
-        if persist:
-            try:
-                report = _persist_resource(report)
-            except Exception as e:
-                app.logger.warning(f"Failed to persist MeasureReport: {e}")
-        return jsonify(report)
-
-    # Build patient-level SQL
     patient_id = subject.replace('Patient/', '') if subject else None
-    patient_sql = build_patient_sql(measure_sql, patient_id)
 
-    # Execute via Aidbox $sql
+    # Execute via the SQL-on-FHIR $sqlquery-run operation. The calculation SQL is the
+    # single source of truth held in Aidbox as SQLQuery Library resources
+    # (<id>-{summary,per-patient,evidence}, installed from the FHIR package); this
+    # adapter holds no measure SQL, only the row -> MeasureReport shaping
+    # (build_*_report, transport-agnostic).
+    def _err(msg, code, http):
+        return jsonify({'resourceType': 'OperationOutcome',
+                        'issue': [{'severity': 'error', 'code': code, 'diagnostics': msg}]}), http
+
     try:
-        results = run_sql(patient_sql, AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
-    except Exception as e:
-        return jsonify({
-            'resourceType': 'OperationOutcome',
-            'issue': [{'severity': 'error', 'code': 'exception',
-                        'diagnostics': f'SQL execution error: {e}'}]
-        }), 500
-
-    if not results:
-        return jsonify({
-            'resourceType': 'OperationOutcome',
-            'issue': [{'severity': 'information', 'code': 'not-found',
-                        'diagnostics': 'No results. Is measure data loaded?'}]
-        }), 404
-
-    if report_type == 'individual':
-        # Individual report -- with evidence if available
-        evidence_rows = None
-        evidence_path = os.path.join(
-            REPO_ROOT, "sql", "measures", measure_id, f"03-{measure_id}-evidence.sql")
-        if os.path.isfile(evidence_path):
-            try:
-                with open(evidence_path) as f:
-                    ev_fragment = f.read()
-                ev_sql = build_evidence_sql(measure_sql, ev_fragment, patient_id)
-                if ev_sql:
-                    evidence_rows = run_sql(ev_sql, AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
-            except Exception:
-                pass  # Evidence is best-effort, don't fail the report
-
-        report = build_measure_report(
-            results[0], measure_info, period_start, period_end, exc_type,
-            evidence_rows=evidence_rows)
-        report = enrich_measure_report(report, measure_id)
-        if persist:
-            try:
-                report = _persist_resource(report)
-            except Exception as e:
-                app.logger.warning(f"Failed to persist MeasureReport: {e}")
-        return jsonify(report)
-
-    elif report_type == 'subject-list':
-        # Subject-list report — Bundle of per-patient MeasureReports
-        # Run SQL for ALL patients (no patient_id filter)
-        all_patient_sql = build_patient_sql(measure_sql, None)
-        try:
-            all_results = run_sql(all_patient_sql, AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
-        except Exception as e:
-            return jsonify({
-                'resourceType': 'OperationOutcome',
-                'issue': [{'severity': 'error', 'code': 'exception',
-                            'diagnostics': f'SQL execution error: {e}'}]
-            }), 500
-
-        entries = []
-        for row in all_results:
+        if report_type == 'individual':
+            rows = sqt.per_patient_rows(measure_id, period_start, period_end,
+                                        AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+            match = next((r for r in rows if r['patient_id'] == patient_id), None)
+            if match is None:
+                return _err(f'Patient/{patient_id} not found for {measure_id}. '
+                            'Is measure data loaded?', 'not-found', 404)
+            # Evidence rows for this patient (best-effort -- never fail the report)
+            evidence_rows = None
+            ev = sqt.evidence_rows(measure_id, period_start, period_end,
+                                   AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+            if ev is not None:
+                evidence_rows = [e for e in ev if e.get('patient_id') == patient_id]
             report = build_measure_report(
-                row, measure_info, period_start, period_end, exc_type)
+                match, measure_info, period_start, period_end, exc_type,
+                evidence_rows=evidence_rows)
             report = enrich_measure_report(report, measure_id)
-            entries.append({
-                'resource': report,
-                'search': {'mode': 'match'},
-            })
+            if persist:
+                try:
+                    report = _persist_resource(report)
+                except Exception as e:
+                    app.logger.warning(f"Failed to persist MeasureReport: {e}")
+            return jsonify(report)
 
-        bundle = {
-            'resourceType': 'Bundle',
-            'type': 'collection',
-            'total': len(entries),
-            'entry': entries,
-        }
-        return jsonify(bundle)
+        elif report_type == 'subject-list':
+            rows = sqt.per_patient_rows(measure_id, period_start, period_end,
+                                        AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+            entries = []
+            for row in rows:
+                report = build_measure_report(
+                    row, measure_info, period_start, period_end, exc_type)
+                report = enrich_measure_report(report, measure_id)
+                entries.append({'resource': report, 'search': {'mode': 'match'}})
+            return jsonify({'resourceType': 'Bundle', 'type': 'collection',
+                            'total': len(entries), 'entry': entries})
 
-    else:
-        # Fallback summary path (shouldn't reach here, but kept for safety)
-        report = build_summary_report(
-            results, measure_info, period_start, period_end, exc_type)
-        report = enrich_measure_report(report, measure_id)
-        if persist:
-            try:
-                report = _persist_resource(report)
-            except Exception as e:
-                app.logger.warning(f"Failed to persist MeasureReport: {e}")
-        return jsonify(report)
+        else:  # summary (population)
+            results = sqt.summary_row(measure_id, period_start, period_end,
+                                      AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+            if not results:
+                return jsonify({'resourceType': 'OperationOutcome',
+                                'issue': [{'severity': 'information', 'code': 'not-found',
+                                           'diagnostics': 'No results. Is measure data loaded?'}]}), 404
+            report = build_summary_report(
+                results, measure_info, period_start, period_end, exc_type)
+            report = enrich_measure_report(report, measure_id)
+            if persist:
+                try:
+                    report = _persist_resource(report)
+                except Exception as e:
+                    app.logger.warning(f"Failed to persist MeasureReport: {e}")
+            return jsonify(report)
+    except Exception as e:
+        return _err(f'$sqlquery-run execution error: {e}', 'exception', 500)
 
 
 if __name__ == '__main__':

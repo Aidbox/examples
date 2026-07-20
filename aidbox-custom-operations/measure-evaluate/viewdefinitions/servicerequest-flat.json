@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "servicerequest-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/servicerequest-flat",
   "name": "servicerequest_flat",
+  "status": "active",
+  "resource": "ServiceRequest",
   "select": [
     {
       "column": [
@@ -42,9 +47,5 @@
       ],
       "forEachOrNull": "code.coding"
     }
-  ],
-  "status": "active",
-  "resource": "ServiceRequest",
-  "id": "servicerequest-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }

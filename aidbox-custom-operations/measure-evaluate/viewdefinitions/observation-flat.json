@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "observation-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/observation-flat",
   "name": "observation_flat",
+  "status": "active",
+  "resource": "Observation",
   "select": [
     {
       "column": [
@@ -41,7 +46,7 @@
         },
         {
           "name": "issued",
-          "description": "Observation.issued — used by CMS143/CMS149 for date-level comparisons",
+          "description": "Observation.issued \u2014 used by CMS143/CMS149 for date-level comparisons",
           "path": "issued"
         },
         {
@@ -51,12 +56,12 @@
         },
         {
           "name": "not_done_reason_system",
-          "description": "qicore-notDoneReason extension value CodeableConcept system — used by CMS143/CMS149",
+          "description": "qicore-notDoneReason extension value CodeableConcept system \u2014 used by CMS143/CMS149",
           "path": "extension('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason').value.ofType(CodeableConcept).coding.first().system"
         },
         {
           "name": "not_done_reason_code",
-          "description": "qicore-notDoneReason extension value CodeableConcept code — used by CMS143/CMS149",
+          "description": "qicore-notDoneReason extension value CodeableConcept code \u2014 used by CMS143/CMS149",
           "path": "extension('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-notDoneReason').value.ofType(CodeableConcept).coding.first().code"
         }
       ]
@@ -95,9 +100,5 @@
       ],
       "forEachOrNull": "value.ofType(CodeableConcept).coding"
     }
-  ],
-  "status": "active",
-  "resource": "Observation",
-  "id": "observation-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }

@@ -1,0 +1,56 @@
+{
+  "resourceType": "Library",
+  "id": "excl-nursing_home",
+  "url": "https://health-samurai.io/fhir/Library/excl-nursing_home",
+  "name": "excl_nursing_home",
+  "status": "active",
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLQuery"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-query"
+      }
+    ]
+  },
+  "parameter": [
+    {
+      "name": "period_start",
+      "use": "in",
+      "type": "date"
+    },
+    {
+      "name": "period_end",
+      "use": "in",
+      "type": "date"
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/observation-flat",
+      "label": "vd_observation_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/patient-flat",
+      "label": "vd_patient_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "extension": [
+        {
+          "url": "https://sql-on-fhir.org/ig/StructureDefinition/sql-text",
+          "valueString": ", mp AS (SELECT ((:period_end)::text || 'T23:59:59Z')::timestamptz AS e)\nSELECT o.patient_id\nFROM observation_flat o\nJOIN patient_flat p ON p.id = o.patient_id\nCROSS JOIN mp\nWHERE EXTRACT(YEAR FROM AGE(mp.e, p.birth_date::date)) >= 66\n    AND o.code = '71802-3' AND o.code_system = 'http://loinc.org'\n    AND o.value_code = '160734000'\n    AND o.status IN ('final', 'amended', 'corrected')\n    AND o.effective_end <= mp.e"
+        }
+      ],
+      "data": "LCBtcCBBUyAoU0VMRUNUICgoOnBlcmlvZF9lbmQpOjp0ZXh0IHx8ICdUMjM6NTk6NTlaJyk6OnRpbWVzdGFtcHR6IEFTIGUpClNFTEVDVCBvLnBhdGllbnRfaWQKRlJPTSBvYnNlcnZhdGlvbl9mbGF0IG8KSk9JTiBwYXRpZW50X2ZsYXQgcCBPTiBwLmlkID0gby5wYXRpZW50X2lkCkNST1NTIEpPSU4gbXAKV0hFUkUgRVhUUkFDVChZRUFSIEZST00gQUdFKG1wLmUsIHAuYmlydGhfZGF0ZTo6ZGF0ZSkpID49IDY2CiAgICBBTkQgby5jb2RlID0gJzcxODAyLTMnIEFORCBvLmNvZGVfc3lzdGVtID0gJ2h0dHA6Ly9sb2luYy5vcmcnCiAgICBBTkQgby52YWx1ZV9jb2RlID0gJzE2MDczNDAwMCcKICAgIEFORCBvLnN0YXR1cyBJTiAoJ2ZpbmFsJywgJ2FtZW5kZWQnLCAnY29ycmVjdGVkJykKICAgIEFORCBvLmVmZmVjdGl2ZV9lbmQgPD0gbXAuZQ=="
+    }
+  ]
+}

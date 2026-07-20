@@ -1,0 +1,71 @@
+{
+  "resourceType": "Library",
+  "id": "excl-palliative",
+  "url": "https://health-samurai.io/fhir/Library/excl-palliative",
+  "name": "excl_palliative",
+  "status": "active",
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLQuery"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-query"
+      }
+    ]
+  },
+  "parameter": [
+    {
+      "name": "period_start",
+      "use": "in",
+      "type": "date"
+    },
+    {
+      "name": "period_end",
+      "use": "in",
+      "type": "date"
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/concept",
+      "label": "vd_concept"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
+      "label": "vd_condition_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/encounter-flat",
+      "label": "vd_encounter_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/observation-flat",
+      "label": "vd_observation_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/procedure-flat",
+      "label": "vd_procedure_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "extension": [
+        {
+          "url": "https://sql-on-fhir.org/ig/StructureDefinition/sql-text",
+          "valueString": ", mp AS (SELECT ((:period_start)::text || 'T00:00:00Z')::timestamptz AS s,\n                ((:period_end)::text   || 'T23:59:59Z')::timestamptz AS e)\nSELECT DISTINCT patient_id FROM (\n    SELECT o.patient_id\n    FROM observation_flat o CROSS JOIN mp\n    WHERE o.code = '71007-9' AND o.code_system = 'http://loinc.org'\n        AND o.status IN ('final', 'amended', 'corrected')\n        AND o.effective_start <= mp.e\n        AND (o.effective_end IS NULL OR o.effective_end >= mp.s)\n    UNION ALL\n    SELECT c.patient_id\n    FROM condition_flat c\n    JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.1167'\n    CROSS JOIN mp\n    WHERE (c.verification_status IS NULL\n        OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))\n        AND c.onset_date <= mp.e\n        AND (c.abatement_date IS NULL OR c.abatement_date >= mp.s)\n    UNION ALL\n    SELECT e.patient_id\n    FROM encounter_flat e\n    JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1090'\n    CROSS JOIN mp\n    WHERE e.status = 'finished'\n        AND e.period_start <= mp.e\n        AND (e.period_end IS NULL OR e.period_end >= mp.s)\n    UNION ALL\n    SELECT pr.patient_id\n    FROM procedure_flat pr\n    JOIN concepts vs ON vs.system = pr.code_system AND vs.code = pr.code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.198.12.1135'\n    CROSS JOIN mp\n    WHERE pr.status = 'completed'\n        AND pr.performed_start <= mp.e\n        AND (pr.performed_end IS NULL OR pr.performed_end >= mp.s)\n) sub"
+        }
+      ],
+      "data": "LCBtcCBBUyAoU0VMRUNUICgoOnBlcmlvZF9zdGFydCk6OnRleHQgfHwgJ1QwMDowMDowMFonKTo6dGltZXN0YW1wdHogQVMgcywKICAgICAgICAgICAgICAgICgoOnBlcmlvZF9lbmQpOjp0ZXh0ICAgfHwgJ1QyMzo1OTo1OVonKTo6dGltZXN0YW1wdHogQVMgZSkKU0VMRUNUIERJU1RJTkNUIHBhdGllbnRfaWQgRlJPTSAoCiAgICBTRUxFQ1Qgby5wYXRpZW50X2lkCiAgICBGUk9NIG9ic2VydmF0aW9uX2ZsYXQgbyBDUk9TUyBKT0lOIG1wCiAgICBXSEVSRSBvLmNvZGUgPSAnNzEwMDctOScgQU5EIG8uY29kZV9zeXN0ZW0gPSAnaHR0cDovL2xvaW5jLm9yZycKICAgICAgICBBTkQgby5zdGF0dXMgSU4gKCdmaW5hbCcsICdhbWVuZGVkJywgJ2NvcnJlY3RlZCcpCiAgICAgICAgQU5EIG8uZWZmZWN0aXZlX3N0YXJ0IDw9IG1wLmUKICAgICAgICBBTkQgKG8uZWZmZWN0aXZlX2VuZCBJUyBOVUxMIE9SIG8uZWZmZWN0aXZlX2VuZCA+PSBtcC5zKQogICAgVU5JT04gQUxMCiAgICBTRUxFQ1QgYy5wYXRpZW50X2lkCiAgICBGUk9NIGNvbmRpdGlvbl9mbGF0IGMKICAgIEpPSU4gY29uY2VwdHMgdnMgT04gdnMuc3lzdGVtID0gYy5jb2RlX3N5c3RlbSBBTkQgdnMuY29kZSA9IGMuY29kZQogICAgICAgIEFORCB2cy52YWx1ZXNldF91cmwgPSAnaHR0cDovL2N0cy5ubG0ubmloLmdvdi9maGlyL1ZhbHVlU2V0LzIuMTYuODQwLjEuMTEzODgzLjMuNDY0LjEwMDMuMTE2NycKICAgIENST1NTIEpPSU4gbXAKICAgIFdIRVJFIChjLnZlcmlmaWNhdGlvbl9zdGF0dXMgSVMgTlVMTAogICAgICAgIE9SIGMudmVyaWZpY2F0aW9uX3N0YXR1cyBJTiAoJ2NvbmZpcm1lZCcsICd1bmNvbmZpcm1lZCcsICdwcm92aXNpb25hbCcsICdkaWZmZXJlbnRpYWwnKSkKICAgICAgICBBTkQgYy5vbnNldF9kYXRlIDw9IG1wLmUKICAgICAgICBBTkQgKGMuYWJhdGVtZW50X2RhdGUgSVMgTlVMTCBPUiBjLmFiYXRlbWVudF9kYXRlID49IG1wLnMpCiAgICBVTklPTiBBTEwKICAgIFNFTEVDVCBlLnBhdGllbnRfaWQKICAgIEZST00gZW5jb3VudGVyX2ZsYXQgZQogICAgSk9JTiBjb25jZXB0cyB2cyBPTiB2cy5zeXN0ZW0gPSBlLnR5cGVfc3lzdGVtIEFORCB2cy5jb2RlID0gZS50eXBlX2NvZGUKICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjEwMS4xMi4xMDkwJwogICAgQ1JPU1MgSk9JTiBtcAogICAgV0hFUkUgZS5zdGF0dXMgPSAnZmluaXNoZWQnCiAgICAgICAgQU5EIGUucGVyaW9kX3N0YXJ0IDw9IG1wLmUKICAgICAgICBBTkQgKGUucGVyaW9kX2VuZCBJUyBOVUxMIE9SIGUucGVyaW9kX2VuZCA+PSBtcC5zKQogICAgVU5JT04gQUxMCiAgICBTRUxFQ1QgcHIucGF0aWVudF9pZAogICAgRlJPTSBwcm9jZWR1cmVfZmxhdCBwcgogICAgSk9JTiBjb25jZXB0cyB2cyBPTiB2cy5zeXN0ZW0gPSBwci5jb2RlX3N5c3RlbSBBTkQgdnMuY29kZSA9IHByLmNvZGUKICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjE5OC4xMi4xMTM1JwogICAgQ1JPU1MgSk9JTiBtcAogICAgV0hFUkUgcHIuc3RhdHVzID0gJ2NvbXBsZXRlZCcKICAgICAgICBBTkQgcHIucGVyZm9ybWVkX3N0YXJ0IDw9IG1wLmUKICAgICAgICBBTkQgKHByLnBlcmZvcm1lZF9lbmQgSVMgTlVMTCBPUiBwci5wZXJmb3JtZWRfZW5kID49IG1wLnMpCikgc3Vi"
+    }
+  ]
+}

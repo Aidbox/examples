@@ -1,29 +1,50 @@
 {
   "resourceType": "ViewDefinition",
   "id": "observation-bp-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/observation-bp-flat",
   "name": "observation_bp_flat",
   "status": "active",
   "resource": "Observation",
   "where": [
-    {"path": "code.coding.where(code = '85354-9').exists()"}
+    {
+      "path": "code.coding.where(code = '85354-9').exists()"
+    }
   ],
   "select": [
     {
       "column": [
-        {"name": "id", "path": "getResourceKey()"},
-        {"name": "patient_id", "path": "subject.getReferenceKey(Patient)"},
-        {"name": "status", "path": "status"},
-        {"name": "effective_dt", "path": "effective.ofType(dateTime)"},
-        {"name": "effective_period_start", "path": "effective.ofType(Period).start"},
-        {"name": "encounter_id", "path": "encounter.getReferenceKey(Encounter)"},
+        {
+          "name": "id",
+          "path": "getResourceKey()"
+        },
+        {
+          "name": "patient_id",
+          "path": "subject.getReferenceKey(Patient)"
+        },
+        {
+          "name": "status",
+          "path": "status"
+        },
+        {
+          "name": "effective_dt",
+          "path": "effective.ofType(dateTime)"
+        },
+        {
+          "name": "effective_period_start",
+          "path": "effective.ofType(Period).start"
+        },
+        {
+          "name": "encounter_id",
+          "path": "encounter.getReferenceKey(Encounter)"
+        },
         {
           "name": "systolic",
-          "description": "Systolic BP component (LOINC 8480-6). .first() — assumes one systolic per BP panel; if a single observation has multiple matching components (series of readings or duplicates), we pick the first by document order. For clinically rigorous aggregation (avg/max/last), use a custom transformation downstream.",
+          "description": "Systolic BP component (LOINC 8480-6). .first() \u2014 assumes one systolic per BP panel; if a single observation has multiple matching components (series of readings or duplicates), we pick the first by document order. For clinically rigorous aggregation (avg/max/last), use a custom transformation downstream.",
           "path": "component.where(code.coding.where(code = '8480-6').exists()).first().value.ofType(Quantity).value"
         },
         {
           "name": "diastolic",
-          "description": "Diastolic BP component (LOINC 8462-4). .first() — see systolic for assumption details.",
+          "description": "Diastolic BP component (LOINC 8462-4). .first() \u2014 see systolic for assumption details.",
           "path": "component.where(code.coding.where(code = '8462-4').exists()).first().value.ofType(Quantity).value"
         }
       ]

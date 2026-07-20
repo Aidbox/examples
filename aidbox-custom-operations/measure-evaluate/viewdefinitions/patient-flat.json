@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "patient-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/patient-flat",
   "name": "patient_flat",
+  "status": "active",
+  "resource": "Patient",
   "select": [
     {
       "column": [
@@ -40,9 +45,5 @@
         }
       ]
     }
-  ],
-  "status": "active",
-  "resource": "Patient",
-  "id": "patient-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }
