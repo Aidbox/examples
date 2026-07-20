@@ -39,8 +39,32 @@ WRAPPER_VIEWS = [
 ]
 
 
+CANONICAL_VD_BASE = "https://health-samurai.io/fhir/ViewDefinition"
+
+
 def auth_header():
     return base64.b64encode(f"{USER}:{PASS}".encode()).decode()
+
+
+def resolve_vd_id(vd_id):
+    """Map a ViewDefinition's canonical url to its runtime resource id.
+
+    ViewDefinitions are delivered by the FHIR package (init bundle -> $fhir-package-install),
+    which re-keys them to a far-assigned GUID id (canonical url preserved). $materialize is
+    addressed by id (ViewDefinition/<id>/$materialize), so we look up the runtime id by url.
+    Falls back to <vd_id> when search finds nothing (e.g. a VD PUT under its stable id)."""
+    from urllib.parse import quote
+    url = f"{CANONICAL_VD_BASE}/{vd_id}"
+    req = urllib.request.Request(
+        f"{BASE_URL}/fhir/ViewDefinition?url={quote(url, safe='')}&_elements=id")
+    req.add_header("Authorization", f"Basic {auth_header()}")
+    req.add_header("Accept", "application/json")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            entries = json.loads(resp.read().decode()).get("entry", [])
+        return entries[0]["resource"]["id"] if entries else vd_id
+    except Exception:
+        return vd_id
 
 
 def run_sql(sql, timeout=60):
@@ -245,7 +269,7 @@ def main():
     print()
 
     # Wait for Aidbox
-    print("[1/5] Waiting for Aidbox...")
+    print("[1/6] Waiting for Aidbox...")
     for i in range(30):
         try:
             req = urllib.request.Request(f"{BASE_URL}/health")
@@ -259,56 +283,57 @@ def main():
                 print("  FAIL — Aidbox not responding. Is it running and activated?")
                 sys.exit(1)
 
-    # Upload ViewDefinitions
-    print("[2/8] Uploading ViewDefinition resources...")
+    # Definitions (ViewDefinitions, SQLQuery Libraries, and terminology
+    # CodeSystems/ValueSets) are delivered by the FHIR package at boot via
+    # $fhir-package-install (init.json). setup.py owns only runtime state:
+    # the concepts flatten, clinical demo data, $materialize, wrapper views,
+    # shared functions, and indexes.
+    #
+    # The local viewdefinitions/ dir is still the list of VD ids to materialize;
+    # package install re-keys each VD to a far-assigned GUID id (canonical url
+    # preserved), so we resolve slug id -> runtime id by url before $materialize.
     vd_dir = os.path.join(SCRIPT_DIR, "viewdefinitions")
-    vd_ids = [f.replace(".json", "") for f in sorted(os.listdir(vd_dir)) if f.endswith(".json")]
-    for vd_id in vd_ids:
-        with open(os.path.join(vd_dir, f"{vd_id}.json")) as f:
-            vd = json.load(f)
-        try:
-            req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}", method="PUT",
-                data=json.dumps(vd).encode())
-            req.add_header("Authorization", f"Basic {auth_header()}")
-            req.add_header("Content-Type", "application/json")
-            urllib.request.urlopen(req, timeout=30)
-        except Exception as e:
-            print(f"  WARN: failed to upload ViewDefinition/{vd_id}: {e}")
-    print(f"  OK — {len(vd_ids)} ViewDefinitions uploaded")
+    all_vd_ids = [f.replace(".json", "") for f in sorted(os.listdir(vd_dir)) if f.endswith(".json")]
+    # The `concept` VD is MANUALLY materialized (sof.concept via the concepts flatten
+    # in 00-terminology.sql + populate_concepts) — Aidbox stores ValueSets only in the
+    # far registry, so $materialize cannot populate it. Exclude it from the $materialize
+    # loop; every other (flat) VD is materialized normally.
+    vd_ids = [v for v in all_vd_ids if v != "concept"]
 
-    # Create concepts table
-    print("[3/8] Creating concepts table...")
-    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "00-terminology.sql"), "Concepts table")
+    # Create concepts view (sof.concept + `concepts` wrapper)
+    print("[2/6] Creating concepts view...")
+    execute_sql_file(os.path.join(SCRIPT_DIR, "sql", "00-terminology.sql"), "Concepts view")
 
     # Create stubs
-    print("[4/8] Creating stub resources...")
+    print("[3/6] Creating stub resources...")
     create_stubs()
 
-    # Load FHIR Measure resources
-    print("[5/8] Loading FHIR Measure resources...")
-    load_bundle(os.path.join(SCRIPT_DIR, "data", "measures-bundle.json"), "Measure resources")
-
-    # Load each measure
-    print(f"[6/8] Loading {len(MEASURES)} measures...")
+    # Load each measure's runtime state. Terminology (CodeSystems/ValueSets) and
+    # Measure resources come from the FHIR package, so we do NOT re-upload the
+    # data/*-valuesets.json / measures-bundle.json bundles here (that would be
+    # redundant — PUT is idempotent by url either way). We read data/<m>-valuesets.json
+    # only for the list of valueset urls to flatten into `concepts` from far.valueset
+    # (which the package populated). Clinical demo data is NOT in the package, so it
+    # is loaded here when --demo-patients is passed.
+    print(f"[4/6] Loading {len(MEASURES)} measures (concepts flatten + clinical data)...")
     for i, m in enumerate(MEASURES, 1):
         print(f"\n  [{i}/{len(MEASURES)}] {m.upper()}")
 
-        # ValueSets
         vs_path = os.path.join(SCRIPT_DIR, "data", f"{m}-valuesets.json")
-        load_bundle(vs_path, "ValueSets")
 
         # Clinical data (the 485 dqm-content test patients — skip for existing Aidbox installs)
         if not skip_clinical:
             cd_path = os.path.join(SCRIPT_DIR, "data", f"{m}-clinical-data.json")
             load_bundle(cd_path, "Clinical data")
 
-        # Concepts
+        # Concepts: flatten this measure's ValueSets (already in far.valueset from the
+        # package) into the `concepts` view.
         new = populate_concepts(vs_path)
         if new:
             print(f"  OK Concepts — {new} codes")
 
     # Materialize ViewDefinitions (after data loaded)
-    print("\n[7/8] Materializing ViewDefinitions → sof.* tables...")
+    print("\n[5/6] Materializing ViewDefinitions → sof.* tables...")
     # Drop wrapper views (CASCADE) first — $materialize re-creates the sof.* tables
     # via DROP TABLE, which Postgres refuses while wrapper views depend on them.
     # IF EXISTS makes this a no-op on first run.
@@ -321,9 +346,12 @@ def main():
     # $materialize can run long on large data — no client timeout (Aidbox has no POST timeout).
     # On failure we surface a targeted hint and raise (no silent fallback to legacy views).
     for vd_id in vd_ids:
-        print(f"  materializing {vd_id}...")
+        # Package install re-keys VDs to a far-assigned GUID id (url preserved).
+        # $materialize is addressed by id, so resolve slug -> runtime id by url.
+        runtime_id = resolve_vd_id(vd_id)
+        print(f"  materializing {vd_id} (id={runtime_id})...")
         try:
-            req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{vd_id}/$materialize", method="POST",
+            req = urllib.request.Request(f"{BASE_URL}/fhir/ViewDefinition/{runtime_id}/$materialize", method="POST",
                 data=mat_body)
             req.add_header("Authorization", f"Basic {auth_header()}")
             req.add_header("Content-Type", "application/json")
@@ -338,7 +366,9 @@ def main():
                 print(f"  → nginx proxy_read_timeout is shorter than the materialize runtime. Bump:")
                 print(f"      proxy_read_timeout 1800s;  proxy_send_timeout 1800s;")
             elif code == 404:
-                print(f"  → $materialize requires Aidbox 2508+. Check: curl -s {BASE_URL}/health | jq -r '.about.version'")
+                print(f"  → VD not found. Is the FHIR package installed? (init.json runs")
+                print(f"    $fhir-package-install at boot; build it: python3 scripts/build_fhir_package.py)")
+                print(f"    $materialize also requires Aidbox 2508+. Check: curl -s {BASE_URL}/health | jq -r '.about.version'")
             elif 'multiple values found' in body:
                 print(f"  → A resource has multiple matching values for a single-value FHIRPath; the")
                 print(f"    ViewDefinition needs .first() or a stricter filter — see viewdefinitions/{vd_id}.json.")
@@ -346,7 +376,7 @@ def main():
                 print(f"  → Wrapper view dependency conflict. Pull latest and re-run.")
             raise
     print(f"  OK — {len(vd_ids)} tables materialized")
-    print("[8/8] Creating indexes + wrapper views + shared functions...")
+    print("[6/6] Creating indexes + wrapper views + shared functions...")
     # 03-sof-indexes.sql can take 5-20 min on production-sized observation tables
     # (10M+ rows). CREATE INDEX without CONCURRENTLY (not available via /$sql since
     # it wraps statements in transactions), and ANALYZE on big tables, both eat time.

@@ -1,0 +1,71 @@
+{
+  "resourceType": "Library",
+  "id": "excl-has_frailty",
+  "url": "https://health-samurai.io/fhir/Library/excl-has_frailty",
+  "name": "excl_has_frailty",
+  "status": "active",
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLQuery"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-query"
+      }
+    ]
+  },
+  "parameter": [
+    {
+      "name": "period_start",
+      "use": "in",
+      "type": "date"
+    },
+    {
+      "name": "period_end",
+      "use": "in",
+      "type": "date"
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/concept",
+      "label": "vd_concept"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
+      "label": "vd_condition_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/devicerequest-flat",
+      "label": "vd_devicerequest_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/encounter-flat",
+      "label": "vd_encounter_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/observation-flat",
+      "label": "vd_observation_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "extension": [
+        {
+          "url": "https://sql-on-fhir.org/ig/StructureDefinition/sql-text",
+          "valueString": ", mp AS (SELECT ((:period_start)::text || 'T00:00:00Z')::timestamptz AS s,\n                ((:period_end)::text   || 'T23:59:59Z')::timestamptz AS e)\nSELECT DISTINCT patient_id FROM (\n    SELECT dr.patient_id FROM devicerequest_flat dr\n    JOIN concepts vs ON vs.system = dr.code_system AND vs.code = dr.code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.118.12.1300'\n    CROSS JOIN mp\n    WHERE dr.status IN ('active', 'completed') AND dr.authored_on >= mp.s AND dr.authored_on <= mp.e\n    UNION ALL\n    SELECT c.patient_id FROM condition_flat c\n    JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.113.12.1074'\n    CROSS JOIN mp\n    WHERE (c.verification_status IS NULL\n        OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))\n        AND c.onset_date <= mp.e AND (c.abatement_date IS NULL OR c.abatement_date >= mp.s)\n    UNION ALL\n    SELECT e.patient_id FROM encounter_flat e\n    JOIN concepts vs ON vs.system = e.type_system AND vs.code = e.type_code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.101.12.1088'\n    CROSS JOIN mp\n    WHERE e.status = 'finished' AND e.period_start <= mp.e\n        AND (e.period_end IS NULL OR e.period_end >= mp.s)\n    UNION ALL\n    SELECT o.patient_id FROM observation_flat o\n    JOIN concepts vs ON vs.system = o.code_system AND vs.code = o.code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.113.12.1075'\n    CROSS JOIN mp\n    WHERE o.status IN ('preliminary', 'final', 'amended', 'corrected')\n        AND o.effective_start <= mp.e AND (o.effective_end IS NULL OR o.effective_end >= mp.s)\n    UNION ALL\n    SELECT o.patient_id FROM observation_flat o\n    JOIN concepts vs ON vs.system = o.value_system AND vs.code = o.value_code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.118.12.1300'\n    CROSS JOIN mp\n    WHERE o.code = '98181-1' AND o.code_system = 'http://loinc.org'\n        AND o.status IN ('final', 'amended', 'corrected')\n        AND o.effective_end >= mp.s AND o.effective_end <= mp.e\n) f"
+        }
+      ],
+      "data": "LCBtcCBBUyAoU0VMRUNUICgoOnBlcmlvZF9zdGFydCk6OnRleHQgfHwgJ1QwMDowMDowMFonKTo6dGltZXN0YW1wdHogQVMgcywKICAgICAgICAgICAgICAgICgoOnBlcmlvZF9lbmQpOjp0ZXh0ICAgfHwgJ1QyMzo1OTo1OVonKTo6dGltZXN0YW1wdHogQVMgZSkKU0VMRUNUIERJU1RJTkNUIHBhdGllbnRfaWQgRlJPTSAoCiAgICBTRUxFQ1QgZHIucGF0aWVudF9pZCBGUk9NIGRldmljZXJlcXVlc3RfZmxhdCBkcgogICAgSk9JTiBjb25jZXB0cyB2cyBPTiB2cy5zeXN0ZW0gPSBkci5jb2RlX3N5c3RlbSBBTkQgdnMuY29kZSA9IGRyLmNvZGUKICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExOC4xMi4xMzAwJwogICAgQ1JPU1MgSk9JTiBtcAogICAgV0hFUkUgZHIuc3RhdHVzIElOICgnYWN0aXZlJywgJ2NvbXBsZXRlZCcpIEFORCBkci5hdXRob3JlZF9vbiA+PSBtcC5zIEFORCBkci5hdXRob3JlZF9vbiA8PSBtcC5lCiAgICBVTklPTiBBTEwKICAgIFNFTEVDVCBjLnBhdGllbnRfaWQgRlJPTSBjb25kaXRpb25fZmxhdCBjCiAgICBKT0lOIGNvbmNlcHRzIHZzIE9OIHZzLnN5c3RlbSA9IGMuY29kZV9zeXN0ZW0gQU5EIHZzLmNvZGUgPSBjLmNvZGUKICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExMy4xMi4xMDc0JwogICAgQ1JPU1MgSk9JTiBtcAogICAgV0hFUkUgKGMudmVyaWZpY2F0aW9uX3N0YXR1cyBJUyBOVUxMCiAgICAgICAgT1IgYy52ZXJpZmljYXRpb25fc3RhdHVzIElOICgnY29uZmlybWVkJywgJ3VuY29uZmlybWVkJywgJ3Byb3Zpc2lvbmFsJywgJ2RpZmZlcmVudGlhbCcpKQogICAgICAgIEFORCBjLm9uc2V0X2RhdGUgPD0gbXAuZSBBTkQgKGMuYWJhdGVtZW50X2RhdGUgSVMgTlVMTCBPUiBjLmFiYXRlbWVudF9kYXRlID49IG1wLnMpCiAgICBVTklPTiBBTEwKICAgIFNFTEVDVCBlLnBhdGllbnRfaWQgRlJPTSBlbmNvdW50ZXJfZmxhdCBlCiAgICBKT0lOIGNvbmNlcHRzIHZzIE9OIHZzLnN5c3RlbSA9IGUudHlwZV9zeXN0ZW0gQU5EIHZzLmNvZGUgPSBlLnR5cGVfY29kZQogICAgICAgIEFORCB2cy52YWx1ZXNldF91cmwgPSAnaHR0cDovL2N0cy5ubG0ubmloLmdvdi9maGlyL1ZhbHVlU2V0LzIuMTYuODQwLjEuMTEzODgzLjMuNDY0LjEwMDMuMTAxLjEyLjEwODgnCiAgICBDUk9TUyBKT0lOIG1wCiAgICBXSEVSRSBlLnN0YXR1cyA9ICdmaW5pc2hlZCcgQU5EIGUucGVyaW9kX3N0YXJ0IDw9IG1wLmUKICAgICAgICBBTkQgKGUucGVyaW9kX2VuZCBJUyBOVUxMIE9SIGUucGVyaW9kX2VuZCA+PSBtcC5zKQogICAgVU5JT04gQUxMCiAgICBTRUxFQ1Qgby5wYXRpZW50X2lkIEZST00gb2JzZXJ2YXRpb25fZmxhdCBvCiAgICBKT0lOIGNvbmNlcHRzIHZzIE9OIHZzLnN5c3RlbSA9IG8uY29kZV9zeXN0ZW0gQU5EIHZzLmNvZGUgPSBvLmNvZGUKICAgICAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjExMy4xMi4xMDc1JwogICAgQ1JPU1MgSk9JTiBtcAogICAgV0hFUkUgby5zdGF0dXMgSU4gKCdwcmVsaW1pbmFyeScsICdmaW5hbCcsICdhbWVuZGVkJywgJ2NvcnJlY3RlZCcpCiAgICAgICAgQU5EIG8uZWZmZWN0aXZlX3N0YXJ0IDw9IG1wLmUgQU5EIChvLmVmZmVjdGl2ZV9lbmQgSVMgTlVMTCBPUiBvLmVmZmVjdGl2ZV9lbmQgPj0gbXAucykKICAgIFVOSU9OIEFMTAogICAgU0VMRUNUIG8ucGF0aWVudF9pZCBGUk9NIG9ic2VydmF0aW9uX2ZsYXQgbwogICAgSk9JTiBjb25jZXB0cyB2cyBPTiB2cy5zeXN0ZW0gPSBvLnZhbHVlX3N5c3RlbSBBTkQgdnMuY29kZSA9IG8udmFsdWVfY29kZQogICAgICAgIEFORCB2cy52YWx1ZXNldF91cmwgPSAnaHR0cDovL2N0cy5ubG0ubmloLmdvdi9maGlyL1ZhbHVlU2V0LzIuMTYuODQwLjEuMTEzODgzLjMuNDY0LjEwMDMuMTE4LjEyLjEzMDAnCiAgICBDUk9TUyBKT0lOIG1wCiAgICBXSEVSRSBvLmNvZGUgPSAnOTgxODEtMScgQU5EIG8uY29kZV9zeXN0ZW0gPSAnaHR0cDovL2xvaW5jLm9yZycKICAgICAgICBBTkQgby5zdGF0dXMgSU4gKCdmaW5hbCcsICdhbWVuZGVkJywgJ2NvcnJlY3RlZCcpCiAgICAgICAgQU5EIG8uZWZmZWN0aXZlX2VuZCA+PSBtcC5zIEFORCBvLmVmZmVjdGl2ZV9lbmQgPD0gbXAuZQopIGY="
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "resourceType": "Library",
+  "id": "cms75-per-patient",
+  "url": "https://health-samurai.io/fhir/Library/cms75-per-patient",
+  "name": "cms75_per_patient",
+  "status": "active",
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLQuery"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-query"
+      }
+    ]
+  },
+  "parameter": [
+    {
+      "name": "period_start",
+      "use": "in",
+      "type": "date"
+    },
+    {
+      "name": "period_end",
+      "use": "in",
+      "type": "date"
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/concept",
+      "label": "vd_concept"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
+      "label": "vd_condition_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/encounter-flat",
+      "label": "vd_encounter_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/patient-flat",
+      "label": "vd_patient_flat"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/Library/excl-hospice",
+      "label": "hospice"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "extension": [
+        {
+          "url": "https://sql-on-fhir.org/ig/StructureDefinition/sql-text",
+          "valueString": ", mp AS (\n    SELECT\n        ((:period_start)::text || 'T00:00:00Z')::timestamptz AS mp_start,\n        ((:period_end)::text || 'T23:59:59Z')::timestamptz AS mp_end\n),\n\n-- ============================================================\n-- 1. INITIAL POPULATION\n-- Age 1-20 at START of MP AND qualifying encounter during MP\n-- ============================================================\nqualifying_encounters AS (\n    SELECT DISTINCT e.patient_id\n    FROM encounter_flat e\n    JOIN concepts c\n        ON c.system = e.type_system\n        AND c.code = e.type_code\n        AND c.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1003'  -- ClinicalOralEvaluation\n    CROSS JOIN mp\n    WHERE e.status = 'finished'\n        AND e.period_start >= mp.mp_start\n        AND e.period_start <= mp.mp_end\n        -- $SUBJ$ e.patient_id\n),\n\ninitial_population AS (\n    SELECT p.id AS patient_id\n    FROM patient_flat p\n    CROSS JOIN mp\n    WHERE EXTRACT(YEAR FROM AGE(mp.mp_start::date, p.birth_date::date)) BETWEEN 1 AND 20\n        AND p.id IN (SELECT patient_id FROM qualifying_encounters)\n        -- $SUBJ$ p.id\n),\n\n\n-- ============================================================\n-- 3. DENOMINATOR EXCLUSIONS \u2014 Hospice only (children's measure)\n-- ============================================================\n\n\ndenominator_exclusion AS (\n    SELECT patient_id FROM hospice\n),\n\n-- ============================================================\n-- 4. NUMERATOR \u2014 Dental Caries condition overlapping MP\n-- ============================================================\nnumerator AS (\n    SELECT DISTINCT c.patient_id\n    FROM condition_flat c\n    JOIN concepts vs ON vs.system = c.code_system AND vs.code = c.code\n        AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.125.12.1004'  -- DentalCaries\n    CROSS JOIN mp\n    WHERE (c.verification_status IS NULL\n        OR c.verification_status IN ('confirmed', 'unconfirmed', 'provisional', 'differential'))\n        AND c.onset_date <= mp.mp_end\n        AND (c.abatement_date IS NULL OR c.abatement_date >= mp.mp_start)\n        -- $SUBJ$ c.patient_id\n),\n\n-- ============================================================\n-- 5. MEASURE REPORT\n-- ============================================================\nmeasure_results AS (\n    SELECT\n        p.patient_id,\n        1 AS in_initial_population,\n        1 AS in_denominator,\n        CASE WHEN de.patient_id IS NOT NULL THEN 1 ELSE 0 END AS in_exclusion,\n        CASE WHEN de.patient_id IS NULL AND n.patient_id IS NOT NULL THEN 1 ELSE 0 END AS in_numerator\n    FROM initial_population p\n    LEFT JOIN denominator_exclusion de ON de.patient_id = p.patient_id\n    LEFT JOIN numerator n ON n.patient_id = p.patient_id\n)\n\n-- ============================================================\n-- OUTPUT: Summary MeasureReport\n-- ============================================================\nSELECT\n    ap.patient_id,\n    (ip.patient_id IS NOT NULL) AS in_ip,\n    (ip.patient_id IS NOT NULL AND de.patient_id IS NOT NULL) AS in_exc,\n    (ip.patient_id IS NOT NULL AND de.patient_id IS NULL AND n.patient_id IS NOT NULL) AS in_num\nFROM (SELECT id AS patient_id FROM patient_flat) ap\nLEFT JOIN initial_population ip ON ip.patient_id = ap.patient_id\nLEFT JOIN denominator_exclusion de ON de.patient_id = ap.patient_id\nLEFT JOIN numerator n ON n.patient_id = ap.patient_id"
+        }
+      ],
+      "data": "LCBtcCBBUyAoCiAgICBTRUxFQ1QKICAgICAgICAoKDpwZXJpb2Rfc3RhcnQpOjp0ZXh0IHx8ICdUMDA6MDA6MDBaJyk6OnRpbWVzdGFtcHR6IEFTIG1wX3N0YXJ0LAogICAgICAgICgoOnBlcmlvZF9lbmQpOjp0ZXh0IHx8ICdUMjM6NTk6NTlaJyk6OnRpbWVzdGFtcHR6IEFTIG1wX2VuZAopLAoKLS0gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tIDEuIElOSVRJQUwgUE9QVUxBVElPTgotLSBBZ2UgMS0yMCBhdCBTVEFSVCBvZiBNUCBBTkQgcXVhbGlmeWluZyBlbmNvdW50ZXIgZHVyaW5nIE1QCi0tID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpxdWFsaWZ5aW5nX2VuY291bnRlcnMgQVMgKAogICAgU0VMRUNUIERJU1RJTkNUIGUucGF0aWVudF9pZAogICAgRlJPTSBlbmNvdW50ZXJfZmxhdCBlCiAgICBKT0lOIGNvbmNlcHRzIGMKICAgICAgICBPTiBjLnN5c3RlbSA9IGUudHlwZV9zeXN0ZW0KICAgICAgICBBTkQgYy5jb2RlID0gZS50eXBlX2NvZGUKICAgICAgICBBTkQgYy52YWx1ZXNldF91cmwgPSAnaHR0cDovL2N0cy5ubG0ubmloLmdvdi9maGlyL1ZhbHVlU2V0LzIuMTYuODQwLjEuMTEzODgzLjMuNDY0LjEwMDMuMTI1LjEyLjEwMDMnICAtLSBDbGluaWNhbE9yYWxFdmFsdWF0aW9uCiAgICBDUk9TUyBKT0lOIG1wCiAgICBXSEVSRSBlLnN0YXR1cyA9ICdmaW5pc2hlZCcKICAgICAgICBBTkQgZS5wZXJpb2Rfc3RhcnQgPj0gbXAubXBfc3RhcnQKICAgICAgICBBTkQgZS5wZXJpb2Rfc3RhcnQgPD0gbXAubXBfZW5kCiAgICAgICAgLS0gJFNVQkokIGUucGF0aWVudF9pZAopLAoKaW5pdGlhbF9wb3B1bGF0aW9uIEFTICgKICAgIFNFTEVDVCBwLmlkIEFTIHBhdGllbnRfaWQKICAgIEZST00gcGF0aWVudF9mbGF0IHAKICAgIENST1NTIEpPSU4gbXAKICAgIFdIRVJFIEVYVFJBQ1QoWUVBUiBGUk9NIEFHRShtcC5tcF9zdGFydDo6ZGF0ZSwgcC5iaXJ0aF9kYXRlOjpkYXRlKSkgQkVUV0VFTiAxIEFORCAyMAogICAgICAgIEFORCBwLmlkIElOIChTRUxFQ1QgcGF0aWVudF9pZCBGUk9NIHF1YWxpZnlpbmdfZW5jb3VudGVycykKICAgICAgICAtLSAkU1VCSiQgcC5pZAopLAoKCi0tID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLSAzLiBERU5PTUlOQVRPUiBFWENMVVNJT05TIOKAlCBIb3NwaWNlIG9ubHkgKGNoaWxkcmVuJ3MgbWVhc3VyZSkKLS0gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09CgoKZGVub21pbmF0b3JfZXhjbHVzaW9uIEFTICgKICAgIFNFTEVDVCBwYXRpZW50X2lkIEZST00gaG9zcGljZQopLAoKLS0gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tIDQuIE5VTUVSQVRPUiDigJQgRGVudGFsIENhcmllcyBjb25kaXRpb24gb3ZlcmxhcHBpbmcgTVAKLS0gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Cm51bWVyYXRvciBBUyAoCiAgICBTRUxFQ1QgRElTVElOQ1QgYy5wYXRpZW50X2lkCiAgICBGUk9NIGNvbmRpdGlvbl9mbGF0IGMKICAgIEpPSU4gY29uY2VwdHMgdnMgT04gdnMuc3lzdGVtID0gYy5jb2RlX3N5c3RlbSBBTkQgdnMuY29kZSA9IGMuY29kZQogICAgICAgIEFORCB2cy52YWx1ZXNldF91cmwgPSAnaHR0cDovL2N0cy5ubG0ubmloLmdvdi9maGlyL1ZhbHVlU2V0LzIuMTYuODQwLjEuMTEzODgzLjMuNDY0LjEwMDMuMTI1LjEyLjEwMDQnICAtLSBEZW50YWxDYXJpZXMKICAgIENST1NTIEpPSU4gbXAKICAgIFdIRVJFIChjLnZlcmlmaWNhdGlvbl9zdGF0dXMgSVMgTlVMTAogICAgICAgIE9SIGMudmVyaWZpY2F0aW9uX3N0YXR1cyBJTiAoJ2NvbmZpcm1lZCcsICd1bmNvbmZpcm1lZCcsICdwcm92aXNpb25hbCcsICdkaWZmZXJlbnRpYWwnKSkKICAgICAgICBBTkQgYy5vbnNldF9kYXRlIDw9IG1wLm1wX2VuZAogICAgICAgIEFORCAoYy5hYmF0ZW1lbnRfZGF0ZSBJUyBOVUxMIE9SIGMuYWJhdGVtZW50X2RhdGUgPj0gbXAubXBfc3RhcnQpCiAgICAgICAgLS0gJFNVQkokIGMucGF0aWVudF9pZAopLAoKLS0gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tIDUuIE1FQVNVUkUgUkVQT1JUCi0tID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQptZWFzdXJlX3Jlc3VsdHMgQVMgKAogICAgU0VMRUNUCiAgICAgICAgcC5wYXRpZW50X2lkLAogICAgICAgIDEgQVMgaW5faW5pdGlhbF9wb3B1bGF0aW9uLAogICAgICAgIDEgQVMgaW5fZGVub21pbmF0b3IsCiAgICAgICAgQ0FTRSBXSEVOIGRlLnBhdGllbnRfaWQgSVMgTk9UIE5VTEwgVEhFTiAxIEVMU0UgMCBFTkQgQVMgaW5fZXhjbHVzaW9uLAogICAgICAgIENBU0UgV0hFTiBkZS5wYXRpZW50X2lkIElTIE5VTEwgQU5EIG4ucGF0aWVudF9pZCBJUyBOT1QgTlVMTCBUSEVOIDEgRUxTRSAwIEVORCBBUyBpbl9udW1lcmF0b3IKICAgIEZST00gaW5pdGlhbF9wb3B1bGF0aW9uIHAKICAgIExFRlQgSk9JTiBkZW5vbWluYXRvcl9leGNsdXNpb24gZGUgT04gZGUucGF0aWVudF9pZCA9IHAucGF0aWVudF9pZAogICAgTEVGVCBKT0lOIG51bWVyYXRvciBuIE9OIG4ucGF0aWVudF9pZCA9IHAucGF0aWVudF9pZAopCgotLSA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0gT1VUUFVUOiBTdW1tYXJ5IE1lYXN1cmVSZXBvcnQKLS0gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ClNFTEVDVAogICAgYXAucGF0aWVudF9pZCwKICAgIChpcC5wYXRpZW50X2lkIElTIE5PVCBOVUxMKSBBUyBpbl9pcCwKICAgIChpcC5wYXRpZW50X2lkIElTIE5PVCBOVUxMIEFORCBkZS5wYXRpZW50X2lkIElTIE5PVCBOVUxMKSBBUyBpbl9leGMsCiAgICAoaXAucGF0aWVudF9pZCBJUyBOT1QgTlVMTCBBTkQgZGUucGF0aWVudF9pZCBJUyBOVUxMIEFORCBuLnBhdGllbnRfaWQgSVMgTk9UIE5VTEwpIEFTIGluX251bQpGUk9NIChTRUxFQ1QgaWQgQVMgcGF0aWVudF9pZCBGUk9NIHBhdGllbnRfZmxhdCkgYXAKTEVGVCBKT0lOIGluaXRpYWxfcG9wdWxhdGlvbiBpcCBPTiBpcC5wYXRpZW50X2lkID0gYXAucGF0aWVudF9pZApMRUZUIEpPSU4gZGVub21pbmF0b3JfZXhjbHVzaW9uIGRlIE9OIGRlLnBhdGllbnRfaWQgPSBhcC5wYXRpZW50X2lkCkxFRlQgSk9JTiBudW1lcmF0b3IgbiBPTiBuLnBhdGllbnRfaWQgPSBhcC5wYXRpZW50X2lk"
+    }
+  ]
+}

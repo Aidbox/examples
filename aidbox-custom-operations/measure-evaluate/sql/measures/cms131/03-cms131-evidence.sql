@@ -240,6 +240,15 @@ exclusion_evidence AS (
     FROM condition_flat c
     WHERE c.code = '15665641000119103' AND c.code_system = 'http://snomed.info/sct'
         AND c.patient_id IN (SELECT patient_id FROM bilateral_absence_eyes)
+
+
+    -- Catch-all coverage: one summary row per exclusion CTE so every excluded patient
+    -- has an exclusion_pathway even for shared-function paths / sub-paths not detailed above.
+    UNION ALL SELECT DISTINCT patient_id, 'hospice' AS exclusion_pathway, 'summary' AS exc_resource_type, NULL::text AS exc_resource_id FROM hospice
+    UNION ALL SELECT DISTINCT patient_id, 'palliative' AS exclusion_pathway, 'summary' AS exc_resource_type, NULL::text AS exc_resource_id FROM palliative
+    UNION ALL SELECT DISTINCT patient_id, 'advanced_illness_frailty' AS exclusion_pathway, 'summary' AS exc_resource_type, NULL::text AS exc_resource_id FROM advanced_illness_frailty
+    UNION ALL SELECT DISTINCT patient_id, 'nursing_home' AS exclusion_pathway, 'summary' AS exc_resource_type, NULL::text AS exc_resource_id FROM nursing_home
+    UNION ALL SELECT DISTINCT patient_id, 'bilateral_absence_eyes' AS exclusion_pathway, 'summary' AS exc_resource_type, NULL::text AS exc_resource_id FROM bilateral_absence_eyes
 )
 
 -- ============================================================

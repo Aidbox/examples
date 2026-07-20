@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "procedure-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/procedure-flat",
   "name": "procedure_flat",
+  "status": "active",
+  "resource": "Procedure",
   "select": [
     {
       "column": [
@@ -50,9 +55,5 @@
       ],
       "forEachOrNull": "code.coding"
     }
-  ],
-  "status": "active",
-  "resource": "Procedure",
-  "id": "procedure-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }

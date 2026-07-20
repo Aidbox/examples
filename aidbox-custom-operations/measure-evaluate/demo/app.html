@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Quality Measures — Care Gap Management</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -35,6 +38,11 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 .tab{font-size:0.75rem;font-weight:500;color:var(--fg3);padding:.8rem .9rem;cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap}
 .tab:hover{color:var(--fg2)}
 .tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-divider{width:1px;height:16px;background:var(--line);align-self:center;margin:0 .15rem .15rem .5rem}
+.tabs a.tab{text-decoration:none}
+.tab-analytics{color:var(--teal)}
+.tab-analytics:hover{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-ext{font-size:0.7em;opacity:.65;margin-left:.05rem}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:.6rem}
 .conn{display:flex;align-items:center;gap:.25rem;font-size:0.62rem;color:var(--fg3)}
 .conn .dot{width:6px;height:6px;border-radius:50%}
@@ -392,11 +400,11 @@ function render(){
 async function init(){
   const stack=new URLSearchParams(location.search).get('stack');const cfgFile=stack?`./config-${stack}.json`:'./config.json';
   let cfg={};
-  try{cfg=await(await fetch(cfgFile)).json();AIDBOX_URL=cfg.aidbox_url||AIDBOX_URL;AUTH='Basic '+btoa((cfg.auth_user||'root')+':'+(cfg.auth_pass||'secret'));document.getElementById('dataset-label').textContent=cfg.dataset_label||'';if(cfg.brand)document.getElementById('brand').textContent=cfg.brand;if(cfg.subbrand)document.getElementById('subbrand').textContent=cfg.subbrand;document.title=(cfg.brand||'Quality Measures')+' — '+(cfg.subbrand||'Care Gap Management')}catch(e){}
+  try{cfg=await(await fetch(cfgFile,{cache:'no-store'})).json();AIDBOX_URL=cfg.aidbox_url||AIDBOX_URL;AUTH='Basic '+btoa((cfg.auth_user||'root')+':'+(cfg.auth_pass||'secret'));document.getElementById('dataset-label').textContent=cfg.dataset_label||'';if(cfg.brand)document.getElementById('brand').textContent=cfg.brand;if(cfg.subbrand)document.getElementById('subbrand').textContent=cfg.subbrand;document.title=(cfg.brand||'Quality Measures')+' — '+(cfg.subbrand||'Care Gap Management')}catch(e){}
   const yr=new Date().getFullYear();
   document.getElementById('period-start').value=cfg.period_start||`${yr}-01-01`;
   document.getElementById('period-end').value=cfg.period_end||`${yr}-12-31`;
-  try{MEASURES=await(await fetch('./measure-sql.json')).json()}catch(e){document.getElementById('main').innerHTML='<div class="empty"><h2>Cannot load measure-sql.json</h2></div>';return}
+  try{MEASURES=await(await fetch('./measure-sql.json',{cache:'no-store'})).json()}catch(e){document.getElementById('main').innerHTML='<div class="empty"><h2>Cannot load measure-sql.json</h2></div>';return}
   // Optional config filter: show only measures listed in cfg.measures
   if(Array.isArray(cfg.measures)&&cfg.measures.length){MEASURES=Object.fromEntries(Object.entries(MEASURES).filter(([id])=>cfg.measures.includes(id)))}
   const conn=document.getElementById('conn');
