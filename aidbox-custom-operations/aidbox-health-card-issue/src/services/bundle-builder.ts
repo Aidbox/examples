@@ -39,7 +39,9 @@ export class BundleBuilder {
 
     const entry = ordered.map((resource, i) => ({
       fullUrl: `resource:${i}`,
-      resource: this.rewriteReferences(resource, refMap),
+      // Rewrite references, then drop empty elements (the validator rejects
+      // empty "", [], {} — and dropping a dangling reference can leave one).
+      resource: this.pruneEmpty(this.rewriteReferences(resource, refMap)),
     }));
 
     return {
@@ -153,8 +155,10 @@ export class BundleBuilder {
     if (typeof obj === 'object') {
       const out: any = {};
       for (const [key, value] of Object.entries(obj)) {
-        if (key === 'reference' && typeof value === 'string' && refMap.has(value)) {
-          out[key] = refMap.get(value);
+        if (key === 'reference' && typeof value === 'string') {
+          // Rewrite refs to bundled resources; drop dangling references (a card
+          // reference must be a resolvable resource:N URI).
+          if (refMap.has(value)) out[key] = refMap.get(value);
         } else {
           out[key] = this.rewriteReferences(value, refMap);
         }
@@ -162,6 +166,29 @@ export class BundleBuilder {
       return out;
     }
 
+    return obj;
+  }
+
+  private isEmpty(v: any): boolean {
+    if (v === null || v === undefined || v === '') return true;
+    if (Array.isArray(v)) return v.length === 0;
+    if (typeof v === 'object') return Object.keys(v).length === 0;
+    return false; // numbers/booleans (incl. 0/false) are not empty
+  }
+
+  /** Recursively remove empty strings, arrays, and objects (invalid in a card). */
+  private pruneEmpty(obj: any): any {
+    if (Array.isArray(obj)) {
+      return obj.map(x => this.pruneEmpty(x)).filter(x => !this.isEmpty(x));
+    }
+    if (obj && typeof obj === 'object') {
+      const out: any = {};
+      for (const [k, v] of Object.entries(obj)) {
+        const pv = this.pruneEmpty(v);
+        if (!this.isEmpty(pv)) out[k] = pv;
+      }
+      return out;
+    }
     return obj;
   }
 

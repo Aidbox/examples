@@ -14,16 +14,16 @@ A SMART Health Card is a FHIR `Bundle` → W3C Verifiable Credential → **JWS (
 ```mermaid
 flowchart LR
     Client["Client"]
-    Aidbox["Aidbox<br/>FHIR server + App routing"]
-    App["Health Cards App<br/>Node/Express<br/>signs JWS, serves JWKS + viewer"]
+    Aidbox["Aidbox"]
+    App["Health Cards App<br/>(Node)"]
 
-    Client -->|"POST $health-cards-issue"| Aidbox
-    Aidbox -->|"http-rpc: operation"| App
-    App -->|"fetch Patient + clinical data"| Aidbox
-    App -->|"verifiableCredential (JWS)"| Aidbox
-    Aidbox -->|"Parameters { verifiableCredential }"| Client
-    Client -.->|"GET <iss>/.well-known/jwks.json"| Aidbox
-    Aidbox -.->|"namespaced App op"| App
+    Client -->|"$health-cards-issue"| Aidbox
+    Aidbox -->|"proxies op"| App
+    App -->|"fetch data"| Aidbox
+    App -->|"JWS"| Aidbox
+    Aidbox -->|"credential"| Client
+    Client -.->|"GET JWKS"| Aidbox
+    Aidbox -.->|"JWKS"| App
 ```
 
 ## Flow 1 — Issue (`$health-cards-issue`)
@@ -34,7 +34,7 @@ sequenceDiagram
     participant A as Aidbox
     participant S as Health Cards App
     C->>A: POST /fhir/Patient/{id}/$health-cards-issue<br/>Parameters { credentialType, _since? }
-    A->>S: http-rpc (operation: health-cards-issue)
+    A->>S: proxies operation
     S->>A: GET Patient/{id}, Immunization?/Observation?
     A-->>S: FHIR resources
     Note over S: minimize (strip id/meta/text/display,<br/>fullUrl + refs → resource:N), DEFLATE, sign ES256
@@ -44,7 +44,11 @@ sequenceDiagram
 
 ## Flow 2 — Verify (JWKS)
 
-Aidbox already owns its own `/.well-known/jwks.json` (RSA, for OAuth), so the SHC EC key is published under a **namespaced** path, and `iss` points at that base.
+The issuer publishes its **public** key so anyone can verify:
+
+- Aidbox already owns its own `/.well-known/jwks.json` (RSA, for OAuth).
+- So the SHC EC key is published under a **namespaced** path: `/health-cards-app/.well-known/jwks.json`.
+- `iss` points at that base, so `<iss>/.well-known/jwks.json` resolves to the key.
 
 ```mermaid
 sequenceDiagram
@@ -109,7 +113,7 @@ Activate Aidbox at [localhost:8080](http://localhost:8080) (init bundle seeds `P
 
 ## Conformance
 
-Built to pass strict verification — see [`adr/005-delivery-and-conformance.md`](adr/005-delivery-and-conformance.md):
+Built to pass strict verification:
 - **JWS** `ES256`, `zip:DEF`, `kid` = base64url SHA-256 JWK thumbprint (RFC 7638).
 - Payload minified + **raw-DEFLATE before signing** (jose `SignJWT` doesn't compress; we `deflateRaw` + `CompactSign`).
 - Bundle `collection`; strip `id`/`meta`(≠security)/`text`/`Coding.display`; `fullUrl` + refs → `resource:N`.
@@ -121,15 +125,4 @@ Real verifiers check `iss` against the [VCI trusted-issuer directory](https://gi
 
 **Card content &amp; VCI profiles.** For `#covid19`, the bundle content follows the VCI / [US Public Health](https://build.fhir.org/ig/HL7/fhir-us-ph-library/) vaccine-credential profiles **by resource type and codes** — Patient (name + DOB), `Immunization` (CVX vaccine code), and COVID `Observation` (LOINC code + SNOMED value); the seed data is shaped accordingly. We do **not** formally validate against those `StructureDefinition`s or trim to their exact minimal data set — that's out of scope here (note: SHC strips `meta`, so conformance means the *set of elements*, not a `meta.profile` tag). To enforce it, load the IG package into Aidbox and run `$validate` on the issued bundle.
 
-## Layout
-
-```
-src/  server.ts · viewer.html
-      handlers/{health-cards,jwks}.ts
-      services/{fhir-client,bundle-builder,health-card,jwks}.ts
-      utils/{crypto,credential-utils,validation,shc-encode}.ts
-      types/{config,operation,health-card,jwks}.ts
-scripts/generate-keys.ts        init-bundle/bundle.json
-```
-
-**Out of scope**: SMART-on-FHIR OAuth (Aidbox config), VCI enrollment, formal VCI/us-ph profile validation, revocation, `resourceLink`, full `credentialValueSet`, key rotation. The inline QR is byte-mode (small cards); the `shc:/` payload is always spec-correct.
+**Out of scope**: SMART-on-FHIR OAuth (Aidbox config), VCI enrollment, formal VCI/us-ph profile validation, revocation, `resourceLink`, full `credentialValueSet`, key rotation.

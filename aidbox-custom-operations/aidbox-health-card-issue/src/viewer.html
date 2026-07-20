@@ -180,16 +180,16 @@
       for (const d of data) { const factor = d ^ res[0]; res.shift(); res.push(0); if (factor) for (let i = 0; i < ecLen; i++) res[i] ^= gmul(gen[i + 1], factor); }
       return res;
     }
+    // Error-correction LEVEL L (low ECC = max data) per version, which is what
+    // SMART Health Cards QR uses so a card fits within QR version <= 22.
     const VERSIONS = {
-      1:{ec:10,groups:[[1,16]]},2:{ec:16,groups:[[1,28]]},3:{ec:26,groups:[[1,44]]},4:{ec:18,groups:[[2,32]]},
-      5:{ec:24,groups:[[2,43]]},6:{ec:16,groups:[[4,27]]},7:{ec:18,groups:[[4,31]]},8:{ec:22,groups:[[2,38],[2,39]]},
-      9:{ec:22,groups:[[3,36],[2,37]]},10:{ec:26,groups:[[4,43],[1,44]]},11:{ec:30,groups:[[1,50],[4,51]]},
-      12:{ec:22,groups:[[6,36],[2,37]]},13:{ec:22,groups:[[8,37],[1,38]]},14:{ec:24,groups:[[4,40],[5,41]]},
-      15:{ec:24,groups:[[5,41],[5,42]]},16:{ec:28,groups:[[7,45],[3,46]]},17:{ec:28,groups:[[10,46],[1,47]]},
-      18:{ec:26,groups:[[9,43],[4,44]]},19:{ec:26,groups:[[3,44],[11,45]]},20:{ec:26,groups:[[3,41],[13,42]]},
-      21:{ec:26,groups:[[17,42]]},22:{ec:28,groups:[[17,46]]},23:{ec:28,groups:[[4,47],[14,48]]},
-      24:{ec:28,groups:[[6,45],[14,46]]},25:{ec:28,groups:[[8,47],[13,48]]},26:{ec:28,groups:[[19,46],[4,47]]},
-      27:{ec:28,groups:[[22,45],[3,46]]},
+      1:{ec:7,groups:[[1,19]]},2:{ec:10,groups:[[1,34]]},3:{ec:15,groups:[[1,55]]},4:{ec:20,groups:[[1,80]]},
+      5:{ec:26,groups:[[1,108]]},6:{ec:18,groups:[[2,68]]},7:{ec:20,groups:[[2,78]]},8:{ec:24,groups:[[2,97]]},
+      9:{ec:30,groups:[[2,116]]},10:{ec:18,groups:[[2,68],[2,69]]},11:{ec:20,groups:[[4,81]]},
+      12:{ec:24,groups:[[2,92],[2,93]]},13:{ec:26,groups:[[4,107]]},14:{ec:30,groups:[[3,115],[1,116]]},
+      15:{ec:22,groups:[[5,87],[1,88]]},16:{ec:24,groups:[[5,98],[1,99]]},17:{ec:28,groups:[[1,107],[5,108]]},
+      18:{ec:30,groups:[[5,120],[1,121]]},19:{ec:28,groups:[[3,113],[4,114]]},20:{ec:28,groups:[[3,107],[5,108]]},
+      21:{ec:28,groups:[[4,116],[4,117]]},22:{ec:28,groups:[[2,111],[7,112]]},
     };
     const dataCapacity = (v) => VERSIONS[v].groups.reduce((n, [c, d]) => n + c * d, 0);
     function charCountBits(mode, v) {
@@ -210,11 +210,12 @@
       return [{ mode: 'byte', data: new TextEncoder().encode(text) }];
     }
     function pickVersion(segments) {
-      for (let v = 1; v <= 27; v++) {
+      // Cap at version 22: SMART Health Cards require a single QR of version <= 22.
+      for (let v = 1; v <= 22; v++) {
         const bits = segments.reduce((s, seg) => s + segBits(seg, v), 0);
         if (Math.ceil(bits / 8) <= dataCapacity(v)) return v;
       }
-      throw new Error("Data too large for QR (max version 27).");
+      throw new Error("Card too large for a single QR (> version 22).");
     }
     function buildData(segments, v) {
       const bits = [];
@@ -252,8 +253,7 @@
     }
     const size = (v) => v * 4 + 17;
     const ALIGN = {2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50],11:[6,30,54],12:[6,32,58],13:[6,34,62],14:[6,26,46,66],15:[6,26,48,70],16:[6,26,50,74],17:[6,30,54,78],18:[6,30,56,82],19:[6,30,58,86],20:[6,34,62,90],
-      21:[6,28,50,72,94],22:[6,26,50,74,98],23:[6,30,54,78,102],24:[6,28,54,80,106],
-      25:[6,32,58,84,110],26:[6,30,58,86,114],27:[6,34,62,90,118]};
+      21:[6,28,50,72,94],22:[6,26,50,74,98]};
     function placeFunctionPatterns(m, reserved, v) {
       const n = size(v);
       const finder = (r, c) => { for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) { const rr = r + dr, cc = c + dc; if (rr < 0 || cc < 0 || rr >= n || cc >= n) continue; const inRing = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6 && (dr === 0 || dr === 6 || dc === 0 || dc === 6); const inCore = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4; m[rr][cc] = inRing || inCore ? 1 : 0; reserved[rr][cc] = 1; } };
@@ -279,7 +279,8 @@
       return out;
     }
     function placeFormat(m, v, mask) {
-      const n = size(v); let data = (0b00 << 3) | mask; let rem = data;
+      // 0b01 = EC level L in the format-info EC-level field (must match VERSIONS).
+      const n = size(v); let data = (0b01 << 3) | mask; let rem = data;
       for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >> 9) & 1 ? 0x537 : 0);
       const bits = (((data << 10) | rem) ^ 0x5412); const get = (i) => (bits >> i) & 1;
       const tl = [[8,0,14],[8,1,13],[8,2,12],[8,3,11],[8,4,10],[8,5,9],[8,7,8],[8,8,7],[7,8,6],[5,8,5],[4,8,4],[3,8,3],[2,8,2],[1,8,1],[0,8,0]];
@@ -418,7 +419,7 @@
         $("qrbox").classList.remove("hidden");
       } catch {
         $("qrbox").classList.add("hidden");
-        showError('Card issued. It is a bit large for an inline byte-mode QR here — use the <code>.smart-health-card</code> download or the copied JWS. (Production issuers emit a numeric-mode QR.)');
+        showError('Card issued, but too large for a single QR (&gt; version 22) — use the <code>.smart-health-card</code> download or the copied JWS.');
       }
 
       // Auto-verify the freshly issued card.

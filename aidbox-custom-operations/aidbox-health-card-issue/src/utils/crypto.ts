@@ -54,7 +54,10 @@ export class CryptoUtils {
     // no zlib/gz header) BEFORE signing, with the header advertising zip:"DEF".
     // jose's SignJWT does NOT compress for JWS, so we compress explicitly and
     // sign the compressed bytes with CompactSign.
-    const compressed = deflateRawSync(Buffer.from(JSON.stringify(payload), 'utf8'));
+    // Max compression (level 9) keeps the card small so it fits a QR <= v22.
+    const compressed = deflateRawSync(Buffer.from(JSON.stringify(payload), 'utf8'), {
+      level: 9,
+    });
 
     const jws = await new CompactSign(compressed)
       .setProtectedHeader({
