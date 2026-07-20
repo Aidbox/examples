@@ -1,0 +1,40 @@
+{
+  "resourceType": "ViewDefinition",
+  "id": "concept",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/concept",
+  "name": "concept",
+  "status": "active",
+  "resource": "ValueSet",
+  "description": "Flat ValueSet membership: one row per (valueset_url, system, code) from expansion.contains. Serves every measure's terminology JOIN via the public `concepts` wrapper view. MANUALLY MATERIALIZED: Aidbox stores ValueSet resources only in the far registry (far.valueset) \u2014 the SoF engine sees zero stored ValueSets ($run verified 2026-07-17), so $materialize cannot populate this view yet. Until native materialization of canonical resources ships, load_measure.py/refresh_sof.py implement the equivalent flatten from far.valueset (with DISTINCT + unique index on (valueset_url, system, code) to collapse duplicate package versions \u2014 semantics the native implementation must decide on).",
+  "select": [
+    {
+      "column": [
+        {
+          "path": "url",
+          "name": "valueset_url"
+        },
+        {
+          "path": "name",
+          "name": "valueset_name"
+        }
+      ]
+    },
+    {
+      "forEach": "expansion.contains",
+      "column": [
+        {
+          "path": "system",
+          "name": "system"
+        },
+        {
+          "path": "code",
+          "name": "code"
+        },
+        {
+          "path": "display",
+          "name": "display"
+        }
+      ]
+    }
+  ]
+}

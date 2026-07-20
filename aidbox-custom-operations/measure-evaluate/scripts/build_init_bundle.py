@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Build the init-bundle for the measure-evaluate sample.
+"""Build the static init-bundle (init.json) for the measure-evaluate sample.
 
-Contains only the App resource (custom operation routing for Measure/$evaluate-measure).
-Aidbox picks this file up via BOX_INIT_BUNDLE on startup.
+Two entries, both static:
+  1. the App resource that registers Measure/$evaluate-measure with Aidbox, and
+  2. one `$fhir-package-install` that installs the generated FHIR NPM package
+     (terminology + ViewDefinitions + SQLQuery Libraries) at boot.
 
-ValueSets are NOT pre-loaded here: the SQL measure evaluation uses the `concepts`
-table (built by setup.py), not the FHIR ValueSet resources. setup.py loads the
-ValueSets (data/*-valuesets.json) when run; there is no consumer of them before that.
+Aidbox picks this file up via BOX_INIT_BUNDLE on startup. The package .tgz itself is
+built separately by scripts/build_fhir_package.py and mounted at
+/srv/aidbox-fhir-packages (see docker-compose.yml).
+
+The package filename uses '-' (not '#') between name and version: a '#' in a file://
+URL is parsed as a fragment and truncates the path.
 
 Usage:
     python3 scripts/build_init_bundle.py
@@ -19,7 +24,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "init.json"
 
-# The single App resource that registers Measure/$evaluate-measure with Aidbox.
+PACKAGE_NAME = "healthsamurai.measure-evaluate"
+PACKAGE_VERSION = "0.1.0"
+PACKAGE_FILE = f"file:///srv/aidbox-fhir-packages/{PACKAGE_NAME}-{PACKAGE_VERSION}.tgz"
+
+# The App resource that registers Measure/$evaluate-measure with Aidbox.
 APP_ENTRY = {
     "request": {"method": "PUT", "url": "/App/com.sql.evaluate.app"},
     "resource": {
@@ -44,16 +53,29 @@ APP_ENTRY = {
     },
 }
 
+# Install the generated FHIR package (a single file:// param, NO name@version param).
+PACKAGE_ENTRY = {
+    "request": {"method": "POST", "url": "$fhir-package-install"},
+    "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+            {"name": "package", "valueString": PACKAGE_FILE},
+        ],
+    },
+}
+
 
 def main() -> None:
     bundle = {
+        "resourceType": "Bundle",
         "type": "batch",
-        "entry": [APP_ENTRY],
+        "entry": [APP_ENTRY, PACKAGE_ENTRY],
     }
     OUTPUT.write_text(json.dumps(bundle, indent=2) + "\n")
     size = os.path.getsize(OUTPUT)
     print(f"Wrote {OUTPUT}")
-    print(f"  App entries: 1")
+    print(f"  Entries: App route + $fhir-package-install")
+    print(f"  Package: {PACKAGE_FILE}")
     print(f"  Size: {size:,} bytes")
 
 

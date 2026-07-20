@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "devicerequest-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/devicerequest-flat",
   "name": "devicerequest_flat",
+  "status": "active",
+  "resource": "DeviceRequest",
   "select": [
     {
       "column": [
@@ -42,9 +47,5 @@
       ],
       "forEachOrNull": "code.ofType(CodeableConcept).coding"
     }
-  ],
-  "status": "active",
-  "resource": "DeviceRequest",
-  "id": "devicerequest-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }

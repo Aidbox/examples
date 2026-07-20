@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "encounter-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/encounter-flat",
   "name": "encounter_flat",
+  "status": "active",
+  "resource": "Encounter",
   "select": [
     {
       "column": [
@@ -25,12 +30,12 @@
         },
         {
           "name": "class_code",
-          "description": "Encounter.class.code — used by CMS165 for inpatient/ED filtering (EMER, IMP, ACUTE, etc.)",
+          "description": "Encounter.class.code \u2014 used by CMS165 for inpatient/ED filtering (EMER, IMP, ACUTE, etc.)",
           "path": "class.code"
         },
         {
           "name": "discharge_code",
-          "description": "Encounter.hospitalization.dischargeDisposition — used by shared_hospice",
+          "description": "Encounter.hospitalization.dischargeDisposition \u2014 used by shared_hospice",
           "path": "hospitalization.dischargeDisposition.coding.first().code"
         }
       ]
@@ -52,9 +57,5 @@
       ],
       "forEachOrNull": "type.coding"
     }
-  ],
-  "status": "active",
-  "resource": "Encounter",
-  "id": "encounter-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }

@@ -1,5 +1,10 @@
 {
+  "resourceType": "ViewDefinition",
+  "id": "condition-flat",
+  "url": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
   "name": "condition_flat",
+  "status": "active",
+  "resource": "Condition",
   "select": [
     {
       "column": [
@@ -41,7 +46,7 @@
         },
         {
           "name": "body_site_code",
-          "description": "Condition.bodySite — used by CMS125 for mastectomy laterality (24028007 Right, 7771000 Left)",
+          "description": "Condition.bodySite \u2014 used by CMS125 for mastectomy laterality (24028007 Right, 7771000 Left)",
           "path": "bodySite.first().coding.first().code"
         }
       ]
@@ -63,9 +68,5 @@
       ],
       "forEachOrNull": "code.coding"
     }
-  ],
-  "status": "active",
-  "resource": "Condition",
-  "id": "condition-flat",
-  "resourceType": "ViewDefinition"
+  ]
 }

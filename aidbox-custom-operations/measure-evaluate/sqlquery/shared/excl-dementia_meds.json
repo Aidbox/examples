@@ -1,0 +1,56 @@
+{
+  "resourceType": "Library",
+  "id": "excl-dementia_meds",
+  "url": "https://health-samurai.io/fhir/Library/excl-dementia_meds",
+  "name": "excl_dementia_meds",
+  "status": "active",
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLQuery"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-query"
+      }
+    ]
+  },
+  "parameter": [
+    {
+      "name": "period_start",
+      "use": "in",
+      "type": "date"
+    },
+    {
+      "name": "period_end",
+      "use": "in",
+      "type": "date"
+    }
+  ],
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/concept",
+      "label": "vd_concept"
+    },
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/medicationrequest-flat",
+      "label": "vd_medicationrequest_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "extension": [
+        {
+          "url": "https://sql-on-fhir.org/ig/StructureDefinition/sql-text",
+          "valueString": ", mp AS (SELECT ((:period_start)::text || 'T00:00:00Z')::timestamptz AS s,\n                ((:period_end)::text   || 'T23:59:59Z')::timestamptz AS e)\nSELECT mr.patient_id\nFROM medicationrequest_flat mr\nJOIN concepts vs ON vs.system = mr.med_system AND vs.code = mr.med_code\n    AND vs.valueset_url = 'http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113883.3.464.1003.196.12.1510'\nCROSS JOIN mp\nWHERE mr.status = 'active'\n    AND mr.intent IN ('order', 'original-order', 'reflex-order', 'filler-order', 'instance-order')\n    AND COALESCE(mr.validity_start, mr.authored_on) <= mp.e\n    AND COALESCE(mr.validity_end, mr.authored_on) >= (mp.s - INTERVAL '1 year')"
+        }
+      ],
+      "data": "LCBtcCBBUyAoU0VMRUNUICgoOnBlcmlvZF9zdGFydCk6OnRleHQgfHwgJ1QwMDowMDowMFonKTo6dGltZXN0YW1wdHogQVMgcywKICAgICAgICAgICAgICAgICgoOnBlcmlvZF9lbmQpOjp0ZXh0ICAgfHwgJ1QyMzo1OTo1OVonKTo6dGltZXN0YW1wdHogQVMgZSkKU0VMRUNUIG1yLnBhdGllbnRfaWQKRlJPTSBtZWRpY2F0aW9ucmVxdWVzdF9mbGF0IG1yCkpPSU4gY29uY2VwdHMgdnMgT04gdnMuc3lzdGVtID0gbXIubWVkX3N5c3RlbSBBTkQgdnMuY29kZSA9IG1yLm1lZF9jb2RlCiAgICBBTkQgdnMudmFsdWVzZXRfdXJsID0gJ2h0dHA6Ly9jdHMubmxtLm5paC5nb3YvZmhpci9WYWx1ZVNldC8yLjE2Ljg0MC4xLjExMzg4My4zLjQ2NC4xMDAzLjE5Ni4xMi4xNTEwJwpDUk9TUyBKT0lOIG1wCldIRVJFIG1yLnN0YXR1cyA9ICdhY3RpdmUnCiAgICBBTkQgbXIuaW50ZW50IElOICgnb3JkZXInLCAnb3JpZ2luYWwtb3JkZXInLCAncmVmbGV4LW9yZGVyJywgJ2ZpbGxlci1vcmRlcicsICdpbnN0YW5jZS1vcmRlcicpCiAgICBBTkQgQ09BTEVTQ0UobXIudmFsaWRpdHlfc3RhcnQsIG1yLmF1dGhvcmVkX29uKSA8PSBtcC5lCiAgICBBTkQgQ09BTEVTQ0UobXIudmFsaWRpdHlfZW5kLCBtci5hdXRob3JlZF9vbikgPj0gKG1wLnMgLSBJTlRFUlZBTCAnMSB5ZWFyJyk="
+    }
+  ]
+}
