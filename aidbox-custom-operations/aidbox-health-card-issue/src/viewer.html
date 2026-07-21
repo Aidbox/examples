@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SMART Health Card · Issue &amp; Verify</title>
+<style>
+  :root {
+    --ground: #0F1729; --panel: #16203A; --panel-2: #1E2B4A; --line: #2B3A5E;
+    --text: #E6EAF2; --muted: #93A1C0; --accent: #5EEAD4; --locked: #F4A259; --danger: #F47174;
+    --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", system-ui, Segoe UI, Roboto, sans-serif;
+    --display: "Space Grotesk", var(--sans);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text); font-family: var(--sans); line-height: 1.5;
+    background: radial-gradient(1200px 600px at 70% -10%, #1b2747 0%, transparent 60%), var(--ground);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
+  header { margin-bottom: 32px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 5vw, 40px); letter-spacing: -0.02em; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0; max-width: 60ch; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  label.fld { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  textarea, input[type="text"], select {
+    width: 100%; background: var(--ground); color: var(--text); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 14px; font-family: var(--mono); font-size: 13px;
+  }
+  textarea { min-height: 92px; resize: vertical; word-break: break-all; }
+  input[type="text"], select { font-family: var(--sans); font-size: 14px; padding: 10px 13px; }
+  textarea:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 12px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+  button {
+    font-family: var(--sans); font-weight: 600; font-size: 14px; color: var(--ground); background: var(--accent);
+    border: 0; border-radius: 10px; padding: 11px 20px; cursor: pointer; transition: transform .08s ease, filter .15s ease;
+  }
+  button:hover { filter: brightness(1.08); } button:active { transform: translateY(1px); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  button.small { padding: 7px 14px; font-size: 13px; }
+  a.dl { text-decoration: none; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 18px; }
+  .tab { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 9px; padding: 8px 16px; font-size: 13px; font-weight: 500; }
+  .tab[aria-selected="true"] { color: var(--ground); background: var(--accent); border-color: var(--accent); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+  .hidden { display: none !important; }
+
+  .linkbox { display: flex; align-items: center; gap: 12px; margin-top: 16px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+  .linkbox-label { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .linkbox code { flex: 1; min-width: 0; font-family: var(--mono); font-size: 12px; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .qrbox { margin-top: 12px; display: flex; align-items: center; gap: 16px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .qrbox canvas { width: 220px; height: 220px; image-rendering: pixelated; background: #fff; border-radius: 8px; padding: 10px; flex: none; }
+  .qrbox .qr-caption { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .qrbox .qr-caption b { color: var(--text); font-weight: 600; }
+
+  .reveal { margin-top: 28px; }
+  .reveal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .reveal-head h2 { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0; letter-spacing: -0.01em; }
+  .opbox { margin-top: 28px; }
+  .op-note { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+  .op-note code { font-family: var(--mono); color: var(--text); }
+  .api-label { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+  .opbox pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; }
+  .opbox .verb { color: var(--accent); }
+  .opt { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .rrow { display: flex; gap: 8px; margin-bottom: 8px; }
+  .rrow select { flex: 1; }
+  .adv-toggle { margin: 22px 0 10px; padding: 0; background: none; border: 0; color: var(--text); font-family: var(--display); font-weight: 600; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .adv-toggle .chev { color: var(--muted); transition: transform .15s; }
+  .adv-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .vsteps { margin: 0 0 16px; padding: 12px 14px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; }
+  .vsteps div { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 3px 0; }
+  .vsteps .ok { color: var(--accent); } .vsteps .bad { color: var(--danger); }
+  #vheader, #vclaims { max-height: 240px; }
+  .badge { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .badge.verified { color: var(--accent); border-color: var(--accent); }
+  .badge.bad { color: var(--danger); border-color: var(--danger); }
+  .verdict { margin: 0 0 14px; padding: 12px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; border: 1px solid; }
+  .verdict.ok { color: var(--accent); border-color: var(--accent); background: rgba(94,234,212,.08); }
+  .verdict.bad { color: var(--danger); border-color: var(--danger); background: rgba(244,113,116,.08); }
+  ul.meta { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 16px; padding: 0; list-style: none; }
+  ul.meta li { font-size: 13px; color: var(--muted); font-family: var(--mono); }
+  ul.meta b { color: var(--text); font-weight: 600; }
+  pre { margin: 0; background: var(--ground); border: 1px solid var(--line); border-radius: 12px; padding: 18px; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; overflow-x: auto; max-height: 460px; overflow-y: auto; }
+  pre.jws { color: #6E7DA3; word-break: break-all; white-space: pre-wrap; }
+  .k { color: var(--accent); } .s { color: #C3E88D; } .n { color: var(--locked); } .b { color: #82AAFF; }
+  .err { margin-top: 14px; border: 1px solid var(--danger); background: rgba(244,113,116,.08); color: var(--text); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .err code { font-family: var(--mono); font-size: 12px; color: var(--danger); }
+  footer { margin-top: 48px; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  a { color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">SMART Health Card · Issue &amp; Verify</p>
+      <h1>Issue a verifiable health card</h1>
+      <p class="sub">Issue a signed SMART Health Card (JWS/ES256) from patient data in Aidbox, get it as a QR and a <code>.smart-health-card</code> file, then verify its signature against the issuer's JWKS — right here in the browser.</p>
+    </header>
+
+    <div class="card">
+      <div class="tabs" role="tablist">
+        <button class="tab" id="tab-issue" role="tab" aria-selected="true">Issue</button>
+        <button class="tab" id="tab-verify" role="tab" aria-selected="false">Verify</button>
+      </div>
+
+      <!-- Issue -->
+      <div class="pane" id="pane-issue">
+        <div>
+          <label class="fld" for="patientId">Patient</label>
+          <select id="patientId"></select>
+        </div>
+        <div style="margin-top:14px">
+          <label class="fld">credentialType <span class="opt">(1 or more)</span></label>
+          <div id="ct-rows"></div>
+          <button class="ghost small" id="ct-add" type="button">+ credentialType</button>
+        </div>
+        <div style="margin-top:14px">
+          <label class="fld" for="since">_since <span class="opt">(optional)</span></label>
+          <input id="since" type="text" placeholder="YYYY-MM-DD" spellcheck="false" />
+          <p class="op-note" style="margin-top:6px">Only resources with <code>_lastUpdated</code> ≥ this date (server write time, not clinical date). A future date returns nothing.</p>
+        </div>
+
+        <button class="adv-toggle" id="adv-toggle" type="button" aria-expanded="false">Advanced <span class="chev">▸</span></button>
+        <div id="advanced" class="hidden">
+          <div>
+            <label class="fld">credentialValueSet <span class="opt">(optional, repeatable)</span></label>
+            <div id="cvs-rows"></div>
+            <button class="ghost small" id="cvs-add" type="button">+ credentialValueSet</button>
+            <p class="op-note" style="margin-top:6px">Keeps only resources whose code is a member of <em>every</em> listed ValueSet (via <code>$validate-code</code>). E.g. <code>Observation</code> + the CVX set filters LOINC labs out.</p>
+          </div>
+          <div style="margin-top:14px">
+            <label class="fld">includeIdentityClaim <span class="opt">(optional, repeatable)</span></label>
+            <div id="ic-rows"></div>
+            <button class="ghost small" id="ic-add" type="button">+ includeIdentityClaim</button>
+            <p class="op-note" style="margin-top:6px">Which Patient fields to include. Default when empty: name + birthDate.</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="issue">Issue card</button>
+        </div>
+      </div>
+
+      <!-- Verify -->
+      <div class="pane hidden" id="pane-verify">
+        <label class="fld" for="jwsIn">SMART Health Card (JWS)</label>
+        <textarea id="jwsIn" placeholder="eyJhbGciOiJFUzI1NiIsInppcCI6IkRFRiIsImtpZCI6…" spellcheck="false"></textarea>
+        <div class="row">
+          <button id="verify">Verify signature</button>
+          <button id="clear" class="ghost" type="button">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- The $health-cards-issue operation that produced the card -->
+    <div class="opbox hidden" id="opbox">
+      <div class="reveal-head"><h2>The <code>$health-cards-issue</code> call</h2></div>
+      <p class="op-note" id="op-note"></p>
+      <p class="api-label">Request</p>
+      <pre id="op-req"></pre>
+      <p class="api-label">Response</p>
+      <pre id="op-res"></pre>
+    </div>
+
+    <!-- Issued card artifacts -->
+    <div class="linkbox hidden" id="linkbox">
+      <span class="linkbox-label">Verifiable Credential (JWS)</span>
+      <code id="jws-out"></code>
+      <button class="ghost small" id="copy" type="button">Copy</button>
+    </div>
+    <div class="row hidden" id="dlrow">
+      <a class="dl" id="download" href="#" download><button type="button">Download .smart-health-card</button></a>
+      <span class="linkbox-label" id="issuer-note"></span>
+    </div>
+
+    <div class="qrbox hidden" id="qrbox">
+      <canvas id="qr" width="150" height="150" aria-label="QR code for the SMART Health Card"></canvas>
+      <p class="qr-caption" id="qr-caption">The QR holds the <code>shc:/</code> health card. Scan it with the Health app.</p>
+    </div>
+
+    <!-- Verification result -->
+    <div class="reveal hidden" id="reveal">
+      <div class="reveal-head">
+        <h2>Verified health card</h2>
+        <span class="badge" id="badge">—</span>
+      </div>
+      <div class="verdict hidden" id="verdict"></div>
+      <div id="vsteps" class="vsteps"></div>
+      <div class="grid2">
+        <div><p class="api-label">JWS header</p><pre id="vheader"></pre></div>
+        <div><p class="api-label">Payload claims</p><pre id="vclaims"></pre></div>
+      </div>
+      <p class="api-label" style="margin-top:14px">FHIR bundle (vc.credentialSubject.fhirBundle)</p>
+      <pre id="out"></pre>
+    </div>
+
+    <div class="err hidden" id="error"></div>
+  </div>
+
+<script type="module">
+  const $ = (id) => document.getElementById(id);
+
+  // ---- tiny QR encoder (byte mode, EC level M) --------------------------------
+  // Self-contained (strict CSP, no CDN). Ported from the SHL example. Byte mode
+  // caps at ~669 bytes; larger cards fall back to the copyable shc:/ string.
+  const QR = (() => {
+    const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+    for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11d; }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+    const gmul = (a, b) => (a && b ? EXP[LOG[a] + LOG[b]] : 0);
+    function rsGenerator(deg) {
+      let poly = [1];
+      for (let i = 0; i < deg; i++) {
+        const next = new Array(poly.length + 1).fill(0);
+        for (let j = 0; j < poly.length; j++) { next[j] ^= gmul(poly[j], EXP[i]); next[j + 1] ^= poly[j]; }
+        poly = next;
+      }
+      return poly.reverse();
+    }
+    function rsEncode(data, ecLen) {
+      const gen = rsGenerator(ecLen); const res = new Array(ecLen).fill(0);
+      for (const d of data) { const factor = d ^ res[0]; res.shift(); res.push(0); if (factor) for (let i = 0; i < ecLen; i++) res[i] ^= gmul(gen[i + 1], factor); }
+      return res;
+    }
+    // Error-correction LEVEL L (low ECC = max data) per version, which is what
+    // SMART Health Cards QR uses so a card fits within QR version <= 22.
+    const VERSIONS = {
+      1:{ec:7,groups:[[1,19]]},2:{ec:10,groups:[[1,34]]},3:{ec:15,groups:[[1,55]]},4:{ec:20,groups:[[1,80]]},
+      5:{ec:26,groups:[[1,108]]},6:{ec:18,groups:[[2,68]]},7:{ec:20,groups:[[2,78]]},8:{ec:24,groups:[[2,97]]},
+      9:{ec:30,groups:[[2,116]]},10:{ec:18,groups:[[2,68],[2,69]]},11:{ec:20,groups:[[4,81]]},
+      12:{ec:24,groups:[[2,92],[2,93]]},13:{ec:26,groups:[[4,107]]},14:{ec:30,groups:[[3,115],[1,116]]},
+      15:{ec:22,groups:[[5,87],[1,88]]},16:{ec:24,groups:[[5,98],[1,99]]},17:{ec:28,groups:[[1,107],[5,108]]},
+      18:{ec:30,groups:[[5,120],[1,121]]},19:{ec:28,groups:[[3,113],[4,114]]},20:{ec:28,groups:[[3,107],[5,108]]},
+      21:{ec:28,groups:[[4,116],[4,117]]},22:{ec:28,groups:[[2,111],[7,112]]},
+    };
+    const dataCapacity = (v) => VERSIONS[v].groups.reduce((n, [c, d]) => n + c * d, 0);
+    function charCountBits(mode, v) {
+      if (mode === 'byte') return v <= 9 ? 8 : 16;
+      return v <= 9 ? 10 : v <= 26 ? 12 : 14; // numeric
+    }
+    function segBits(seg, v) {
+      const head = 4 + charCountBits(seg.mode, v);
+      if (seg.mode === 'byte') return head + seg.data.length * 8;
+      const n = seg.data.length; // numeric: seg.data is a digit string
+      return head + Math.floor(n / 3) * 10 + (n % 3 === 2 ? 7 : n % 3 === 1 ? 4 : 0);
+    }
+    // shc:/ is "shc:/" (bytes) followed by all digits (numeric mode) — numeric
+    // packs 3 digits per 10 bits, so a full card fits where byte mode can't.
+    function makeSegments(text) {
+      const m = /^(shc:\/)(\d+)$/.exec(text);
+      if (m) return [{ mode: 'byte', data: new TextEncoder().encode(m[1]) }, { mode: 'numeric', data: m[2] }];
+      return [{ mode: 'byte', data: new TextEncoder().encode(text) }];
+    }
+    function pickVersion(segments) {
+      // Cap at version 22: SMART Health Cards require a single QR of version <= 22.
+      for (let v = 1; v <= 22; v++) {
+        const bits = segments.reduce((s, seg) => s + segBits(seg, v), 0);
+        if (Math.ceil(bits / 8) <= dataCapacity(v)) return v;
+      }
+      throw new Error("Card too large for a single QR (> version 22).");
+    }
+    function buildData(segments, v) {
+      const bits = [];
+      const push = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+      for (const seg of segments) {
+        const cc = charCountBits(seg.mode, v);
+        if (seg.mode === 'byte') {
+          push(0b0100, 4); push(seg.data.length, cc);
+          for (const b of seg.data) push(b, 8);
+        } else {
+          push(0b0001, 4); push(seg.data.length, cc);
+          const s = seg.data; let i = 0;
+          for (; i + 3 <= s.length; i += 3) push(parseInt(s.substr(i, 3), 10), 10);
+          const rem = s.length - i;
+          if (rem === 2) push(parseInt(s.substr(i, 2), 10), 7);
+          else if (rem === 1) push(parseInt(s.substr(i, 1), 10), 4);
+        }
+      }
+      const cap = dataCapacity(v) * 8;
+      push(0, Math.min(4, cap - bits.length));
+      while (bits.length % 8) bits.push(0);
+      const codewords = [];
+      for (let i = 0; i < bits.length; i += 8) { let c = 0; for (let j = 0; j < 8; j++) c = (c << 1) | bits[i + j]; codewords.push(c); }
+      const pads = [0xec, 0x11]; let pi = 0;
+      while (codewords.length < dataCapacity(v)) codewords.push(pads[pi++ % 2]);
+      return codewords;
+    }
+    function interleave(codewords, v) {
+      const { ec, groups } = VERSIONS[v]; const blocks = []; let pos = 0;
+      for (const [count, dlen] of groups) for (let i = 0; i < count; i++) { const data = codewords.slice(pos, pos + dlen); pos += dlen; blocks.push({ data, ec: rsEncode(data, ec) }); }
+      const maxData = Math.max(...blocks.map((b) => b.data.length)); const out = [];
+      for (let i = 0; i < maxData; i++) for (const b of blocks) if (i < b.data.length) out.push(b.data[i]);
+      for (let i = 0; i < ec; i++) for (const b of blocks) out.push(b.ec[i]);
+      return out;
+    }
+    const size = (v) => v * 4 + 17;
+    const ALIGN = {2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50],11:[6,30,54],12:[6,32,58],13:[6,34,62],14:[6,26,46,66],15:[6,26,48,70],16:[6,26,50,74],17:[6,30,54,78],18:[6,30,56,82],19:[6,30,58,86],20:[6,34,62,90],
+      21:[6,28,50,72,94],22:[6,26,50,74,98]};
+    function placeFunctionPatterns(m, reserved, v) {
+      const n = size(v);
+      const finder = (r, c) => { for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) { const rr = r + dr, cc = c + dc; if (rr < 0 || cc < 0 || rr >= n || cc >= n) continue; const inRing = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6 && (dr === 0 || dr === 6 || dc === 0 || dc === 6); const inCore = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4; m[rr][cc] = inRing || inCore ? 1 : 0; reserved[rr][cc] = 1; } };
+      finder(0, 0); finder(0, n - 7); finder(n - 7, 0);
+      for (let i = 8; i < n - 8; i++) { m[6][i] = i % 2 === 0 ? 1 : 0; reserved[6][i] = 1; m[i][6] = i % 2 === 0 ? 1 : 0; reserved[i][6] = 1; }
+      const centers = ALIGN[v] || []; const last = centers.length - 1;
+      const collides = (ri, ci) => (ri === 0 && ci === 0) || (ri === 0 && ci === last) || (ri === last && ci === 0);
+      for (let ri = 0; ri < centers.length; ri++) for (let ci = 0; ci < centers.length; ci++) { if (collides(ri, ci)) continue; const r = centers[ri], c = centers[ci]; for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) { const isDark = Math.max(Math.abs(dr), Math.abs(dc)) !== 1; m[r + dr][c + dc] = isDark ? 1 : 0; reserved[r + dr][c + dc] = 1; } }
+      m[n - 8][8] = 1; reserved[n - 8][8] = 1;
+      for (let i = 0; i < 9; i++) { reserved[8][i] = 1; reserved[i][8] = 1; }
+      for (let i = 0; i < 8; i++) { reserved[8][n - 1 - i] = 1; reserved[n - 1 - i][8] = 1; }
+      if (v >= 7) for (let i = 0; i < 6; i++) for (let j = 0; j < 3; j++) { reserved[i][n - 11 + j] = 1; reserved[n - 11 + j][i] = 1; }
+    }
+    function placeData(m, reserved, codewords, v) {
+      const n = size(v); const totalBits = codewords.length * 8;
+      const bitAt = (i) => i < totalBits ? (codewords[i >> 3] >> (7 - (i & 7))) & 1 : 0;
+      let bitIdx = 0, upward = true;
+      for (let col = n - 1; col > 0; col -= 2) { if (col === 6) col--; for (let i = 0; i < n; i++) { const row = upward ? n - 1 - i : i; for (let c = 0; c < 2; c++) { const cc = col - c; if (reserved[row][cc]) continue; m[row][cc] = bitAt(bitIdx++); } } upward = !upward; }
+    }
+    function applyMask(m, reserved, v, mask) {
+      const n = size(v); const out = m.map((r) => r.slice());
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) { if (reserved[r][c]) continue; let flip = false; switch (mask) { case 0: flip = (r + c) % 2 === 0; break; case 1: flip = r % 2 === 0; break; case 2: flip = c % 3 === 0; break; case 3: flip = (r + c) % 3 === 0; break; case 4: flip = (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0; break; case 5: flip = ((r * c) % 2) + ((r * c) % 3) === 0; break; case 6: flip = (((r * c) % 2) + ((r * c) % 3)) % 2 === 0; break; case 7: flip = (((r + c) % 2) + ((r * c) % 3)) % 2 === 0; break; } if (flip) out[r][c] ^= 1; }
+      return out;
+    }
+    function placeFormat(m, v, mask) {
+      // 0b01 = EC level L in the format-info EC-level field (must match VERSIONS).
+      const n = size(v); let data = (0b01 << 3) | mask; let rem = data;
+      for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >> 9) & 1 ? 0x537 : 0);
+      const bits = (((data << 10) | rem) ^ 0x5412); const get = (i) => (bits >> i) & 1;
+      const tl = [[8,0,14],[8,1,13],[8,2,12],[8,3,11],[8,4,10],[8,5,9],[8,7,8],[8,8,7],[7,8,6],[5,8,5],[4,8,4],[3,8,3],[2,8,2],[1,8,1],[0,8,0]];
+      for (const [r, c, i] of tl) m[r][c] = get(i);
+      for (let i = 0; i < 7; i++) m[n - 1 - i][8] = get(8 + i);
+      for (let i = 0; i < 8; i++) m[8][n - 1 - i] = get(i);
+    }
+    function placeVersion(m, v) {
+      if (v < 7) return; const n = size(v); let rem = v;
+      for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >> 11) & 1 ? 0x1f25 : 0);
+      const bits = (v << 12) | rem;
+      for (let i = 0; i < 18; i++) { const bit = (bits >> i) & 1; const r = Math.floor(i / 3), c = i % 3; m[r][n - 11 + c] = bit; m[n - 11 + c][r] = bit; }
+    }
+    function penalty(m, n) {
+      let score = 0;
+      for (let r = 0; r < n; r++) for (const line of [m[r], m.map((row) => row[r])]) { let run = 1; for (let i = 1; i < n; i++) { if (line[i] === line[i - 1]) { run++; if (run === 5) score += 3; else if (run > 5) score++; } else run = 1; } }
+      const pat = [1, 0, 1, 1, 1, 0, 1];
+      for (let r = 0; r < n; r++) for (let c = 0; c <= n - 7; c++) { let h = true, vt = true; for (let k = 0; k < 7; k++) { if (m[r][c + k] !== pat[k]) h = false; if (m[c + k][r] !== pat[k]) vt = false; } if (h) score += 40; if (vt) score += 40; }
+      return score;
+    }
+    function generate(text) {
+      const segments = makeSegments(text); const v = pickVersion(segments); const n = size(v);
+      const codewords = interleave(buildData(segments, v), v);
+      const base = Array.from({ length: n }, () => new Array(n).fill(0));
+      const reserved = Array.from({ length: n }, () => new Array(n).fill(0));
+      placeFunctionPatterns(base, reserved, v); placeData(base, reserved, codewords, v);
+      let best = null;
+      for (let mask = 0; mask < 8; mask++) { const masked = applyMask(base, reserved, v, mask); placeFormat(masked, v, mask); placeVersion(masked, v); const p = penalty(masked, n); if (!best || p < best.p) best = { matrix: masked, p, mask }; }
+      return best.matrix;
+    }
+    function draw(canvas, text) {
+      const matrix = generate(text); const n = matrix.length; const quiet = 4; const total = n + quiet * 2;
+      canvas.width = total; canvas.height = total; const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, total, total); ctx.fillStyle = "#000";
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (matrix[r][c]) ctx.fillRect(c + quiet, r + quiet, 1, 1);
+    }
+    return { draw };
+  })();
+
+  // ---- helpers ----------------------------------------------------------------
+  function b64urlToBytes(s) {
+    s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "=";
+    const bin = atob(s); const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function highlight(jsonText) {
+    return esc(jsonText).replace(/("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+      (m) => { let cls = "n"; if (/^"/.test(m)) cls = /:$/.test(m) ? "k" : "s"; else if (/true|false|null/.test(m)) cls = "b"; return `<span class="${cls}">${m}</span>`; });
+  }
+  function showError(msg) { const e = $("error"); e.innerHTML = msg; e.classList.remove("hidden"); }
+  function clearError() { $("error").classList.add("hidden"); }
+
+  // ---- SHC decode + verify ----------------------------------------------------
+  async function inflatePayload(payloadB64, zip) {
+    const bytes = b64urlToBytes(payloadB64);
+    if (zip === "DEF") {
+      const ds = new DecompressionStream("deflate-raw");
+      const buf = await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();
+      return new TextDecoder().decode(buf);
+    }
+    return new TextDecoder().decode(bytes);
+  }
+
+  async function verifyCard(jws) {
+    const parts = jws.trim().split(".");
+    if (parts.length !== 3) throw new Error("Malformed JWS (expected 3 segments).");
+    const [headerB64, payloadB64, sigB64] = parts;
+    const header = JSON.parse(new TextDecoder().decode(b64urlToBytes(headerB64)));
+    if (header.alg !== "ES256") throw new Error(`Unexpected alg: ${header.alg} (expected ES256).`);
+
+    const payloadJson = await inflatePayload(payloadB64, header.zip);
+    const payload = JSON.parse(payloadJson);
+    const iss = payload.iss;
+
+    // Fetch the issuer JWKS. A real verifier uses <iss>/.well-known/jwks.json;
+    // for the demo we fetch the same-origin route (CORS-safe) and show iss.
+    const jwksRes = await fetch("/.well-known/jwks.json");
+    if (!jwksRes.ok) throw new Error(`JWKS fetch failed: HTTP ${jwksRes.status}`);
+    const jwks = await jwksRes.json();
+    const jwk = (jwks.keys || []).find((k) => k.kid === header.kid);
+    if (!jwk) throw new Error(`No JWKS key matches kid ${header.kid}.`);
+
+    const key = await crypto.subtle.importKey("jwk", jwk, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+    const signingInput = new TextEncoder().encode(`${headerB64}.${payloadB64}`);
+    const sig = b64urlToBytes(sigB64); // ES256 JWS signature is raw r||s (64 bytes)
+    const valid = await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, sig, signingInput);
+
+    return { valid, header, payload, iss };
+  }
+
+  function renderVerification({ valid, header, payload, iss }) {
+    $("reveal").classList.remove("hidden");
+    const badge = $("badge");
+    badge.textContent = valid ? "signature verified" : "signature INVALID";
+    badge.className = "badge " + (valid ? "verified" : "bad");
+
+    const bundle = payload?.vc?.credentialSubject?.fhirBundle;
+    const entries = (bundle?.entry || []).length;
+    const iso = (secs) => new Date(secs * 1000).toISOString().replace(".000Z", "Z");
+    const nbfStr = payload?.nbf ? `${payload.nbf}  (${iso(payload.nbf)})` : undefined;
+    const expStr = payload?.exp ? `${payload.exp}  (${iso(payload.exp)})` : undefined;
+
+    const verdict = $("verdict");
+    verdict.className = "verdict " + (valid ? "ok" : "bad");
+    verdict.innerHTML = valid
+      ? `✓ <b>Valid.</b> The ES256 signature matches the issuer's published key, and the DEFLATE-compressed payload was intact — not altered since it was signed.`
+      : `✕ <b>Invalid.</b> The signature does not verify against the issuer's JWKS: the card was not issued by this key, or it was tampered with.`;
+    verdict.classList.remove("hidden");
+
+    // What the verifier actually did, step by step.
+    const step = (ok, txt) => `<div><span class="${ok ? "ok" : "bad"}">${ok ? "✓" : "✕"}</span> ${esc(txt)}</div>`;
+    $("vsteps").innerHTML = [
+      step(true, `Split the compact JWS into header · payload · signature`),
+      step(header.alg === "ES256", `Header: alg=${header.alg}, zip=${header.zip}, kid=${(header.kid || "").slice(0, 16)}…`),
+      step(true, `Read iss=${iss}, fetched ${iss}/.well-known/jwks.json`),
+      step(true, `Selected the JWKS key whose kid matches the header`),
+      step(valid, `Verified the ES256 signature over header.payload`),
+      step(true, `Inflated the DEFLATE payload → FHIR bundle with ${entries} ${entries === 1 ? "entry" : "entries"}`),
+    ].join("");
+
+    $("vheader").textContent = JSON.stringify(header, null, 2);
+    $("vclaims").textContent = JSON.stringify({
+      iss,
+      nbf: nbfStr,
+      ...(expStr ? { exp: expStr } : {}),
+      "vc.type": payload?.vc?.type,
+      fhirVersion: payload?.vc?.credentialSubject?.fhirVersion,
+    }, null, 2);
+
+    $("out").innerHTML = highlight(JSON.stringify(bundle || payload, null, 2));
+  }
+
+  // ---- issue ------------------------------------------------------------------
+  async function issue() {
+    clearError();
+    $("reveal").classList.add("hidden");
+    $("opbox").classList.add("hidden");
+    const patientId = $("patientId").value.trim() || "example-patient";
+    const credentialType = gather("ct-rows");
+    if (!credentialType.length) credentialType.push("https://smarthealth.cards#covid19");
+    const credentialValueSet = gather("cvs-rows");
+    const includeIdentityClaim = gather("ic-rows");
+    const since = $("since").value.trim();
+    $("issue").disabled = true;
+    try {
+      const res = await fetch("/demo/issue", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          patientId,
+          credentialType,
+          credentialValueSet: credentialValueSet.length ? credentialValueSet : undefined,
+          includeIdentityClaim: includeIdentityClaim.length ? includeIdentityClaim : undefined,
+          since: since || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      const jws = data.verifiableCredential;
+
+      // Show the actual FHIR operation this maps to (the demo used an unauth
+      // stand-in, but this is the real authenticated $health-cards-issue call).
+      const fhirBase = String(data.issuer).replace(/\/health-cards-app$/, "") + "/fhir";
+      const opParams = credentialType.map((t) => ({ name: "credentialType", valueUri: t }));
+      credentialValueSet.forEach((v) => opParams.push({ name: "credentialValueSet", valueUri: v }));
+      includeIdentityClaim.forEach((v) => opParams.push({ name: "includeIdentityClaim", valueString: v }));
+      if (since) opParams.push({ name: "_since", valueDateTime: since });
+      const reqBody = { resourceType: "Parameters", parameter: opParams };
+      $("op-req").innerHTML =
+        `<span class="verb">POST</span> ${esc(fhirBase)}/Patient/${esc(patientId)}/$health-cards-issue\n` +
+        `Authorization: Basic base64(client:secret)\n` +
+        `Content-Type: application/fhir+json\n\n` +
+        esc(JSON.stringify(reqBody, null, 2));
+      const resParams = [{ name: "verifiableCredential", valueString: jws.slice(0, 64) + "…(JWS truncated)" }];
+      (data.resourceLinks || []).forEach((l) => resParams.push({
+        name: "resourceLink",
+        part: [
+          { name: "vcIndex", valueInteger: 0 },
+          { name: "bundledResource", valueUri: l.bundledResource },
+          { name: "hostedResource", valueUri: l.hostedResource },
+        ],
+      }));
+      $("op-res").textContent = JSON.stringify({ resourceType: "Parameters", parameter: resParams }, null, 2);
+      $("op-note").innerHTML =
+        'The real entry point is this <b>authenticated</b> FHIR operation. This demo page can\'t hold Aidbox credentials in the browser, so it actually called an unauthenticated stand-in (<code>POST /demo/issue</code>) — but the request/response below is exactly what <code>$health-cards-issue</code> looks like.';
+      $("opbox").classList.remove("hidden");
+
+      $("jws-out").textContent = jws;
+      $("linkbox").classList.remove("hidden");
+      $("download").href = data.downloadUrl;
+      $("issuer-note").textContent = `issuer ${data.issuer}`;
+      $("dlrow").classList.remove("hidden");
+
+      // QR of the shc:/ payload (best effort; falls back for large cards).
+      // A too-large-for-QR note belongs next to the QR, not in the error box.
+      $("qrbox").classList.remove("hidden");
+      try {
+        QR.draw($("qr"), data.qr);
+        $("qr").classList.remove("hidden");
+        $("qr-caption").innerHTML = 'The QR holds the <code>shc:/</code> health card. Scan it with the Health app.';
+      } catch {
+        $("qr").classList.add("hidden");
+        $("qr-caption").innerHTML = 'Too large for a single QR (&gt; version 22) — use the <code>.smart-health-card</code> download or the copied JWS above.';
+      }
+
+      // Auto-verify the freshly issued card.
+      renderVerification(await verifyCard(jws));
+    } catch (e) {
+      showError(`Couldn't issue the card. <code>${esc(e.message)}</code>`);
+    } finally {
+      $("issue").disabled = false;
+    }
+  }
+
+  async function verify() {
+    clearError();
+    $("reveal").classList.add("hidden");
+    const jws = $("jwsIn").value.trim();
+    if (!jws) { showError("Paste a SMART Health Card JWS first."); return; }
+    $("verify").disabled = true;
+    try {
+      renderVerification(await verifyCard(jws));
+    } catch (e) {
+      showError(`Verification failed. <code>${esc(e.message)}</code>`);
+    } finally {
+      $("verify").disabled = false;
+    }
+  }
+
+  // ---- tabs + wiring ----------------------------------------------------------
+  function selectTab(which) {
+    const issueTab = which === "issue";
+    $("tab-issue").setAttribute("aria-selected", String(issueTab));
+    $("tab-verify").setAttribute("aria-selected", String(!issueTab));
+    $("pane-issue").classList.toggle("hidden", !issueTab);
+    $("pane-verify").classList.toggle("hidden", issueTab);
+  }
+  $("tab-issue").addEventListener("click", () => selectTab("issue"));
+  $("tab-verify").addEventListener("click", () => selectTab("verify"));
+  $("issue").addEventListener("click", issue);
+  $("verify").addEventListener("click", verify);
+  $("clear").addEventListener("click", () => { $("jwsIn").value = ""; $("reveal").classList.add("hidden"); clearError(); });
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("jws-out").textContent); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy"), 1200); } catch {}
+  });
+
+  // ---- repeatable IN-parameter rows (credentialType/credentialValueSet/includeIdentityClaim) ----
+  const CT_OPTIONS = [
+    { v: "https://smarthealth.cards#covid19", t: "#covid19" },
+    { v: "Immunization", t: "Immunization" },
+    { v: "Observation", t: "Observation" },
+  ];
+  const CVS_OPTIONS = [
+    { v: "https://terminology.smarthealth.cards/ValueSet/immunization-covid-cvx", t: "immunization-covid-cvx (COVID CVX)" },
+  ];
+  const IC_OPTIONS = [
+    { v: "Patient.name", t: "Patient.name" },
+    { v: "Patient.birthDate", t: "Patient.birthDate" },
+    { v: "Patient.gender", t: "Patient.gender" },
+  ];
+  function optsHtml(opts) { return opts.map((o) => `<option value="${o.v}">${o.t}</option>`).join(""); }
+  function addRow(containerId, opts, removable) {
+    const row = document.createElement("div");
+    row.className = "rrow";
+    row.innerHTML = `<select>${optsHtml(opts)}</select>` + (removable ? `<button class="ghost small" type="button">×</button>` : "");
+    const rm = row.querySelector("button");
+    if (rm) rm.addEventListener("click", () => row.remove());
+    $(containerId).appendChild(row);
+  }
+  function gather(id) { return [...$(id).querySelectorAll("select")].map((s) => s.value).filter(Boolean); }
+
+  addRow("ct-rows", CT_OPTIONS, false); // credentialType is 1..* — one fixed row
+  $("ct-add").addEventListener("click", () => addRow("ct-rows", CT_OPTIONS, true));
+  $("cvs-add").addEventListener("click", () => addRow("cvs-rows", CVS_OPTIONS, true));
+  $("ic-add").addEventListener("click", () => addRow("ic-rows", IC_OPTIONS, true));
+  $("adv-toggle").addEventListener("click", () => {
+    const b = $("adv-toggle");
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    $("advanced").classList.toggle("hidden", open);
+  });
+
+  // Populate the Patient dropdown from Aidbox (via the app).
+  async function loadPatients() {
+    const sel = $("patientId");
+    try {
+      const list = await (await fetch("/demo/patients")).json();
+      sel.innerHTML = "";
+      for (const p of list) {
+        const o = document.createElement("option");
+        o.value = p.id; o.textContent = p.label || p.id;
+        sel.appendChild(o);
+      }
+      if (!list.length) sel.innerHTML = '<option value="example-patient">example-patient</option>';
+    } catch {
+      sel.innerHTML = '<option value="example-patient">example-patient</option>';
+    }
+  }
+  loadPatients();
+</script>
+</body>
+</html>

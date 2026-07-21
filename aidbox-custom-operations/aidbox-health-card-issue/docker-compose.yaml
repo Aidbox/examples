@@ -21,7 +21,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - 8080:8080
+      - 8081:8080
     volumes:
       - ./init-bundle:/app/init-bundle:ro
     environment:
@@ -50,7 +50,7 @@ services:
       BOX_SECURITY_AUDIT_LOG_ENABLED: true
       BOX_SECURITY_DEV_MODE: true
       BOX_SETTINGS_MODE: read-write
-      BOX_WEB_BASE_URL: http://localhost:8080
+      BOX_WEB_BASE_URL: http://localhost:8081
       BOX_WEB_PORT: 8080
       BOX_INIT_BUNDLE: file:///app/init-bundle/bundle.json
     healthcheck:
@@ -63,13 +63,13 @@ services:
   health-cards-app:
     build: .
     ports:
-      - 3000:3000
+      - 3001:3001
     depends_on:
       aidbox:
         condition: service_healthy
     environment:
       # Server Configuration
-      PORT: 3000
+      PORT: 3001
       NODE_ENV: production
       
       # Aidbox Configuration
@@ -78,7 +78,11 @@ services:
       AIDBOX_CLIENT_SECRET: secret
       
       # Health Cards Configuration
-      HEALTH_CARDS_ISSUER: https://example.org/health-cards
+      # iss MUST be the base whose <iss>/.well-known/jwks.json serves the key.
+      # Here that is the namespaced Aidbox App operation (see init-bundle App).
+      # NOTE: the spec requires https + no trailing slash; http/localhost is a
+      # local-dev deviation (prod: https + TLS 1.2 + VCI directory enrollment).
+      HEALTH_CARDS_ISSUER: http://localhost:8081/health-cards-app
       HEALTH_CARDS_KEY_PATH: ./keys/private-key.pem
     volumes:
       - ./keys:/app/keys:ro
