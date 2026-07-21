@@ -61,6 +61,12 @@
   .reveal { margin-top: 28px; }
   .reveal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .reveal-head h2 { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0; letter-spacing: -0.01em; }
+  .opbox { margin-top: 28px; }
+  .op-note { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+  .op-note code { font-family: var(--mono); color: var(--text); }
+  .api-label { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+  .opbox pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; }
+  .opbox .verb { color: var(--accent); }
   .badge { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
   .badge.verified { color: var(--accent); border-color: var(--accent); }
   .badge.bad { color: var(--danger); border-color: var(--danger); }
@@ -124,6 +130,16 @@
           <button id="clear" class="ghost" type="button">Clear</button>
         </div>
       </div>
+    </div>
+
+    <!-- The $health-cards-issue operation that produced the card -->
+    <div class="opbox hidden" id="opbox">
+      <div class="reveal-head"><h2>The <code>$health-cards-issue</code> call</h2></div>
+      <p class="op-note" id="op-note"></p>
+      <p class="api-label">Request</p>
+      <pre id="op-req"></pre>
+      <p class="api-label">Response</p>
+      <pre id="op-res"></pre>
     </div>
 
     <!-- Issued card artifacts -->
@@ -394,6 +410,7 @@
   async function issue() {
     clearError();
     $("reveal").classList.add("hidden");
+    $("opbox").classList.add("hidden");
     const patientId = $("patientId").value.trim() || "example-patient";
     const credentialType = $("credentialType").value;
     $("issue").disabled = true;
@@ -405,6 +422,21 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
       const jws = data.verifiableCredential;
+
+      // Show the actual FHIR operation this maps to (the demo used an unauth
+      // stand-in, but this is the real authenticated $health-cards-issue call).
+      const fhirBase = String(data.issuer).replace(/\/health-cards-app$/, "") + "/fhir";
+      const reqBody = { resourceType: "Parameters", parameter: [{ name: "credentialType", valueUri: credentialType }] };
+      $("op-req").innerHTML =
+        `<span class="verb">POST</span> ${esc(fhirBase)}/Patient/${esc(patientId)}/$health-cards-issue\n` +
+        `Authorization: Basic base64(client:secret)\n` +
+        `Content-Type: application/fhir+json\n\n` +
+        esc(JSON.stringify(reqBody, null, 2));
+      const resBody = { resourceType: "Parameters", parameter: [{ name: "verifiableCredential", valueString: jws.slice(0, 64) + "…(JWS truncated)" }] };
+      $("op-res").textContent = JSON.stringify(resBody, null, 2);
+      $("op-note").innerHTML =
+        'The real entry point is this <b>authenticated</b> FHIR operation. This demo page can\'t hold Aidbox credentials in the browser, so it actually called an unauthenticated stand-in (<code>POST /demo/issue</code>) — but the request/response below is exactly what <code>$health-cards-issue</code> looks like.';
+      $("opbox").classList.remove("hidden");
 
       $("jws-out").textContent = jws;
       $("linkbox").classList.remove("hidden");
