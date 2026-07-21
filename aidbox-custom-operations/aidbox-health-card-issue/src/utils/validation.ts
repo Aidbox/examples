@@ -59,7 +59,7 @@ function isValidDateTimeString(dateTime: string): boolean {
 
 export interface ExtractedParameters {
   credentialType: string[];
-  credentialValueSet?: string;
+  credentialValueSet?: string[];
   // Per the operation, includeIdentityClaim is a repeating string of claim
   // paths (e.g. "Patient.name"). A boolean is tolerated for backward compat.
   includeIdentityClaim: boolean | string[];
@@ -80,8 +80,8 @@ export function extractParametersFromResource(
 
   const credentialType: string[] = [];
   const identityClaims: string[] = [];
+  const credentialValueSet: string[] = [];
   let identityBoolean: boolean | undefined;
-  let credentialValueSet: string | undefined;
   let since: string | undefined;
 
   for (const param of resource.parameter) {
@@ -94,7 +94,7 @@ export function extractParametersFromResource(
       }
       case 'credentialValueSet': {
         const v = param.valueUri ?? param.valueString;
-        if (v) credentialValueSet = v;
+        if (v) credentialValueSet.push(v);
         break;
       }
       case 'includeIdentityClaim': {
@@ -124,7 +124,7 @@ export function extractParametersFromResource(
 
   return {
     credentialType: credentialType.length ? credentialType : defaults.credentialType,
-    credentialValueSet,
+    credentialValueSet: credentialValueSet.length ? credentialValueSet : undefined,
     includeIdentityClaim,
     _since: since,
   };

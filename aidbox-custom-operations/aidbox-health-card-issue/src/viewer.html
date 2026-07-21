@@ -67,6 +67,12 @@
   .api-label { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
   .opbox pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; }
   .opbox .verb { color: var(--accent); }
+  .opt { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .rrow { display: flex; gap: 8px; margin-bottom: 8px; }
+  .rrow select { flex: 1; }
+  .adv-toggle { margin: 22px 0 10px; padding: 0; background: none; border: 0; color: var(--text); font-family: var(--display); font-weight: 600; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .adv-toggle .chev { color: var(--muted); transition: transform .15s; }
+  .adv-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
   .badge { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
   .badge.verified { color: var(--accent); border-color: var(--accent); }
   .badge.bad { color: var(--danger); border-color: var(--danger); }
@@ -102,33 +108,37 @@
 
       <!-- Issue -->
       <div class="pane" id="pane-issue">
-        <div class="grid2">
-          <div>
-            <label class="fld" for="patientId">Patient</label>
-            <select id="patientId"></select>
-          </div>
-          <div>
-            <label class="fld" for="credentialType">Credential type</label>
-            <select id="credentialType">
-              <option value="https://smarthealth.cards#covid19">https://smarthealth.cards#covid19</option>
-              <option value="Immunization">Immunization</option>
-              <option value="Observation">Observation</option>
-            </select>
-          </div>
+        <div>
+          <label class="fld" for="patientId">Patient</label>
+          <select id="patientId"></select>
         </div>
         <div style="margin-top:14px">
-          <label class="fld" for="credentialValueSet">credentialValueSet (optional)</label>
-          <select id="credentialValueSet">
-            <option value="">(none)</option>
-            <option value="http://hl7.org/fhir/uv/shc-vaccination/ValueSet/immunization-all-cvx">immunization-all-cvx (CVX vaccines)</option>
-          </select>
-          <p class="op-note" style="margin-top:6px">Keeps only resources whose code is in this ValueSet (via <code>$validate-code</code>). E.g. requesting <code>Observation</code> with the CVX set filters LOINC labs out.</p>
+          <label class="fld">credentialType <span class="opt">(1 or more)</span></label>
+          <div id="ct-rows"></div>
+          <button class="ghost small" id="ct-add" type="button">+ credentialType</button>
         </div>
         <div style="margin-top:14px">
-          <label class="fld" for="since">_since (optional)</label>
+          <label class="fld" for="since">_since <span class="opt">(optional)</span></label>
           <input id="since" type="text" placeholder="YYYY-MM-DD" spellcheck="false" />
           <p class="op-note" style="margin-top:6px">Only resources with <code>_lastUpdated</code> ≥ this date (server write time, not clinical date). A future date returns nothing.</p>
         </div>
+
+        <button class="adv-toggle" id="adv-toggle" type="button" aria-expanded="false">Advanced <span class="chev">▸</span></button>
+        <div id="advanced" class="hidden">
+          <div>
+            <label class="fld">credentialValueSet <span class="opt">(optional, repeatable)</span></label>
+            <div id="cvs-rows"></div>
+            <button class="ghost small" id="cvs-add" type="button">+ credentialValueSet</button>
+            <p class="op-note" style="margin-top:6px">Keeps only resources whose code is a member of <em>every</em> listed ValueSet (via <code>$validate-code</code>). E.g. <code>Observation</code> + the CVX set filters LOINC labs out.</p>
+          </div>
+          <div style="margin-top:14px">
+            <label class="fld">includeIdentityClaim <span class="opt">(optional, repeatable)</span></label>
+            <div id="ic-rows"></div>
+            <button class="ghost small" id="ic-add" type="button">+ includeIdentityClaim</button>
+            <p class="op-note" style="margin-top:6px">Which Patient fields to include. Default when empty: name + birthDate.</p>
+          </div>
+        </div>
+
         <div class="row">
           <button id="issue">Issue card</button>
         </div>
@@ -425,14 +435,22 @@
     $("reveal").classList.add("hidden");
     $("opbox").classList.add("hidden");
     const patientId = $("patientId").value.trim() || "example-patient";
-    const credentialType = $("credentialType").value;
-    const credentialValueSet = $("credentialValueSet").value;
+    const credentialType = gather("ct-rows");
+    if (!credentialType.length) credentialType.push("https://smarthealth.cards#covid19");
+    const credentialValueSet = gather("cvs-rows");
+    const includeIdentityClaim = gather("ic-rows");
     const since = $("since").value.trim();
     $("issue").disabled = true;
     try {
       const res = await fetch("/demo/issue", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ patientId, credentialType, credentialValueSet: credentialValueSet || undefined, since: since || undefined }),
+        body: JSON.stringify({
+          patientId,
+          credentialType,
+          credentialValueSet: credentialValueSet.length ? credentialValueSet : undefined,
+          includeIdentityClaim: includeIdentityClaim.length ? includeIdentityClaim : undefined,
+          since: since || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -441,8 +459,9 @@
       // Show the actual FHIR operation this maps to (the demo used an unauth
       // stand-in, but this is the real authenticated $health-cards-issue call).
       const fhirBase = String(data.issuer).replace(/\/health-cards-app$/, "") + "/fhir";
-      const opParams = [{ name: "credentialType", valueUri: credentialType }];
-      if (credentialValueSet) opParams.push({ name: "credentialValueSet", valueUri: credentialValueSet });
+      const opParams = credentialType.map((t) => ({ name: "credentialType", valueUri: t }));
+      credentialValueSet.forEach((v) => opParams.push({ name: "credentialValueSet", valueUri: v }));
+      includeIdentityClaim.forEach((v) => opParams.push({ name: "includeIdentityClaim", valueString: v }));
       if (since) opParams.push({ name: "_since", valueDateTime: since });
       const reqBody = { resourceType: "Parameters", parameter: opParams };
       $("op-req").innerHTML =
@@ -519,6 +538,43 @@
   $("clear").addEventListener("click", () => { $("jwsIn").value = ""; $("reveal").classList.add("hidden"); clearError(); });
   $("copy").addEventListener("click", async () => {
     try { await navigator.clipboard.writeText($("jws-out").textContent); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy"), 1200); } catch {}
+  });
+
+  // ---- repeatable IN-parameter rows (credentialType/credentialValueSet/includeIdentityClaim) ----
+  const CT_OPTIONS = [
+    { v: "https://smarthealth.cards#covid19", t: "#covid19" },
+    { v: "Immunization", t: "Immunization" },
+    { v: "Observation", t: "Observation" },
+  ];
+  const CVS_OPTIONS = [
+    { v: "http://hl7.org/fhir/uv/shc-vaccination/ValueSet/immunization-all-cvx", t: "immunization-all-cvx (CVX)" },
+    { v: "http://hl7.org/fhir/uv/shc-vaccination/ValueSet/SnomedVaccineCodes", t: "SnomedVaccineCodes (SNOMED, needs tx)" },
+  ];
+  const IC_OPTIONS = [
+    { v: "Patient.name", t: "Patient.name" },
+    { v: "Patient.birthDate", t: "Patient.birthDate" },
+    { v: "Patient.gender", t: "Patient.gender" },
+  ];
+  function optsHtml(opts) { return opts.map((o) => `<option value="${o.v}">${o.t}</option>`).join(""); }
+  function addRow(containerId, opts, removable) {
+    const row = document.createElement("div");
+    row.className = "rrow";
+    row.innerHTML = `<select>${optsHtml(opts)}</select>` + (removable ? `<button class="ghost small" type="button">×</button>` : "");
+    const rm = row.querySelector("button");
+    if (rm) rm.addEventListener("click", () => row.remove());
+    $(containerId).appendChild(row);
+  }
+  function gather(id) { return [...$(id).querySelectorAll("select")].map((s) => s.value).filter(Boolean); }
+
+  addRow("ct-rows", CT_OPTIONS, false); // credentialType is 1..* — one fixed row
+  $("ct-add").addEventListener("click", () => addRow("ct-rows", CT_OPTIONS, true));
+  $("cvs-add").addEventListener("click", () => addRow("cvs-rows", CVS_OPTIONS, true));
+  $("ic-add").addEventListener("click", () => addRow("ic-rows", IC_OPTIONS, true));
+  $("adv-toggle").addEventListener("click", () => {
+    const b = $("adv-toggle");
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    $("advanced").classList.toggle("hidden", open);
   });
 
   // Populate the Patient dropdown from Aidbox (via the app).

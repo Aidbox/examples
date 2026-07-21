@@ -256,6 +256,30 @@
         "method": "PUT",
         "url": "Observation/example-covid-test"
       }
+    },
+    {
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "example-flu-snomed",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "86198006",
+              "display": "Influenza vaccine"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/example-patient"
+        },
+        "occurrenceDateTime": "2023-10-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/example-flu-snomed"
+      }
     }
   ]
 }

@@ -19,7 +19,7 @@ export class NoResourcesError extends Error {
 export interface IssueOptions {
   since?: string;
   includeIdentityClaim?: IdentityClaimInput;
-  credentialValueSet?: string;
+  credentialValueSet?: string[];
 }
 
 /** Links a `resource:N` entry in the card to the live FHIR resource it came from. */
@@ -105,21 +105,30 @@ export class HealthCardService {
    */
   private async filterByValueSet(
     resources: FHIRResource[],
-    valueSetUrl?: string
+    valueSetUrls?: string[]
   ): Promise<FHIRResource[]> {
-    if (!valueSetUrl) return resources;
+    if (!valueSetUrls || valueSetUrls.length === 0) return resources;
 
     const kept: FHIRResource[] = [];
     for (const r of resources) {
       const codings = this.extractCodings(r);
-      let inValueSet = false;
-      for (const c of codings) {
-        if (c.system && c.code && (await this.fhir.validateCode(valueSetUrl, c.system, c.code))) {
-          inValueSet = true;
+      // Multiple credentialValueSet values are logical AND: the resource must
+      // have a code that is a member of every specified ValueSet.
+      let inAll = true;
+      for (const vs of valueSetUrls) {
+        let inThis = false;
+        for (const c of codings) {
+          if (c.system && c.code && (await this.fhir.validateCode(vs, c.system, c.code))) {
+            inThis = true;
+            break;
+          }
+        }
+        if (!inThis) {
+          inAll = false;
           break;
         }
       }
-      if (inValueSet) kept.push(r);
+      if (inAll) kept.push(r);
     }
     return kept;
   }
