@@ -73,6 +73,10 @@
   .adv-toggle { margin: 22px 0 10px; padding: 0; background: none; border: 0; color: var(--text); font-family: var(--display); font-weight: 600; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
   .adv-toggle .chev { color: var(--muted); transition: transform .15s; }
   .adv-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .vsteps { margin: 0 0 16px; padding: 12px 14px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; }
+  .vsteps div { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 3px 0; }
+  .vsteps .ok { color: var(--accent); } .vsteps .bad { color: var(--danger); }
+  #vheader, #vclaims { max-height: 240px; }
   .badge { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
   .badge.verified { color: var(--accent); border-color: var(--accent); }
   .badge.bad { color: var(--danger); border-color: var(--danger); }
@@ -188,6 +192,12 @@
         <span class="badge" id="badge">—</span>
       </div>
       <div class="verdict hidden" id="verdict"></div>
+      <div id="vsteps" class="vsteps"></div>
+      <div class="grid2">
+        <div><p class="api-label">JWS header</p><pre id="vheader"></pre></div>
+        <div><p class="api-label">Payload claims</p><pre id="vclaims"></pre></div>
+      </div>
+      <p class="api-label" style="margin-top:14px">FHIR bundle (vc.credentialSubject.fhirBundle)</p>
       <pre id="out"></pre>
     </div>
 
@@ -418,14 +428,39 @@
     badge.textContent = valid ? "signature verified" : "signature INVALID";
     badge.className = "badge " + (valid ? "verified" : "bad");
 
+    const bundle = payload?.vc?.credentialSubject?.fhirBundle;
+    const entries = (bundle?.entry || []).length;
+    const iso = (secs) => new Date(secs * 1000).toISOString().replace(".000Z", "Z");
+    const nbfStr = payload?.nbf ? `${payload.nbf}  (${iso(payload.nbf)})` : undefined;
+    const expStr = payload?.exp ? `${payload.exp}  (${iso(payload.exp)})` : undefined;
+
     const verdict = $("verdict");
     verdict.className = "verdict " + (valid ? "ok" : "bad");
-    verdict.textContent = valid
-      ? `✓ Signed by ${iss} (kid ${header.kid.slice(0, 10)}…) — payload intact`
-      : "✕ Signature does not verify against the issuer JWKS";
+    verdict.innerHTML = valid
+      ? `✓ <b>Valid.</b> The ES256 signature matches the issuer's published key, and the DEFLATE-compressed payload was intact — not altered since it was signed.`
+      : `✕ <b>Invalid.</b> The signature does not verify against the issuer's JWKS: the card was not issued by this key, or it was tampered with.`;
     verdict.classList.remove("hidden");
 
-    const bundle = payload?.vc?.credentialSubject?.fhirBundle;
+    // What the verifier actually did, step by step.
+    const step = (ok, txt) => `<div><span class="${ok ? "ok" : "bad"}">${ok ? "✓" : "✕"}</span> ${esc(txt)}</div>`;
+    $("vsteps").innerHTML = [
+      step(true, `Split the compact JWS into header · payload · signature`),
+      step(header.alg === "ES256", `Header: alg=${header.alg}, zip=${header.zip}, kid=${(header.kid || "").slice(0, 16)}…`),
+      step(true, `Read iss=${iss}, fetched ${iss}/.well-known/jwks.json`),
+      step(true, `Selected the JWKS key whose kid matches the header`),
+      step(valid, `Verified the ES256 signature over header.payload`),
+      step(true, `Inflated the DEFLATE payload → FHIR bundle with ${entries} ${entries === 1 ? "entry" : "entries"}`),
+    ].join("");
+
+    $("vheader").textContent = JSON.stringify(header, null, 2);
+    $("vclaims").textContent = JSON.stringify({
+      iss,
+      nbf: nbfStr,
+      ...(expStr ? { exp: expStr } : {}),
+      "vc.type": payload?.vc?.type,
+      fhirVersion: payload?.vc?.credentialSubject?.fhirVersion,
+    }, null, 2);
+
     $("out").innerHTML = highlight(JSON.stringify(bundle || payload, null, 2));
   }
 
