@@ -525,13 +525,15 @@
       $("dlrow").classList.remove("hidden");
 
       // QR of the shc:/ payload (best effort; falls back for large cards).
+      // A too-large-for-QR note belongs next to the QR, not in the error box.
+      $("qrbox").classList.remove("hidden");
       try {
         QR.draw($("qr"), data.qr);
+        $("qr").classList.remove("hidden");
         $("qr-caption").innerHTML = 'The QR holds the <code>shc:/</code> health card. Scan it with the Health app.';
-        $("qrbox").classList.remove("hidden");
       } catch {
-        $("qrbox").classList.add("hidden");
-        showError('Card issued, but too large for a single QR (&gt; version 22) — use the <code>.smart-health-card</code> download or the copied JWS.');
+        $("qr").classList.add("hidden");
+        $("qr-caption").innerHTML = 'Too large for a single QR (&gt; version 22) — use the <code>.smart-health-card</code> download or the copied JWS above.';
       }
 
       // Auto-verify the freshly issued card.
