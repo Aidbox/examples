@@ -4,113 +4,131 @@ languages: [TypeScript]
 ---
 # SMART Health Cards Issue Operation
 
-A minimal TypeScript implementation of the FHIR `$health-cards-issue` operation that integrates with Aidbox to generate SMART Health Cards from patient health data.
+A Node/Express implementation of the FHIR [`$health-cards-issue`](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) operation on [Aidbox](https://www.health-samurai.io/aidbox). It pulls patient data from Aidbox, minimizes it per the [SMART Health Cards spec](https://spec.smarthealth.cards/), and issues a signed verifiable credential (JWS/ES256). The card ships three ways (FHIR API, QR `shc:/`, and a `.smart-health-card` file), with an in-browser verifier included.
 
-## Overview
-
-This project implements the [SMART Health Cards specification](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) as a FHIR operation. It retrieves patient health data from Aidbox, sanitizes it according to SMART Health Cards requirements, and generates verifiable health cards in [JWS](https://datatracker.ietf.org/doc/html/rfc7515) format.
+A SMART Health Card is a FHIR `Bundle` wrapped as a W3C Verifiable Credential and signed as a JWS (ES256), payload minified and DEFLATE-compressed (`zip:"DEF"`). The issuer's signature proves the card is authentic; it does not keep the contents confidential. For encrypted sharing, see the sibling `smart-health-link` example.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Client[Client]
-    Aidbox[Aidbox<br/>FHIR Server]
-    App[Health Cards App<br/>Node.js]
+    Client["Client"]
+    Aidbox["Aidbox"]
+    App["Health Cards App<br/>(Node)"]
 
-    Client -->|$health-cards-issue| Aidbox
-    Aidbox -->|$health-cards-issue| App
-    App -->|Fetch FHIR data| Aidbox
-    App -->|Signed Health Card| Aidbox
-    Aidbox -->|Signed Health Card| Client
-
-
-    style Aidbox fill:#e1f5fe
-    style App fill:#f3e5f5
-    style Client fill:#e8f5e8
+    Client -->|"$health-cards-issue"| Aidbox
+    Aidbox -->|"proxies op"| App
+    App -->|"fetch data"| Aidbox
+    App -->|"JWS"| Aidbox
+    Aidbox -->|"credential"| Client
+    Client -.->|"GET JWKS"| Aidbox
+    Aidbox -.->|"JWKS"| App
 ```
 
-**Components:**
-- **FHIR Server**: Aidbox with [custom operation routing](https://www.health-samurai.io/docs/aidbox/developer-experience/aidbox-sdk/apps)
-- **Application**: Node.js TypeScript backend service - actual implementation of `$health-cards-issue` operation
-- **Output**: Cryptographically signed SMART Health Cards (JWS format)
+## Flow 1: Issue (`$health-cards-issue`)
+
+```mermaid
+sequenceDiagram
+    actor C as Client
+    participant A as Aidbox
+    participant S as Health Cards App
+    C->>A: POST /fhir/Patient/{id}/$health-cards-issue<br/>Parameters { credentialType, _since? }
+    A->>S: proxies operation
+    S->>A: GET Patient/{id}, Immunization?/Observation?
+    A-->>S: FHIR resources
+    Note over S: minimize (strip id/meta/text/display,<br/>fullUrl + refs → resource:N), DEFLATE, sign ES256
+    S-->>A: Parameters { verifiableCredential: "<JWS>" }
+    A-->>C: Parameters { verifiableCredential }
+```
+
+## Flow 2: Verify (JWKS)
+
+The issuer publishes its public key so anyone can verify:
+
+- Aidbox already owns its own `/.well-known/jwks.json` (RSA, for OAuth).
+- The SHC EC key therefore lives under a namespaced path: `/health-cards-app/.well-known/jwks.json`.
+- `iss` points at that base, so `<iss>/.well-known/jwks.json` resolves to the key.
+
+```mermaid
+sequenceDiagram
+    actor V as Verifier
+    participant A as Aidbox
+    participant S as Health Cards App
+    Note over V: read iss + kid from the JWS
+    V->>A: GET <iss>/.well-known/jwks.json<br/>(iss = http://localhost:8081/health-cards-app)
+    A->>S: http-rpc (operation: well-known-jwks, public)
+    S-->>A: { keys: [ EC/P-256 public JWK, kid ] }
+    A-->>V: JWKS (CORS)
+    Note over V: pick key by kid → verify ES256 → inflate DEFLATE
+```
+
+## Flow 3: Deliver and verify in the browser
+
+```mermaid
+sequenceDiagram
+    actor U as User (browser)
+    participant S as Health Cards App
+    U->>S: POST /demo/issue { patientId, credentialType }
+    S-->>U: { verifiableCredential, qr: "shc:/…", downloadUrl }
+    U->>S: GET /.well-known/jwks.json (same-origin)
+    S-->>U: JWKS
+    Note over U: WebCrypto ES256 verify + deflate-raw inflate → render Bundle
+    U->>S: GET /download → application/smart-health-card
+```
+
+## Endpoints
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| POST | `/fhir/Patient/{id}/$health-cards-issue` | required | Issue a card |
+| GET | `/health-cards-app/.well-known/jwks.json` | public | Issuer JWKS (`= <iss>/.well-known/jwks.json`) |
+| GET | `:3001/` | public | Viewer (Issue + Verify) |
+| POST | `:3001/demo/issue` | demo | Issue → `{ jws, qr, downloadUrl }` |
+| GET | `:3001/download` | demo | `.smart-health-card` file |
+| GET | `:3001/.well-known/jwks.json` | public | Same JWKS, same-origin for the viewer |
 
 ## Quick Start
 
-### Prerequisites
-
-- Docker and Docker Compose
-- Node.js 18+ (for development)
-
-### Running the Application
-
-1. **Create .env file**
 ```bash
 cp .env.example .env
+npm install && npm run generate-keys
+docker compose up --build
 ```
+Activate Aidbox at [localhost:8081](http://localhost:8081) (init bundle seeds `Patient/example-patient` + a COVID `Immunization` + `Observation`), then open the viewer at [localhost:3001](http://localhost:3001).
 
-2. **Generate signing keys for JWS generation**:
-   ```bash
-   npm install
-   npm run generate-keys
-   ```
+## Testing
 
+- **Viewer** (`:3001`): **Issue** a card (`#covid19`, `Immunization`, or `Observation`) → get JWS, QR, and a `.smart-health-card` download, auto-verified. **Verify** any pasted JWS against the JWKS.
+- **API**:
+  ```http
+  POST /fhir/Patient/example-patient/$health-cards-issue
+  Content-Type: application/fhir+json
 
-3. **Run docker compose**:
-    ```bash
-   docker compose up --build
-   ```
+  { "resourceType": "Parameters",
+    "parameter": [ { "name": "credentialType", "valueUri": "https://smarthealth.cards#covid19" } ] }
+  ```
+  Also accepts `Immunization` / `Observation` (uri or string), `_since` (dateTime), `includeIdentityClaim` (string claim paths).
+- **`credentialType` mapping**: `#covid19` selects COVID `Immunization`s only (filtered by CVX vaccine code); `Immunization` selects all immunizations; `Observation` selects lab results. All matches go into a single card.
+- **`resourceLink` (OUT)**: the response also returns a `resourceLink` per bundled resource, mapping each minified `resource:N` entry back to its live FHIR URL (for example, `resource:0` maps to `<fhirBase>/Patient/example-patient`).
+- **`credentialValueSet` (IN)**: restricts resources by content — keeps only those whose code (`Immunization.vaccineCode` / `Observation.code`) is a member of the given ValueSet, via Aidbox `ValueSet/$validate-code`. The official SMART Health Cards terminology package (`cards.smarthealth.terminology`) is installed by the **init bundle** through the `$fhir-package-install` operation (from `https://terminology.smarthealth.cards/package.tgz`), which provides `https://terminology.smarthealth.cards/ValueSet/immunization-covid-cvx`. The seed has two immunizations (one CVX, one SNOMED): `Immunization` + `immunization-covid-cvx` keeps only the CVX one; `Observation` + it filters the LOINC lab out. (The package's SNOMED value sets aren't demoed — they enumerate SNOMED extension codes the configured external tx doesn't resolve.) Repeating IN params (`credentialType`, `credentialValueSet`, `includeIdentityClaim`) are supported — the viewer's Issue tab has `+` buttons (the last two under **Advanced**). Multiple `credentialValueSet` values are logical AND.
+- **Spec validator**: paste the JWS at [demo-portals.smarthealth.cards](https://demo-portals.smarthealth.cards/). Header, `zip:DEF`, signature, `kid`, and Bundle should all read valid. Two warnings are expected in local dev (unknown issuer and http keys); paste `keys/public-key.jwk.json` to check the signature.
 
-4. **Initialize Aidbox instance**
-Navigate to [Aidbox UI](http://localhost:8080) and [initialize](https://docs.aidbox.app/getting-started/run-aidbox-locally#id-4.-activate-your-aidbox-instance) the Aidbox instance.
+## Conformance
 
-### Testing Health Cards generation
+Built to pass strict verification:
+- **JWS** `ES256`, `zip:DEF`, `kid` = base64url SHA-256 JWK thumbprint (RFC 7638).
+- Payload minified + **raw-DEFLATE before signing** (jose `SignJWT` doesn't compress; we `deflateRaw` + `CompactSign`).
+- Bundle `collection`; strip `id`/`meta`(≠security)/`text`/`Coding.display`; `fullUrl` + refs → `resource:N`.
+- JWKS: EC/P-256/`use:sig`/`alg:ES256`/`kid`/`x`/`y`, **no `d`**, CORS; `iss` = the base serving it.
 
-1. **Run `$health-cards-issue` operation**
+## VCI / trust
 
-Navigate to  [Aidbox Rest Console](http://localhost:8080/ui/console#/rest) and execute the following request:
+Real verifiers check `iss` against the [VCI trusted-issuer directory](https://github.com/the-commons-project/vci-directory) and fetch JWKS over https (TLS 1.2+). This demo self-hosts over `http://localhost` and is not VCI-listed, which is the expected local-dev deviation. Production needs an https `iss` (no trailing slash) plus VCI enrollment.
 
-```http
-POST /fhir/Patient/example-patient/$health-cards-issue
-Content-Type: application/fhir+json
+**Card content and VCI profiles.** For `#covid19`, the bundle content follows the VCI / [US Public Health](https://build.fhir.org/ig/HL7/fhir-us-ph-library/) vaccine-credential profiles by resource type and codes: Patient (name + DOB), `Immunization` (CVX vaccine code), and COVID `Observation` (LOINC code + SNOMED value). The seed data is shaped accordingly. This demo stops short of validating against those `StructureDefinition`s or trimming to their exact minimal data set, which is out of scope here. (SHC strips `meta`, so conformance means the set of elements, not a `meta.profile` tag.) To enforce it, load the IG package into Aidbox and run `$validate` on the issued bundle.
 
-{
-  "resourceType": "Parameters",
-  "parameter": [
-    {
-      "name": "credentialType",
-      "valueString": "Immunization"
-    },
-    {
-      "name": "credentialType",
-      "valueString": "Observation"
-    },
-    {
-      "name": "_since",
-      "valueInstant": "2023-01-01T00:00:00Z"
-    },
-    {
-      "name": "includeIdentityClaim",
-      "valueBoolean": false
-    }
-  ]
-}
-```
+**Out of scope**: SMART-on-FHIR OAuth (Aidbox config), VCI enrollment, formal VCI/us-ph profile validation, revocation, key rotation.
 
-Example response:
-```json
-{
- "resourceType": "Parameters",
- "parameter": [
-  {
-   "name": "verifiableCredential",
-   "valueString": "eyJhbGciOiJFUzI1NiIsInppcCI6IkRFRiIsImtpZCI6IjcxMTFkNDhkMzNhYmJmZTIifQ.eyJpc3MiOiJodHRwczovL2V4YW1wbGUub3JnL2hlYWx0aC1jYXJkcyIsIm5iZiI6MTc1NTY5OTM5MywidmMiOnsidHlwZSI6WyJodHRwczovL3NtYXJ0aGVhbHRoLmNhcmRzI2hlYWx0aC1jYXJkIiwiaHR0cHM6Ly9zbWFydGhlYWx0aC5jYXJkcyNpbW11bml6YXRpb24iXSwiY3JlZGVudGlhbFN1YmplY3QiOnsiZmhpclZlcnNpb24iOiI0LjAuMSIsImZoaXJCdW5kbGUiOnsicmVzb3VyY2VUeXBlIjoiQnVuZGxlIiwidHlwZSI6ImNvbGxlY3Rpb24iLCJlbnRyeSI6W3sicmVzb3VyY2UiOnsicmVzb3VyY2VUeXBlIjoiUGF0aWVudCIsIm5hbWUiOlt7ImZhbWlseSI6IkRvZSIsImdpdmVuIjpbIkpvaG4iXX1dLCJiaXJ0aERhdGUiOiIxOTgwLTAxLTAxIn19LHsicmVzb3VyY2UiOnsicGF0aWVudCI6eyJyZWZlcmVuY2UiOiJQYXRpZW50L2V4YW1wbGUtcGF0aWVudCJ9LCJwcm90b2NvbEFwcGxpZWQiOlt7InNlcmllcyI6IkNPVklELTE5IFByaW1hcnkgU2VyaWVzIiwiZG9zZU51bWJlclBvc2l0aXZlSW50IjoxLCJzZXJpZXNEb3Nlc1Bvc2l0aXZlSW50IjoyfV0sInNpdGUiOnsiY29kaW5nIjpbeyJjb2RlIjoiTEEiLCJzeXN0ZW0iOiJodHRwOi8vdGVybWlub2xvZ3kuaGw3Lm9yZy9Db2RlU3lzdGVtL3YzLUFjdFNpdGUifV19LCJ2YWNjaW5lQ29kZSI6eyJjb2RpbmciOlt7ImNvZGUiOiIyMDgiLCJzeXN0ZW0iOiJodHRwOi8vaGw3Lm9yZy9maGlyL3NpZC9jdngifV19LCJkb3NlUXVhbnRpdHkiOnsiY29kZSI6Im1MIiwidW5pdCI6Im1MIiwidmFsdWUiOjAuMywic3lzdGVtIjoiaHR0cDovL3VuaXRzb2ZtZWFzdXJlLm9yZyJ9LCJyb3V0ZSI6eyJjb2RpbmciOlt7ImNvZGUiOiJJTSIsInN5c3RlbSI6Imh0dHA6Ly90ZXJtaW5vbG9neS5obDcub3JnL0NvZGVTeXN0ZW0vdjMtUm91dGVPZkFkbWluaXN0cmF0aW9uIn1dfSwicmVzb3VyY2VUeXBlIjoiSW1tdW5pemF0aW9uIiwicmVjb3JkZWQiOiIyMDIzLTAzLTE1IiwicHJpbWFyeVNvdXJjZSI6dHJ1ZSwic3RhdHVzIjoiY29tcGxldGVkIiwibG90TnVtYmVyIjoiQUJDMTIzIiwib2NjdXJyZW5jZURhdGVUaW1lIjoiMjAyMy0wMy0xNSIsImV4cGlyYXRpb25EYXRlIjoiMjAyNC0xMi0zMSIsInBlcmZvcm1lciI6W3siYWN0b3IiOnsiZGlzcGxheSI6IkRyLiBKYW5lIFNtaXRoLCBNRCJ9LCJmdW5jdGlvbiI6eyJjb2RpbmciOlt7ImNvZGUiOiJBUCIsInN5c3RlbSI6Imh0dHA6Ly90ZXJtaW5vbG9neS5obDcub3JnL0NvZGVTeXN0ZW0vdjItMDQ0MyJ9XX19XX19LHsicmVzb3VyY2UiOnsiY2F0ZWdvcnkiOlt7ImNvZGluZyI6W3siY29kZSI6ImxhYm9yYXRvcnkiLCJzeXN0ZW0iOiJodHRwOi8vdGVybWlub2xvZ3kuaGw3Lm9yZy9Db2RlU3lzdGVtL29ic2VydmF0aW9uLWNhdGVnb3J5In1dfV0sInJlc291cmNlVHlwZSI6Ik9ic2VydmF0aW9uIiwiZWZmZWN0aXZlRGF0ZVRpbWUiOiIyMDIzLTAzLTEwIiwic3RhdHVzIjoiZmluYWwiLCJjb2RlIjp7ImNvZGluZyI6W3siY29kZSI6Ijk0NTAwLTYiLCJzeXN0ZW0iOiJodHRwOi8vbG9pbmMub3JnIn1dfSwidmFsdWVDb2RlYWJsZUNvbmNlcHQiOnsiY29kaW5nIjpbeyJjb2RlIjoiMjYwMzg1MDA5Iiwic3lzdGVtIjoiaHR0cDovL3Nub21lZC5pbmZvL3NjdCJ9XX0sInN1YmplY3QiOnsicmVmZXJlbmNlIjoiUGF0aWVudC9leGFtcGxlLXBhdGllbnQifSwicGVyZm9ybWVyIjpbeyJkaXNwbGF5IjoiRXhhbXBsZSBMYWIifV19fV19fX19.3WVpGCl8qD3E2apBLma1OZ36DyLsS_AwhOaZWdQ0iu4rMkt2zuLj5o4V_xWL-Tv5175H7-gWbx6bqrmM3Foi3w"
-  }
- ]
+## Related
 
-```
-
-2. **Test the JWS**
-Extract the `valueString` element and decode the JWT using `https://www.jwt.io/`
-The decoded payload in the HealthCard should match the data you pre-loaded into Aidbox using  [init-bundle](/init-bindle/bundle.json)
-To validate the signature, retrieve the public key from [http://localhost:8080/health-cards-app/.well-known/jwks.json](http://localhost:8080/health-cards-app/.well-known/jwks.json)
+- [`smart-health-link`](../../aidbox-integrations/smart-health-link): the encrypted-link counterpart (JWE), which shares data via a `shlink:` instead of a signed card.

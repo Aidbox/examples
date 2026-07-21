@@ -3,6 +3,18 @@
   "type": "transaction",
   "entry": [
     {
+      "request": { "method": "POST", "url": "$fhir-package-install" },
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          {
+            "name": "package",
+            "valueString": "https://terminology.smarthealth.cards/package.tgz"
+          }
+        ]
+      }
+    },
+    {
       "resource": {
         "resourceType": "Client",
         "id": "health-cards-client",
@@ -38,7 +50,7 @@
         "type": "app",
         "apiVersion": 1,
         "endpoint": {
-          "url": "http://health-cards-app:3000/health-cards-issue",
+          "url": "http://health-cards-app:3001/health-cards-issue",
           "secret": "health-cards-app-secret"
         },
         "operations": {
@@ -52,7 +64,10 @@
               ".well-known",
               "jwks.json"
             ],
-            "method": "GET"
+            "method": "GET",
+            "policies": {
+              "jwks-public": { "engine": "allow" }
+            }
           }
         }
       },
@@ -252,6 +267,30 @@
       "request": {
         "method": "PUT",
         "url": "Observation/example-covid-test"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Immunization",
+        "id": "example-immunization-snomed",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "1031000172108",
+              "display": "COVID-19 mRNA vaccine (BNT162b2) of Pfizer-BioNTech"
+            }
+          ]
+        },
+        "patient": {
+          "reference": "Patient/example-patient"
+        },
+        "occurrenceDateTime": "2023-10-01"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Immunization/example-immunization-snomed"
       }
     }
   ]

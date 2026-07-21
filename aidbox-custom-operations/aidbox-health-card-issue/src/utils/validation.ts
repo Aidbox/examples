@@ -47,22 +47,22 @@ export function validateOperationRequest(
   return { isValid: true };
 }
 
-
 function isValidDateTimeString(dateTime: string): boolean {
   try {
     const date = new Date(dateTime);
-    return !isNaN(date.getTime()) && dateTime.includes('T');
+    // Accept FHIR date (YYYY-MM-DD) as well as full dateTime/instant.
+    return !isNaN(date.getTime());
   } catch {
     return false;
   }
 }
 
-
-
-interface ExtractedParameters {
+export interface ExtractedParameters {
   credentialType: string[];
-  credentialValueSet?: string;
-  includeIdentityClaim: boolean;
+  credentialValueSet?: string[];
+  // Per the operation, includeIdentityClaim is a repeating string of claim
+  // paths (e.g. "Patient.name"). A boolean is tolerated for backward compat.
+  includeIdentityClaim: boolean | string[];
   _since?: string;
 }
 
@@ -78,40 +78,54 @@ export function extractParametersFromResource(
     return defaults;
   }
 
-  const extracted = resource.parameter.reduce(
-    (acc: ExtractedParameters, param: any) => {
-      const value =
-        param.valueString ?? param.valueBoolean ?? param.valueInstant;
+  const credentialType: string[] = [];
+  const identityClaims: string[] = [];
+  const credentialValueSet: string[] = [];
+  let identityBoolean: boolean | undefined;
+  let since: string | undefined;
 
-      if (!value) return acc;
-
-      switch (param.name) {
-        case 'credentialType':
-          acc.credentialType = acc.credentialType || [];
-          acc.credentialType.push(value);
-          break;
-        case 'credentialValueSet':
-          acc.credentialValueSet = value;
-          break;
-        case 'includeIdentityClaim':
-          acc.includeIdentityClaim = value;
-          break;
-        case '_since':
-          acc._since = value;
-          break;
+  for (const param of resource.parameter) {
+    switch (param.name) {
+      case 'credentialType': {
+        // Spec type is uri; tolerate valueString for compatibility.
+        const v = param.valueUri ?? param.valueString;
+        if (v) credentialType.push(v);
+        break;
       }
+      case 'credentialValueSet': {
+        const v = param.valueUri ?? param.valueString;
+        if (v) credentialValueSet.push(v);
+        break;
+      }
+      case 'includeIdentityClaim': {
+        // Spec type is string (repeating claim paths). Tolerate boolean.
+        if (typeof param.valueBoolean === 'boolean') {
+          identityBoolean = param.valueBoolean;
+        } else if (param.valueString) {
+          identityClaims.push(param.valueString);
+        }
+        break;
+      }
+      case '_since': {
+        // Spec type is dateTime; tolerate instant/string.
+        const v = param.valueDateTime ?? param.valueInstant ?? param.valueString;
+        if (v) since = v;
+        break;
+      }
+    }
+  }
 
-      return acc;
-    },
-    {} as Partial<ExtractedParameters>
-  );
+  const includeIdentityClaim: boolean | string[] =
+    identityClaims.length > 0
+      ? identityClaims
+      : identityBoolean !== undefined
+        ? identityBoolean
+        : defaults.includeIdentityClaim;
 
   return {
-    ...defaults,
-    ...extracted,
-    credentialType: extracted.credentialType?.length
-      ? extracted.credentialType
-      : defaults.credentialType,
+    credentialType: credentialType.length ? credentialType : defaults.credentialType,
+    credentialValueSet: credentialValueSet.length ? credentialValueSet : undefined,
+    includeIdentityClaim,
+    _since: since,
   };
 }
-

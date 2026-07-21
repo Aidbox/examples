@@ -9,8 +9,10 @@ export interface OperationRequest {
       parameter: Array<{
         name: string;
         valueString?: string;
+        valueUri?: string;
         valueBoolean?: boolean;
         valueInstant?: string;
+        valueDateTime?: string;
       }>;
     };
     'route-params': {

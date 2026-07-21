@@ -30,7 +30,7 @@ RUN chown -R healthcards:nodejs /app
 USER healthcards
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3001
 
 # Start the application
 CMD ["npm", "start"]

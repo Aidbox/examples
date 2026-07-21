@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-20T17:49:41.394151Z",
+  "timestamp": "2026-07-21T12:50:54.142801Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -812,7 +812,7 @@
     {
       "id": "aidbox-custom-operations-aidbox-health-card-issue",
       "title": "SMART Health Cards Issue Operation",
-      "description": "A minimal TypeScript implementation of the FHIR `$health-cards-issue` operation that integrates with Aidbox to generate SMART Health Cards from patient health data.",
+      "description": "A Node/Express implementation of the FHIR [`$health-cards-issue`](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) operation on [Aidbox](https://www.health-samurai.io/aidbox). It pulls patient data from Aidbox, minimizes it per the [SMART Health Cards spec](https://spec.smarthealth.cards/), and issues a signed verifiable credential (JWS/ES256). The card ships three ways (FHIR API, QR `shc:/`, and a `.smart-health-card` file), with an in-browser verifier included.",
       "features": [
         "SMART health cards",
         "Custom operations",
