@@ -75,7 +75,7 @@ export function loadConfig(): Config {
       publicKeyPath,
     },
     server: {
-      port: parseInt(process.env.PORT || '3000', 10),
+      port: parseInt(process.env.PORT || '3001', 10),
     },
   };
 }

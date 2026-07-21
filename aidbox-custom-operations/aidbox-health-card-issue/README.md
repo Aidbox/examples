@@ -56,7 +56,7 @@ sequenceDiagram
     participant A as Aidbox
     participant S as Health Cards App
     Note over V: read iss + kid from the JWS
-    V->>A: GET <iss>/.well-known/jwks.json<br/>(iss = http://localhost:8080/health-cards-app)
+    V->>A: GET <iss>/.well-known/jwks.json<br/>(iss = http://localhost:8081/health-cards-app)
     A->>S: http-rpc (operation: well-known-jwks, public)
     S-->>A: { keys: [ EC/P-256 public JWK, kid ] }
     A-->>V: JWKS (CORS)
@@ -83,10 +83,10 @@ sequenceDiagram
 |--------|------|------|---------|
 | POST | `/fhir/Patient/{id}/$health-cards-issue` | required | Issue a card |
 | GET | `/health-cards-app/.well-known/jwks.json` | public | Issuer JWKS (`= <iss>/.well-known/jwks.json`) |
-| GET | `:3000/` | public | Viewer (Issue + Verify) |
-| POST | `:3000/demo/issue` | demo | Issue → `{ jws, qr, downloadUrl }` |
-| GET | `:3000/download` | demo | `.smart-health-card` file |
-| GET | `:3000/.well-known/jwks.json` | public | Same JWKS, same-origin for the viewer |
+| GET | `:3001/` | public | Viewer (Issue + Verify) |
+| POST | `:3001/demo/issue` | demo | Issue → `{ jws, qr, downloadUrl }` |
+| GET | `:3001/download` | demo | `.smart-health-card` file |
+| GET | `:3001/.well-known/jwks.json` | public | Same JWKS, same-origin for the viewer |
 
 ## Quick Start
 
@@ -95,11 +95,11 @@ cp .env.example .env
 npm install && npm run generate-keys   # EC P-256; kid = JWK thumbprint
 docker compose up --build
 ```
-Activate Aidbox at [localhost:8080](http://localhost:8080) (init bundle seeds `Patient/example-patient` + a COVID `Immunization` + `Observation`), then open the viewer at [localhost:3000](http://localhost:3000).
+Activate Aidbox at [localhost:8081](http://localhost:8081) (init bundle seeds `Patient/example-patient` + a COVID `Immunization` + `Observation`), then open the viewer at [localhost:3001](http://localhost:3001).
 
 ## Testing
 
-- **Viewer** (`:3000`): **Issue** a card (`#covid19`, `Immunization`, or `Observation`) → get JWS, QR, and a `.smart-health-card` download, auto-verified. **Verify** any pasted JWS against the JWKS.
+- **Viewer** (`:3001`): **Issue** a card (`#covid19`, `Immunization`, or `Observation`) → get JWS, QR, and a `.smart-health-card` download, auto-verified. **Verify** any pasted JWS against the JWKS.
 - **API**:
   ```http
   POST /fhir/Patient/example-patient/$health-cards-issue
