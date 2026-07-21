@@ -260,14 +260,14 @@
     {
       "resource": {
         "resourceType": "Immunization",
-        "id": "example-flu-snomed",
+        "id": "example-immunization-snomed",
         "status": "completed",
         "vaccineCode": {
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "86198006",
-              "display": "Influenza vaccine"
+              "code": "1119349007",
+              "display": "COVID-19 mRNA vaccine"
             }
           ]
         },
@@ -278,7 +278,7 @@
       },
       "request": {
         "method": "PUT",
-        "url": "Immunization/example-flu-snomed"
+        "url": "Immunization/example-immunization-snomed"
       }
     }
   ]
