@@ -74,12 +74,14 @@ app.post('/demo/issue', async (req: Request, res: Response) => {
   try {
     const patientId = req.body.patientId || DEFAULT_PATIENT_ID;
     const credentialType = req.body.credentialType || DEFAULT_CREDENTIAL_TYPE;
+    const since = req.body.since || undefined;
     const credentialTypes = Array.isArray(credentialType)
       ? credentialType
       : [credentialType];
 
-    const jws = await healthCardService.issueForPatient(patientId, credentialTypes, {
+    const { jws, resourceLinks } = await healthCardService.issueForPatient(patientId, credentialTypes, {
       includeIdentityClaim: true,
+      since,
     });
 
     res.json({
@@ -87,6 +89,7 @@ app.post('/demo/issue', async (req: Request, res: Response) => {
       qr: toQrNumeric(jws),
       downloadUrl: `/download?patientId=${encodeURIComponent(patientId)}&credentialType=${encodeURIComponent(String(credentialType))}`,
       issuer: config.healthCards.issuer,
+      resourceLinks,
     });
   } catch (error) {
     if (error instanceof NoResourcesError) {
@@ -105,7 +108,7 @@ app.get('/download', async (req: Request, res: Response) => {
     const patientId = String(req.query.patientId || DEFAULT_PATIENT_ID);
     const credentialType = String(req.query.credentialType || DEFAULT_CREDENTIAL_TYPE);
 
-    const jws = await healthCardService.issueForPatient(patientId, [credentialType], {
+    const { jws } = await healthCardService.issueForPatient(patientId, [credentialType], {
       includeIdentityClaim: true,
     });
 

@@ -7,6 +7,17 @@ import { FHIRBundle, FHIRResource } from '../types/health-card';
  */
 export type IdentityClaimInput = boolean | string[] | undefined;
 
+/** Maps a minified card entry (`resource:N`) back to its source FHIR reference. */
+export interface ResourceLinkRef {
+  bundledResource: string; // e.g. "resource:0"
+  reference: string; // e.g. "Patient/example-patient"
+}
+
+export interface BundleWithLinks {
+  bundle: FHIRBundle;
+  links: ResourceLinkRef[];
+}
+
 const DEFAULT_IDENTITY_CLAIMS = ['Patient.name', 'Patient.birthDate'];
 
 export class BundleBuilder {
@@ -14,7 +25,7 @@ export class BundleBuilder {
     patient: FHIRResource,
     resources: FHIRResource[],
     includeIdentityClaim: IdentityClaimInput = true
-  ): FHIRBundle {
+  ): BundleWithLinks {
     const claims = this.resolveIdentityClaims(includeIdentityClaim);
 
     // Ordered list of resources that will populate the bundle. The Patient (if
@@ -27,13 +38,17 @@ export class BundleBuilder {
 
     // Map original absolute references (ResourceType/id) → short resource:N URIs.
     // Built from the ORIGINAL resources (ids are stripped during sanitization).
+    // The same mapping is surfaced as `links` for the resourceLink OUT param.
     const refMap = new Map<string, string>();
+    const links: ResourceLinkRef[] = [];
     const originals: FHIRResource[] = [];
     if (claims) originals.push(patient);
     originals.push(...resources);
     originals.forEach((r, i) => {
       if (r?.resourceType && r?.id) {
-        refMap.set(`${r.resourceType}/${r.id}`, `resource:${i}`);
+        const bundledResource = `resource:${i}`;
+        refMap.set(`${r.resourceType}/${r.id}`, bundledResource);
+        links.push({ bundledResource, reference: `${r.resourceType}/${r.id}` });
       }
     });
 
@@ -45,9 +60,8 @@ export class BundleBuilder {
     }));
 
     return {
-      resourceType: 'Bundle',
-      type: 'collection',
-      entry,
+      bundle: { resourceType: 'Bundle', type: 'collection', entry },
+      links,
     };
   }
 

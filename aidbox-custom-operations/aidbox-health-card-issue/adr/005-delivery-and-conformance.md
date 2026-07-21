@@ -63,6 +63,12 @@ against those `StructureDefinition`s or trim to their minimal data set — that 
 example. (SHC strips `meta`, so conformance is about the element set, not a `meta.profile` tag.)
 Enforcement path if needed: load the IG package into Aidbox and `$validate` the issued bundle.
 
+### F. resourceLink (OUT) — implemented
+The operation returns a `resourceLink` per bundled resource, mapping each minified `resource:N` entry
+to the live FHIR URL it came from (`bundledResource` → `hostedResource`, `vcIndex` = 0). The mapping is
+already built during minification (`bundle-builder` refMap), so it is surfaced directly; `hostedResource`
+uses `FHIR_PUBLIC_BASE_URL` (default: issuer origin + `/fhir`). This supersedes ADR-003's out-of-scope note.
+
 ## Consequences
 - **Positive**: cards pass strict validation; all three delivery surfaces are demonstrated; JWKS is
   correct and reachable; issuance logic is shared and testable.

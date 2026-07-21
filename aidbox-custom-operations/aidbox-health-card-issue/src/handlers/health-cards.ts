@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { OperationRequest, HealthCardResponse } from '../types/operation';
+import { OperationRequest } from '../types/operation';
 import { HealthCardService, NoResourcesError } from '../services/health-card';
 import {
   validateOperationRequest,
@@ -42,7 +42,7 @@ export class HealthCardsHandler {
         return;
       }
 
-      const jws = await this.healthCardService.issueForPatient(
+      const { jws, resourceLinks } = await this.healthCardService.issueForPatient(
         patientId,
         params.credentialType,
         {
@@ -52,12 +52,21 @@ export class HealthCardsHandler {
         }
       );
 
-      const response: HealthCardResponse = {
-        resourceType: 'Parameters',
-        parameter: [{ name: 'verifiableCredential', valueString: jws }],
-      };
+      // OUT Parameters: the verifiableCredential plus a resourceLink per bundled
+      // resource, mapping each `resource:N` entry to its live FHIR URL.
+      const parameter: object[] = [{ name: 'verifiableCredential', valueString: jws }];
+      for (const link of resourceLinks) {
+        parameter.push({
+          name: 'resourceLink',
+          part: [
+            { name: 'vcIndex', valueInteger: 0 },
+            { name: 'bundledResource', valueUri: link.bundledResource },
+            { name: 'hostedResource', valueUri: link.hostedResource },
+          ],
+        });
+      }
 
-      res.status(200).json(response);
+      res.status(200).json({ resourceType: 'Parameters', parameter });
     } catch (error) {
       if (error instanceof NoResourcesError) {
         res

@@ -22,10 +22,22 @@ export interface IssueOptions {
   credentialValueSet?: string;
 }
 
+/** Links a `resource:N` entry in the card to the live FHIR resource it came from. */
+export interface ResourceLink {
+  bundledResource: string; // "resource:N" inside the card's fhirBundle
+  hostedResource: string; // absolute URL of the live FHIR resource
+}
+
+export interface IssueResult {
+  jws: string;
+  resourceLinks: ResourceLink[];
+}
+
 export class HealthCardService {
   private crypto: CryptoUtils;
   private fhir: FHIRClient;
   private bundleBuilder: BundleBuilder;
+  private fhirBaseUrl: string;
 
   constructor(config: Config) {
     this.crypto = new CryptoUtils(
@@ -35,6 +47,7 @@ export class HealthCardService {
     );
     this.fhir = new FHIRClient(config);
     this.bundleBuilder = new BundleBuilder();
+    this.fhirBaseUrl = config.healthCards.fhirBaseUrl;
   }
 
   validateCredentialTypes(credentialTypes: string[]): boolean {
@@ -54,7 +67,7 @@ export class HealthCardService {
     patientId: string,
     credentialTypes: string[],
     opts: IssueOptions = {}
-  ): Promise<string> {
+  ): Promise<IssueResult> {
     const patient = await this.fhir.getPatient(patientId);
     const resources = await this.fhir.getResourcesByType(
       patientId,
@@ -70,13 +83,19 @@ export class HealthCardService {
       throw new NoResourcesError();
     }
 
-    const bundle = this.bundleBuilder.createHealthCardBundle(
+    const { bundle, links } = this.bundleBuilder.createHealthCardBundle(
       patient,
       filtered,
       opts.includeIdentityClaim
     );
 
-    return this.crypto.generateHealthCard(bundle, credentialTypes);
+    const jws = await this.crypto.generateHealthCard(bundle, credentialTypes);
+    const resourceLinks = links.map(l => ({
+      bundledResource: l.bundledResource,
+      hostedResource: `${this.fhirBaseUrl}/${l.reference}`,
+    }));
+
+    return { jws, resourceLinks };
   }
 
   /** Sign a pre-built bundle (kept for direct/testing use). */

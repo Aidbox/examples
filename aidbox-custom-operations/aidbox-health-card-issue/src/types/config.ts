@@ -9,6 +9,7 @@ export interface Config {
   healthCards: {
     issuer: string;
     keyPath: string;
+    fhirBaseUrl: string;
   };
   jwks: {
     keyId: string;
@@ -69,6 +70,10 @@ export function loadConfig(): Config {
     healthCards: {
       issuer: process.env.HEALTH_CARDS_ISSUER!,
       keyPath: process.env.HEALTH_CARDS_KEY_PATH!,
+      // Public FHIR base for resourceLink.hostedResource (same host as iss).
+      fhirBaseUrl:
+        process.env.FHIR_PUBLIC_BASE_URL ||
+        new URL(process.env.HEALTH_CARDS_ISSUER!).origin + '/fhir',
     },
     jwks: {
       keyId,

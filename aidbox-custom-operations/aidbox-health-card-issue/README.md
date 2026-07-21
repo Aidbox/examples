@@ -1,7 +1,6 @@
 ---
-features: [SMART Health Cards, $health-cards-issue, JWKS, JWS/ES256, QR (shc:/), file download, in-browser verifier, Aidbox Apps]
+features: [SMART health cards, Custom operations, JWKS, JWS signing, FHIR operations]
 languages: [TypeScript]
-runtimes: [Node.js]
 ---
 # SMART Health Cards: Issue, Deliver &amp; Verify
 
@@ -92,7 +91,7 @@ sequenceDiagram
 
 ```bash
 cp .env.example .env
-npm install && npm run generate-keys   # EC P-256; kid = JWK thumbprint
+npm install && npm run generate-keys
 docker compose up --build
 ```
 Activate Aidbox at [localhost:8081](http://localhost:8081) (init bundle seeds `Patient/example-patient` + a COVID `Immunization` + `Observation`), then open the viewer at [localhost:3001](http://localhost:3001).
@@ -109,6 +108,8 @@ Activate Aidbox at [localhost:8081](http://localhost:8081) (init bundle seeds `P
     "parameter": [ { "name": "credentialType", "valueUri": "https://smarthealth.cards#covid19" } ] }
   ```
   Also accepts `Immunization` / `Observation` (uri or string), `_since` (dateTime), `includeIdentityClaim` (string claim paths).
+- **`credentialType` mapping**: `#covid19` → COVID `Immunization`s only (filtered by CVX vaccine code); `Immunization` → all immunizations; `Observation` → lab results. All matches go into a single card.
+- **`resourceLink` (OUT)**: the response also returns a `resourceLink` per bundled resource, mapping each minified `resource:N` entry back to its live FHIR URL (e.g. `resource:0` → `<fhirBase>/Patient/example-patient`).
 - **Spec validator**: paste the JWS at [demo-portals.smarthealth.cards](https://demo-portals.smarthealth.cards/). Header / `zip:DEF` / signature / `kid` / Bundle should be **valid**. Expected warnings (local-dev only): unknown issuer + http keys — paste `keys/public-key.jwk.json` to check the signature.
 
 ## Conformance
@@ -125,4 +126,8 @@ Real verifiers check `iss` against the [VCI trusted-issuer directory](https://gi
 
 **Card content &amp; VCI profiles.** For `#covid19`, the bundle content follows the VCI / [US Public Health](https://build.fhir.org/ig/HL7/fhir-us-ph-library/) vaccine-credential profiles **by resource type and codes** — Patient (name + DOB), `Immunization` (CVX vaccine code), and COVID `Observation` (LOINC code + SNOMED value); the seed data is shaped accordingly. We do **not** formally validate against those `StructureDefinition`s or trim to their exact minimal data set — that's out of scope here (note: SHC strips `meta`, so conformance means the *set of elements*, not a `meta.profile` tag). To enforce it, load the IG package into Aidbox and run `$validate` on the issued bundle.
 
-**Out of scope**: SMART-on-FHIR OAuth (Aidbox config), VCI enrollment, formal VCI/us-ph profile validation, revocation, `resourceLink`, full `credentialValueSet`, key rotation.
+**Out of scope**: SMART-on-FHIR OAuth (Aidbox config), VCI enrollment, formal VCI/us-ph profile validation, revocation, full `credentialValueSet` filtering, key rotation.
+
+## Related
+
+- [`smart-health-link`](../../aidbox-integrations/smart-health-link) — the encrypted-link counterpart (JWE): shares data via a `shlink:` instead of a signed card.

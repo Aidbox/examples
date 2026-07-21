@@ -116,6 +116,11 @@
             </select>
           </div>
         </div>
+        <div style="margin-top:14px">
+          <label class="fld" for="since">_since (optional)</label>
+          <input id="since" type="text" placeholder="YYYY-MM-DD" spellcheck="false" />
+          <p class="op-note" style="margin-top:6px">Only resources with <code>_lastUpdated</code> ≥ this date (server write time, not clinical date). A future date returns nothing.</p>
+        </div>
         <div class="row">
           <button id="issue">Issue card</button>
         </div>
@@ -413,11 +418,12 @@
     $("opbox").classList.add("hidden");
     const patientId = $("patientId").value.trim() || "example-patient";
     const credentialType = $("credentialType").value;
+    const since = $("since").value.trim();
     $("issue").disabled = true;
     try {
       const res = await fetch("/demo/issue", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ patientId, credentialType }),
+        body: JSON.stringify({ patientId, credentialType, since: since || undefined }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -426,14 +432,24 @@
       // Show the actual FHIR operation this maps to (the demo used an unauth
       // stand-in, but this is the real authenticated $health-cards-issue call).
       const fhirBase = String(data.issuer).replace(/\/health-cards-app$/, "") + "/fhir";
-      const reqBody = { resourceType: "Parameters", parameter: [{ name: "credentialType", valueUri: credentialType }] };
+      const opParams = [{ name: "credentialType", valueUri: credentialType }];
+      if (since) opParams.push({ name: "_since", valueDateTime: since });
+      const reqBody = { resourceType: "Parameters", parameter: opParams };
       $("op-req").innerHTML =
         `<span class="verb">POST</span> ${esc(fhirBase)}/Patient/${esc(patientId)}/$health-cards-issue\n` +
         `Authorization: Basic base64(client:secret)\n` +
         `Content-Type: application/fhir+json\n\n` +
         esc(JSON.stringify(reqBody, null, 2));
-      const resBody = { resourceType: "Parameters", parameter: [{ name: "verifiableCredential", valueString: jws.slice(0, 64) + "…(JWS truncated)" }] };
-      $("op-res").textContent = JSON.stringify(resBody, null, 2);
+      const resParams = [{ name: "verifiableCredential", valueString: jws.slice(0, 64) + "…(JWS truncated)" }];
+      (data.resourceLinks || []).forEach((l) => resParams.push({
+        name: "resourceLink",
+        part: [
+          { name: "vcIndex", valueInteger: 0 },
+          { name: "bundledResource", valueUri: l.bundledResource },
+          { name: "hostedResource", valueUri: l.hostedResource },
+        ],
+      }));
+      $("op-res").textContent = JSON.stringify({ resourceType: "Parameters", parameter: resParams }, null, 2);
       $("op-note").innerHTML =
         'The real entry point is this <b>authenticated</b> FHIR operation. This demo page can\'t hold Aidbox credentials in the browser, so it actually called an unauthenticated stand-in (<code>POST /demo/issue</code>) — but the request/response below is exactly what <code>$health-cards-issue</code> looks like.';
       $("opbox").classList.remove("hidden");
