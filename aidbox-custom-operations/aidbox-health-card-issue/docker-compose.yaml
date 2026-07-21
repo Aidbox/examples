@@ -26,7 +26,7 @@ services:
       - ./init-bundle:/app/init-bundle:ro
     environment:
       BOX_ADMIN_PASSWORD: uN6jhgu8eo
-      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1:hl7.fhir.uv.shc-vaccination#1.0.0
       BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
       BOX_DB_DATABASE: aidbox
       BOX_DB_HOST: postgres

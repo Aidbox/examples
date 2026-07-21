@@ -30,6 +30,28 @@ export class FHIRClient {
     });
   }
 
+  /**
+   * True if `system|code` is a member of the ValueSet, via Aidbox terminology
+   * (`ValueSet/$validate-code`). Used to filter resources by `credentialValueSet`.
+   */
+  async validateCode(
+    valueSetUrl: string,
+    system: string,
+    code: string
+  ): Promise<boolean> {
+    try {
+      const response = await this.client.get('/ValueSet/$validate-code', {
+        params: { url: valueSetUrl, system, code },
+      });
+      const result = (response.data?.parameter || []).find(
+        (p: any) => p.name === 'result'
+      );
+      return result?.valueBoolean === true;
+    } catch {
+      return false;
+    }
+  }
+
   async listPatients(): Promise<Array<{ id: string; label: string }>> {
     try {
       const response = await this.client.get('/Patient?_count=50&_elements=name');

@@ -69,6 +69,13 @@ to the live FHIR URL it came from (`bundledResource` → `hostedResource`, `vcIn
 already built during minification (`bundle-builder` refMap), so it is surfaced directly; `hostedResource`
 is the issuer origin + `/fhir`. This supersedes ADR-003's out-of-scope note.
 
+### G. credentialValueSet (IN) — implemented
+Resources are filtered by content: a resource is kept only if its code (`Immunization.vaccineCode` /
+`Observation.code`) is a member of the given ValueSet, checked via Aidbox `ValueSet/$validate-code`.
+The ValueSet comes from a real FHIR package — `hl7.fhir.uv.shc-vaccination#1.0.0` loaded through
+`BOX_BOOTSTRAP_FHIR_PACKAGES` (packages are `:`-separated) — which provides `immunization-all-cvx`.
+No hand-authored ValueSet. This supersedes ADR-003's out-of-scope note.
+
 ## Consequences
 - **Positive**: cards pass strict validation; all three delivery surfaces are demonstrated; JWKS is
   correct and reachable; issuance logic is shared and testable.

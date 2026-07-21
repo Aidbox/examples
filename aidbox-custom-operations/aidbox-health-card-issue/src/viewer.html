@@ -117,6 +117,14 @@
           </div>
         </div>
         <div style="margin-top:14px">
+          <label class="fld" for="credentialValueSet">credentialValueSet (optional)</label>
+          <select id="credentialValueSet">
+            <option value="">(none)</option>
+            <option value="http://hl7.org/fhir/uv/shc-vaccination/ValueSet/immunization-all-cvx">immunization-all-cvx (CVX vaccines)</option>
+          </select>
+          <p class="op-note" style="margin-top:6px">Keeps only resources whose code is in this ValueSet (via <code>$validate-code</code>). E.g. requesting <code>Observation</code> with the CVX set filters LOINC labs out.</p>
+        </div>
+        <div style="margin-top:14px">
           <label class="fld" for="since">_since (optional)</label>
           <input id="since" type="text" placeholder="YYYY-MM-DD" spellcheck="false" />
           <p class="op-note" style="margin-top:6px">Only resources with <code>_lastUpdated</code> ≥ this date (server write time, not clinical date). A future date returns nothing.</p>
@@ -418,12 +426,13 @@
     $("opbox").classList.add("hidden");
     const patientId = $("patientId").value.trim() || "example-patient";
     const credentialType = $("credentialType").value;
+    const credentialValueSet = $("credentialValueSet").value;
     const since = $("since").value.trim();
     $("issue").disabled = true;
     try {
       const res = await fetch("/demo/issue", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ patientId, credentialType, since: since || undefined }),
+        body: JSON.stringify({ patientId, credentialType, credentialValueSet: credentialValueSet || undefined, since: since || undefined }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -433,6 +442,7 @@
       // stand-in, but this is the real authenticated $health-cards-issue call).
       const fhirBase = String(data.issuer).replace(/\/health-cards-app$/, "") + "/fhir";
       const opParams = [{ name: "credentialType", valueUri: credentialType }];
+      if (credentialValueSet) opParams.push({ name: "credentialValueSet", valueUri: credentialValueSet });
       if (since) opParams.push({ name: "_since", valueDateTime: since });
       const reqBody = { resourceType: "Parameters", parameter: opParams };
       $("op-req").innerHTML =

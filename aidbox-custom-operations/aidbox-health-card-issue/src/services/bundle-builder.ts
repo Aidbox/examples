@@ -205,21 +205,4 @@ export class BundleBuilder {
     }
     return obj;
   }
-
-  filterByValueSet(
-    resources: FHIRResource[],
-    valueSetUrl?: string
-  ): FHIRResource[] {
-    if (!valueSetUrl) {
-      return resources;
-    }
-
-    // Basic value set filtering - in a real implementation,
-    // this would validate against actual FHIR ValueSet resources
-    // eslint-disable-next-line no-console
-    console.warn(
-      `Value set filtering not fully implemented for: ${valueSetUrl}`
-    );
-    return resources;
-  }
 }

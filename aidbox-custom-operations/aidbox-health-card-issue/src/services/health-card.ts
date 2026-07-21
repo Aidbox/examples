@@ -1,5 +1,5 @@
 import { Config } from '../types/config';
-import { FHIRBundle } from '../types/health-card';
+import { FHIRBundle, FHIRResource } from '../types/health-card';
 import { CryptoUtils } from '../utils/crypto';
 import { FHIRClient } from './fhir-client';
 import { BundleBuilder, IdentityClaimInput } from './bundle-builder';
@@ -74,7 +74,7 @@ export class HealthCardService {
       credentialTypes,
       opts.since
     );
-    const filtered = this.bundleBuilder.filterByValueSet(
+    const filtered = await this.filterByValueSet(
       resources,
       opts.credentialValueSet
     );
@@ -96,6 +96,37 @@ export class HealthCardService {
     }));
 
     return { jws, resourceLinks };
+  }
+
+  /**
+   * Keep only resources whose code (Immunization.vaccineCode / Observation.code)
+   * is a member of the given ValueSet, using Aidbox terminology. No-op when no
+   * credentialValueSet is provided.
+   */
+  private async filterByValueSet(
+    resources: FHIRResource[],
+    valueSetUrl?: string
+  ): Promise<FHIRResource[]> {
+    if (!valueSetUrl) return resources;
+
+    const kept: FHIRResource[] = [];
+    for (const r of resources) {
+      const codings = this.extractCodings(r);
+      let inValueSet = false;
+      for (const c of codings) {
+        if (c.system && c.code && (await this.fhir.validateCode(valueSetUrl, c.system, c.code))) {
+          inValueSet = true;
+          break;
+        }
+      }
+      if (inValueSet) kept.push(r);
+    }
+    return kept;
+  }
+
+  private extractCodings(resource: FHIRResource): Array<{ system?: string; code?: string }> {
+    const cc = resource.vaccineCode || resource.code; // Immunization / Observation
+    return Array.isArray(cc?.coding) ? cc.coding : [];
   }
 
   /** Sign a pre-built bundle (kept for direct/testing use). */

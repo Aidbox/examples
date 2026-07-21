@@ -4,9 +4,9 @@ languages: [TypeScript]
 ---
 # SMART Health Cards Issue Operation
 
-A Node/Express implementation of the FHIR [`$health-cards-issue`](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) operation on [Aidbox](https://www.health-samurai.io/aidbox). It pulls patient data from Aidbox, minimizes it per the [SMART Health Cards spec](https://spec.smarthealth.cards/), and issues a **signed** verifiable credential (JWS/ES256) — delivered three ways: **FHIR API**, **QR (`shc:/`)**, and **`.smart-health-card` file** — plus an in-browser **verifier**.
+A Node/Express implementation of the FHIR [`$health-cards-issue`](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) operation on [Aidbox](https://www.health-samurai.io/aidbox). It pulls patient data from Aidbox, minimizes it per the [SMART Health Cards spec](https://spec.smarthealth.cards/), and issues a signed verifiable credential (JWS/ES256). The card ships three ways (FHIR API, QR `shc:/`, and a `.smart-health-card` file), with an in-browser verifier included.
 
-A SMART Health Card is a FHIR `Bundle` → W3C Verifiable Credential → **JWS (ES256)**, payload minified and **DEFLATE**-compressed (`zip:"DEF"`). It proves *authenticity* via the issuer's signature (public key at `<iss>/.well-known/jwks.json`) — not confidentiality. (Encrypted sharing is the sibling `smart-health-link` example.)
+A SMART Health Card is a FHIR `Bundle` wrapped as a W3C Verifiable Credential and signed as a JWS (ES256), payload minified and DEFLATE-compressed (`zip:"DEF"`). The issuer's signature proves the card is authentic; it does not keep the contents confidential. For encrypted sharing, see the sibling `smart-health-link` example.
 
 ## Architecture
 
@@ -25,7 +25,7 @@ flowchart LR
     Aidbox -.->|"JWKS"| App
 ```
 
-## Flow 1 — Issue (`$health-cards-issue`)
+## Flow 1: Issue (`$health-cards-issue`)
 
 ```mermaid
 sequenceDiagram
@@ -41,12 +41,12 @@ sequenceDiagram
     A-->>C: Parameters { verifiableCredential }
 ```
 
-## Flow 2 — Verify (JWKS)
+## Flow 2: Verify (JWKS)
 
-The issuer publishes its **public** key so anyone can verify:
+The issuer publishes its public key so anyone can verify:
 
 - Aidbox already owns its own `/.well-known/jwks.json` (RSA, for OAuth).
-- So the SHC EC key is published under a **namespaced** path: `/health-cards-app/.well-known/jwks.json`.
+- The SHC EC key therefore lives under a namespaced path: `/health-cards-app/.well-known/jwks.json`.
 - `iss` points at that base, so `<iss>/.well-known/jwks.json` resolves to the key.
 
 ```mermaid
@@ -62,7 +62,7 @@ sequenceDiagram
     Note over V: pick key by kid → verify ES256 → inflate DEFLATE
 ```
 
-## Flow 3 — Deliver &amp; verify in the browser
+## Flow 3: Deliver and verify in the browser
 
 ```mermaid
 sequenceDiagram
@@ -108,9 +108,10 @@ Activate Aidbox at [localhost:8081](http://localhost:8081) (init bundle seeds `P
     "parameter": [ { "name": "credentialType", "valueUri": "https://smarthealth.cards#covid19" } ] }
   ```
   Also accepts `Immunization` / `Observation` (uri or string), `_since` (dateTime), `includeIdentityClaim` (string claim paths).
-- **`credentialType` mapping**: `#covid19` → COVID `Immunization`s only (filtered by CVX vaccine code); `Immunization` → all immunizations; `Observation` → lab results. All matches go into a single card.
-- **`resourceLink` (OUT)**: the response also returns a `resourceLink` per bundled resource, mapping each minified `resource:N` entry back to its live FHIR URL (e.g. `resource:0` → `<fhirBase>/Patient/example-patient`).
-- **Spec validator**: paste the JWS at [demo-portals.smarthealth.cards](https://demo-portals.smarthealth.cards/). Header / `zip:DEF` / signature / `kid` / Bundle should be **valid**. Expected warnings (local-dev only): unknown issuer + http keys — paste `keys/public-key.jwk.json` to check the signature.
+- **`credentialType` mapping**: `#covid19` selects COVID `Immunization`s only (filtered by CVX vaccine code); `Immunization` selects all immunizations; `Observation` selects lab results. All matches go into a single card.
+- **`resourceLink` (OUT)**: the response also returns a `resourceLink` per bundled resource, mapping each minified `resource:N` entry back to its live FHIR URL (for example, `resource:0` maps to `<fhirBase>/Patient/example-patient`).
+- **`credentialValueSet` (IN)**: restricts resources by content — keeps only those whose code (`Immunization.vaccineCode` / `Observation.code`) is a member of the given ValueSet, via Aidbox `ValueSet/$validate-code`. The `hl7.fhir.uv.shc-vaccination` package (loaded through `BOX_BOOTSTRAP_FHIR_PACKAGES`) supplies `http://hl7.org/fhir/uv/shc-vaccination/ValueSet/immunization-all-cvx` for this. Example: `#covid19` + that ValueSet issues a card (CVX 208 is a member); requesting `Observation` with the same ValueSet filters the LOINC lab result out.
+- **Spec validator**: paste the JWS at [demo-portals.smarthealth.cards](https://demo-portals.smarthealth.cards/). Header, `zip:DEF`, signature, `kid`, and Bundle should all read valid. Two warnings are expected in local dev (unknown issuer and http keys); paste `keys/public-key.jwk.json` to check the signature.
 
 ## Conformance
 
@@ -122,12 +123,12 @@ Built to pass strict verification:
 
 ## VCI / trust
 
-Real verifiers check `iss` against the [VCI trusted-issuer directory](https://github.com/the-commons-project/vci-directory) and fetch JWKS over **https (TLS 1.2+)**. This demo self-hosts over `http://localhost` and is not VCI-listed (expected local-dev deviation). Production: https `iss` (no trailing slash) + VCI enrollment.
+Real verifiers check `iss` against the [VCI trusted-issuer directory](https://github.com/the-commons-project/vci-directory) and fetch JWKS over https (TLS 1.2+). This demo self-hosts over `http://localhost` and is not VCI-listed, which is the expected local-dev deviation. Production needs an https `iss` (no trailing slash) plus VCI enrollment.
 
-**Card content &amp; VCI profiles.** For `#covid19`, the bundle content follows the VCI / [US Public Health](https://build.fhir.org/ig/HL7/fhir-us-ph-library/) vaccine-credential profiles **by resource type and codes** — Patient (name + DOB), `Immunization` (CVX vaccine code), and COVID `Observation` (LOINC code + SNOMED value); the seed data is shaped accordingly. We do **not** formally validate against those `StructureDefinition`s or trim to their exact minimal data set — that's out of scope here (note: SHC strips `meta`, so conformance means the *set of elements*, not a `meta.profile` tag). To enforce it, load the IG package into Aidbox and run `$validate` on the issued bundle.
+**Card content and VCI profiles.** For `#covid19`, the bundle content follows the VCI / [US Public Health](https://build.fhir.org/ig/HL7/fhir-us-ph-library/) vaccine-credential profiles by resource type and codes: Patient (name + DOB), `Immunization` (CVX vaccine code), and COVID `Observation` (LOINC code + SNOMED value). The seed data is shaped accordingly. This demo stops short of validating against those `StructureDefinition`s or trimming to their exact minimal data set, which is out of scope here. (SHC strips `meta`, so conformance means the set of elements, not a `meta.profile` tag.) To enforce it, load the IG package into Aidbox and run `$validate` on the issued bundle.
 
-**Out of scope**: SMART-on-FHIR OAuth (Aidbox config), VCI enrollment, formal VCI/us-ph profile validation, revocation, full `credentialValueSet` filtering, key rotation.
+**Out of scope**: SMART-on-FHIR OAuth (Aidbox config), VCI enrollment, formal VCI/us-ph profile validation, revocation, key rotation.
 
 ## Related
 
-- [`smart-health-link`](../../aidbox-integrations/smart-health-link) — the encrypted-link counterpart (JWE): shares data via a `shlink:` instead of a signed card.
+- [`smart-health-link`](../../aidbox-integrations/smart-health-link): the encrypted-link counterpart (JWE), which shares data via a `shlink:` instead of a signed card.

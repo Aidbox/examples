@@ -74,6 +74,7 @@ app.post('/demo/issue', async (req: Request, res: Response) => {
   try {
     const patientId = req.body.patientId || DEFAULT_PATIENT_ID;
     const credentialType = req.body.credentialType || DEFAULT_CREDENTIAL_TYPE;
+    const credentialValueSet = req.body.credentialValueSet || undefined;
     const since = req.body.since || undefined;
     const credentialTypes = Array.isArray(credentialType)
       ? credentialType
@@ -82,6 +83,7 @@ app.post('/demo/issue', async (req: Request, res: Response) => {
     const { jws, resourceLinks } = await healthCardService.issueForPatient(patientId, credentialTypes, {
       includeIdentityClaim: true,
       since,
+      credentialValueSet,
     });
 
     res.json({
