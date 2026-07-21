@@ -3,6 +3,18 @@
   "type": "transaction",
   "entry": [
     {
+      "request": { "method": "POST", "url": "$fhir-package-install" },
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          {
+            "name": "package",
+            "valueString": "https://terminology.smarthealth.cards/package.tgz"
+          }
+        ]
+      }
+    },
+    {
       "resource": {
         "resourceType": "Client",
         "id": "health-cards-client",
@@ -266,8 +278,8 @@
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "1119349007",
-              "display": "COVID-19 mRNA vaccine"
+              "code": "1031000172108",
+              "display": "COVID-19 mRNA vaccine (BNT162b2) of Pfizer-BioNTech"
             }
           ]
         },
