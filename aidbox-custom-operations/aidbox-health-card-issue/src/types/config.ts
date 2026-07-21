@@ -70,10 +70,8 @@ export function loadConfig(): Config {
     healthCards: {
       issuer: process.env.HEALTH_CARDS_ISSUER!,
       keyPath: process.env.HEALTH_CARDS_KEY_PATH!,
-      // Public FHIR base for resourceLink.hostedResource (same host as iss).
-      fhirBaseUrl:
-        process.env.FHIR_PUBLIC_BASE_URL ||
-        new URL(process.env.HEALTH_CARDS_ISSUER!).origin + '/fhir',
+      // Public FHIR base for resourceLink.hostedResource (issuer origin + /fhir).
+      fhirBaseUrl: new URL(process.env.HEALTH_CARDS_ISSUER!).origin + '/fhir',
     },
     jwks: {
       keyId,

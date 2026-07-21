@@ -67,7 +67,7 @@ Enforcement path if needed: load the IG package into Aidbox and `$validate` the 
 The operation returns a `resourceLink` per bundled resource, mapping each minified `resource:N` entry
 to the live FHIR URL it came from (`bundledResource` → `hostedResource`, `vcIndex` = 0). The mapping is
 already built during minification (`bundle-builder` refMap), so it is surfaced directly; `hostedResource`
-uses `FHIR_PUBLIC_BASE_URL` (default: issuer origin + `/fhir`). This supersedes ADR-003's out-of-scope note.
+is the issuer origin + `/fhir`. This supersedes ADR-003's out-of-scope note.
 
 ## Consequences
 - **Positive**: cards pass strict validation; all three delivery surfaces are demonstrated; JWKS is

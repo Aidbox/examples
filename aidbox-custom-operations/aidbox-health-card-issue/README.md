@@ -2,7 +2,7 @@
 features: [SMART health cards, Custom operations, JWKS, JWS signing, FHIR operations]
 languages: [TypeScript]
 ---
-# SMART Health Cards: Issue, Deliver &amp; Verify
+# SMART Health Cards Issue Operation
 
 A Node/Express implementation of the FHIR [`$health-cards-issue`](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/OperationDefinition-patient-i-health-cards-issue.html) operation on [Aidbox](https://www.health-samurai.io/aidbox). It pulls patient data from Aidbox, minimizes it per the [SMART Health Cards spec](https://spec.smarthealth.cards/), and issues a **signed** verifiable credential (JWS/ES256) — delivered three ways: **FHIR API**, **QR (`shc:/`)**, and **`.smart-health-card` file** — plus an in-browser **verifier**.
 
