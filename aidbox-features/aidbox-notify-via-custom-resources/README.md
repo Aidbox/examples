@@ -1,10 +1,10 @@
 ---
-features: [Custom resources, Notifications, FHIR schema, Workflow, Automation]
+features: [Custom resources, Notifications, StructureDefinition, Workflow, Automation]
 languages: [JavaScript]
 ---
 # Aidbox Notify via Custom Resources
 
-[Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)
+[Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/) | [Custom resources using StructureDefinition](https://www.health-samurai.io/docs/aidbox/tutorials/artifact-registry-tutorials/custom-resources/custom-resources-using-structuredefinition)
 
 In this example, you can see the custom resources demonstration on the minimalistic JavaScript example project which implemented the typical flow for notifications: requesting a notification, locking it for sending, and then sending it (placeholder).
 
@@ -23,9 +23,9 @@ For that we define the following custom resources:
 
 ## Objectives
 
-1. Learn how to use [custom resources](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) via [FHIR Schema](https://github.com/fhir-schema/fhir-schema).
+1. Learn how to use [custom resources](https://www.health-samurai.io/docs/aidbox/tutorials/artifact-registry-tutorials/custom-resources/custom-resources-using-structuredefinition?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) defined via StructureDefinition.
     - How to use existing value set with additional constraints as element type.
-    - How to use FHIR Schema extension for additional properties.
+    - How to define nested (BackboneElement) properties.
 2. Understand how to implement lock behavior via [FHIR condition update](https://build.fhir.org/http.html#cond-update).
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
@@ -35,7 +35,7 @@ For that we define the following custom resources:
     - [Objectives](#objectives)
     - [Prerequisites](#prerequisites)
     - [Setup Aidbox](#setup-aidbox)
-        - [FHIR Schema for Custom Resources](#fhir-schema-for-custom-resources)
+        - [StructureDefinition for Custom Resources](#structuredefinition-for-custom-resources)
         - [Search Parameters](#search-parameters)
         - [Initial Data](#initial-data)
         - [Notification Workflow](#notification-workflow)
@@ -63,114 +63,189 @@ You can do this manually or via a bootstrap inside the example.
 
 To run the example, clone the repository and open the `index.html` file in your browser or open: [Aidbox Notify via Custom Resources](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/).
 
-### FHIR Schema for Custom Resources
+### StructureDefinition for Custom Resources
 
 In Aidbox REST Console:
 
 ```json
-POST /fhir/FHIRSchema
+POST /fhir/StructureDefinition
 
 {
   "id": "TutorNotificationTemplate",
-  "resourceType": "FHIRSchema",
+  "resourceType": "StructureDefinition",
   "url": "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate",
   "type": "TutorNotificationTemplate",
   "name": "TutorNotificationTemplate",
-  "base": "DomainResource",
+  "status": "active",
+  "abstract": false,
   "kind": "resource",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
   "derivation": "specialization",
-  "required": [
-    "template"
-  ],
-  "elements": {
-    "template": {
-      "type": "string",
-      "scalar": true
-    }
+  "differential": {
+    "element": [
+      {
+        "id": "TutorNotificationTemplate",
+        "path": "TutorNotificationTemplate",
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "TutorNotificationTemplate.template",
+        "path": "TutorNotificationTemplate.template",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
 
 ```json
-POST /fhir/FHIRSchema
+POST /fhir/StructureDefinition
 
 {
   "id": "TutorNotification",
-  "resourceType": "FHIRSchema",
+  "resourceType": "StructureDefinition",
   "url": "http://example.com/aidbox-sms-tutor/TutorNotification",
   "type": "TutorNotification",
   "name": "TutorNotification",
-  "base": "DomainResource",
+  "status": "active",
+  "abstract": false,
   "kind": "resource",
-  "ALLOW_FHIR_SCHEMA_FHIR_INCOMPATIBLE_EXTENSIONS": true,
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
   "derivation": "specialization",
-  "required": [
-    "sendAfter",
-    "status",
-    "subject",
-    "template",
-    "type"
-  ],
-  "elements": {
-    "type": {
-      "type": "string",
-      "scalar": true,
-      "binding": {
-        "valueSet": "http://hl7.org/fhir/ValueSet/contact-point-system",
-        "strength": "required"
-      }
-    },
-    "status": {
-      "type": "string",
-      "scalar": true,
-      "constraints": {
-        "cont-status": {
-          "human": "Status should be 'requested', 'in-progress' or 'completed'",
-          "severity": "error",
-          "expression": "%context='requested' or %context='in-progress' or %context='completed'"
+  "differential": {
+    "element": [
+      {
+        "id": "TutorNotification",
+        "path": "TutorNotification",
+        "min": 0,
+        "max": "*"
+      },
+      {
+        "id": "TutorNotification.type",
+        "path": "TutorNotification.type",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "binding": {
+          "valueSet": "http://hl7.org/fhir/ValueSet/contact-point-system",
+          "strength": "required"
         }
       },
-      "binding": {
-        "valueSet": "http://hl7.org/fhir/ValueSet/task-status",
-        "strength": "required"
+      {
+        "id": "TutorNotification.status",
+        "path": "TutorNotification.status",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ],
+        "constraint": [
+          {
+            "key": "cont-status",
+            "severity": "error",
+            "human": "Status should be 'requested', 'in-progress' or 'completed'",
+            "expression": "%context='requested' or %context='in-progress' or %context='completed'"
+          }
+        ],
+        "binding": {
+          "valueSet": "http://hl7.org/fhir/ValueSet/task-status",
+          "strength": "required"
+        }
+      },
+      {
+        "id": "TutorNotification.template",
+        "path": "TutorNotification.template",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "TutorNotification.message",
+        "path": "TutorNotification.message",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
+      },
+      {
+        "id": "TutorNotification.sendAfter",
+        "path": "TutorNotification.sendAfter",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "dateTime"
+          }
+        ]
+      },
+      {
+        "id": "TutorNotification.subject",
+        "path": "TutorNotification.subject",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://hl7.org/fhir/StructureDefinition/Patient"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "TutorNotification.templateParameters",
+        "path": "TutorNotification.templateParameters",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "BackboneElement"
+          }
+        ]
+      },
+      {
+        "id": "TutorNotification.templateParameters.patientName",
+        "path": "TutorNotification.templateParameters.patientName",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "string"
+          }
+        ]
       }
-    },
-    "template": {
-      "type": "Reference",
-      "scalar": true,
-      "refers": [
-        "TutorNotificationTemplate"
-      ]
-    },
-    "message": {
-      "type": "string",
-      "scalar": true
-    },
-    "sendAfter": {
-      "type": "dateTime",
-      "scalar": true
-    },
-    "subject": {
-      "type": "Reference",
-      "scalar": true,
-      "refers": [
-        "Patient"
-      ]
-    },
-    "templateParameters": {
-      "scalar": true,
-      "additionalProperties": {
-        "type": "string"
-      }
-    }
+    ]
   }
 }
 ```
 
-In this FHIRShema:
+In this StructureDefinition:
 
 - Here we use the standard task status value set ([link](https://hl7.org/fhir/valueset-task-status.html)) for `TutorNotification.status`, but it contains too many codes, so we restrict them via the element-specific constraint.
-- Also, we use [additionalProperties FHIR Schema extensions](https://fhir-schema.github.io/fhir-schema/reference/extensions.html#additionalproperties?utm_source=github&utm_medium=readme&utm_campaign=app-examples-repo) which is <u>FHIR incompatible</u> but allows us to put all template parameters in TutorNotification resource.
+- Also, we define `templateParameters` as a nested `BackboneElement` with an explicit `patientName` property, which allows us to put template parameters in the TutorNotification resource.
 
 ### Search Parameters
 
