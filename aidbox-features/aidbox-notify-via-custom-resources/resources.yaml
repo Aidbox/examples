@@ -1,66 +1,107 @@
 id: TutorNotificationTemplate
-resourceType: FHIRSchema
+resourceType: StructureDefinition
 url: "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
 type: TutorNotificationTemplate
 name: TutorNotificationTemplate
-base: DomainResource
+status: active
+abstract: false
 kind: resource
+baseDefinition: "http://hl7.org/fhir/StructureDefinition/DomainResource"
 derivation: specialization
-required:
-  - template
-elements:
-  template:
-    type: string
-    scalar: true
+differential:
+  element:
+    - id: TutorNotificationTemplate
+      path: TutorNotificationTemplate
+      min: 0
+      max: "*"
+    - id: TutorNotificationTemplate.template
+      path: TutorNotificationTemplate.template
+      min: 1
+      max: "1"
+      type:
+        - code: string
 
 ---
 
 id: TutorNotification
-resourceType: FHIRSchema
+resourceType: StructureDefinition
 url: "http://example.com/aidbox-sms-tutor/TutorNotification"
 type: TutorNotification
 name: TutorNotification
-base: DomainResource
+status: active
+abstract: false
 kind: resource
+baseDefinition: "http://hl7.org/fhir/StructureDefinition/DomainResource"
 derivation: specialization
-required:
-  - sendAfter
-  - status
-  - subject
-  - template
-  - type
-elements:
-  type:
-    type: string
-    scalar: true
-    binding:
-      valueSet: "http://hl7.org/fhir/ValueSet/contact-point-system"
-      strength: required
-  status:
-    type: string
-    scalar: true
-    constraints:
-      cont-status:
-        human: "Status should be 'requested', 'in-progress' or 'completed'"
-        severity: "error"
-        expression: "%context='requested' or %context='in-progress' or %context='completed'"
-    binding:
-      valueSet: "http://hl7.org/fhir/ValueSet/task-status"
-      strength: required
-  template:
-    type: Reference
-    scalar: true
-    refers: ["TutorNotificationTemplate"]
-  message:
-    type: string
-    scalar: true
-  sendAfter:
-    type: dateTime
-    scalar: true
-  subject:
-    type: Reference
-    scalar: true
-    refers: ["Patient"]
+differential:
+  element:
+    - id: TutorNotification
+      path: TutorNotification
+      min: 0
+      max: "*"
+    - id: TutorNotification.type
+      path: TutorNotification.type
+      min: 1
+      max: "1"
+      type:
+        - code: string
+      binding:
+        valueSet: "http://hl7.org/fhir/ValueSet/contact-point-system"
+        strength: required
+    - id: TutorNotification.status
+      path: TutorNotification.status
+      min: 1
+      max: "1"
+      type:
+        - code: string
+      constraint:
+        - key: cont-status
+          severity: error
+          human: "Status should be 'requested', 'in-progress' or 'completed'"
+          expression: "%context='requested' or %context='in-progress' or %context='completed'"
+      binding:
+        valueSet: "http://hl7.org/fhir/ValueSet/task-status"
+        strength: required
+    - id: TutorNotification.template
+      path: TutorNotification.template
+      min: 1
+      max: "1"
+      type:
+        - code: Reference
+          targetProfile:
+            - "http://example.com/aidbox-sms-tutor/TutorNotificationTemplate"
+    - id: TutorNotification.message
+      path: TutorNotification.message
+      min: 0
+      max: "1"
+      type:
+        - code: string
+    - id: TutorNotification.sendAfter
+      path: TutorNotification.sendAfter
+      min: 1
+      max: "1"
+      type:
+        - code: dateTime
+    - id: TutorNotification.subject
+      path: TutorNotification.subject
+      min: 1
+      max: "1"
+      type:
+        - code: Reference
+          targetProfile:
+            - "http://hl7.org/fhir/StructureDefinition/Patient"
+    - id: TutorNotification.templateParameters
+      path: TutorNotification.templateParameters
+      min: 0
+      max: "1"
+      type:
+        - code: BackboneElement
+    - id: TutorNotification.templateParameters.patientName
+      path: TutorNotification.templateParameters.patientName
+      min: 0
+      max: "1"
+      type:
+        - code: string
 
 ---
 

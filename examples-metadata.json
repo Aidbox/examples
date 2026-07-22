@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-21T12:50:54.142801Z",
+  "timestamp": "2026-07-22T08:28:41.861891Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -95,11 +95,11 @@
     {
       "id": "aidbox-features-aidbox-notify-via-custom-resources",
       "title": "Aidbox Notify via Custom Resources",
-      "description": "[Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/) | [Custom resources using FHIR Schema](https://docs.aidbox.app/storage-1/custom-resources/custom-resources-using-fhirschema)",
+      "description": "[Demo](https://aidbox.github.io/examples/aidbox-notify-via-custom-resources/) | [Custom resources using StructureDefinition](https://www.health-samurai.io/docs/aidbox/tutorials/artifact-registry-tutorials/custom-resources/custom-resources-using-structuredefinition)",
       "features": [
         "Custom resources",
         "Notifications",
-        "FHIR schema",
+        "StructureDefinition",
         "Workflow",
         "Automation"
       ],
@@ -999,7 +999,6 @@
     "FHIR extensions",
     "FHIR forms",
     "FHIR operations",
-    "FHIR schema",
     "FHIRPath",
     "Fastify",
     "Firely SDK",
@@ -1082,6 +1081,7 @@
     "SmartForms",
     "Spring Boot",
     "Storage",
+    "StructureDefinition",
     "Structured data capture",
     "Subscriptions",
     "Summary operation",
