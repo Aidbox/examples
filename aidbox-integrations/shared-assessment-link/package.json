@@ -1,0 +1,48 @@
+{
+  "name": "aidbox-shared-assessment-link",
+  "version": "1.0.0",
+  "description": "Time-bounded, field-redacted assessment sharing between provider organizations over SMART Health Links, integrated with Aidbox",
+  "module": "src/server.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/server.ts",
+    "start": "bun src/server.ts",
+    "lint": "eslint src/**/*.ts --fix"
+  },
+  "keywords": [
+    "fhir",
+    "smart-health-links",
+    "aidbox",
+    "questionnaire",
+    "gad-7",
+    "jwe",
+    "typescript",
+    "bun"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@formbox/hs-theme": "^0.4.1",
+    "@formbox/renderer": "^0.4.1",
+    "@health-samurai/aidbox-client": "^0.0.0-alpha.4",
+    "@lhncbc/ucum-lhc": "^7.1.9",
+    "classnames": "^2.5.1",
+    "fhirpath": "^4.6.0",
+    "jose": "^5.2.0",
+    "mobx": "^6.16.1",
+    "mobx-react-lite": "^4.1.1",
+    "mobx-utils": "^6.1.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  }
+}

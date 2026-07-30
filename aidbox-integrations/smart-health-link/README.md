@@ -7,6 +7,8 @@ runtimes: [Bun]
 
 A small TypeScript ([Bun](https://bun.sh)) implementation of [SMART Health Links (SHL)](https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/links-specification.html) on Aidbox. It shares the result of a slow **real-time eligibility (RTE)** check with a client that has no account, and keeps that result private to the client.
 
+> **There are two SHL examples in this repo.** This one shares a **snapshot**: one finished result, encrypted at mint time — the shorter read if you want the bare protocol. [`shared-assessment-link`](../shared-assessment-link/) shares a **live, policy-driven view** instead, rebuilt and re-redacted on every read, which is what a time window, automatic expiry, and immediate revocation require.
+
 ## Use case
 
 Someone is thinking about signing up. First they want to know: *am I covered, and what will it cost me?* They have no account yet, so nothing can log them in. The answer also takes a few seconds, because the app has to check coverage with the payer.
