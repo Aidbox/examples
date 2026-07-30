@@ -1,0 +1,1194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shared Assessment Link</title>
+<!-- Stylesheet for @formbox/hs-theme, which renders the GAD-7 intake form. -->
+<link rel="stylesheet" href="/assets/intake.css" />
+<style>
+  /*
+   * Palette taken from @formbox/hs-theme, which renders the GAD-7 form on the
+   * intake tab — so the form reads as part of the page rather than a foreign
+   * white box dropped into it. Slate-biased neutrals, not pure greys.
+   *
+   * The accent carries meaning here: it marks what happens *in your browser*
+   * (decryption, the key) as opposed to --server for what the backend does. On
+   * a light ground the original mint fell far below AA, so that role moves to
+   * the theme's blue, darkened for contrast on white.
+   */
+  :root {
+    --ground: #f7fafc;   /* page */
+    --panel: #ffffff;    /* cards */
+    --panel-2: #edf2f7;  /* insets, callouts */
+    --line: #cbd5e0;
+    --text: #1a202c;
+    --muted: #5a6b82;    /* slate-biased grey — AA on both panel and ground */
+    --accent: #2b6cb0;   /* unlocked / open / runs in the browser */
+    --server: #6b46c1;   /* runs on the server (Aidbox + backend) */
+    --locked: #b45309;   /* locked / withheld / pending */
+    --danger: #c53030;
+    /* Text that sits on an --accent fill (buttons, the selected tab). */
+    --on-accent: #ffffff;
+    /* Tinted washes for status surfaces, kept faint so text stays the signal. */
+    --accent-wash: #ebf4fb;
+    --locked-wash: #fdf6ec;
+    --danger-wash: #fdeded;
+    --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --display: "Space Grotesk", var(--sans);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  /* ---- header ---- */
+  header { margin-bottom: 32px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 12px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 600;
+    font-size: clamp(26px, 5vw, 38px); letter-spacing: -.02em; margin: 0 0 8px;
+  }
+  .sub { color: var(--muted); margin: 0; max-width: 62ch; }
+
+  /* ---- role tabs ---- */
+  .roles { display: flex; gap: 6px; margin-bottom: 22px; flex-wrap: wrap; }
+  .role {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 16px; font-size: 13px; font-weight: 500;
+    font-family: var(--sans); cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .role:hover { color: var(--text); }
+  .role[aria-selected="true"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
+  .role .num { font-family: var(--mono); font-size: 11px; opacity: .7; }
+  .role[aria-selected="true"] .num { opacity: .55; }
+
+  /* ---- cards ---- */
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px;
+  }
+  .card + .card { margin-top: 16px; }
+  .card h2 {
+    font-family: var(--display); font-weight: 600; font-size: 17px; margin: 0 0 4px;
+  }
+  .card .hint { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  .card .hint:last-child { margin-bottom: 0; }
+  .card .hint code { font-family: var(--mono); color: var(--text); font-size: 12.5px; }
+
+  .org-line {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 14px;
+  }
+  .org-line b {
+    color: var(--text); font-weight: 500; letter-spacing: normal;
+    text-transform: none; font-size: 13px;
+  }
+
+  /* ---- fields ---- */
+  label.fld {
+    display: block; font-family: var(--mono);
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  label.fld .opt { text-transform: none; letter-spacing: 0; opacity: .7; }
+  input[type=text], input[type=datetime-local], select, textarea {
+    width: 100%; background: var(--ground); color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 11px 13px; font-family: var(--mono); font-size: 13px;
+  }
+  textarea { min-height: 84px; resize: vertical; line-height: 1.5; word-break: break-all; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  .preset-label {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 620px) { .grid2 { grid-template-columns: 1fr; } }
+  .field + .field, .grid2 + .field, .field + .grid2, .grid2 + .grid2 { margin-top: 16px; }
+
+  .row { display: flex; gap: 12px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+  button {
+    font-family: var(--sans); font-weight: 600; font-size: 14px;
+    color: var(--on-accent); background: var(--accent);
+    border: 0; border-radius: 10px; padding: 11px 20px; cursor: pointer;
+    transition: transform .08s ease, filter .15s ease;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  button.ghost:hover { color: var(--text); }
+  button.small { padding: 7px 14px; font-size: 13px; }
+  button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+
+  /* ---- GAD-7 intake form (rendered by @formbox/hs-theme) ---- */
+  /*
+   * The page palette is drawn from this theme, so the form now sits flush on the
+   * card instead of needing its own inset surface. Only the busy state is ours.
+   */
+  .formbox-wrap { margin-top: 18px; }
+  .formbox-wrap[aria-busy="true"] { opacity: .55; pointer-events: none; }
+  #gad7-root .field { margin-bottom: 4px; }
+
+  /* ---- checkbox lists (item redaction) ---- */
+  .checks { display: grid; gap: 8px; }
+  .check {
+    display: flex; align-items: flex-start; gap: 11px;
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 11px 13px; cursor: pointer; background: var(--ground);
+    transition: all .12s ease;
+  }
+  .check:hover { border-color: var(--muted); }
+  .check input { margin: 3px 0 0; accent-color: var(--locked); flex: 0 0 auto; }
+  .check-body { font-size: 13.5px; }
+  .check-id { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; margin-top: 3px; }
+  .check.on { border-color: var(--locked); background: var(--locked-wash); }
+  .check.on .check-body { color: var(--locked); }
+
+  .toggle-row {
+    display: flex; align-items: flex-start; gap: 11px; margin-top: 16px;
+    border: 1px solid var(--line); border-radius: 10px; padding: 13px;
+    background: var(--ground);
+  }
+  .toggle-row input { accent-color: var(--accent); margin: 3px 0 0; flex: 0 0 auto; }
+  .toggle-row label { font-size: 13.5px; cursor: pointer; }
+  .toggle-row .why { color: var(--muted); font-size: 12.5px; display: block; margin-top: 4px; }
+
+  /* ---- link box ---- */
+  .linkbox {
+    margin-top: 18px; background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+  }
+  .linkbox-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 10px;
+  }
+  .linkbox code {
+    display: block; font-family: var(--mono); font-size: 12px;
+    color: var(--accent); word-break: break-all; line-height: 1.55;
+    max-height: 96px; overflow: auto;
+  }
+  .linkbox .row { margin-top: 12px; }
+
+  /* ---- share list (dashboard) ---- */
+  .shares { display: grid; gap: 12px; }
+  .share {
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px; background: var(--ground);
+  }
+  .share-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .share-title { font-family: var(--display); font-weight: 600; font-size: 15px; }
+  .share-meta {
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+    margin-top: 10px; display: grid; gap: 4px;
+  }
+  .share-meta b { color: var(--text); font-weight: 400; }
+  .share .row { margin-top: 13px; }
+
+  .badge {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; border-radius: 999px; padding: 3px 9px;
+    border: 1px solid currentColor; white-space: nowrap;
+  }
+  .badge.open { color: var(--accent); }
+  .badge.ended, .badge.revoked { color: var(--danger); }
+  .badge.pending { color: var(--locked); }
+
+  /* ---- recipient viewer ---- */
+  .reveal { margin-top: 18px; }
+  .reveal-head {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .reveal-head h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 17px; }
+  .window-note {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 8px;
+    padding: 13px 15px; font-size: 13px; color: var(--muted); margin-bottom: 16px;
+  }
+  .window-note.closed { border-left-color: var(--danger); }
+  .window-note b { color: var(--text); font-weight: 500; }
+
+  .resp {
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px; background: var(--ground); margin-bottom: 12px;
+  }
+  .resp-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .resp-date { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .resp-score { margin-left: auto; text-align: right; }
+  .resp-score .n { font-family: var(--display); font-size: 22px; font-weight: 600; }
+  .resp-score .b { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; }
+  .resp-score.withheld .n { color: var(--locked); font-size: 14px; font-family: var(--mono); }
+
+  .answers { display: grid; gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; }
+  .ans {
+    display: flex; gap: 12px; align-items: baseline;
+    background: var(--panel); padding: 9px 12px; font-size: 13px;
+  }
+  .ans-q { flex: 1; }
+  .ans-v { font-family: var(--mono); font-size: 12px; color: var(--accent); text-align: right; flex: 0 0 auto; }
+  .ans.masked { background: var(--locked-wash); }
+  .ans.masked .ans-q { color: var(--muted); }
+  .ans.masked .ans-v { color: var(--locked); }
+
+  /* ---- behind the scenes ---- */
+  .bts-toggle {
+    background: transparent; color: var(--muted); border: 0;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; padding: 0; margin-top: 32px; cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .bts-toggle:hover { color: var(--text); filter: none; }
+  .bts-chev { transition: transform .15s ease; display: inline-block; }
+  .bts-toggle[aria-expanded="true"] .bts-chev { transform: rotate(90deg); }
+  .bts { margin-top: 16px; }
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .step { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; }
+  .step-head {
+    display: flex; align-items: center; gap: 11px;
+    padding: 12px 14px; cursor: pointer; width: 100%;
+    background: transparent; border: 0; color: inherit;
+    font-family: var(--sans); font-size: 13.5px; font-weight: 400; text-align: left;
+  }
+  .step-head:hover { filter: none; }
+  .step-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: var(--line); }
+  .step.done .step-dot { background: var(--accent); }
+  .step.active .step-dot { background: var(--locked); }
+  .step.fail .step-dot { background: var(--danger); }
+  .step-where {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+    text-transform: uppercase; margin-left: auto; padding: 2px 7px;
+    border-radius: 4px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .step-where.browser { color: var(--accent); }
+  .step-where.server { color: var(--server); }
+  .step-body {
+    padding: 12px 14px 14px 32px; font-family: var(--mono); font-size: 11.5px;
+    color: var(--muted); white-space: pre-wrap; word-break: break-all;
+    border-top: 1px solid var(--line);
+    /* Raw HTTP and ciphertext — an inset surface separates it from the label. */
+    background: var(--ground);
+  }
+  .step-body.hidden { display: none; }
+  .step-body .lbl { color: var(--text); display: block; margin: 9px 0 3px; }
+  .step-body .lbl:first-child { margin-top: 0; }
+
+  /* ---- misc ---- */
+  .hidden { display: none !important; }
+  .err {
+    border: 1px solid var(--danger); background: var(--danger-wash);
+    border-radius: 10px; padding: 13px 15px; font-size: 13px;
+    color: var(--danger); margin-top: 16px;
+  }
+  .ok-note {
+    border: 1px solid var(--accent); background: var(--accent-wash);
+    border-radius: 10px; padding: 13px 15px; font-size: 13px;
+    color: var(--accent); margin-top: 16px;
+  }
+  .empty { color: var(--muted); font-size: 13px; font-family: var(--mono); }
+  footer { margin-top: 48px; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  footer a { color: var(--accent); }
+  footer code { color: var(--text); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">SMART Health Link · Assessment sharing</p>
+      <h1>Share assessments, on your terms</h1>
+      <p class="sub">
+        One provider organization shares a patient's GAD-7 history with another — for a fixed
+        window, with chosen questions held back. Both are enforced on every read, so newly
+        completed assessments appear automatically and closing the share takes effect at once.
+      </p>
+    </header>
+
+    <div class="roles" role="tablist">
+      <button class="role" id="role-intake" role="tab" aria-selected="true">
+        <span class="num">1</span> Complete a GAD-7
+      </button>
+      <button class="role" id="role-share" role="tab" aria-selected="false">
+        <span class="num">2</span> Share it
+      </button>
+      <button class="role" id="role-manage" role="tab" aria-selected="false">
+        <span class="num">3</span> Manage shares
+      </button>
+      <button class="role" id="role-receive" role="tab" aria-selected="false">
+        <span class="num">4</span> Open a link
+      </button>
+    </div>
+
+    <!-- ============ 1. INTAKE ============ -->
+    <section id="pane-intake">
+      <div class="card">
+        <p class="org-line">Acting as <b>Northside Behavioral Health</b> · the sharing organization</p>
+        <h2>GAD-7 questionnaire</h2>
+        <p class="hint">Over the last 2 weeks, how often have you been bothered by the following problems?</p>
+
+        <!--
+          Rendered by @formbox/renderer from the FHIR Questionnaire stored in
+          Aidbox — the same renderer HealthSamurai/phr uses. It mounts the patient
+          picker, the form and its submit button, so the instrument is defined
+          once in FHIR rather than duplicated in this page.
+        -->
+        <div id="gad7-root"></div>
+      </div>
+
+      <div class="card">
+        <h2>Assessments on file</h2>
+        <p class="hint">
+          Everything this organization has recorded for the selected patient. A share covers all
+          of these — and anything added later.
+        </p>
+        <div id="intake-history"></div>
+      </div>
+    </section>
+
+    <!-- ============ 2. SHARE ============ -->
+    <section id="pane-share" class="hidden">
+      <div class="card">
+        <p class="org-line">Acting as <b>Northside Behavioral Health</b> · granting access</p>
+        <h2>Grant access to another organization</h2>
+        <p class="hint">
+          Pick the patient, the window, and what stays private. You get back a link to hand to
+          the receiving organization.
+        </p>
+
+        <div class="field">
+          <label class="fld" for="share-patient">Patient</label>
+          <select id="share-patient"></select>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label class="fld" for="share-recipient">Receiving organization</label>
+            <select id="share-recipient">
+              <option value="Organization/provider-b|Riverside Psychiatry Group">Riverside Psychiatry Group</option>
+            </select>
+          </div>
+          <div>
+            <label class="fld" for="share-passcode">Passcode <span class="opt">(optional, sent separately)</span></label>
+            <input type="text" id="share-passcode" placeholder="e.g. 4821" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label class="fld" for="share-start">Access starts</label>
+            <input type="datetime-local" id="share-start" />
+          </div>
+          <div>
+            <label class="fld" for="share-end">Access ends</label>
+            <input type="datetime-local" id="share-end" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <span class="preset-label">Window</span>
+          <button class="ghost small" data-window="2" type="button">2 min</button>
+          <button class="ghost small" data-window="1440" type="button">1 day</button>
+          <button class="ghost small" data-window="43200" type="button">30 days</button>
+          <button class="ghost small" data-window="129600" type="button">90 days</button>
+        </div>
+        <p class="hint" style="margin-top:12px;margin-bottom:0">
+          On the end date the link closes on its own — nothing to follow up on. Pick
+          <b>2 min</b> to watch that happen.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Hold back specific questions</h2>
+        <p class="hint">
+          Tick anything the receiving organization should not see. The question still appears on
+          their side marked as withheld, so they can tell a held-back answer from an unanswered one.
+        </p>
+        <div class="checks" id="hide-items"></div>
+
+        <div class="toggle-row">
+          <input type="checkbox" id="share-score" checked />
+          <label for="share-score">
+            Share the total score
+            <span class="why">
+              The total is the sum of the seven scored questions, so sending it next to a
+              held-back question can give that answer away. Left on, the score is recalculated
+              from only what's visible; turned off, no score is sent at all.
+            </span>
+          </label>
+        </div>
+
+        <div class="row">
+          <button id="create-share" type="button">Create share link</button>
+        </div>
+        <div id="share-msg"></div>
+
+        <div class="linkbox hidden" id="share-linkbox">
+          <span class="linkbox-label">SMART Health Link for the receiving organization</span>
+          <code id="share-link"></code>
+          <div class="row">
+            <button class="ghost small" id="copy-link" type="button">Copy</button>
+            <button class="ghost small" id="open-link" type="button">Open as the recipient</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. MANAGE ============ -->
+    <section id="pane-manage" class="hidden">
+      <div class="card">
+        <p class="org-line">Acting as <b>Northside Behavioral Health</b> · managing grants</p>
+        <h2>Shares you've granted</h2>
+        <p class="hint">
+          Each grant, its window, what it holds back, and when the recipient actually read it.
+          Closing one takes effect immediately.
+        </p>
+        <div class="row" style="margin-top:0">
+          <button class="ghost small" id="refresh-shares" type="button">Refresh</button>
+        </div>
+        <div class="shares" id="shares-list" style="margin-top:16px"></div>
+      </div>
+    </section>
+
+    <!-- ============ 4. RECEIVE ============ -->
+    <section id="pane-receive" class="hidden">
+      <div class="card">
+        <p class="org-line">Acting as <b>Riverside Psychiatry Group</b> · the receiving organization</p>
+        <h2>Open a shared link</h2>
+        <p class="hint">
+          Paste the <code>shlink:</code> you were given. This page resolves it and decrypts the
+          contents locally — the key never leaves your browser.
+        </p>
+
+        <div class="field">
+          <label class="fld" for="shl-input">SMART Health Link</label>
+          <textarea id="shl-input" placeholder="shlink:/eyJ1cmwiOiJodHRwOi8v..." spellcheck="false"></textarea>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label class="fld" for="recv-passcode">Passcode <span class="opt">(if the link is locked)</span></label>
+            <input type="text" id="recv-passcode" autocomplete="off" />
+          </div>
+          <div>
+            <label class="fld" for="recv-recipient">Recipient (you)</label>
+            <input type="text" id="recv-recipient" value="Riverside Psychiatry Group" />
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="resolve-link" type="button">Open link</button>
+          <button id="clear-link" class="ghost" type="button">Clear</button>
+        </div>
+        <div id="recv-msg"></div>
+      </div>
+
+      <div class="reveal hidden" id="reveal">
+        <div class="window-note" id="window-note"></div>
+        <div class="reveal-head">
+          <h2>Shared assessments</h2>
+          <span class="badge open" id="reveal-badge">open</span>
+        </div>
+        <div id="responses"></div>
+      </div>
+
+      <button class="bts-toggle hidden" id="bts-toggle" type="button" aria-expanded="false">
+        Behind the scenes <span class="bts-chev" aria-hidden="true">›</span>
+      </button>
+      <div class="bts hidden" id="bts">
+        <ol class="steps" id="steps"></ol>
+      </div>
+    </section>
+
+    <footer>
+      GAD-7 responses stored as FHIR <code>QuestionnaireResponse</code> in Aidbox · shared over
+      <a href="https://hl7.org/fhir/uv/smart-health-cards-and-links/STU1/links-specification.html">SMART Health Links</a>
+    </footer>
+  </div>
+
+<script type="module">
+/* ------------------------------------------------------------------------- *
+ * Shared assessment link — demo UI
+ *
+ * Four roles on one page:
+ *   1. intake   — the sharing organization records a GAD-7
+ *   2. share    — it grants another organization a time-bounded, redacted view
+ *   3. manage   — it reviews and closes its grants
+ *   4. receive  — the other organization resolves the link and decrypts locally
+ *
+ * Roles 1–3 call this app's demo routes; in production those are the
+ * authenticated `share-create` / `share-revoke` Aidbox operations inside the
+ * sharing organization's own system. Role 4 calls only the public SHL endpoints,
+ * exactly as any conformant receiver would.
+ * ------------------------------------------------------------------------- */
+
+const $ = (id) => document.getElementById(id);
+
+/*
+ * The wire contract comes from GET /demo/extensions, so the extension URLs the
+ * viewer interprets are defined once — on the server — rather than re-declared
+ * here where they could drift. (The intake form is a separate React island that
+ * fetches the Questionnaire itself; see src/forms/intake.tsx.)
+ */
+let SCORE_EXT = '';         // extension carrying the total score
+let MASKED_EXT = '';        // marks an item the sender withheld
+let WINDOW_EXT = '';        // describes the sharing window on the bundle
+let SCORED_LINK_IDS = [];   // items that feed the 0–21 total
+
+function severity(total) {
+  if (total >= 15) return 'Severe anxiety';
+  if (total >= 10) return 'Moderate anxiety';
+  if (total >= 5) return 'Mild anxiety';
+  return 'Minimal anxiety';
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
+}
+function fmtDateTime(ms) {
+  return new Date(ms).toLocaleString(undefined, {
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+}
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+function notice(el, text, kind = 'err') {
+  el.innerHTML = `<div class="${kind === 'err' ? 'err' : 'ok-note'}">${esc(text)}</div>`;
+}
+function clearNotice(el) { el.innerHTML = ''; }
+
+/* ---------------------- role switching ---------------------- */
+
+const ROLES = ['intake', 'share', 'manage', 'receive'];
+function showRole(name) {
+  for (const r of ROLES) {
+    $(`role-${r}`).setAttribute('aria-selected', String(r === name));
+    $(`pane-${r}`).classList.toggle('hidden', r !== name);
+  }
+  if (name === 'manage') loadShares();
+  if (name === 'share') seedWindowDefaults();
+}
+for (const r of ROLES) $(`role-${r}`).addEventListener('click', () => showRole(r));
+
+/* ---------------------- 1. intake ---------------------- */
+
+async function loadFormContract() {
+  const res = await fetch('/demo/extensions');
+  const c = await res.json();
+  SCORE_EXT = c.score;
+  MASKED_EXT = c.masked;
+  WINDOW_EXT = c.window;
+  SCORED_LINK_IDS = c.scoredLinkIds;
+}
+
+/*
+ * The intake form itself is rendered by @formbox/renderer in a React island
+ * (src/forms/intake.tsx) mounted at #gad7-root. It owns its own patient picker
+ * and submit button, and tells us when it saved so the history list refreshes.
+ */
+window.addEventListener('assessment-saved', () => loadHistory());
+
+async function loadHistory() {
+  // The React island owns the intake patient picker, so the history follows the
+  // share tab's selector — the same patient list, and the one that matters when
+  // deciding what to share.
+  const patient = $('share-patient').value;
+  if (!patient) return;
+  const res = await fetch(`/demo/assessments?patient=${encodeURIComponent(patient)}`);
+  const list = await res.json();
+  if (!Array.isArray(list) || list.length === 0) {
+    $('intake-history').innerHTML = '<p class="empty">No assessments recorded yet.</p>';
+    return;
+  }
+  $('intake-history').innerHTML = list.slice().reverse().map((r) => `
+    <div class="resp">
+      <div class="resp-head">
+        <span class="resp-date">${esc(fmtDate(r.authored))}</span>
+        <span class="resp-score">
+          <span class="n">${esc(r.total)}</span><span class="score-max">/21</span>
+          <span class="b">${esc(severity(r.total))}</span>
+        </span>
+      </div>
+    </div>`).join('');
+}
+
+/* ---------------------- 2. share ---------------------- */
+
+/**
+ * The redaction checkboxes, one per questionnaire item.
+ *
+ * Built from the same FHIR Questionnaire the renderer uses, so what Provider A
+ * can hide always matches what the form actually asks — a new item on the
+ * instrument shows up here without a code change.
+ */
+async function renderHideItems() {
+  const res = await fetch('/demo/intake-form');
+  const { questionnaire } = await res.json();
+  const items = questionnaire.item ?? [];
+
+  $('hide-items').innerHTML = items.map((item, i) => {
+    // The server says which items feed the total, so A can see that hiding an
+    // unscored one doesn't move the score.
+    const scored = SCORED_LINK_IDS.includes(item.linkId);
+    return `
+    <label class="check">
+      <input type="checkbox" value="${esc(item.linkId)}" />
+      <span class="check-body">${i + 1}. ${esc(item.text ?? item.linkId)}
+        <span class="check-id">${esc(item.linkId)}${scored ? '' : ' · not scored'}</span>
+      </span>
+    </label>`;
+  }).join('');
+
+  $('hide-items').addEventListener('change', (e) => {
+    const label = e.target.closest('.check');
+    if (label) label.classList.toggle('on', e.target.checked);
+  });
+}
+
+function hiddenItems() {
+  return [...document.querySelectorAll('#hide-items input:checked')].map((el) => el.value);
+}
+
+function toLocalInput(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function seedWindowDefaults() {
+  if ($('share-start').value) return;
+  setWindow(30 * 1440);
+}
+
+/** Set the window to start now and run for `minutes`. */
+function setWindow(minutes) {
+  const now = new Date();
+  $('share-start').value = toLocalInput(now);
+  $('share-end').value = toLocalInput(new Date(now.getTime() + minutes * 60_000));
+  clearNotice($('share-msg'));
+}
+
+for (const btn of document.querySelectorAll('[data-window]')) {
+  btn.addEventListener('click', () => setWindow(Number(btn.dataset.window)));
+}
+
+$('create-share').addEventListener('click', async () => {
+  clearNotice($('share-msg'));
+  const patientSel = $('share-patient');
+  const [recipientOrganization, recipientDisplay] = $('share-recipient').value.split('|');
+
+  const start = $('share-start').value;
+  const end = $('share-end').value;
+  if (!start || !end) {
+    notice($('share-msg'), 'Set both a start and an end for the sharing window.');
+    return;
+  }
+  // Echo both instants back: an inverted window is usually a mistyped day, and
+  // seeing the two dates side by side makes that obvious.
+  if (new Date(end) <= new Date(start)) {
+    notice($('share-msg'),
+      `The window ends before it starts — access would never open. ` +
+      `Starts ${fmtDateTime(new Date(start).getTime())}, ` +
+      `ends ${fmtDateTime(new Date(end).getTime())}.`);
+    return;
+  }
+
+  $('create-share').disabled = true;
+  try {
+    const res = await fetch('/demo/shares', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patient: patientSel.value,
+        patientName: patientSel.selectedOptions[0]?.dataset.name,
+        recipientOrganization,
+        recipientDisplay,
+        // Send ISO so the server reads the same instant the picker showed.
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString(),
+        hiddenItems: hiddenItems(),
+        shareScore: $('share-score').checked,
+        passcode: $('share-passcode').value.trim() || undefined,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not create the share');
+
+    $('share-link').textContent = data.shlink;
+    $('share-linkbox').classList.remove('hidden');
+    const hidden = hiddenItems();
+    notice($('share-msg'),
+      `Share created — open until ${fmtDateTime(data.endsAt * 1000)}` +
+      (hidden.length
+        ? `, ${hidden.length} question${hidden.length > 1 ? 's' : ''} withheld`
+        : ', nothing withheld') +
+      ($('share-score').checked ? '.' : ', score withheld.'), 'ok');
+  } catch (err) {
+    notice($('share-msg'), err.message);
+  } finally {
+    $('create-share').disabled = false;
+  }
+});
+
+$('copy-link').addEventListener('click', async () => {
+  await navigator.clipboard.writeText($('share-link').textContent);
+  $('copy-link').textContent = 'Copied';
+  setTimeout(() => { $('copy-link').textContent = 'Copy'; }, 1400);
+});
+
+$('open-link').addEventListener('click', () => {
+  openAsRecipient($('share-link').textContent, $('share-passcode').value.trim());
+});
+
+function openAsRecipient(shlink, passcode = '') {
+  $('shl-input').value = shlink;
+  $('recv-passcode').value = passcode;
+  showRole('receive');
+  resolveLink();
+}
+
+/* ---------------------- 3. manage ---------------------- */
+
+const STATE_LABEL = {
+  open: 'open',
+  ended: 'ended',
+  revoked: 'closed early',
+  'not-yet-started': 'not started',
+};
+
+async function loadShares() {
+  const res = await fetch('/demo/shares');
+  const list = await res.json();
+  if (!Array.isArray(list) || list.length === 0) {
+    $('shares-list').innerHTML = '<p class="empty">No shares granted yet.</p>';
+    return;
+  }
+
+  $('shares-list').innerHTML = list.map((s) => {
+    const badgeClass = s.state === 'open' ? 'open'
+      : s.state === 'not-yet-started' ? 'pending' : s.state;
+    const withheld = s.hiddenItems.length ? s.hiddenItems.join(', ') : 'nothing';
+
+    const last = s.accessLog[s.accessLog.length - 1];
+    const reads = last
+      ? `${s.accessLog.length} read${s.accessLog.length > 1 ? 's' : ''}, last ` +
+        `${fmtDateTime(last.atMs)} — ${last.responseCount} assessment` +
+        `${last.responseCount === 1 ? '' : 's'} visible then`
+      : 'not read yet';
+
+    const closable = s.state === 'open' || s.state === 'not-yet-started';
+
+    return `
+      <div class="share">
+        <div class="share-head">
+          <span class="share-title">${esc(s.label)}</span>
+          <span class="badge ${badgeClass}">${esc(STATE_LABEL[s.state] ?? s.state)}</span>
+        </div>
+        <div class="share-meta">
+          <span>Shared with <b>${esc(s.recipient)}</b></span>
+          <span>Window <b>${esc(fmtDateTime(s.startsAt * 1000))}</b> → <b>${esc(fmtDateTime(s.endsAt * 1000))}</b></span>
+          <span>Withheld: <b>${esc(withheld)}</b>${s.shareScore ? '' : ' · <b>score withheld</b>'}</span>
+          <span>${s.hasPasscode ? 'Passcode required · ' : ''}${esc(reads)}</span>
+        </div>
+        <div class="row">
+          <button class="ghost small" data-open="${esc(s.shlink)}" type="button">Open as recipient</button>
+          ${closable
+            ? `<button class="danger small" data-revoke="${esc(s.shareId)}" type="button">Close now</button>`
+            : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  for (const btn of $('shares-list').querySelectorAll('[data-revoke]')) {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      await fetch(`/demo/shares/${btn.dataset.revoke}/revoke`, { method: 'POST' });
+      await loadShares();
+    });
+  }
+  for (const btn of $('shares-list').querySelectorAll('[data-open]')) {
+    btn.addEventListener('click', () => openAsRecipient(btn.dataset.open));
+  }
+}
+
+$('refresh-shares').addEventListener('click', loadShares);
+
+/* ---------------------- 4. receive (the real SHL receiver) ---------------------- */
+
+/* --- the "behind the scenes" step log --- */
+let stepCount = 0;
+function resetSteps() {
+  stepCount = 0;
+  $('steps').innerHTML = '';
+  $('bts-toggle').classList.remove('hidden');
+}
+function addStep(title, where) {
+  const idx = stepCount++;
+  const li = document.createElement('li');
+  li.className = 'step active';
+  li.id = `step-${idx}`;
+  li.innerHTML = `
+    <button class="step-head" type="button" aria-expanded="false">
+      <span class="step-dot"></span>
+      <span>${esc(title)}</span>
+      <span class="step-where ${where}">${where === 'browser' ? 'in your browser' : 'server'}</span>
+    </button>
+    <div class="step-body hidden"></div>`;
+  const head = li.querySelector('.step-head');
+  head.addEventListener('click', () => {
+    const body = li.querySelector('.step-body');
+    const collapsed = body.classList.toggle('hidden');
+    head.setAttribute('aria-expanded', String(!collapsed));
+  });
+  $('steps').appendChild(li);
+  return idx;
+}
+function finishStep(idx, detail, ok = true) {
+  const li = $(`step-${idx}`);
+  li.className = `step ${ok ? 'done' : 'fail'}`;
+  li.querySelector('.step-body').innerHTML = detail;
+}
+function truncate(s, n = 240) {
+  const str = String(s);
+  return str.length > n ? `${str.slice(0, n)}… (${str.length} chars total)` : str;
+}
+function detailBlock(pairs) {
+  return pairs.map(([lbl, val]) => `<span class="lbl">${esc(lbl)}</span>${esc(val)}`).join('');
+}
+
+/* --- shlink: decoding --- */
+function b64urlToBytes(s) {
+  const b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+  const bin = atob(padded);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function decodeShlink(shlink) {
+  const marker = 'shlink:/';
+  const idx = shlink.indexOf(marker);
+  if (idx === -1) throw new Error('That is not a SMART Health Link — no "shlink:/" in it.');
+  const json = new TextDecoder().decode(b64urlToBytes(shlink.slice(idx + marker.length).trim()));
+  return JSON.parse(json);
+}
+
+/* --- JWE decryption, entirely in the browser --- */
+async function decryptJwe(jwe, keyB64url) {
+  const parts = jwe.split('.');
+  if (parts.length !== 5) throw new Error('Malformed JWE (expected five parts).');
+  const [protectedHeader, , iv, ciphertext, tag] = parts;
+  const key = await crypto.subtle.importKey(
+    'raw', b64urlToBytes(keyB64url), { name: 'AES-GCM' }, false, ['decrypt']);
+  // WebCrypto wants the auth tag appended to the ciphertext.
+  const ct = b64urlToBytes(ciphertext);
+  const tg = b64urlToBytes(tag);
+  const body = new Uint8Array(ct.length + tg.length);
+  body.set(ct);
+  body.set(tg, ct.length);
+  const plain = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv: b64urlToBytes(iv),
+      // The protected header is the JWE's AAD, as its original base64url text.
+      additionalData: new TextEncoder().encode(protectedHeader),
+      tagLength: 128,
+    },
+    key, body);
+  return new TextDecoder().decode(plain);
+}
+
+async function resolveLink() {
+  clearNotice($('recv-msg'));
+  $('reveal').classList.add('hidden');
+  resetSteps();
+
+  const raw = $('shl-input').value.trim();
+  if (!raw) { notice($('recv-msg'), 'Paste a SMART Health Link first.'); return; }
+
+  $('resolve-link').disabled = true;
+  try {
+    // --- read the link (nothing leaves the browser yet) ---
+    let s = addStep('Read the link', 'browser');
+    const payload = decodeShlink(raw);
+    finishStep(s, detailBlock([
+      ['Manifest URL', payload.url],
+      ['Flags', `${payload.flag ?? '—'}${payload.flag?.includes('P') ? '  (passcode required)' : ''}`],
+      ['Label', payload.label ?? '—'],
+      ['Access ends', payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'not stated'],
+      ['Decryption key', `${truncate(payload.key, 10)} — stays in this browser`],
+    ]));
+
+    // The link states its own expiry, so a receiver can see a closed window
+    // without calling the server at all.
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      s = addStep('Check the sharing window', 'browser');
+      finishStep(s, detailBlock([
+        ['Result', 'The window has ended — the link carries its own expiry.'],
+      ]), false);
+      showNoContent('closed', 'This share has ended. The sharing organization set it to ' +
+        `close on ${new Date(payload.exp * 1000).toLocaleString()}.`);
+      return;
+    }
+
+    // --- ask the manifest what's available ---
+    s = addStep('Ask the manifest what is available', 'server');
+    const body = { recipient: $('recv-recipient').value.trim() || 'Recipient organization' };
+    const passcode = $('recv-passcode').value.trim();
+    if (passcode) body.passcode = passcode;
+
+    const manifestRes = await fetch(payload.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const manifestText = await manifestRes.text();
+    let manifest = {};
+    try { manifest = JSON.parse(manifestText); } catch { /* leave as {} */ }
+
+    finishStep(s, detailBlock([
+      ['Request', `POST ${payload.url}\n${JSON.stringify(body, null, 2)}`],
+      ['Response', `${manifestRes.status} ${manifestRes.statusText}\n${truncate(manifestText, 420)}`],
+    ]), manifestRes.ok);
+
+    if (manifestRes.status === 401) {
+      notice($('recv-msg'), manifest.remainingAttempts !== undefined
+        ? `Wrong passcode. ${manifest.remainingAttempts} attempt` +
+          `${manifest.remainingAttempts === 1 ? '' : 's'} left before the link locks for good.`
+        : 'This link needs a passcode. The sharing organization sends it separately.');
+      return;
+    }
+    if (manifestRes.status === 429) {
+      notice($('recv-msg'), 'Too many requests for this link. Try again in ' +
+        `${manifestRes.headers.get('Retry-After') ?? 'a few'} seconds.`);
+      return;
+    }
+    if (!manifestRes.ok) {
+      notice($('recv-msg'),
+        manifest?.issue?.[0]?.details?.text ?? 'The manifest request failed.');
+      return;
+    }
+
+    if (manifest.status === 'no-longer-valid') {
+      showNoContent('closed', 'This share is closed — either the window ended, or the ' +
+        'sharing organization closed it early.');
+      return;
+    }
+    if (!manifest.files?.length) {
+      showNoContent('pending',
+        'The share exists, but there is nothing to read yet — its window has not opened.');
+      return;
+    }
+
+    // --- get the ciphertext, embedded or via a short-lived location URL ---
+    const file = manifest.files[0];
+    let jwe = file.embedded;
+    if (!jwe && file.location) {
+      s = addStep('Fetch the encrypted file', 'server');
+      const fileRes = await fetch(file.location);
+      const fileText = await fileRes.text();
+      finishStep(s, detailBlock([
+        ['Request', `GET ${file.location}`],
+        ['Response', `${fileRes.status} ${fileRes.statusText}\n${truncate(fileText)}`],
+      ]), fileRes.ok);
+      if (!fileRes.ok) {
+        notice($('recv-msg'), 'That file link has expired. Open the share again for a fresh one.');
+        return;
+      }
+      jwe = fileText;
+    } else {
+      s = addStep('Take the encrypted file from the manifest', 'server');
+      finishStep(s, detailBlock([
+        ['Ciphertext (JWE)', truncate(jwe)],
+        ['Note', 'The server only ever handed over ciphertext — it cannot read this.'],
+      ]));
+    }
+
+    // --- decrypt locally ---
+    s = addStep('Decrypt it here, in your browser', 'browser');
+    let bundle;
+    try {
+      bundle = JSON.parse(await decryptJwe(jwe, payload.key));
+      finishStep(s, detailBlock([
+        ['Method', 'AES-256-GCM via WebCrypto, using the key carried in the link'],
+        ['Result', `A FHIR ${bundle.resourceType} holding ${bundle.total ?? 0} assessment(s)`],
+      ]));
+    } catch (err) {
+      finishStep(s, detailBlock([['Error', err.message]]), false);
+      notice($('recv-msg'), 'Could not decrypt the contents — the key in this link does not match.');
+      return;
+    }
+
+    renderBundle(bundle, manifest.status);
+  } catch (err) {
+    notice($('recv-msg'), err.message);
+  } finally {
+    $('resolve-link').disabled = false;
+  }
+}
+
+/** Render the no-content states: a closed window, or one that hasn't opened yet. */
+function showNoContent(kind, text) {
+  const closed = kind === 'closed';
+  $('reveal').classList.remove('hidden');
+  $('window-note').className = closed ? 'window-note closed' : 'window-note';
+  $('window-note').textContent = text;
+  $('reveal-badge').className = `badge ${closed ? 'revoked' : 'pending'}`;
+  $('reveal-badge').textContent = closed ? 'closed' : 'not started';
+  $('responses').innerHTML = `<p class="empty">${
+    closed ? 'Nothing is available through this link.' : 'Nothing to read yet.'}</p>`;
+}
+
+function renderBundle(bundle, manifestStatus) {
+  $('reveal').classList.remove('hidden');
+  $('reveal-badge').className = 'badge open';
+  $('reveal-badge').textContent = manifestStatus === 'can-change' ? 'open' : manifestStatus;
+
+  // The bundle states the terms it was produced under, so the receiver reads the
+  // window and the redaction from the data itself rather than from this page.
+  const win = bundle.extension?.find((e) => e.url === WINDOW_EXT);
+  const sub = (url) => win?.extension?.find((e) => e.url === url);
+  const start = sub('start')?.valueInstant;
+  const end = sub('end')?.valueInstant;
+  const by = sub('sharedBy')?.valueString;
+
+  $('window-note').className = 'window-note';
+  $('window-note').innerHTML =
+    `Shared by <b>${esc(by ?? 'the sending organization')}</b> until ` +
+    `<b>${esc(end ? new Date(end).toLocaleString() : 'an unstated date')}</b>. ` +
+    `Assessments they complete before then will appear here next time you open the link. ` +
+    `Access opened ${esc(start ? new Date(start).toLocaleString() : 'earlier')}.`;
+
+  const entries = bundle.entry ?? [];
+  if (entries.length === 0) {
+    $('responses').innerHTML =
+      '<p class="empty">No assessments have been completed for this patient yet.</p>';
+    return;
+  }
+
+  $('responses').innerHTML = entries.slice().reverse()
+    .map(({ resource }) => renderResponse(resource)).join('');
+}
+
+function renderResponse(qr) {
+  const total = qr.extension?.find((e) => e.url === SCORE_EXT)?.valueDecimal;
+
+  const items = (qr.item ?? []).map((item) => {
+    const masked = item.extension?.some((e) => e.url === MASKED_EXT);
+    if (masked) {
+      return `
+        <div class="ans masked">
+          <span class="ans-q">${esc(item.text ?? item.linkId)}</span>
+          <span class="ans-v">withheld</span>
+        </div>`;
+    }
+    // The sender always writes `display` alongside the code (see
+    // assessment-service.buildItems), so the code itself is the only fallback
+    // needed — and showing the raw code beats showing nothing.
+    const coding = item.answer?.[0]?.valueCoding;
+    const display = coding?.display ?? coding?.code ?? '—';
+    return `
+      <div class="ans">
+        <span class="ans-q">${esc(item.text ?? item.linkId)}</span>
+        <span class="ans-v">${esc(display)}</span>
+      </div>`;
+  }).join('');
+
+  const scoreBlock = total === undefined
+    ? `<span class="resp-score withheld">
+         <span class="n">score withheld</span>
+         <span class="b">not shared</span>
+       </span>`
+    : `<span class="resp-score">
+         <span class="n">${esc(total)}</span><span class="score-max">/21</span>
+         <span class="b">${esc(severity(total))}</span>
+       </span>`;
+
+  return `
+    <div class="resp">
+      <div class="resp-head">
+        <span class="resp-date">${esc(fmtDate(qr.authored))}</span>
+        ${scoreBlock}
+      </div>
+      <div class="answers">${items}</div>
+    </div>`;
+}
+
+$('resolve-link').addEventListener('click', resolveLink);
+$('clear-link').addEventListener('click', () => {
+  $('shl-input').value = '';
+  $('recv-passcode').value = '';
+  clearNotice($('recv-msg'));
+  $('reveal').classList.add('hidden');
+  $('bts').classList.add('hidden');
+  $('bts-toggle').classList.add('hidden');
+  $('bts-toggle').setAttribute('aria-expanded', 'false');
+  history.replaceState(null, '', location.pathname);
+});
+
+$('bts-toggle').addEventListener('click', () => {
+  const open = $('bts-toggle').getAttribute('aria-expanded') === 'true';
+  $('bts-toggle').setAttribute('aria-expanded', String(!open));
+  $('bts').classList.toggle('hidden', open);
+});
+
+/* ---------------------- bootstrap ---------------------- */
+
+async function loadPatients() {
+  const res = await fetch('/demo/patients');
+  const list = await res.json();
+  $('share-patient').innerHTML = list.map((p) =>
+    `<option value="${esc(p.reference)}" data-name="${esc(p.name)}">${esc(p.name)}${
+      p.birthDate ? ` · b. ${esc(p.birthDate)}` : ''}</option>`).join('');
+}
+
+// Keep the "assessments on file" list in step with the share tab's patient.
+$('share-patient').addEventListener('change', loadHistory);
+
+async function init() {
+  // Independent endpoints — fetch them together. The others need the contract
+  // (scored linkIds) and the patient select populated first, so they wait.
+  await Promise.all([loadFormContract(), loadPatients()]);
+  await Promise.all([renderHideItems(), loadHistory()]);
+
+  // A minted link opens this page with the shlink: in the fragment — jump
+  // straight to the recipient view and resolve it, as a real receiver would.
+  const frag = decodeURIComponent(location.hash.slice(1));
+  if (frag.includes('shlink:/')) {
+    showRole('receive');
+    openAsRecipient(frag);
+  }
+}
+
+init();
+</script>
+
+<!--
+  The React intake island. Loaded after the page script so #gad7-root exists,
+  and deferred so it never blocks the rest of the UI.
+-->
+<script type="module" src="/assets/intake.js"></script>
+</body>
+</html>
