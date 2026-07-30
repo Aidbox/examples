@@ -1,0 +1,928 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Client",
+        "id": "share-client",
+        "secret": "secret",
+        "grant_types": [
+          "basic"
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Client/share-client"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "share-client-policy",
+        "engine": "allow",
+        "link": [
+          {
+            "id": "share-client",
+            "resourceType": "Client"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AccessPolicy/share-client-policy"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "StructureDefinition",
+        "id": "AssessmentShare",
+        "url": "http://example.org/fhir/StructureDefinition/AssessmentShare",
+        "name": "AssessmentShare",
+        "status": "active",
+        "kind": "resource",
+        "abstract": false,
+        "type": "AssessmentShare",
+        "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DomainResource",
+        "derivation": "specialization",
+        "differential": {
+          "element": [
+            {
+              "id": "AssessmentShare",
+              "path": "AssessmentShare",
+              "min": 0,
+              "max": "*",
+              "short": "A time-bounded, field-redacted assessment share",
+              "definition": "One grant of access from a sharing provider organization to a receiving one: which patient's assessments, over which time window, with which items withheld. This is a sharing *policy*, not a snapshot \u2014 the content it exposes is rebuilt from live data on every manifest request, which is what lets new assessments appear automatically and lets revocation take effect immediately."
+            },
+            {
+              "id": "AssessmentShare.key",
+              "path": "AssessmentShare.key",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Content-encryption key",
+              "definition": "The base64url-encoded 256-bit AES key that encrypts this share's payload. It also travels inside the shlink: URI, so only the recipient holding the link can decrypt what the manifest serves."
+            },
+            {
+              "id": "AssessmentShare.label",
+              "path": "AssessmentShare.label",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Human-readable label",
+              "definition": "Short description of what the share carries, shown to the recipient (e.g. \"GAD-7 assessments for Jane Roe\")."
+            },
+            {
+              "id": "AssessmentShare.sourceOrganization",
+              "path": "AssessmentShare.sourceOrganization",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "The sharing organization (Provider A)",
+              "definition": "Reference to the organization granting access, e.g. 'Organization/provider-a'. Assessments are scoped to those this organization authored, so a share never exposes another organization's data about the same patient."
+            },
+            {
+              "id": "AssessmentShare.recipientOrganization",
+              "path": "AssessmentShare.recipientOrganization",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "The receiving organization (Provider B)",
+              "definition": "Reference to the organization the access is granted to, e.g. 'Organization/provider-b'. Recorded for the audit trail; the link itself is the bearer credential."
+            },
+            {
+              "id": "AssessmentShare.recipientDisplay",
+              "path": "AssessmentShare.recipientDisplay",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Recipient organization name",
+              "definition": "Display name of the receiving organization, so the viewer can name it without resolving the reference."
+            },
+            {
+              "id": "AssessmentShare.patient",
+              "path": "AssessmentShare.patient",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "The patient whose assessments are shared",
+              "definition": "Reference to the patient, e.g. 'Patient/123'. One share covers one patient."
+            },
+            {
+              "id": "AssessmentShare.questionnaire",
+              "path": "AssessmentShare.questionnaire",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Canonical URL of the shared instrument",
+              "definition": "Canonical URL of the Questionnaire whose responses are in scope (e.g. the GAD-7). A share covers one instrument rather than the whole chart, which keeps the grant narrow."
+            },
+            {
+              "id": "AssessmentShare.startsAt",
+              "path": "AssessmentShare.startsAt",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "integer"
+                }
+              ],
+              "short": "Window start (epoch seconds)",
+              "definition": "Start of the sharing window. Before this moment the manifest resolves to 'can-change' with no files \u2014 the grant exists but has not opened."
+            },
+            {
+              "id": "AssessmentShare.endsAt",
+              "path": "AssessmentShare.endsAt",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "integer"
+                }
+              ],
+              "short": "Window end (epoch seconds)",
+              "definition": "End of the sharing window, mirrored into the shlink: payload as 'exp'. From this moment the manifest resolves to 'no-longer-valid' and outstanding file locations return 410 Gone. No job closes the share; the window is evaluated on each read."
+            },
+            {
+              "id": "AssessmentShare.hiddenItems",
+              "path": "AssessmentShare.hiddenItems",
+              "min": 0,
+              "max": "*",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Withheld questionnaire item linkIds",
+              "definition": "linkIds of the questionnaire items the sharing organization chose not to share (e.g. 'gad7-q4'). Each is stripped of its answer and marked with a 'masked' data-absent-reason before encryption, so the recipient can tell a withheld answer from an unanswered question. Because redaction happens on every read, tightening this list applies retroactively to a link already sent."
+            },
+            {
+              "id": "AssessmentShare.shareScore",
+              "path": "AssessmentShare.shareScore",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "boolean"
+                }
+              ],
+              "short": "Whether the total score may be shared",
+              "definition": "A GAD-7 total is the sum of its items, so publishing it alongside a partially hidden set can leak the hidden answers. When false the score is omitted entirely; when true and any scored item is hidden, the score is recomputed from the visible items only."
+            },
+            {
+              "id": "AssessmentShare.status",
+              "path": "AssessmentShare.status",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "code"
+                }
+              ],
+              "short": "active | revoked",
+              "definition": "'active' while the grant stands; 'revoked' once the sharing organization closed it early. A revoked share resolves to 'no-longer-valid' on the next read regardless of its end date."
+            },
+            {
+              "id": "AssessmentShare.revokedAt",
+              "path": "AssessmentShare.revokedAt",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "integer"
+                }
+              ],
+              "short": "Early-revocation time (epoch seconds)",
+              "definition": "When the sharing organization revoked the share. Set only when status is 'revoked'."
+            },
+            {
+              "id": "AssessmentShare.passcode",
+              "path": "AssessmentShare.passcode",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Optional passcode (P flag)",
+              "definition": "When set, the link carries the 'P' flag and the manifest requires this passcode (delivered out-of-band, never inside the shlink:). A second secret guarding against link interception."
+            },
+            {
+              "id": "AssessmentShare.remainingAttempts",
+              "path": "AssessmentShare.remainingAttempts",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "integer"
+                }
+              ],
+              "short": "Remaining passcode attempts",
+              "definition": "Lifetime count of incorrect-passcode attempts left before the share locks permanently. Decremented and persisted before responding, so parallel guesses cannot bypass the limit."
+            },
+            {
+              "id": "AssessmentShare.lastManifestAtMs",
+              "path": "AssessmentShare.lastManifestAtMs",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "decimal"
+                }
+              ],
+              "short": "Last manifest poll (epoch ms)",
+              "definition": "Timestamp of the most recent manifest request, in milliseconds. Used to throttle frequent polling of one share (429 + Retry-After)."
+            },
+            {
+              "id": "AssessmentShare.fileTokens",
+              "path": "AssessmentShare.fileTokens",
+              "min": 0,
+              "max": "*",
+              "type": [
+                {
+                  "code": "BackboneElement"
+                }
+              ],
+              "short": "Short-lived file-location tokens",
+              "definition": "Tokens minted when the manifest returns a 'location' URL instead of embedding the payload. Each grants a short, time-bounded fetch of one specific ciphertext."
+            },
+            {
+              "id": "AssessmentShare.fileTokens.token",
+              "path": "AssessmentShare.fileTokens.token",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Opaque file token",
+              "definition": "The token value, of the form '<shareId>~<random>', embedded in the manifest's 'location' URL so the file endpoint can resolve the share without a custom search parameter."
+            },
+            {
+              "id": "AssessmentShare.fileTokens.expiresAtMs",
+              "path": "AssessmentShare.fileTokens.expiresAtMs",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "decimal"
+                }
+              ],
+              "short": "Token expiry (epoch ms)",
+              "definition": "Absolute expiry of the file token in milliseconds. After it, fetching the location returns 410 Gone."
+            },
+            {
+              "id": "AssessmentShare.fileTokens.jwe",
+              "path": "AssessmentShare.fileTokens.jwe",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "The ciphertext this token serves",
+              "definition": "The exact JWE the manifest advertised when it minted this token. Frozen per token because a 'location' fetch must return the bytes the manifest described, not a newer rebuild of the share."
+            },
+            {
+              "id": "AssessmentShare.accessLog",
+              "path": "AssessmentShare.accessLog",
+              "min": 0,
+              "max": "*",
+              "type": [
+                {
+                  "code": "BackboneElement"
+                }
+              ],
+              "short": "Recipient read history",
+              "definition": "One entry per resolved manifest poll, so the sharing organization can see when the recipient actually looked and how much was visible then \u2014 the accountability half of a time-bounded grant. Bounded to the most recent entries."
+            },
+            {
+              "id": "AssessmentShare.accessLog.atMs",
+              "path": "AssessmentShare.accessLog.atMs",
+              "min": 1,
+              "max": "1",
+              "type": [
+                {
+                  "code": "decimal"
+                }
+              ],
+              "short": "Read time (epoch ms)",
+              "definition": "When the recipient resolved the manifest."
+            },
+            {
+              "id": "AssessmentShare.accessLog.recipient",
+              "path": "AssessmentShare.accessLog.recipient",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "string"
+                }
+              ],
+              "short": "Self-declared recipient",
+              "definition": "The 'recipient' string the receiver sent in the manifest request body, per the SHL spec. Self-declared, so it is a record of what was claimed rather than a verified identity."
+            },
+            {
+              "id": "AssessmentShare.accessLog.responseCount",
+              "path": "AssessmentShare.accessLog.responseCount",
+              "min": 0,
+              "max": "1",
+              "type": [
+                {
+                  "code": "integer"
+                }
+              ],
+              "short": "Assessments visible at that read",
+              "definition": "How many QuestionnaireResponses the share exposed at that moment. Grows over time as the sharing organization completes more assessments."
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "StructureDefinition/AssessmentShare"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "App",
+        "id": "share-app",
+        "type": "app",
+        "apiVersion": 1,
+        "endpoint": {
+          "type": "http-rpc",
+          "url": "http://share-app:3000/share-app",
+          "secret": "share-app-secret"
+        },
+        "operations": {
+          "share-create": {
+            "method": "POST",
+            "path": [
+              "share-app",
+              "shares",
+              "$create"
+            ]
+          },
+          "share-revoke": {
+            "method": "POST",
+            "path": [
+              "share-app",
+              "shares",
+              {
+                "name": "shareId"
+              },
+              "$revoke"
+            ]
+          },
+          "share-manifest": {
+            "method": "POST",
+            "path": [
+              "share-app",
+              "manifest",
+              {
+                "name": "shareId"
+              }
+            ],
+            "policies": {
+              "share-manifest-public": {
+                "engine": "allow"
+              }
+            }
+          },
+          "share-file": {
+            "method": "GET",
+            "path": [
+              "share-app",
+              "file",
+              {
+                "name": "fileId"
+              }
+            ],
+            "policies": {
+              "share-file-public": {
+                "engine": "allow"
+              }
+            }
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "App/share-app"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "provider-a",
+        "name": "Northside Behavioral Health",
+        "active": true
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Organization/provider-a"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "provider-b",
+        "name": "Riverside Psychiatry Group",
+        "active": true
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Organization/provider-b"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-jane-roe",
+        "name": [
+          {
+            "given": [
+              "Jane"
+            ],
+            "family": "Roe"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1988-04-12",
+        "managingOrganization": {
+          "reference": "Organization/provider-a"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/patient-jane-roe"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "CodeSystem",
+        "id": "gad7-frequency",
+        "url": "http://example.org/fhir/CodeSystem/gad7-frequency",
+        "name": "GAD7Frequency",
+        "title": "GAD-7 answer scales",
+        "status": "active",
+        "content": "complete",
+        "caseSensitive": true,
+        "concept": [
+          {
+            "code": "not-at-all",
+            "display": "Not at all"
+          },
+          {
+            "code": "several-days",
+            "display": "Several days"
+          },
+          {
+            "code": "more-than-half",
+            "display": "More than half the days"
+          },
+          {
+            "code": "nearly-every-day",
+            "display": "Nearly every day"
+          },
+          {
+            "code": "not-difficult",
+            "display": "Not difficult at all"
+          },
+          {
+            "code": "somewhat-difficult",
+            "display": "Somewhat difficult"
+          },
+          {
+            "code": "very-difficult",
+            "display": "Very difficult"
+          },
+          {
+            "code": "extremely-difficult",
+            "display": "Extremely difficult"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CodeSystem/gad7-frequency"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "gad7-frequency",
+        "url": "http://example.org/fhir/ValueSet/gad7-frequency",
+        "name": "GAD7FrequencyVS",
+        "status": "active",
+        "compose": {
+          "include": [
+            {
+              "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+              "concept": [
+                {
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                },
+                {
+                  "code": "several-days",
+                  "display": "Several days"
+                },
+                {
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                },
+                {
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/gad7-frequency"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ValueSet",
+        "id": "gad7-difficulty",
+        "url": "http://example.org/fhir/ValueSet/gad7-difficulty",
+        "name": "GAD7DifficultyVS",
+        "status": "active",
+        "compose": {
+          "include": [
+            {
+              "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+              "concept": [
+                {
+                  "code": "not-difficult",
+                  "display": "Not difficult at all"
+                },
+                {
+                  "code": "somewhat-difficult",
+                  "display": "Somewhat difficult"
+                },
+                {
+                  "code": "very-difficult",
+                  "display": "Very difficult"
+                },
+                {
+                  "code": "extremely-difficult",
+                  "display": "Extremely difficult"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ValueSet/gad7-difficulty"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Questionnaire",
+        "id": "gad7",
+        "url": "http://example.org/fhir/Questionnaire/gad7",
+        "name": "GAD7",
+        "title": "GAD-7 (Generalized Anxiety Disorder 7-item scale)",
+        "status": "active",
+        "subjectType": [
+          "Patient"
+        ],
+        "description": "Over the last 2 weeks, how often have you been bothered by the following problems?",
+        "item": [
+          {
+            "linkId": "gad7-q1",
+            "text": "Feeling nervous, anxious, or on edge",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "several-days",
+                  "display": "Several days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "gad7-q2",
+            "text": "Not being able to stop or control worrying",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "several-days",
+                  "display": "Several days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "gad7-q3",
+            "text": "Worrying too much about different things",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "several-days",
+                  "display": "Several days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "gad7-q4",
+            "text": "Trouble relaxing",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "several-days",
+                  "display": "Several days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "gad7-q5",
+            "text": "Being so restless that it's hard to sit still",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "several-days",
+                  "display": "Several days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "gad7-q6",
+            "text": "Becoming easily annoyed or irritable",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "several-days",
+                  "display": "Several days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "gad7-q7",
+            "text": "Feeling afraid as if something awful might happen",
+            "type": "choice",
+            "required": true,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-at-all",
+                  "display": "Not at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "several-days",
+                  "display": "Several days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "more-than-half",
+                  "display": "More than half the days"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "nearly-every-day",
+                  "display": "Nearly every day"
+                }
+              }
+            ]
+          },
+          {
+            "linkId": "gad7-q8",
+            "text": "How difficult have these problems made it for you to do your work, take care of things at home, or get along with other people?",
+            "type": "choice",
+            "required": false,
+            "answerOption": [
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "not-difficult",
+                  "display": "Not difficult at all"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "somewhat-difficult",
+                  "display": "Somewhat difficult"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "very-difficult",
+                  "display": "Very difficult"
+                }
+              },
+              {
+                "valueCoding": {
+                  "system": "http://example.org/fhir/CodeSystem/gad7-frequency",
+                  "code": "extremely-difficult",
+                  "display": "Extremely difficult"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Questionnaire/gad7"
+      }
+    }
+  ]
+}
