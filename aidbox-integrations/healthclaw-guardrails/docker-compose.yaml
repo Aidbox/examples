@@ -1,0 +1,169 @@
+volumes:
+  postgres_data: {}
+
+services:
+  postgres:
+    image: postgres:18
+    volumes:
+      - postgres_data:/var/lib/postgresql:delegated
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: hb1NnSed7w
+
+  # The system of record. Holds the COMPLETE, fully-identified resource.
+  # Nothing below ever modifies it: redaction is a property of the path the
+  # agent takes, not an edit to the data.
+  aidbox:
+    image: healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    volumes:
+      - ./init-bundle:/app/init-bundle:ro
+    # LIST form, not the mapping form used elsewhere in this file, for the
+    # sake of the first entry. Aidbox needs activating, and until it is, it
+    # answers EVERY route with a 302 to a browser page reading "Log in to
+    # activate Aidbox" — including /health, so the symptom looks like a
+    # network fault rather than a licence one. Two ways to clear it:
+    #
+    #   set nothing     open http://localhost:8080 and click "Continue with
+    #                   Aidbox account". This is what Aidbox's own examples
+    #                   assume, and it needs no .env edit.
+    #   set BOX_LICENSE a self-hosted key from aidbox.app (account ->
+    #                   licenses). Unattended runs and CI want this one.
+    #
+    # A bare `- BOX_LICENSE` is the only form that expresses that choice.
+    # `BOX_LICENSE: ${BOX_LICENSE:-}` looks equivalent and is not: it sets
+    # the variable to the empty string, and Aidbox rejects an empty licence
+    # harder than a missing one — it refuses to boot at all with "License is
+    # invalid ... not in correct format". Unset and empty are different
+    # states here, and empty is the one that breaks. So: absent from .env
+    # means absent from the container.
+    environment:
+      - BOX_LICENSE
+      - BOX_ADMIN_PASSWORD=uN6jhgu8eo
+      - BOX_BOOTSTRAP_FHIR_PACKAGES=hl7.fhir.r4.core#4.0.1
+      - BOX_DB_DATABASE=aidbox
+      - BOX_DB_HOST=postgres
+      - BOX_DB_PASSWORD=hb1NnSed7w
+      - BOX_DB_PORT=5432
+      - BOX_DB_USER=aidbox
+      - BOX_FHIR_COMPLIANT_MODE=true
+      - BOX_FHIR_CORRECT_AIDBOX_FORMAT=true
+      - BOX_FHIR_SCHEMA_VALIDATION=true
+      - BOX_ROOT_CLIENT_SECRET=qNbQS6sw82
+      - BOX_SECURITY_AUDIT_LOG_ENABLED=true
+      - BOX_SECURITY_DEV_MODE=true
+      - BOX_SETTINGS_MODE=read-write
+      - BOX_WEB_BASE_URL=http://localhost:8080
+      - BOX_WEB_PORT=8080
+      - BOX_INIT_BUNDLE=file:///app/init-bundle/bundle.json
+    healthcheck:
+      # Explicitly 200, NOT `curl -f`. Until Aidbox is activated it answers
+      # /health with a 302 to the activation page, and `curl -f` only fails
+      # on 4xx/5xx — so the obvious `curl -f http://localhost:8080/health`
+      # reports an unactivated Aidbox as healthy, compose starts the proxy
+      # against a server that serves nothing, and the first real symptom
+      # arrives several steps later somewhere else entirely.
+      #
+      # Checking for 200 makes this the activation gate it was supposed to
+      # be: with BOX_LICENSE unset, compose waits here until you click
+      # through in the browser, then starts the proxy on its own. The window
+      # is generous for that reason — a 7-minute one turns a coffee refill
+      # into a failed `up`.
+      test: ["CMD-SHELL",
+             "curl -sS -o /dev/null -w '%{http_code}' http://localhost:8080/health | grep -q '^200$$'"]
+      interval: 5s
+      timeout: 5s
+      retries: 180
+      start_period: 30s
+
+  # The guardrail layer. Every agent-facing read and write goes through here.
+  healthclaw:
+    # PINNED, not :latest. `latest` is only republished when a release is cut,
+    # so for a while it pointed at 1.9.0 — an image that predates upstream
+    # authentication and therefore ignored the two FHIR_UPSTREAM_CLIENT_*
+    # variables set below. The example read as correct and could not work.
+    # A pin makes that class of drift a pull failure instead of a silent one.
+    image: ghcr.io/aks129/healthclaw-guardrails:1.10.0
+    depends_on:
+      aidbox:
+        condition: service_healthy
+    ports:
+      # On macOS, port 5000 is held by AirPlay Receiver (ControlCenter) unless
+      # you turn it off, so `up` fails with "address already in use". Set
+      # HEALTHCLAW_PORT=5099 in .env and use that port in the curls below.
+      - ${HEALTHCLAW_PORT:-5000}:5000
+    # init-db first. Without it the first request fails as an AuditWriteError
+    # wrapping an OperationalError — a missing schema that reads like an audit
+    # bug and has cost more than one person an afternoon.
+    command: >
+      sh -c "flask --app main init-db &&
+             gunicorn main:app --bind 0.0.0.0:5000 --workers 2 --timeout 300"
+    environment:
+      PORT: "5000"
+
+      # Point the guardrails at Aidbox. The proxy holds its OWN credential —
+      # the `healthclaw` Client created by init-bundle/bundle.json — so the
+      # agent never receives, and never needs, an Aidbox credential.
+      FHIR_UPSTREAM_URL: http://aidbox:8080/fhir
+      FHIR_UPSTREAM_CLIENT_ID: healthclaw
+      FHIR_UPSTREAM_CLIENT_SECRET: ${FHIR_UPSTREAM_CLIENT_SECRET:-healthclaw-secret}
+
+      # Responses are rewritten so this base URL, and never Aidbox's, is what
+      # the agent sees. An agent that learns the real endpoint will try to
+      # route around the proxy.
+      FHIR_LOCAL_BASE_URL: http://localhost:5000/r6/fhir
+
+      STEP_UP_SECRET: ${STEP_UP_SECRET:?set STEP_UP_SECRET in .env}
+      READ_AUTH_ENABLED: "true"
+      APP_ENV: development
+      DATABASE_URL: sqlite:////tmp/healthclaw.db
+    healthcheck:
+      # python, NOT curl — the guardrails image does not ship curl, so
+      # `curl -f ...` exited 127 ("not found") on every probe. The proxy was
+      # healthy the whole time and reported unhealthy forever, which meant
+      # the mcp service below — `condition: service_healthy` — never started
+      # at all. The example's own diagram opens with the MCP server, and it
+      # had never once come up.
+      #
+      # urlopen raises on any non-2xx, so a degraded 503 fails the probe the
+      # same way a refused connection does.
+      test: ["CMD-SHELL",
+             "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/r6/fhir/health', timeout=4)\""]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 15s
+
+  # What the agent actually connects to.
+  mcp:
+    image: ghcr.io/aks129/healthclaw-mcp-server:1.10.0
+    depends_on:
+      healthclaw:
+        condition: service_healthy
+    ports:
+      - 3001:3001
+    environment:
+      PORT: "3001"
+      FHIR_BASE_URL: http://healthclaw:5000/r6/fhir
+      TENANT_ID: demo
+
+      # REQUIRED, and the server refuses to start without it — it fail-closes
+      # rather than serving an unauthenticated MCP endpoint, which is the
+      # behaviour you want and also the reason this service crash-looped
+      # unnoticed for as long as the proxy's health check was broken: nothing
+      # depending on it ever got far enough to start it.
+      #
+      # MCP_PUBLIC_DEMO=true is the documented alternative and is deliberately
+      # not used here. An example about what an agent may do with health data
+      # should not open with an unauthenticated tool server.
+      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:?set MCP_AUTH_TOKEN in .env}

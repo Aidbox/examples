@@ -38,6 +38,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [FHIR R5 Topic-Based Subscriptions](aidbox-integrations/r5-subscriptions/)
 - [SMART Health Links for eligibility results](aidbox-integrations/smart-health-link/)
 - [SMART Health Links: time-bounded assessment sharing between providers](aidbox-integrations/shared-assessment-link/)
+- [Guardrails for AI agents: redaction, audit, step-up and human-in-the-loop in front of Aidbox](aidbox-integrations/healthclaw-guardrails/)
 
 ## Aidbox Features
 
