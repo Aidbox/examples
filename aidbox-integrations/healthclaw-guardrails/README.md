@@ -1,0 +1,295 @@
+---
+features: [AI agents, MCP, PHI redaction, Audit trail, Step-up authorization, Human-in-the-loop, Multi-tenancy]
+languages: [Python, TypeScript, Shell]
+runtimes: [Docker]
+---
+# HealthClaw Guardrails in front of Aidbox
+
+Aidbox holds the record. An AI agent talks to a guardrail proxy in front of
+it, and the proxy enforces four things the FHIR authorization model does not
+express: redact on read, audit every access, step up on writes, and hold
+anything irreversible for a human.
+
+```text
+AI agent ──▶ MCP server ──▶ Guardrail proxy ──▶ Aidbox
+  :3001                        :5000              :8080
+                                 │
+                          PHI redaction
+                          Audit trail
+                          Step-up auth
+                          Human-in-the-loop
+                          Tenant isolation
+```
+
+Nothing about the Aidbox side is unusual, and that is the point. The guardrail
+layer is additive; the FHIR server underneath keeps behaving like a FHIR
+server, and still holds the complete, fully-identified record.
+
+Companion to the article *"We standardized how to get health data. We never
+standardized what an agent may do with it."*
+
+## Prerequisites
+
+1. Docker
+2. Cloned repository
+
+```bash
+git clone https://github.com/Aidbox/examples.git
+cd examples/aidbox-integrations/healthclaw-guardrails
+```
+
+## Run it
+
+```bash
+cp .env.example .env      # set STEP_UP_SECRET and MCP_AUTH_TOKEN;
+                          # BOX_LICENSE stays commented out
+docker compose up -d
+```
+
+**Activate Aidbox.** Open <http://localhost:8080> and click *Continue with
+Aidbox account*. Until you do, Aidbox answers **every** route with a 302 to
+"Log in to activate Aidbox" — including `/health`, so the symptom reads as a
+network fault rather than a licence one. Compose is waiting on that health
+check and starts the proxy by itself once you are through. To skip the click
+entirely, put a free self-hosted key from [aidbox.app](https://aidbox.app)
+(account → licenses) and uncomment `BOX_LICENSE` in `.env`; unattended runs
+need that path. Do not uncomment it and leave it blank — Aidbox rejects an
+empty licence harder than a missing one, and refuses to boot.
+
+```bash
+./scripts/seed-aidbox.sh  # 1 Patient, 1 Condition, 3 Observations
+./scripts/walkthrough.sh  # the steps below, asserted
+```
+
+`walkthrough.sh` opens with a preflight that separates "Aidbox is not
+activated" from "the proxy image is too old to authenticate", because both
+otherwise surface as the same unexplained failure several steps later.
+
+There is a second harness in [`qa/`](qa/) that asserts the same properties
+from a browser and records the run as a video:
+
+```bash
+cd qa && npm install && npx playwright install chromium
+HEALTHCLAW_PORT=5099 npx playwright test      # artifacts/**/video.webm
+```
+
+It exists because a recording made separately from the assertions is a
+re-enactment, and re-enactments drift from the system they depict. Here the
+assertions and the frames come from the same requests, so a video showing a
+pass cannot exist unless the pass happened.
+
+Two more things that will bite you:
+
+- **macOS holds port 5000.** AirPlay Receiver (ControlCenter) listens there,
+  so `up` fails with "address already in use". Set `HEALTHCLAW_PORT=5099` in
+  `.env` and read `:5099` for `:5000` throughout.
+- **The image tags are pinned, deliberately.** `:latest` is only republished
+  when a release is cut, and for a while it pointed at a build that predated
+  upstream authentication — so it ignored the two `FHIR_UPSTREAM_CLIENT_*`
+  variables this example depends on, and the wiring below was configured
+  correctly and did nothing. A pin turns that into a pull failure instead.
+
+## What each step shows
+
+### 1. The same read, with and without governance
+
+Direct to Aidbox, the record is fully identified, as it should be:
+
+```bash
+curl -u "$AIDBOX_CLIENT:$AIDBOX_SECRET" http://localhost:8080/fhir/Patient/pt-demo
+```
+
+```json
+{ "resourceType": "Patient", "id": "pt-demo",
+  "name": [{"given": ["Maria"], "family": "Alvarez"}],
+  "identifier": [{"system": "urn:mrn", "value": "MRN-88214"}],
+  "birthDate": "1974-03-11",
+  "address": [{"line": ["221 Baker St"], "city": "Pittsburgh"}] }
+```
+
+Through the proxy, same resource, same Aidbox. Reads are authenticated too —
+`READ_AUTH_ENABLED` is on, so a tenant header alone gets a 401, and the same
+step-up token that authorises a write is what proves the tenant claim on a
+read:
+
+```bash
+TOKEN=$(curl -s -X POST -H 'Content-Type: application/json' \
+  -H "X-Tenant-Id: demo" -d '{"tenant_id":"demo"}' \
+  http://localhost:5000/r6/fhir/internal/step-up-token | jq -r .token)
+
+curl -H "X-Tenant-Id: demo" -H "X-Step-Up-Token: $TOKEN" \
+  http://localhost:5000/r6/fhir/Patient/pt-demo
+```
+
+```json
+{ "resourceType": "Patient", "id": "pt-demo",
+  "name": [{"given": ["M."], "family": "A."}],
+  "identifier": [{"system": "urn:mrn", "value": "***8214"}],
+  "birthDate": "1974",
+  "address": [{"state": "PA"}] }
+```
+
+The name is reduced to initials, the MRN is masked, the address and phone are
+gone, and the birth date is truncated to a year.
+
+Forget the token and you get an OperationOutcome — which is worth knowing
+because an OperationOutcome contains no PHI, so a redaction check written as
+"none of the identifiers appear in the response" passes on a refusal without
+testing redaction at all. `walkthrough.sh` shipped with exactly that hole; it
+now asserts it received `Patient/pt-demo` before it asserts anything about
+what the Patient contains.
+
+Aidbox still holds the complete record. Redaction is a property of the path
+the agent uses, not a modification of the data. `walkthrough.sh` asserts this
+by looking for the distinctive values themselves rather than for a mask
+string, because a redactor that returned `***masked***` and nothing else
+would satisfy the lazier check.
+
+### 2. The read left a record
+
+```bash
+curl -H "X-Tenant-Id: demo" -H "X-Step-Up-Token: $TOKEN" \
+  "http://localhost:5000/r6/fhir/AuditEvent?_count=5"
+```
+
+An AuditEvent naming the tenant, the agent, the resource and the time, with no
+PHI in the detail — so the record you hand a reviewer is safe to hand over.
+
+### 3. A write, and two gates that do not substitute for each other
+
+Recording a blood pressure needs a machine credential *and* a human
+confirmation, and neither one stands in for the other. Four requests show
+that better than two, because a pair of refusals in sequence only proves that
+*some* refusal happened:
+
+| `X-Human-Confirmed` | `X-Step-Up-Token` | result |
+|---|---|---|
+| — | — | **428** confirmation missing |
+| `true` | — | **401** a confirmation is not a credential |
+| — | valid | **428** a credential is not a confirmation |
+| `true` | valid | **201** |
+
+The bare request reports **428** rather than 401 because the human-in-the-loop
+check runs in a `before_request` hook, ahead of every handler's auth gate —
+that ordering is what stops an unauthenticated caller reaching the handler at
+all. Worth knowing before you read a status code as evidence of which gate
+you tripped.
+
+Only after both does the Observation reach Aidbox, which the walkthrough
+verifies by asking Aidbox rather than the proxy — a proxy reporting its own
+201 says nothing about what was stored:
+
+```bash
+curl -u "$AIDBOX_CLIENT:$AIDBOX_SECRET" \
+  "http://localhost:8080/fhir/Observation?subject=Patient/pt-demo&code=85354-9"
+```
+
+That matrix is the whole argument. The agent did useful work. It could not
+finish alone.
+
+One caveat the table cannot carry: `X-Human-Confirmed` is set by the caller,
+so it evidences a human the way a checkbox does. It is a compensating
+control, not proof. See *What this example does not show* below.
+
+### 4. Grade the deployment
+
+```bash
+curl "http://localhost:5000/r6/fhir/\$conformance?format=text"
+```
+
+Seven properties, run against the deployment that is actually running. The
+same harness runs in HealthClaw's CI as a merge gate, so a regression shows
+up as a grade change rather than an incident.
+
+**Against Aidbox this scores B (6/7), not A.** The example says so rather
+than quietly asserting a softer threshold, because the failure is worth
+knowing: in upstream mode a search carrying an unknown parameter is forwarded
+to Aidbox, which answers 404 or 502, instead of being refused by the
+guardrail with an OperationOutcome naming the parameter. Error fidelity is
+graded on what the caller is told when something goes wrong, and in proxy
+mode part of that answer is currently Aidbox's, not ours. Tracked as
+[HealthClawGuardrails#498](https://github.com/aks129/HealthClawGuardrails/issues/498).
+
+The other six hold. `walkthrough.sh` asserts exactly that — every property
+except error fidelity must pass, so any other regression goes red, and the
+day the gap closes the same assertion passes at 7/7 unchanged.
+
+Two of those six only started holding here recently. The harness builds a
+clinical Observation referencing `Patient/conformance-subject`, a patient
+nothing creates. The local SQLite store accepts it because it validates no
+references; Aidbox refuses it, every clinical-write probe returned 422, and
+the report concluded *"the gate blocks confirmed writes too, so its 428s
+prove nothing"* — a true measurement with the wrong cause attached. The gate
+was fine. The probes now create a subject first.
+
+### 5. What the agent actually connects to
+
+```bash
+curl -X POST http://localhost:3001/mcp/rpc -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+# 401
+
+curl -X POST http://localhost:3001/mcp/rpc -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $MCP_AUTH_TOKEN" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+# 27 tools
+```
+
+The MCP server refuses to start at all without `MCP_AUTH_TOKEN` rather than
+serving an unauthenticated tool endpoint. `MCP_PUBLIC_DEMO=true` is the
+documented alternative and is deliberately not used here: an example about
+what an agent may do with health data should not open with an
+unauthenticated tool server.
+
+This step exists because for a long time the service never ran. The proxy's
+health check called `curl`, which is not in that image, so it exited 127 on
+every probe and reported unhealthy forever — and `mcp`, which waits on
+`condition: service_healthy`, never started. The diagram at the top of this
+file opens with the MCP server, and nothing had ever asked whether it was
+there. Both checks now run in `walkthrough.sh`.
+
+## How the two servers are wired
+
+The proxy holds its own Aidbox credential — the `healthclaw` Client in
+[`init-bundle/bundle.json`](init-bundle/bundle.json) — so the agent never
+receives, and never needs, an Aidbox credential:
+
+```yaml
+healthclaw:
+  environment:
+    FHIR_UPSTREAM_URL: http://aidbox:8080/fhir
+    FHIR_UPSTREAM_CLIENT_ID: healthclaw
+    FHIR_UPSTREAM_CLIENT_SECRET: ${FHIR_UPSTREAM_CLIENT_SECRET}
+    STEP_UP_SECRET: ${STEP_UP_SECRET}
+    READ_AUTH_ENABLED: "true"
+```
+
+The AccessPolicy scopes that Client to `/fhir/*`. An agent that gets past the
+proxy still has no route to Aidbox's admin surface, `$sql`, or the Client that
+authorizes it.
+
+`FHIR_LOCAL_BASE_URL` makes the proxy rewrite Aidbox's base URL out of every
+response. An agent that learns the real endpoint will try to route around the
+guardrails, so it is never told what it is.
+
+## What this example does not show
+
+- **A licence check is not a guardrail.** Everything above assumes Aidbox is
+  reachable. The proxy's failure mode when it is not is a degraded health
+  check and a 502, not a silent empty bundle — but that is a different
+  property from the four this example demonstrates.
+- **Redaction is a compensating control, not a de-identification
+  determination.** A record with a rare diagnosis and an unusual date
+  sequence is not made unlinkable by masking a name. What changes is the
+  default.
+- **The clinical-write human gate is a header today** (`X-Human-Confirmed`),
+  which the caller that sets it can spoof. It is documented as a compensating
+  control rather than proof a human acted; the action rail's separate
+  approval endpoint is the real mechanism. HealthClaw tracks this as a known
+  gap.
+
+## Links
+
+- HealthClaw Guardrails: <https://github.com/aks129/HealthClawGuardrails> (MIT)
+- Live conformance grade: <https://app.healthclaw.io/r6/fhir/$conformance>
+- Aidbox: <https://aidbox.app>
