@@ -66,6 +66,16 @@ services:
       - BOX_WEB_BASE_URL=http://localhost:8080
       - BOX_WEB_PORT=8080
       - BOX_INIT_BUNDLE=file:///app/init-bundle/bundle.json
+      - BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX=#{:fhir-datetime}
+      - BOX_FHIR_BUNDLE_EXECUTION_VALIDATION_MODE=limited
+      - BOX_FHIR_CREATEDAT_URL=https://aidbox.app/ex/createdAt
+      - BOX_SEARCH_INCLUDE_CONFORMANT=true
+      - BOX_FHIR_SEARCH_CHAIN_SUBSELECT=true
+      - BOX_FHIR_SEARCH_COMPARISONS=true
+      - BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS=true
+      - BOX_FHIR_TERMINOLOGY_ENGINE=hybrid
+      - BOX_FHIR_TERMINOLOGY_ENGINE_HYBRID_EXTERNAL_TX_SERVER=https://tx5.health-samurai.io/fhir
+      - BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL=https://tx5.health-samurai.io/fhir
     healthcheck:
       # Explicitly 200, NOT `curl -f`. Until Aidbox is activated it answers
       # /health with a 302 to the activation page, and `curl -f` only fails
