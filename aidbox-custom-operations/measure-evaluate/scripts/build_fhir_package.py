@@ -25,7 +25,7 @@ Usage:
   python3 scripts/build_fhir_package.py --terminology-only   # CodeSystem + ValueSet only
 """
 from __future__ import annotations
-import argparse, glob, gzip, json, os, shutil, tarfile
+import argparse, base64, glob, gzip, json, os, re, shutil, tarfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,6 +56,90 @@ def collect_terminology() -> list[dict]:
 def collect_viewdefinitions() -> list[dict]:
     return [json.loads(p.read_text())
             for p in sorted((ROOT / "viewdefinitions").glob("*.json"))]
+
+
+# The DB-side layer the measure Libraries read through.
+#
+# The 22 wrapper views ship as SQLView Libraries (sqlview/), resolved through the
+# dependency graph — no DDL. What remains genuinely cannot be a SQLView:
+#   * `concepts` — Aidbox keeps ValueSets in far.valueset, invisible to the SoF
+#     engine, so $materialize cannot populate the `concept` ViewDefinition;
+#   * indexes — DDL by definition, and they must be reapplied after every
+#     $materialize, which drops the tables they sit on.
+SETUP_SQL_FILES = [
+    ("00-terminology.sql", "sof.concept + the `concepts` view (manual flatten of far.valueset)"),
+    ("03-sof-indexes.sql", "Indexes on the sof.* materialized tables"),
+]
+
+
+def collect_setup_libraries() -> list[dict]:
+    """The remaining DDL, as `logic-library` Libraries carrying application/sql.
+
+    `app/catalog.py:setup_libraries()` picks these up and runs them in `setup-NN-`
+    order after $materialize.
+    """
+    out = []
+    for i, (fname, title) in enumerate(SETUP_SQL_FILES, start=1):
+        path = ROOT / "sql" / fname
+        if not path.exists():
+            continue
+        slug = fname.replace(".sql", "").replace(".", "-")
+        out.append({
+            "resourceType": "Library",
+            "id": f"setup-{slug}",
+            "url": f"https://health-samurai.io/fhir/Library/setup-{slug}",
+            "name": f"setup_{slug.replace('-', '_')}",
+            "title": title,
+            "status": "active",
+            "experimental": False,
+            "type": {"coding": [{
+                "system": "http://terminology.hl7.org/CodeSystem/library-type",
+                "code": "logic-library",
+            }]},
+            "extension": [{
+                "url": "https://health-samurai.io/fhir/StructureDefinition/cql-poc-setup-order",
+                "valueInteger": i,
+            }],
+            "description": (
+                f"{title}. DB-side setup executed once after $materialize, before any "
+                "measure Library runs."),
+            "relatedArtifact": _setup_lineage(path.read_text()),
+            "content": [{
+                "contentType": "application/sql",
+                "data": base64.b64encode(path.read_text().encode()).decode(),
+                "title": fname,
+            }],
+        })
+    return out
+
+
+def _setup_lineage(sql: str) -> list[dict]:
+    """`depends-on` edges from a setup Library to the ViewDefinitions it reads.
+
+    Keeps the layer visible in the lineage graph rather than an orphan node. ONLY
+    ViewDefinition targets: `depends-on` pointing at a *Library* is routing, not
+    metadata (Aidbox injects that Library's SQL as a leading CTE), so a setup
+    Library must never be declared as a measure's dependency.
+
+    Three reference shapes, all real dependencies: `FROM sof.x_flat` (the wrapper
+    views), `ON sof.x_flat` (the index file) and unqualified `FROM x_flat`.
+    """
+    vd_by_table = {}
+    for vp in sorted((ROOT / "viewdefinitions").glob("*.json")):
+        v = json.loads(vp.read_text())
+        vd_by_table[v["name"]] = v["url"]
+    tables = set()
+    tables |= set(re.findall(r"(?:FROM|JOIN)\s+sof\.(\w+)", sql))
+    tables |= set(re.findall(r"\bON\s+sof\.(\w+)", sql))
+    tables |= set(re.findall(r"(?:FROM|JOIN)\s+([a-z_]+_flat)\b", sql))
+    return [{"type": "depends-on", "resource": vd_by_table[t]}
+            for t in sorted(tables) if t in vd_by_table]
+
+
+def collect_sqlview_libraries() -> list[dict]:
+    """The 22 SQLView Libraries that replace the wrapper-view DDL."""
+    return [json.loads(p.read_text())
+            for p in sorted((ROOT / "sqlview").glob("*.json"))]
 
 
 def collect_sqlquery_libraries() -> list[dict]:
@@ -144,7 +228,8 @@ def main():
 
     resources = collect_terminology()  # CodeSystem + ValueSet
     if not args.terminology_only:
-        resources += collect_viewdefinitions() + collect_sqlquery_libraries()
+        resources += (collect_viewdefinitions() + collect_setup_libraries()
+                      + collect_sqlview_libraries() + collect_sqlquery_libraries())
 
     archive = write_package(args.name, args.version, resources)
 

@@ -7,6 +7,11 @@ __pycache__/
 # Generated FHIR package artifact (build with scripts/build_fhir_package.py).
 dist/
 
+# Generated init bundle (build with scripts/build_init_bundle.py). It inlines the
+# demo clinical data, so it is a multi-megabyte derived artifact — regenerate it
+# rather than committing it.
+init.json
+
 # Local demo configs pointing at a user's own Aidbox — not part of the sample.
 # The template `config-external.example.json` IS committed; user-specific copies
 # (e.g. config-myaidbox.json) are gitignored.

@@ -1,0 +1,36 @@
+{
+  "resourceType": "Library",
+  "id": "view-patient-flat",
+  "url": "https://health-samurai.io/fhir/Library/view-patient-flat",
+  "name": "patient_flat",
+  "title": "patient_flat \u2014 typed wrapper over sof.patient_flat",
+  "status": "active",
+  "experimental": false,
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLView"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-view"
+      }
+    ]
+  },
+  "description": "Typed projection over sof.patient_flat: COALESCEs the polymorphic date halves, casts text to timestamptz via knife_date_bound, and exposes the column names the measure Libraries read. Parameterless by design (SQLView).",
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/patient-flat",
+      "label": "patient_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "data": "U0VMRUNUIGlkLCBiaXJ0aF9kYXRlLCBnZW5kZXIsIGZhbWlseV9uYW1lLCBnaXZlbl9uYW1lLAogICAgICAgc2V4LCByYWNlX2NvZGUsIGV0aG5pY2l0eV9jb2RlCkZST00gcGF0aWVudF9mbGF0"
+    }
+  ]
+}

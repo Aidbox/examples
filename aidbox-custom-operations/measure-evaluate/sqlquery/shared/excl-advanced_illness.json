@@ -37,8 +37,8 @@
     },
     {
       "type": "depends-on",
-      "resource": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
-      "label": "vd_condition_flat"
+      "resource": "https://health-samurai.io/fhir/Library/view-condition-flat",
+      "label": "condition_flat"
     }
   ],
   "content": [

@@ -8,7 +8,7 @@ Guide for deploying `Measure/$evaluate-measure` into an **already-running Aidbox
 |---|---|
 | 1 Flask container (sql-evaluate-app, port 8090) | Aidbox instance (any version, any deploy) |
 | 1 App resource in Aidbox (wires the operation) | PostgreSQL data (Patient, Encounter, Condition, …) |
-| 9 SQL on FHIR `ViewDefinition` resources, materialized into `sof.*_flat` tables + 9 wrapper views on top | All clinical resources — we don't touch them |
+| SQL on FHIR `ViewDefinition` resources, materialized into `sof.*_flat` tables (the typed projection layer ships as `sql-view` Libraries, inlined by Aidbox at query time) | All clinical resources — we don't touch them |
 | 1 `concepts` table (terminology: ValueSets + codes used by the 12 measures) | Your authentication, auth policies, access control |
 | Btree indexes on the `sof.*_flat` tables | Your existing custom operations, Apps |
 | 12 measure SQL definitions (one file per measure) | Your data, schemas, and other indexes |
@@ -17,7 +17,7 @@ Guide for deploying `Measure/$evaluate-measure` into an **already-running Aidbox
 
 - **Aidbox** any recent build, FHIR R4
   - Storage: Aidbox JSONB (default). The shipped `ViewDefinition` resources use FHIRPath against Aidbox JSONB; raw HAPI/FHIR JSON storage is not supported.
-  - Version: **Aidbox 2603 recommended** (current stable). Minimum supported is 2508 (needed for the `$materialize` operation on `ViewDefinition`). Older versions are not supported — the legacy hand-written-SQL fallback path remains in `setup.py` but is not actively maintained.
+  - Version: **Aidbox 2603 recommended** (current stable). Minimum supported is 2508 (needed for the `$materialize` operation on `ViewDefinition`). Older versions are not supported.
 - **Your FHIR data** conforms (at least loosely) to [US Core 6.1](http://hl7.org/fhir/us/core/STU6.1/) / [QI-Core 6.0](http://hl7.org/fhir/us/qicore/STU6/). The measures read these elements (multi-coding supported — all entries in `code.coding[]` are considered):
   - `Patient` with `birthDate`, `gender`, optional `us-core-sex` / `us-core-race` / `us-core-ethnicity` extensions
   - `Encounter` with `status`, `class.code`, `period.start`, `type.coding`
@@ -115,33 +115,33 @@ curl -u <admin>:<password> \
 # → returns the App resource
 ```
 
-## Step 3. Install shared SQL infra and terminology
+## Step 3. Build the runtime state
 
-One command loads all non-clinical artifacts into your Aidbox:
-- 9 `ViewDefinition` resources (SQL on FHIR), materialized via `$materialize` into `sof.*_flat` tables — these are the flat projections the measure SQL reads from
-- 9 wrapper views on top of `sof.*_flat` that handle polymorphic `dateTime`/`Period` fields and partial-date parsing
-- `concepts` table schema + ValueSets and codes used by the 12 measures
-- Shared exclusion helper functions (`02-shared-exclusions.sql`)
-- Btree indexes on `sof.*_flat` tables (`03-sof-indexes.sql`) — patient_id, code/system, plus a composite covering for condition
-- 12 FHIR `Measure` / `Library` resources
-- Stub `Organization`, `Practitioner`, `Device` resources referenced by measures
+Everything non-clinical is delivered by the FHIR package you installed in step 1:
+the `ViewDefinition` resources, the SQLQuery `Library` resources holding each
+measure's SQL, the typed `sql-view` wrapper layer, and the `setup-NN-*` scripts
+for terminology scaffolding and `sof.*` indexes. The app applies them in
+dependency order — nothing here is measure-specific, so this works the same for a
+package of 12 measures or 200.
 
 ```bash
-python3 setup.py --base-url=https://aidbox.example.com
+curl -s -X POST http://localhost:8090/api/materialize \
+  -H 'Content-Type: application/json' -d '{}'
 ```
 
-By default setup.py does **not** load the 485 sample dqm-content test patients — your clinical data stays untouched. Pass `--demo-patients` if you want the sample patients loaded (rarely needed for an existing Aidbox).
+or press **Materialize all** in the demo app. It performs, in order:
 
-Setup is idempotent — safe to re-run. Expected output ends with:
+1. `$materialize` each `ViewDefinition` into a `sof.*` table
+2. run the package's `setup-NN-*` scripts (terminology scaffolding, indexes)
+3. flatten `far.valueset` into `sof.concept` — the only step no package resource
+   can express, since Aidbox keeps ValueSets in a registry the SoF engine cannot see
 
-```
-==================================================
-  Setup complete!
-  Patients: <your actual patient count>
-  Concepts: <code count>
-  Measures: 12
-==================================================
-```
+Idempotent and safe to re-run: views already present are skipped unless you pass
+`{"force":true}`. Your clinical data is never touched.
+
+Build the init bundle with `python3 scripts/build_init_bundle.py --no-demo-data` for
+this case — the default bundle inlines the 485 sample patients, which you do not want
+alongside real data.
 
 Verify:
 
@@ -168,7 +168,7 @@ curl -u <admin>:<password> -X POST \
   -d '["SELECT COUNT(DISTINCT valueset_url) AS valuesets, COUNT(*) AS codes FROM concepts"]'
 ```
 
-Authentication: setup.py uses `root:secret` by default. If your Aidbox uses different credentials, edit `USER`/`PASS` constants at the top of `setup.py`, or — for production — fork and parameterize.
+Authentication: the app reads `AIDBOX_URL`, `AIDBOX_USER` and `AIDBOX_PASS` from its environment (set them in `docker-compose.yml`); `load-demo-data.py` takes `--aidbox`, `--user` and `--password`.
 
 **If you want to add more measures later**, you can load additional ValueSets by appending to `concepts` from your own VSAC extractions. Schema:
 
@@ -219,7 +219,9 @@ cp demo/config-external.example.json demo/config-myaidbox.json
 # Edit demo/config-myaidbox.json: set aidbox_url, auth_user, auth_pass,
 # period_start, period_end, dataset_label for your environment.
 
-# 2. Serve the sample directory over HTTP
+# 2. Serve the sample directory over HTTP.
+#    (If you are running this repo's docker compose stack, skip this — the app
+#    container already serves the demo on http://localhost:8090.)
 python3 -m http.server 3000
 
 # 3. Open the demo with ?stack=myaidbox — the demo fetches ./config-myaidbox.json
@@ -237,7 +239,7 @@ Measure SQL is built on top of two layers that hide most of the raw Aidbox JSONB
 1. **`ViewDefinition` resources** (in `viewdefinitions/`) use FHIRPath to project FHIR resources into relational columns. `POST /ViewDefinition/<id>/$materialize` writes the result into a `sof.*_flat` table.
 2. **Wrapper views** (in `sql/01-wrapper-views.sql`) sit on top of the `sof.*_flat` tables and add: `COALESCE` for polymorphic `dateTime` vs `Period`, `parse_fhir_datetime` for partial dates like `"2015"` / `"2015-10"`, and a `has_value::boolean` cast for Observation.
 
-Measure SQL queries the wrapper views — `encounter_flat`, `condition_flat`, etc. — using simple column names. Aidbox JSONB still underlies the raw resources, but the JSONB extraction is encapsulated in the `ViewDefinition` resources, not duplicated in every measure SQL. One wrapper (`medicationrequest_flat`) additionally `LEFT JOIN`s the raw `medication` table to fall back on medication-by-`Reference` cases that the `ViewDefinition` alone can't resolve.
+Measure SQL queries the typed projections — `encounter_flat`, `condition_flat`, etc. — using simple column names. Those projections are `sql-view` Libraries in the package, which Aidbox inlines as CTEs at query time rather than materializing as database views. Aidbox JSONB still underlies the raw resources, but the JSONB extraction is encapsulated in the `ViewDefinition` resources, not duplicated in every measure SQL. One wrapper (`medicationrequest_flat`) additionally `LEFT JOIN`s the raw `medication` table to fall back on medication-by-`Reference` cases that the `ViewDefinition` alone can't resolve.
 
 ## Troubleshooting
 
@@ -250,7 +252,7 @@ Measure SQL queries the wrapper views — `encounter_flat`, `condition_flat`, et
 ### `Measure/$evaluate-measure` returns 500
 
 - Check sql-evaluate-app logs: `docker logs sql-evaluate-app`
-- Most common cause: Step 3 (`python3 setup.py`) didn't run or failed partway — re-run it (idempotent)
+- Most common cause: Step 3 didn't run or failed partway — re-run `curl -s -X POST http://localhost:8090/api/materialize -H 'Content-Type: application/json' -d '{"force":true}'` (idempotent)
 - Flask dev server can drop connections on rapid sequential requests — for production, replace with gunicorn/waitress
 
 ### MeasureReport shows `initial-population = 0`
@@ -265,11 +267,11 @@ Quickest debug: evaluate for one known-good patient (`?subject=Patient/<id>&repo
 
 ### Concepts table is smaller than expected
 
-Re-run `python3 setup.py` — it's idempotent (`DELETE WHERE valueset_url = X` before INSERT per ValueSet).
+Re-run `curl -s -X POST http://localhost:8090/api/materialize -H 'Content-Type: application/json' -d '{"force":true}'` — the terminology flatten is idempotent (`ON CONFLICT DO NOTHING`).
 
 ### `$evaluate-measure` times out or is slow on a large dataset
 
-Check that the indexes on `sof.*_flat` are present. They are defined in `sql/03-sof-indexes.sql` and applied automatically by `setup.py` after each `$materialize`. If you ran an older version of this sample before sof-indexes existed, apply them standalone without re-running the full setup:
+Check that the indexes on `sof.*_flat` are present. They ship in the package as the `setup-03-sof-indexes` Library and are reapplied automatically after each `$materialize`.
 
 ```bash
 export AIDBOX_USER=<your-admin-user>
