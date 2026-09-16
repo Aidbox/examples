@@ -1,0 +1,36 @@
+{
+  "resourceType": "Library",
+  "id": "view-encounter-flat",
+  "url": "https://health-samurai.io/fhir/Library/view-encounter-flat",
+  "name": "encounter_flat",
+  "title": "encounter_flat \u2014 typed wrapper over sof.encounter_flat",
+  "status": "active",
+  "experimental": false,
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLView"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-view"
+      }
+    ]
+  },
+  "description": "Typed projection over sof.encounter_flat: COALESCEs the polymorphic date halves, casts text to timestamptz via knife_date_bound, and exposes the column names the measure Libraries read. Parameterless by design (SQLView).",
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/encounter-flat",
+      "label": "encounter_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "data": "U0VMRUNUIGlkLCBwYXRpZW50X2lkLCBzdGF0dXMsIHR5cGVfc3lzdGVtLCB0eXBlX2NvZGUsIHR5cGVfZGlzcGxheSwKICAgIGtuaWZlX2RhdGVfYm91bmQocGVyaW9kX3N0YXJ0LCAnbWluJykgQVMgcGVyaW9kX3N0YXJ0LAogICAga25pZmVfZGF0ZV9ib3VuZChwZXJpb2RfZW5kLCAnbWluJykgQVMgcGVyaW9kX2VuZCwKICAgIGNsYXNzX2NvZGUsIGRpc2NoYXJnZV9zeXN0ZW0sIGRpc2NoYXJnZV9jb2RlCkZST00gZW5jb3VudGVyX2ZsYXQ="
+    }
+  ]
+}

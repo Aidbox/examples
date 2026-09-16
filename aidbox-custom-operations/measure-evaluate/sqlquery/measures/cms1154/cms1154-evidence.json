@@ -37,23 +37,23 @@
     },
     {
       "type": "depends-on",
-      "resource": "https://health-samurai.io/fhir/ViewDefinition/condition-flat",
-      "label": "vd_condition_flat"
+      "resource": "https://health-samurai.io/fhir/Library/view-condition-flat",
+      "label": "condition_flat"
     },
     {
       "type": "depends-on",
-      "resource": "https://health-samurai.io/fhir/ViewDefinition/encounter-flat",
-      "label": "vd_encounter_flat"
+      "resource": "https://health-samurai.io/fhir/Library/view-encounter-flat",
+      "label": "encounter_flat"
     },
     {
       "type": "depends-on",
-      "resource": "https://health-samurai.io/fhir/ViewDefinition/observation-flat",
-      "label": "vd_observation_flat"
+      "resource": "https://health-samurai.io/fhir/Library/view-observation-flat",
+      "label": "observation_flat"
     },
     {
       "type": "depends-on",
-      "resource": "https://health-samurai.io/fhir/ViewDefinition/patient-flat",
-      "label": "vd_patient_flat"
+      "resource": "https://health-samurai.io/fhir/Library/view-patient-flat",
+      "label": "patient_flat"
     }
   ],
   "content": [

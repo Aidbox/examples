@@ -1,0 +1,36 @@
+{
+  "resourceType": "Library",
+  "id": "view-medicationrequest-flat",
+  "url": "https://health-samurai.io/fhir/Library/view-medicationrequest-flat",
+  "name": "medicationrequest_flat",
+  "title": "medicationrequest_flat \u2014 typed wrapper over sof.medicationrequest_flat",
+  "status": "active",
+  "experimental": false,
+  "meta": {
+    "profile": [
+      "https://sql-on-fhir.org/ig/StructureDefinition/SQLView"
+    ]
+  },
+  "type": {
+    "coding": [
+      {
+        "system": "https://sql-on-fhir.org/ig/CodeSystem/LibraryTypesCodes",
+        "code": "sql-view"
+      }
+    ]
+  },
+  "description": "Typed projection over sof.medicationrequest_flat: COALESCEs the polymorphic date halves, casts text to timestamptz via knife_date_bound, and exposes the column names the measure Libraries read. Parameterless by design (SQLView).",
+  "relatedArtifact": [
+    {
+      "type": "depends-on",
+      "resource": "https://health-samurai.io/fhir/ViewDefinition/medicationrequest-flat",
+      "label": "medicationrequest_flat"
+    }
+  ],
+  "content": [
+    {
+      "contentType": "application/sql",
+      "data": "U0VMRUNUIG1yLmlkLCBtci5wYXRpZW50X2lkLCBtci5zdGF0dXMsIG1yLmludGVudCwKICAgIAogICAgQ09BTEVTQ0UobXIubWVkX3N5c3RlbSwgbS5yZXNvdXJjZS0+J2NvZGUnLT4nY29kaW5nJy0+MC0+PidzeXN0ZW0nKSBBUyBtZWRfc3lzdGVtLAogICAgQ09BTEVTQ0UobXIubWVkX2NvZGUsIG0ucmVzb3VyY2UtPidjb2RlJy0+J2NvZGluZyctPjAtPj4nY29kZScpIEFTIG1lZF9jb2RlLAogICAgQ09BTEVTQ0UobXIubWVkX2Rpc3BsYXksIG0ucmVzb3VyY2UtPidjb2RlJy0+J2NvZGluZyctPjAtPj4nZGlzcGxheScpIEFTIG1lZF9kaXNwbGF5LAogICAga25pZmVfZGF0ZV9ib3VuZChtci52YWxpZGl0eV9zdGFydCwgJ21pbicpIEFTIHZhbGlkaXR5X3N0YXJ0LAogICAga25pZmVfZGF0ZV9ib3VuZChtci52YWxpZGl0eV9lbmQsICdtaW4nKSBBUyB2YWxpZGl0eV9lbmQsCiAgICBrbmlmZV9kYXRlX2JvdW5kKG1yLmF1dGhvcmVkX29uLCAnbWluJykgQVMgYXV0aG9yZWRfb24KRlJPTSBtZWRpY2F0aW9ucmVxdWVzdF9mbGF0IG1yCkxFRlQgSk9JTiBtZWRpY2F0aW9ucmVxdWVzdCByYXcgT04gcmF3LmlkID0gbXIuaWQKTEVGVCBKT0lOIG1lZGljYXRpb24gbSBPTiBtLmlkID0gcmF3LnJlc291cmNlLT4nbWVkaWNhdGlvbictPidSZWZlcmVuY2UnLT4+J2lkJw=="
+    }
+  ]
+}

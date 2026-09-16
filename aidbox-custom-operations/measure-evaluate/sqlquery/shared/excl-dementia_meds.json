@@ -37,8 +37,8 @@
     },
     {
       "type": "depends-on",
-      "resource": "https://health-samurai.io/fhir/ViewDefinition/medicationrequest-flat",
-      "label": "vd_medicationrequest_flat"
+      "resource": "https://health-samurai.io/fhir/Library/view-medicationrequest-flat",
+      "label": "medicationrequest_flat"
     }
   ],
   "content": [

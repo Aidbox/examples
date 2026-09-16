@@ -35,12 +35,14 @@ Expected: `200`. If `404` — the App resource isn't registered (re-run init-bun
 ```bash
 curl -s $AUTH -X POST $AIDBOX/\$sql \
   -H 'Content-Type: application/json' \
-  -d '["SELECT count(*) AS patient_flat_rows FROM patient_flat"]'
+  -d '["SELECT count(*) AS patient_flat_rows FROM sof.patient_flat"]'
 ```
 
 Expected: `[{"patient_flat_rows": <your actual Patient count>}]`.
 
-If error `"relation 'patient_flat' does not exist"` — shared views didn't get created. Re-run `python3 setup.py` (Mode A) or `python3 setup.py --skip-clinical` (Mode B).
+Note the `sof.` prefix: the bare `patient_flat` the measure SQL uses is a `sql-view` Library that Aidbox inlines as a CTE when running a SQLQuery, so it does not exist as a database view and a raw `$sql` call cannot see it.
+
+If error `"relation 'sof.patient_flat' does not exist"` — the sof.* tables were never materialized. Re-run `curl -s -X POST http://localhost:8090/api/materialize -H 'Content-Type: application/json' -d '{"force":true}'`.
 
 ## Step 4 — Terminology is loaded
 
@@ -52,7 +54,7 @@ curl -s $AUTH -X POST $AIDBOX/\$sql \
 
 Expected: `[{"vs": 104, "codes": 9651}]`.
 
-If `codes` is significantly lower — a `setup.py` step failed partway. Re-run (idempotent).
+If `codes` is significantly lower — the terminology flatten failed partway. Re-run `curl -s -X POST http://localhost:8090/api/materialize -H 'Content-Type: application/json' -d '{"force":true}'` (idempotent).
 
 ## Step 5 — End-to-end evaluation
 
