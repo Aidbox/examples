@@ -34,6 +34,11 @@
           "path": "class.code"
         },
         {
+          "name": "discharge_system",
+          "description": "Encounter.hospitalization.dischargeDisposition system. Without it, code-only matching wrongly excludes a patient whose discharge code collides across CodeSystems (CMS506 ships both SNOMED and hl7 discharge-disposition).",
+          "path": "hospitalization.dischargeDisposition.coding.first().system"
+        },
+        {
           "name": "discharge_code",
           "description": "Encounter.hospitalization.dischargeDisposition \u2014 used by shared_hospice",
           "path": "hospitalization.dischargeDisposition.coding.first().code"

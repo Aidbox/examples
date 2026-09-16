@@ -54,6 +54,15 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 .sidebar{background:var(--bg2);border-right:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column;font-size:0.72rem}
 .sb-section{font-size:0.52rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);padding:.6rem 1rem .2rem}
 .sb-section[onclick]{cursor:pointer;transition:color .12s}.sb-section[onclick]:hover{color:var(--teal)}
+.sb-filter{padding:.1rem .7rem .45rem}
+.sb-filter input{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:0.7rem;padding:.32rem .45rem;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg)}
+.sb-filter input:focus{outline:none;border-color:var(--teal)}
+.mf-chips{display:flex;gap:.25rem;margin-top:.35rem}
+.mf-chip{flex:1;font-family:var(--sans);font-size:0.56rem;font-weight:600;padding:.25rem .1rem;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--fg3);cursor:pointer;transition:all .12s}
+.mf-chip:hover{color:var(--fg)}
+.mf-chip.active{background:var(--fg);color:var(--card);border-color:var(--fg)}
+.mf-count{font-size:0.56rem;color:var(--fg3);margin-top:.3rem;min-height:.7rem}
+.sb-item.mf-hidden{display:none}
 .sb-item{display:flex;align-items:center;justify-content:space-between;padding:.35rem 1rem;cursor:pointer;border-left:3px solid transparent;transition:all .12s}
 .sb-item:hover{background:var(--bg3)}
 .sb-item.active{background:var(--card);border-left-color:var(--teal)}
@@ -68,6 +77,14 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 .sb-foot input[type="date"]{width:100%;font-family:var(--sans);font-size:0.72rem;color:var(--fg);padding:.25rem .4rem;border:1px solid var(--line);border-radius:5px;background:var(--card);outline:none}
 .sb-foot input:focus{border-color:var(--teal)}
 .sb-exports{display:flex;gap:.3rem;margin-top:.2rem}
+.mat-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem}
+.mat-row #mat-state{flex:1;font-size:0.62rem;opacity:.75;line-height:1.2}
+.si-badge.not-mat{background:var(--bg2);color:var(--muted);border:1px solid var(--line);font-size:0.55rem;letter-spacing:.02em}
+.mat-banner{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.55rem .7rem;margin-bottom:.8rem;border:1px solid var(--line);border-radius:6px;background:var(--bg2);font-size:0.72rem}
+.mat-banner .mb-msg{flex:1;min-width:12rem}
+.spin{display:inline-block;width:.75rem;height:.75rem;border:2px solid var(--line);border-top-color:var(--fg);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-.12rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+button[disabled]{opacity:.55;cursor:progress}
 .btn-exp{flex:1;font-family:var(--sans);font-size:0.68rem;font-weight:600;padding:.4rem;border:none;border-radius:5px;background:var(--fg);color:var(--card);cursor:pointer;text-align:center;transition:all .15s}
 .btn-exp:hover{background:var(--fg2)}
 .sb-summary{padding:.4rem 1rem;display:flex;justify-content:space-between;font-size:0.68rem;color:var(--fg2)}
@@ -123,6 +140,9 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
 .detail-back{font-size:0.72rem;font-weight:500;color:var(--fg3);background:none;border:none;cursor:pointer;padding:0;margin-bottom:.85rem;display:flex;align-items:center;gap:.25rem;font-family:var(--sans)}
 .detail-back:hover{color:var(--teal)}
 .detail-head{margin-bottom:1.25rem}
+.dh-top{display:flex;align-items:flex-start;gap:1rem}
+.dh-top h1{flex:1}
+.btn-exp.dh-mat{flex:0 0 auto;padding:.4rem .8rem;white-space:nowrap}
 .detail-head h1{font-family:var(--sans);font-size:1.25rem;font-weight:700;letter-spacing:-.02em}
 .detail-head .dh-meta{font-size:0.72rem;color:var(--fg3);margin-top:.1rem}
 .detail-bar{margin-bottom:1.25rem}
@@ -306,9 +326,23 @@ body{font-family:var(--sans);color:var(--fg);background:var(--bg);-webkit-font-s
     <div class="sb-summary"><span>Total open gaps</span><span class="sv rose" id="sb-gaps">—</span></div>
     <div class="sb-summary"><span>Avg gaps / patient</span><span class="sv" id="sb-avg">—</span></div>
     <div class="sb-section" style="cursor:pointer" onclick="switchTab('overview',null)">Measures</div>
+    <div class="sb-filter">
+      <input type="search" id="mfilter" placeholder="Filter measures…" autocomplete="off"
+             oninput="applyMeasureFilter()" onkeydown="if(event.key==='Escape'){this.value='';applyMeasureFilter()}">
+      <div class="mf-chips">
+        <button class="mf-chip active" data-scope="all" onclick="setMeasureScope('all')">All</button>
+        <button class="mf-chip" data-scope="open" onclick="setMeasureScope('open')">Open gaps</button>
+        <button class="mf-chip" data-scope="pending" onclick="setMeasureScope('pending')">Needs setup</button>
+      </div>
+      <div class="mf-count" id="mf-count"></div>
+    </div>
     <div id="sb-measures"></div>
     <div class="sb-progress" id="sb-progress"></div>
     <div class="sb-foot">
+      <div class="mat-row">
+        <span id="mat-state">—</span>
+        <button class="btn-exp" id="mat-all-btn" onclick="materialize(null)">Materialize all</button>
+      </div>
       <div><label>Period start</label><input type="date" id="period-start"></div>
       <div><label>Period end</label><input type="date" id="period-end"></div>
       <button class="btn-exp" style="width:100%;margin-top:.3rem" onclick="reEvaluate()">Recalculate</button>
@@ -335,7 +369,7 @@ const META={
 };
 const ACTIONS={cms130:{action:'Order colonoscopy or FIT/FOBT',category:'Screening'},cms125:{action:'Schedule mammography',category:'Screening'},cms131:{action:'Schedule dilated eye exam',category:'Referral'},cms165:{action:'Schedule BP follow-up visit',category:'Visit'},cms124:{action:'Order cervical cancer screening',category:'Screening'},cms139:{action:'Perform fall risk assessment',category:'Assessment'},cms75:{action:'Schedule pediatric dental exam',category:'Referral'},cms1154:{action:'Order diabetes screening lab',category:'Lab'},cms149:{action:'Perform cognitive assessment',category:'Assessment'},cms153:{action:'Order chlamydia screening',category:'Lab'},cms155:{action:'Schedule weight/BMI assessment + counseling',category:'Visit'},cms143:{action:'Schedule optic nerve evaluation',category:'Referral'}};
 
-let MEASURES={},measureResults={},allPatientNames={},allPatientBirthDates={},patientMap={};
+let MEASURES={},CATALOG={measures:[]},materializing=false,measureResults={},allPatientNames={},allPatientBirthDates={},patientMap={};
 let currentTab='overview',currentMeasure=null,currentFilter='all',currentSearch='';
 let wlFilter='all',wlSearch='',selectedP360=null,selectedCohort=null,lastTab='overview';
 let currentPage=0,wlPage=0,cohortPage=0,p360Page=0,p360Search='';const PAGE_SIZE=50;
@@ -359,7 +393,6 @@ async function loadNamesForIds(ids){
     for(const id of chunk)if(!(id in allPatientNames))allPatientNames[id]='';
   }
 }
-function buildSQL(id,s,e,p){let q=p&&MEASURES[id].sql_subject?MEASURES[id].sql_subject:MEASURES[id].sql;q=q.replace(/\{PERIOD_START\}/g,s).replace(/\{PERIOD_END\}/g,e);if(p)q=MEASURES[id].sql_subject?q.replace(/\{PATIENT_ID\}/g,p):q.replace('ORDER BY ap.patient_id;',`WHERE ap.patient_id='${p}'\nORDER BY ap.patient_id;`);return q}
 function gapStatus(r){const ip=+r.ip,exc=+r.exc,num=+r.num;if(ip===0)return{label:'Not in IP',cls:'gap-not-in-ip',key:'noip'};if(exc===1)return{label:'Excluded',cls:'gap-excluded',key:'excl'};if(num===1)return{label:'Closed',cls:'gap-closed',key:'closed'};return{label:'Open',cls:'gap-open',key:'open'}}
 function calcStats(rows){let ip=0,den=0,exc=0,num=0,open=0,closed=0,excluded=0,noip=0;for(const r of rows){const rip=+r.ip,rden=+r.den,rexc=+r.exc,rnum=+r.num;ip+=rip;den+=rden;exc+=rexc;num+=rnum;if(rip===0)noip++;else if(rnum===1)closed++;else if(rexc===1)excluded++;else open++}return{total:rows.length,ip,den,exc,num,open,closed,excluded,noip,score:den>0?(num/Math.max(den-exc,1)*100):null}}
 function getPeriod(){return{start:document.getElementById('period-start').value,end:document.getElementById('period-end').value}}
@@ -396,6 +429,98 @@ function render(){
   else if(currentTab==='cohort')renderCohort();
 }
 
+// ── Measure filter ──
+// 74 measures do not fit on screen. Match on the measure id only — the id is
+// what the sidebar shows and what every package reliably carries (titles come
+// from Measure resources a package need not ship).
+
+let measureScope='all';
+
+function measureMatches(id){
+  const q=(document.getElementById('mfilter')?.value||'').trim().toLowerCase();
+  if(q&&!id.toLowerCase().includes(q))return false;
+  if(measureScope==='all')return true;
+  const m=MEASURES[id]||{};
+  if(measureScope==='pending')return !!(m.missing_views||[]).length;
+  if(measureScope==='open')return (measureResults[id]?.stats?.open||0)>0;
+  return true;
+}
+
+function applyMeasureFilter(){
+  let shown=0;
+  document.querySelectorAll('.sb-item').forEach(el=>{
+    const ok=measureMatches(el.dataset.id);
+    el.classList.toggle('mf-hidden',!ok);
+    if(ok)shown++;
+  });
+  const total=Object.keys(MEASURES).length;
+  const c=document.getElementById('mf-count');
+  if(c)c.textContent=shown===total?`${total} measures`:`${shown} of ${total}`;
+  if(currentTab==='overview'&&!currentMeasure)renderOverview();
+}
+
+function setMeasureScope(scope){
+  measureScope=scope;
+  document.querySelectorAll('.mf-chip').forEach(b=>
+    b.classList.toggle('active',b.dataset.scope===scope));
+  applyMeasureFilter();
+}
+
+// ── Materialization ──
+// ViewDefinitions are shared between measures (every measure reads
+// patient_flat), so the server materializes the transitive dependency set of
+// whatever is requested and skips views that already exist. Runs can take
+// minutes; a spinner holds until the request returns.
+
+function refreshMatState(){
+  const el=document.getElementById('mat-state');if(!el)return;
+  const rows=Object.values(MEASURES).filter(m=>m.views);
+  if(!rows.length){el.textContent='';return}
+  const pending=new Set();rows.forEach(m=>(m.missing_views||[]).forEach(v=>pending.add(v)));
+  el.textContent=pending.size?`${pending.size} view(s) not materialized`:'All views materialized';
+}
+
+async function materialize(measureId,force){
+  if(materializing)return;
+  materializing=true;
+  const btns=[document.getElementById('mat-all-btn'),document.getElementById('mat-one-btn')].filter(Boolean);
+  btns.forEach(b=>b.disabled=true);
+  const state=document.getElementById('mat-state');
+  const label=measureId?`Materializing ${measureId.toUpperCase()}…`:'Materializing all measures…';
+  if(state)state.innerHTML=`<span class="spin"></span> ${label}`;
+  const banner=document.getElementById('mat-banner');
+  if(banner)banner.innerHTML=`<span class="spin"></span><span class="mb-msg">${label} This can take several minutes.</span>`;
+  try{
+    const r=await fetch('/api/materialize',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(Object.assign(measureId?{measures:[measureId]}:{},force?{force:true}:{}))});
+    const out=await r.json();
+    if(out.error)throw new Error(out.error);
+    // Refresh dependency/materialization state, then recompute the numbers.
+    const cat=await(await fetch('/api/catalog',{cache:'no-store'})).json();
+    CATALOG=cat;
+    for(const row of cat.measures||[]){MEASURES[row.id]={...(MEASURES[row.id]||{}),...row}}
+    const done=(out.materialized||[]).length,skip=(out.skipped||[]).length,fail=(out.failed||[]).length;
+    const msg=fail?`${fail} view(s) failed — see console`
+                  :`Materialized ${done} view(s)${skip?`, ${skip} already current`:''}.`;
+    if(banner)banner.innerHTML=`<span class="mb-msg">${msg}</span>`;
+    if(fail)console.error('Materialization failures:',out.failed);
+    document.querySelectorAll('.sb-item').forEach(el=>{
+      const m=MEASURES[el.dataset.id];const b=el.querySelector('.si-badge.not-mat');
+      if(m&&!(m.missing_views||[]).length&&b)b.remove();
+    });
+    refreshMatState();
+    applyMeasureFilter();   // "Needs setup" membership just changed
+    await evaluateAll();
+    if(currentMeasure)renderMeasureDetail(currentMeasure); else render();
+  }catch(e){
+    if(state)state.textContent='Materialization failed';
+    if(banner)banner.innerHTML=`<span class="mb-msg">Materialization failed: ${e.message}</span>`;
+    console.error(e);
+  }finally{
+    materializing=false;btns.forEach(b=>b.disabled=false);refreshMatState();
+  }
+}
+
 // ── Init ──
 async function init(){
   const stack=new URLSearchParams(location.search).get('stack');const cfgFile=stack?`./config-${stack}.json`:'./config.json';
@@ -404,7 +529,14 @@ async function init(){
   const yr=new Date().getFullYear();
   document.getElementById('period-start').value=cfg.period_start||`${yr}-01-01`;
   document.getElementById('period-end').value=cfg.period_end||`${yr}-12-31`;
-  try{MEASURES=await(await fetch('./measure-sql.json',{cache:'no-store'})).json()}catch(e){document.getElementById('main').innerHTML='<div class="empty"><h2>Cannot load measure-sql.json</h2></div>';return}
+  // The measure catalog comes entirely from Aidbox: each measure is discovered
+  // from its SQLQuery Libraries, which also hold the SQL. Nothing is bundled.
+  MEASURES={};
+  try{
+    CATALOG=await(await fetch('/api/catalog',{cache:'no-store'})).json();
+    for(const row of CATALOG.measures||[])MEASURES[row.id]=row;
+  }catch(e){CATALOG={measures:[],error:String(e)}}
+  if(!Object.keys(MEASURES).length){document.getElementById('main').innerHTML=`<div class="empty"><h2>No measures found</h2><p>${CATALOG.error?'Catalog error: '+CATALOG.error:'This Aidbox has no SQLQuery Library resources installed.'}</p></div>`;return}
   // Optional config filter: show only measures listed in cfg.measures
   if(Array.isArray(cfg.measures)&&cfg.measures.length){MEASURES=Object.fromEntries(Object.entries(MEASURES).filter(([id])=>cfg.measures.includes(id)))}
   const conn=document.getElementById('conn');
@@ -415,10 +547,15 @@ async function init(){
   for(const[id]of Object.entries(MEASURES)){
     const m=META[id]||{short:id.toUpperCase()};
     const el=document.createElement('div');el.className='sb-item';el.dataset.id=id;
-    el.innerHTML=`<span class="si-name">${m.short}</span><span class="si-badge loading">…</span>`;
+    const needsMat=MEASURES[id].missing_views&&MEASURES[id].missing_views.length;
+    el.innerHTML=`<span class="si-name">${m.short}</span>`+
+      (needsMat?`<span class="si-badge not-mat" title="${MEASURES[id].missing_views.length} view(s) not materialized">not materialized</span>`
+               :`<span class="si-badge loading">…</span>`);
     el.onclick=()=>{currentMeasure=id;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');renderMeasureDetail(id)};
     sbm.appendChild(el);
   }
+  refreshMatState();
+  applyMeasureFilter();
   render();
   evaluateAll();
 }
@@ -432,9 +569,26 @@ function calcStatsFromSummary(row){
 // Wraps the measure's per-patient sql to also return JSON array of open-gap patient ids.
 // Same CTE chain cost as summary_sql; one extra JSON_AGG column in the output.
 // Enables Worklist/Cohort/Summary without an extra round-trip per measure.
-function buildSummarySQL(id,start,end){
-  const base=MEASURES[id].sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/;\s*$/,'');
-  return `SELECT COUNT(*) AS total, SUM(ip)::int AS ip, SUM(den)::int AS den, SUM(exc)::int AS exc, SUM(num)::int AS num, COALESCE(JSON_AGG(patient_id) FILTER (WHERE ip=1 AND num=0 AND exc=0), '[]'::json) AS open_patient_ids FROM (${base}) sub`;
+// Measure logic lives in Aidbox as SQLQuery Libraries; the app runs them via
+// $sqlquery-run and returns rows already shaped for these tabs. No SQL here.
+async function fetchSummary(id,start,end){
+  const r=await fetch(`/api/measure/${encodeURIComponent(id)}/summary?periodStart=${start}&periodEnd=${end}`);
+  const d=await r.json();
+  if(!r.ok||d.error)throw new Error(d.error||`HTTP ${r.status}`);
+  return d;
+}
+async function fetchPatients(id,start,end,subject){
+  const q=`periodStart=${start}&periodEnd=${end}`+(subject?`&subject=${encodeURIComponent(subject)}`:'');
+  const r=await fetch(`/api/measure/${encodeURIComponent(id)}/patients?${q}`);
+  const d=await r.json();
+  if(!r.ok||d.error)throw new Error(d.error||`HTTP ${r.status}`);
+  return d.rows||[];
+}
+async function fetchEvidence(id,start,end,subject){
+  const q=`periodStart=${start}&periodEnd=${end}`+(subject?`&subject=${encodeURIComponent(subject)}`:'');
+  const r=await fetch(`/api/measure/${encodeURIComponent(id)}/evidence?${q}`);
+  if(!r.ok)return[];
+  const d=await r.json();return d.rows||[];
 }
 
 // Overview = aggregate stats + list of open-gap patient ids (one row per measure).
@@ -442,16 +596,30 @@ function buildSummarySQL(id,start,end){
 async function evaluateAll(){
   const{start,end}=getPeriod();const ids=Object.keys(MEASURES);let done=0;
   for(const id of ids){
-    try{const q=buildSummarySQL(id,start,end);const res=await sql(q);const row=res[0]||null;const stats=calcStatsFromSummary(row);const openIds=new Set(row?.open_patient_ids||[]);measureResults[id]={summary:row,stats,openIds,rows:null};
+    // Skip measures we cannot evaluate yet: views not materialized, or no local
+    // summary SQL (catalog-only measures whose SQL lives in Aidbox Libraries).
+    // Querying either way just raises a SQL error and paints a false "retry".
+    const skipWhy=(MEASURES[id].missing_views||[]).length?'not materialized'
+                 :(MEASURES[id].has_sql?null:'no SQL');
+    if(skipWhy){
+      const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);
+      if(el){el.className='si-badge not-mat';el.textContent=skipWhy;el.removeAttribute('style');
+        el.title=skipWhy==='not materialized'?`${MEASURES[id].missing_views.length} view(s) pending`:'SQL lives in Aidbox Libraries';}
+      done++;updateSummary();
+      const pr=document.getElementById('sb-progress');if(pr)pr.innerHTML=done<ids.length?`<span class="spinner"></span>${done}/${ids.length}`:ids.length+' done';
+      continue;
+    }
+    try{const row=await fetchSummary(id,start,end);const stats=calcStatsFromSummary(row);const openIds=new Set(row?.open_patient_ids||[]);measureResults[id]={summary:row,stats,openIds,rows:null};
     const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const isInverse=META[id]?.inverse;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(isInverse){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=stats.score.toFixed(0)+'%'}else{const openCnt=stats.open;if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}}}
     catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.title='Click to retry';el.style.cursor='pointer';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}
     done++;updateSummary();
+    if(measureScope==='open')applyMeasureFilter();
     const prog=document.getElementById('sb-progress');if(prog)prog.innerHTML=done<ids.length?`<span class="spinner"></span>${done}/${ids.length}`:ids.length+' done';
     if(currentTab==='overview'&&!currentMeasure&&measureResults[id]){const bar=document.getElementById('bar-'+id);const sc=document.getElementById('score-'+id);const card=document.querySelector(`[data-card="${id}"]`);if(bar&&sc){card?.classList.remove('loading');const t=measureResults[id].stats.total||1;const s=measureResults[id].stats;bar.innerHTML=`<div class="seg seg-closed" style="width:${s.closed/t*100}%"></div><div class="seg seg-open" style="width:${s.open/t*100}%"></div><div class="seg seg-excl" style="width:${s.excluded/t*100}%"></div>`;sc.textContent=s.score!==null?s.score.toFixed(1)+'%':'N/A'}}
   }
 }
 
-async function retryMeasure(id){const{start,end}=getPeriod();try{const q=buildSummarySQL(id,start,end);const res=await sql(q);const row=res[0]||null;const stats=calcStatsFromSummary(row);const openIds=new Set(row?.open_patient_ids||[]);measureResults[id]={summary:row,stats,openIds,rows:null};const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const openCnt=stats.open;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}updateSummary();render()}catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}}
+async function retryMeasure(id){const{start,end}=getPeriod();try{const row=await fetchSummary(id,start,end);const stats=calcStatsFromSummary(row);const openIds=new Set(row?.open_patient_ids||[]);measureResults[id]={summary:row,stats,openIds,rows:null};const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){const openCnt=stats.open;if(stats.score===null){el.className='si-badge';el.style.background='var(--bg3)';el.style.color='var(--fg3)';el.textContent='N/A';el.title='no patients in initial population (denominator = 0)'}else if(openCnt>0){el.className='si-badge';el.style.background='var(--rose-bg)';el.style.color='var(--rose)';el.textContent=openCnt+' open'}else{el.className='si-badge scored';el.textContent='ok'}}updateSummary();render()}catch(e){const el=document.querySelector(`.sb-item[data-id="${id}"] .si-badge`);if(el){el.className='si-badge err';el.textContent='retry';el.onclick=(ev)=>{ev.stopPropagation();el.className='si-badge loading';el.textContent='...';el.onclick=null;retryMeasure(id)}}}}
 
 function reEvaluate(){measureResults={};patientMap={};document.querySelectorAll('.si-badge').forEach(el=>{el.className='si-badge loading';el.textContent='...';el.style.background='';el.style.color=''});render();evaluateAll()}
 
@@ -478,9 +646,21 @@ function updateSummary(){
 // ══════════════════════════════════
 function renderOverview(){
   // Sort measures: evaluated with most open gaps first, then unevaluated
-  const entries=Object.entries(MEASURES);
-  // Keep stable order matching sidebar (order from measure-sql.json)
-  let html=`<div class="overview-head"><h1>Quality Measures</h1><p>${entries.length} measures &middot; ${getPeriod().start} &ndash; ${getPeriod().end}</p><div class="overview-progress" id="overview-progress"></div></div><div class="measure-grid">`;
+  let entries=Object.entries(MEASURES);
+  // Keep stable order matching sidebar (catalog order)
+  // Honour the sidebar filter so the grid and the list agree.
+  const entriesAll=entries;
+  entries=entries.filter(([id])=>measureMatches(id));
+  const pend=new Set();entriesAll.forEach(([,m])=>(m.missing_views||[]).forEach(v=>pend.add(v)));
+  // `concept` comes from setup.py's terminology flatten, not $materialize — no
+  // button can create it, so say what to run instead of offering a fix.
+  const man=new Set();entries.forEach(([,m])=>(m.missing_manual||[]).forEach(v=>man.add(v)));
+  const banner=pend.size
+    ? `<div class="mat-banner" id="mat-banner"><span class="mb-msg">${pend.size} ViewDefinition(s) are not materialized yet — measures depending on them cannot be evaluated.</span><button class="btn-exp" style="flex:0 0 auto;padding:.4rem .8rem" onclick="materialize(null)">Materialize all</button></div>`
+    : man.size
+    ? `<div class="mat-banner" id="mat-banner"><span class="mb-msg">Views are materialized, but <code>sof.concept</code> is missing — it is built by the terminology flatten, not $materialize. Run <code>python3 setup.py</code> to populate it.</span></div>`
+    : `<div class="mat-banner" id="mat-banner" style="display:none"></div>`;
+  let html=`<div class="overview-head"><h1>Quality Measures</h1><p>${entries.length===entriesAll.length?entries.length+' measures':entries.length+' of '+entriesAll.length+' measures'} &middot; ${getPeriod().start} &ndash; ${getPeriod().end}</p><div class="overview-progress" id="overview-progress"></div></div>${banner}<div class="measure-grid">`;
   let i=0;for(const[id,m]of entries){const meta=META[id]||{short:id.toUpperCase(),name:m.name};const res=measureResults[id];
   html+=`<div class="measure-card${res?'':' loading'}" data-card="${id}" onclick="currentMeasure='${id}';document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));document.querySelector('.sb-item[data-id=\\'${id}\\']')?.classList.add('active');renderMeasureDetail('${id}')" style="animation-delay:${i*35}ms"><div class="mc-id">${meta.short}</div><div class="mc-name">${meta.name}</div><div class="mc-bar" id="bar-${id}"></div><div class="mc-foot"><span class="mc-pts">${res?.stats?.ip!=null?res.stats.ip.toLocaleString()+' in IP':'...'}</span><span class="mc-score" id="score-${id}">${res?(res.stats.score!==null?res.stats.score.toFixed(1)+'%':'N/A'):'...'}</span></div></div>`;i++}
   html+='</div>';document.getElementById('main').innerHTML=html;
@@ -491,12 +671,26 @@ function renderOverview(){
 //  MEASURE DETAIL
 // ══════════════════════════════════
 async function renderMeasureDetail(id){
-  if(!measureResults[id]||!measureResults[id].rows){document.getElementById('main').innerHTML='<div class="empty"><span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite"></span> Loading patients...</div>';try{const{start,end}=getPeriod();const rows=await sql(buildSQL(id,start,end,null));const stats=measureResults[id]?.stats||calcStats(rows);measureResults[id]={...(measureResults[id]||{}),rows,stats};buildPatientMap()}catch(e){document.getElementById('main').innerHTML=`<div class="empty">Error: ${e.message}</div>`;return}}
+  // Views this measure reads may not exist yet — querying them would just throw
+  // a SQL error, so offer the fix instead.
+  const miss=MEASURES[id]?.missing_views||[];
+  if(miss.length&&!measureResults[id]){
+    const meta0=META[id]||{short:id.toUpperCase(),name:MEASURES[id].name||id};
+    document.getElementById('main').innerHTML=
+      `<button class="detail-back" onclick="currentMeasure=null;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));render()">&larr; Back</button>
+       <div class="detail-head"><h1>${meta0.short} &mdash; ${meta0.name}</h1></div>
+       <div class="mat-banner" id="mat-banner">
+         <span class="mb-msg">This measure needs ${miss.length} view(s) materialized before it can be evaluated: <code>${miss.join('</code>, <code>')}</code></span>
+         <button class="btn-exp" id="mat-one-btn" style="flex:0 0 auto;padding:.4rem .8rem" onclick="materialize('${id}')">Materialize ${meta0.short}</button>
+       </div>`;
+    return;
+  }
+  if(!measureResults[id]||!measureResults[id].rows){document.getElementById('main').innerHTML='<div class="empty"><span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:spin .5s linear infinite"></span> Loading patients...</div>';try{const{start,end}=getPeriod();const rows=await fetchPatients(id,start,end);const stats=measureResults[id]?.stats||calcStats(rows);measureResults[id]={...(measureResults[id]||{}),rows,stats};buildPatientMap()}catch(e){document.getElementById('main').innerHTML=`<div class="empty">Error: ${e.message}</div>`;return}}
   currentPage=0;
   const{rows,stats}=measureResults[id];const meta=META[id]||{short:id.toUpperCase(),name:MEASURES[id].name};const m=MEASURES[id];const excLabel=m.exc_type==='denominator-exception'?'Exception':'Exclusion';const t=stats.total||1;
   currentFilter='all';currentSearch='';
   let html=`<button class="detail-back" onclick="currentMeasure=null;document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));render()">&larr; ${lastTab==='overview'?'Overview':lastTab==='worklist'?'Worklist':'Back'}</button>
-  <div class="detail-head"><h1>${meta.short} &mdash; ${meta.name} &mdash; Summary Report</h1><div class="dh-meta">${getPeriod().start} &mdash; ${getPeriod().end} &middot; ${stats.total} patients evaluated</div>${meta.desc?`<div style="font-size:.78rem;color:var(--fg2);margin-top:.55rem;line-height:1.55;max-width:640px;padding-left:.75rem;border-left:2px solid var(--line)">${meta.desc}</div>`:''}</div>
+  <div class="detail-head"><div class="dh-top"><h1>${meta.short} &mdash; ${meta.name} &mdash; Summary Report</h1><button class="btn-exp dh-mat" id="mat-one-btn" onclick="materialize('${id}',true)" title="Re-run $materialize for the ${(MEASURES[id].views||[]).length} view(s) this measure reads">Rematerialize ${meta.short}</button></div><div class="dh-meta">${getPeriod().start} &mdash; ${getPeriod().end} &middot; ${stats.total} patients evaluated</div>${meta.desc?`<div style="font-size:.78rem;color:var(--fg2);margin-top:.55rem;line-height:1.55;max-width:640px;padding-left:.75rem;border-left:2px solid var(--line)">${meta.desc}</div>`:''}</div>
   <div class="kpi-row" style="grid-template-columns:repeat(6,1fr)"><div class="kpi" style="animation-delay:0ms"><div class="kpi-val">${stats.total}</div><div class="kpi-lbl">Evaluated</div></div><div class="kpi" style="animation-delay:30ms"><div class="kpi-val">${stats.ip}</div><div class="kpi-lbl">Initial Pop</div></div><div class="kpi" style="animation-delay:60ms"><div class="kpi-val">${stats.num}</div><div class="kpi-lbl">Numerator</div></div><div class="kpi" style="animation-delay:90ms"><div class="kpi-val">${stats.den}</div><div class="kpi-lbl">Denominator</div></div><div class="kpi" style="animation-delay:120ms"><div class="kpi-val">${stats.excluded}</div><div class="kpi-lbl">${excLabel}</div></div><div class="kpi teal" style="animation-delay:150ms"><div class="kpi-val">${stats.score!==null?stats.score.toFixed(1)+'%':'N/A'}</div><div class="kpi-lbl" title="Numerator / (Denominator − Exclusions) — percentage of eligible patients with gap closed">Score &#9432;</div></div></div>
   <div class="detail-bar"><div style="font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);margin-bottom:.3rem">Population breakdown</div><div class="detail-bar-track"><div class="bseg bseg-closed" style="width:${stats.closed/t*100}%"><span>${stats.closed}</span></div><div class="bseg bseg-open" style="width:${stats.open/t*100}%"><span>${stats.open}</span></div><div class="bseg bseg-excl" style="width:${stats.excluded/t*100}%"><span>${stats.excluded}</span></div><div class="bseg bseg-noip" style="width:${stats.noip/t*100}%"><span>${stats.noip}</span></div></div>
   <div class="detail-bar-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Gap closed (${(stats.closed/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Gap open (${(stats.open/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Excluded (${(stats.excluded/t*100).toFixed(1)}%)</div><div class="legend-item"><div class="legend-dot" style="background:#94a3b8"></div>Not in IP (${(stats.noip/t*100).toFixed(1)}%)</div></div></div>
@@ -634,9 +828,8 @@ async function renderP360Detail(pid){
   await loadNamesForIds([pid]);
   const{start,end}=getPeriod();const ids=Object.keys(MEASURES);
   const measures=await Promise.all(ids.map(async mid=>{
-    const m=MEASURES[mid];if(!m?.sql_subject)return{mid,status:'noip',label:'—',cls:'gap-not-in-ip',ip:0,den:0,exc:0,num:0};
-    const q=m.sql_subject.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/\{PATIENT_ID\}/g,pid);
-    try{const rows=await sql(q);const r=rows[0]||{ip:0,den:0,exc:0,num:0};const g=gapStatus(r);return{mid,ip:+r.ip,den:+r.den,exc:+r.exc,num:+r.num,status:g.key,label:g.label,cls:g.cls}}
+    const m=MEASURES[mid];if(!m?.has_sql||(m.missing_views||[]).length)return{mid,status:'noip',label:'—',cls:'gap-not-in-ip',ip:0,den:0,exc:0,num:0};
+    try{const rows=await fetchPatients(mid,start,end,pid);const r=rows[0]||{ip:0,den:0,exc:0,num:0};const g=gapStatus(r);return{mid,ip:+r.ip,den:+r.den,exc:+r.exc,num:+r.num,status:g.key,label:g.label,cls:g.cls}}
     catch(e){return{mid,status:'error',label:'error',cls:'gap-not-in-ip',ip:0,den:0,exc:0,num:0}}
   }));
   if(selectedP360!==pid)return;  // bail if user navigated away
@@ -686,11 +879,17 @@ async function renderCohort(){
 function toggleEv(mid,pid,evId,row){const evRow=row.nextElementSibling;if(row.classList.contains('expanded')){row.classList.remove('expanded');evRow.style.display='none';document.getElementById(evId).innerHTML=''}else{row.classList.add('expanded');evRow.style.display='';loadEvidence(mid,pid,evId)}}
 
 async function loadEvidence(mid,pid,targetId){
-  const m=MEASURES[mid];const el=document.getElementById(targetId);if(!m.diagnostic_sql){el.innerHTML='<div class="evidence-panel open"><span class="ev-none">No diagnostic SQL</span></div>';return}
+  const m=MEASURES[mid];const el=document.getElementById(targetId);
   el.innerHTML='<div class="evidence-panel open"><span class="ev-none">Loading...</span></div>';const{start,end}=getPeriod();
-  try{let diag=m.diagnostic_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/\{PATIENT_ID\}/g,pid);const d=(await sql(diag))[0]||{};let evRows=[];if(m.evidence_sql_subject){try{const evQuery=m.evidence_sql_subject.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end).replace(/\{PATIENT_ID\}/g,pid);evRows=await sql(evQuery)}catch(e){}}else if(m.evidence_sql){try{const all=await sql(m.evidence_sql.replace(/\{PERIOD_START\}/g,start).replace(/\{PERIOD_END\}/g,end));evRows=all.filter(r=>r.patient_id===pid)}catch(e){}}
+  // Evidence comes from the measure's `-evidence` Library. The per-patient row
+  // doubles as the decision chain: its YES/no columns are the CTE results the
+  // step table renders.
+  try{const evRows=await fetchEvidence(mid,start,end,pid);
+  const d=evRows[0]||{};
+  if(!evRows.length){el.innerHTML='<div class="evidence-panel open"><span class="ev-none">No evidence returned for this patient</span></div>';return}
   let html='<div class="evidence-panel open"><table class="decision-table"><thead><tr><th>Step</th><th>CTE</th><th>Result</th></tr></thead><tbody>';
-  for(const step of m.steps){const val=d[step.cte],isYes=val==='YES';const isSummary=['denominator_exclusion','numerator','initial_population'].includes(step.cte);html+=`<tr${isSummary?' class="step-summary"':''}><td>${isSummary?'<strong>'+step.label+'</strong>':step.label}</td><td><code>${step.cte}</code></td><td class="${isYes?'yes':'no'}">${isSummary?'<strong>'+(isYes?'YES':'no')+'</strong>':(val||'—')}</td></tr>`}html+='</tbody></table>';
+  const steps=m.steps||Object.keys(d).filter(k=>k!=='patient_id').map(k=>({cte:k,label:k.replace(/_/g,' ')}));
+  for(const step of steps){const val=d[step.cte],isYes=val==='YES';const isSummary=['denominator_exclusion','numerator','initial_population'].includes(step.cte);html+=`<tr${isSummary?' class="step-summary"':''}><td>${isSummary?'<strong>'+step.label+'</strong>':step.label}</td><td><code>${step.cte}</code></td><td class="${isYes?'yes':'no'}">${isSummary?'<strong>'+(isYes?'YES':'no')+'</strong>':(val||'—')}</td></tr>`}html+='</tbody></table>';
   // Port of oracle report's _build_evidence_html: collect IP/NUM/EXC sides uniformly,
   // render as 4-column table with clickable FHIR resource refs and CTE tags.
   const evItems=[];const evSeen=new Set();

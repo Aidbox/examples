@@ -14,7 +14,7 @@ import os
 import sys
 from datetime import datetime, timezone
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect, send_from_directory
 
 # Import core logic from evaluate_measure.py
 # In Docker: /app/app/evaluate_measure.py; locally: same directory
@@ -26,6 +26,7 @@ from evaluate_measure import (
     build_summary_report,
 )
 import sqlquery_transport as sqt
+import catalog
 
 app = Flask(__name__)
 
@@ -47,9 +48,11 @@ def fetch_measure_metadata(measure_id: str) -> dict | None:
         return _measure_metadata_cache[measure_id]
 
     measure_info = MEASURES.get(measure_id, {})
-    # Derive FHIR Measure resource ID from canonical URL
+    # Derive FHIR Measure resource ID from canonical URL; measures that come
+    # from the package alone have no registry entry, so fall back to the
+    # measure id itself (a Measure resource may or may not exist for it).
     canonical = measure_info.get('canonical', '')
-    fhir_id = canonical.rsplit('/', 1)[-1] if '/' in canonical else None
+    fhir_id = canonical.rsplit('/', 1)[-1] if '/' in canonical else measure_id
     if not fhir_id:
         return None
 
@@ -179,6 +182,173 @@ def enrich_measure_report(report: dict, measure_id: str) -> dict:
     return report
 
 
+# ── Demo app (static) ─────────────────────────────────────────────────────────
+# The demo is a single static page plus the theme assets it pulls from the repo
+# root. Serving it here means `docker compose up` is the only thing needed to
+# reach it — no second local HTTP server. Read-only GETs; the POST / RPC
+# endpoint below is untouched.
+
+DEMO_DIR = os.path.join(REPO_ROOT, 'demo')
+
+
+@app.route('/', methods=['GET'])
+def demo_index():
+    """Redirect the bare port to the demo app.
+
+    app.html fetches ./config.json relative to the
+    current URL, so it must be served from /demo/ — serving it at / would
+    resolve those to /config.json and the page would render empty. Redirect
+    rather than duplicate the routes, keeping one canonical URL. Query string
+    is preserved so http://localhost:8090/?stack=NAME still works.
+    """
+    qs = request.query_string.decode()
+    return redirect('/demo/app.html' + (f'?{qs}' if qs else ''), code=302)
+
+
+@app.route('/demo/<path:filename>', methods=['GET'])
+def demo_files(filename):
+    """Serve demo/ assets: app.html and its config."""
+    return send_from_directory(DEMO_DIR, filename)
+
+
+ROOT_ASSETS = frozenset({'light-theme.css', 'dark-theme.css', 'theme-toggle.js'})
+
+
+@app.route('/<filename>', methods=['GET'])
+def root_assets(filename):
+    """Theme assets that app.html references as ../ from demo/."""
+    if filename not in ROOT_ASSETS:
+        return jsonify({'error': 'not found'}), 404
+    return send_from_directory(REPO_ROOT, filename)
+
+
+# ── Catalog + materialization API (demo UI) ──────────────────────────────────
+# Read the measure list from Aidbox rather than the bundled JSON, and expose
+# $materialize per measure or for everything. Long-running by nature: the UI
+# holds a spinner until these return.
+
+@app.route('/api/catalog', methods=['GET'])
+def api_catalog():
+    """Measures installed in this Aidbox, with SQL + materialization state."""
+    try:
+        return jsonify(catalog.build_catalog())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 502
+
+
+@app.route('/api/materialize', methods=['POST'])
+def api_materialize():
+    """Materialize the ViewDefinitions a measure needs, or all of them.
+
+    Body: {"measures": ["cms130"], "force": false}. Omit `measures` to cover
+    every measure. Views already present are skipped unless `force`.
+    """
+    body = request.get_json(silent=True) or {}
+    measures = body.get('measures') or None
+    if isinstance(measures, str):
+        measures = [measures]
+    try:
+        plan = catalog.plan_materialization(
+            measure_ids=measures, force=bool(body.get('force')))
+        # No wrapper views to manage: Aidbox resolves the package's `sql-view`
+        # Libraries itself, inlining each as a CTE when it runs a SQLQuery. The
+        # measure SQL's bare `patient_flat` therefore needs no database view —
+        # verified by dropping all 22 and re-running a measure unchanged.
+        results = catalog.materialize_views(plan['todo'])
+        # The package's own DB-side setup: terminology flatten (sof.concept +
+        # `concepts`) and the sof.* indexes, which $materialize's DROP TABLE
+        # removes. Both are idempotent, so run them on every materialize.
+        # Indexes run statement-by-statement: the script covers every flat table
+        # the package ships, but a single-measure run only recreates a subset,
+        # and one missing table must not roll back the other indexes.
+        setup = (catalog.run_setup_libraries(per_statement=True)
+                 if plan['todo'] else [])
+        # setup-00-terminology recreates sof.concept empty; refill it from the
+        # far.valueset registry, which no package resource can do.
+        concepts = catalog.populate_concepts() if plan['todo'] else None
+    except Exception as e:
+        return jsonify({'error': str(e)}), 502
+
+    failed = ([r for r in results if r['status'] != 'ok']
+              + [r for r in setup if r['status'] not in ('ok', 'partial')]
+              + ([{**concepts, 'script': 'terminology-flatten'}]
+                 if concepts and concepts['status'] != 'ok' else []))
+    return jsonify({
+        'measures': plan['measures'],
+        'materialized': [r['view'] for r in results if r['status'] == 'ok'],
+        'setup': [r['script'] for r in setup if r['status'] in ('ok', 'partial')],
+        'concepts': (concepts or {}).get('concepts'),
+        'skipped': plan['skipped'],
+        'manual': plan['manual'],
+        'failed': failed,
+        'ok': not failed,
+    }), (207 if failed else 200)
+
+
+@app.route('/api/measure/<measure_id>/summary', methods=['GET'])
+def api_measure_summary(measure_id):
+    """Overview stats for one measure, computed from its SQLQuery Libraries.
+
+    The demo needs `total` and the open-gap patient ids, which the `-summary`
+    Library does not expose (it returns only the population aggregates), so this
+    derives both from `-per-patient`. One Library call, shaped for the UI.
+    """
+    start = request.args.get('periodStart') or request.args.get('start')
+    end = request.args.get('periodEnd') or request.args.get('end')
+    if not start or not end:
+        return jsonify({'error': 'periodStart and periodEnd are required'}), 400
+    try:
+        rows = sqt.per_patient_rows(measure_id, start, end,
+                                    AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 502
+
+    total = len(rows)
+    ip = sum(r['ip'] for r in rows)
+    den = sum(r['den'] for r in rows)
+    exc = sum(r['exc'] for r in rows)
+    num = sum(r['num'] for r in rows)
+    open_ids = [r['patient_id'] for r in rows
+                if r['ip'] and not r['num'] and not r['exc']]
+    return jsonify({'measure': measure_id, 'total': total, 'ip': ip, 'den': den,
+                    'exc': exc, 'num': num, 'open_patient_ids': open_ids})
+
+
+@app.route('/api/measure/<measure_id>/patients', methods=['GET'])
+def api_measure_patients(measure_id):
+    """Per-patient membership rows ({patient_id, ip, den, exc, num}) for a measure."""
+    start = request.args.get('periodStart') or request.args.get('start')
+    end = request.args.get('periodEnd') or request.args.get('end')
+    if not start or not end:
+        return jsonify({'error': 'periodStart and periodEnd are required'}), 400
+    try:
+        rows = sqt.per_patient_rows(measure_id, start, end,
+                                    AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 502
+    subject = request.args.get('subject')
+    if subject:
+        rows = [r for r in rows if r['patient_id'] == subject]
+    return jsonify({'measure': measure_id, 'rows': rows})
+
+
+@app.route('/api/measure/<measure_id>/evidence', methods=['GET'])
+def api_measure_evidence(measure_id):
+    """Decision-chain evidence rows, optionally narrowed to one patient."""
+    start = request.args.get('periodStart') or request.args.get('start')
+    end = request.args.get('periodEnd') or request.args.get('end')
+    if not start or not end:
+        return jsonify({'error': 'periodStart and periodEnd are required'}), 400
+    rows = sqt.evidence_rows(measure_id, start, end,
+                             AIDBOX_URL, AIDBOX_USER, AIDBOX_PASS)
+    if rows is None:
+        return jsonify({'measure': measure_id, 'rows': [], 'available': False})
+    subject = request.args.get('subject')
+    if subject:
+        rows = [r for r in rows if r.get('patient_id') == subject]
+    return jsonify({'measure': measure_id, 'rows': rows, 'available': True})
+
+
 @app.route('/', methods=['POST'])
 def handle_operation():
     """Aidbox HTTP-RPC dispatch endpoint."""
@@ -230,13 +400,14 @@ def measure_evaluate(body, persist=False):
     # If it's a FHIR resource ID or canonical URL, map to short ID
     if measure_id not in MEASURES:
         for mid, info in MEASURES.items():
-            fhir_id = info['canonical'].rsplit('/', 1)[-1]
-            if raw_measure == fhir_id or raw_measure == info['canonical']:
+            canonical = info.get('canonical') or ''
+            fhir_id = canonical.rsplit('/', 1)[-1]
+            if canonical and (raw_measure == fhir_id or raw_measure == canonical):
                 measure_id = mid
                 break
 
     # Fetch Measure resource from Aidbox (primary metadata source)
-    measure_meta = fetch_measure_metadata(measure_id) if measure_id in MEASURES else None
+    measure_meta = fetch_measure_metadata(measure_id)
 
     # Version validation: Measure.version (or requested version) vs registry supported_version
     if measure_id in MEASURES:
@@ -299,18 +470,33 @@ def measure_evaluate(body, persist=False):
     elif report_type == 'summary':
         subject = None  # ignore subject for summary
 
-    # Resolve measure
-    if measure_id not in MEASURES:
+    # Resolve measure. The installed SQLQuery Libraries are the source of truth
+    # for what can be evaluated — the local registry only supplies optional
+    # extras (exc_type, supported_version) for the measures it happens to know,
+    # so a package shipping measures the registry has never heard of still works.
+    if measure_id not in MEASURES and not catalog.measure_is_installed(measure_id):
+        try:
+            available = ', '.join(sorted(catalog.installed_measure_ids()))
+        except Exception:
+            available = ', '.join(sorted(MEASURES.keys()))
         return jsonify({
             'resourceType': 'OperationOutcome',
             'issue': [{
                 'severity': 'error', 'code': 'not-found',
                 'diagnostics': f'Unknown measure: {measure_id}. '
-                               f'Available: {", ".join(sorted(MEASURES.keys()))}'
+                               f'Available: {available}'
             }]
         }), 404
 
-    measure_info = MEASURES[measure_id]
+    measure_info = dict(MEASURES.get(measure_id, {}))
+    # Measures that come from the package alone have no registry entry; the
+    # MeasureReport still needs a canonical for `.measure`. Prefer the Measure
+    # resource's url when the package ships one, else derive a stable canonical
+    # from the measure id.
+    if not measure_info.get('canonical'):
+        measure_info['canonical'] = (
+            (measure_meta or {}).get('url')
+            or f'http://ecqi.healthit.gov/ecqms/Measure/{measure_id.upper()}')
     exc_type = measure_info.get('exc_type', 'denominator-exclusion')
     patient_id = subject.replace('Patient/', '') if subject else None
 

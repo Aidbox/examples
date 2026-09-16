@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""Build the static init-bundle (init.json) for the measure-evaluate sample.
+"""Build the init-bundle (init.json) for the measure-evaluate sample.
 
-Two entries, both static:
-  1. the App resource that registers Measure/$evaluate-measure with Aidbox, and
+Entries, in order:
+  1. the App resource that registers Measure/$evaluate-measure with Aidbox,
   2. one `$fhir-package-install` that installs the generated FHIR NPM package
-     (terminology + ViewDefinitions + SQLQuery Libraries) at boot.
+     (terminology + ViewDefinitions + SQLQuery Libraries) at boot, and
+  3. the demo clinical data from data/*-clinical-data.json, so a fresh box comes
+     up with patients already loaded (omit with --no-demo-data).
+
+The bundle is a `batch`, not a `transaction`: entries are applied independently,
+so a resource Aidbox rejects (two of the sample resources fail validation) does
+not sink the rest of the load.
 
 Aidbox picks this file up via BOX_INIT_BUNDLE on startup. The package .tgz itself is
 built separately by scripts/build_fhir_package.py and mounted at
@@ -17,6 +23,8 @@ Usage:
     python3 scripts/build_init_bundle.py
 """
 from __future__ import annotations
+import argparse
+import glob
 import json
 import os
 from pathlib import Path
@@ -65,16 +73,41 @@ PACKAGE_ENTRY = {
 }
 
 
+def collect_demo_data() -> list[dict]:
+    """Entries from every data/*-clinical-data.json bundle.
+
+    Each source entry already carries its own PUT request, so they merge in as-is
+    and stay idempotent across reboots.
+    """
+    entries: list[dict] = []
+    for path in sorted(glob.glob(str(ROOT / "data" / "*-clinical-data.json"))):
+        bundle = json.loads(Path(path).read_text())
+        for entry in bundle.get("entry", []):
+            if entry.get("resource") and entry.get("request"):
+                entries.append(entry)
+    return entries
+
+
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--no-demo-data", action="store_true",
+                    help="omit the sample patients (for an Aidbox with real data)")
+    args = ap.parse_args()
+
+    entries = [APP_ENTRY, PACKAGE_ENTRY]
+    demo = [] if args.no_demo_data else collect_demo_data()
+    entries.extend(demo)
+
     bundle = {
         "resourceType": "Bundle",
         "type": "batch",
-        "entry": [APP_ENTRY, PACKAGE_ENTRY],
+        "entry": entries,
     }
     OUTPUT.write_text(json.dumps(bundle, indent=2) + "\n")
     size = os.path.getsize(OUTPUT)
     print(f"Wrote {OUTPUT}")
-    print(f"  Entries: App route + $fhir-package-install")
+    print(f"  Entries: App route + $fhir-package-install"
+          + (f" + {len(demo)} demo resources" if demo else ""))
     print(f"  Package: {PACKAGE_FILE}")
     print(f"  Size: {size:,} bytes")
 

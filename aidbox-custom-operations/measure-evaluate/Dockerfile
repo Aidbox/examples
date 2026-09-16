@@ -10,6 +10,8 @@ COPY sql/ sql/
 COPY data/ data/
 COPY demo/ demo/
 COPY service/measures-registry.json service/measures-registry.json
+# Theme assets live at the repo root; app.html references them as ../*.
+COPY light-theme.css dark-theme.css theme-toggle.js ./
 
 ENV REPO_ROOT=/app
 

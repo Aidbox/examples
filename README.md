@@ -28,6 +28,7 @@ A collection of examples on top of Aidbox FHIR platform
 - [IPS Chile $summary implementation](aidbox-custom-operations/ips-ig-cl/)
 - [IPS $summary implementation with FHIR Topic-Based Subscriptions](aidbox-custom-operations/ips-subscriptions/)
 - [IPS $summary implementation with Aidbox Topic-Based Subscriptions](aidbox-custom-operations/ips-subscriptions-no-zen/)
+- [Measure/$evaluate-measure as SQL on FHIR: quality measures and care gaps, no CQL engine](aidbox-custom-operations/measure-evaluate/)
 
 ## Aidbox Integrations
 

@@ -8,15 +8,15 @@ FHIR R4 [Measure/$evaluate-measure](https://hl7.org/fhir/R4/operation-measure-ev
 
 FHIR R4: canonical operation name `$evaluate-measure`, `reportType` values `subject | subject-list | population`.
 
-Includes 12 CMS quality measures with sample data (484 test patients) and an interactive demo app.
+The demo discovers whatever measures the installed FHIR package ships — it reads them from their SQLQuery `Library` resources in Aidbox, so nothing is hardcoded. Includes sample data (484 test patients) and an interactive demo app.
 
 ## Stack
 
 | Component | Version |
 |---|---|
-| Aidbox | **2603 recommended** (minimum 2508 — needed for `ViewDefinition`/`$materialize`) |
+| Aidbox | edge |
 | Python / Flask | 3.11 / 3.x |
-| PostgreSQL | 17 (via aidboxdb) |
+| PostgreSQL | 18  |
 
 ## Prerequisites
 
@@ -26,20 +26,24 @@ Includes 12 CMS quality measures with sample data (484 test patients) and an int
 
 ## Quick Start
 
-### 1. Build the FHIR package
+### 1. Build the FHIR package and init bundle
 
 The measure *definitions* — terminology (CodeSystems + ValueSets), the SQL-on-FHIR
 ViewDefinitions, and the SQLQuery Libraries — ship as one FHIR NPM package that Aidbox
-installs at boot. Build it first:
+installs at boot. The init bundle registers the App route, installs that package, and
+carries the demo patients. Build both first:
 
 ```bash
 python3 scripts/build_fhir_package.py    # -> dist/fhir-package/healthsamurai.measure-evaluate-0.1.0.tgz
+python3 scripts/build_init_bundle.py     # -> init.json (inlines data/*-clinical-data.json)
 ```
 
-`dist/` is gitignored (the `.tgz` is generated; the source resources under
-`viewdefinitions/`, `sqlquery/`, and `data/` are tracked). `docker-compose.yml` mounts
-`dist/fhir-package/` and `init.json` installs the package via a `$fhir-package-install`
-entry at boot.
+Both outputs are gitignored — they are generated from the tracked sources under
+`viewdefinitions/`, `sqlquery/`, and `data/`. `docker-compose.yml` mounts
+`dist/fhir-package/` and points `BOX_INIT_BUNDLE` at `init.json`.
+
+Pass `--no-demo-data` to `build_init_bundle.py` to omit the sample patients — use that
+when pointing the sample at an Aidbox that already holds real clinical data.
 
 ### 2. Start the stack
 
@@ -48,28 +52,43 @@ docker compose up --build
 ```
 
 Three containers: PostgreSQL, Aidbox (port `8888`), and the SQL evaluate app (port
-`8090`). On boot the init bundle installs the FHIR package (definitions) and registers
-the `Measure/$evaluate-measure` App route.
+`8090`, which also serves the demo app). On boot the init bundle registers the
+`Measure/$evaluate-measure` App route, installs the FHIR package (definitions), and
+loads the 485 demo patients.
 
 ### 3. Activate Aidbox
 
 Open http://localhost:8888 in your browser and follow the activation prompt.
 
-### 4. Load runtime state + data
+### 4. Build the runtime state
 
-In a second terminal, from this directory:
+Open the demo (step 6) and press **Materialize all**, or call the API directly:
 
 ```bash
-python3 setup.py --demo-patients
+curl -s -X POST http://localhost:8090/api/materialize -H 'Content-Type: application/json' -d '{}'
 ```
 
-The package delivered the *definitions*; `setup.py` builds the runtime *state* they need:
-it `$materialize`s the ViewDefinitions into `sof.*` tables (resolving the package's
-canonical urls to runtime ids), populates the `concepts` table, creates wrapper views +
-shared functions + indexes, and loads the 485 sample dqm-content patients (~2 min).
+Everything the measures need comes from the installed package, and the app applies it
+in dependency order (~2 min on an empty box):
 
-For an existing Aidbox with real patient data, omit `--demo-patients` to build only the
-infrastructure without loading sample patients. See
+1. `$materialize` each ViewDefinition into a `sof.*` table
+2. run the package's `setup-NN-*` scripts (terminology scaffolding, `sof.*` indexes)
+3. flatten `far.valueset` into `sof.concept` — the one step no package resource can
+   express, since Aidbox keeps ValueSets in a registry the SoF engine cannot see
+
+The typed wrapper layer needs no step of its own: the package ships it as `sql-view`
+Libraries, and Aidbox inlines each as a CTE when it runs a SQLQuery — so the measure
+SQL's bare `patient_flat` resolves without any database view existing.
+
+The call is idempotent: views already present are skipped, so materializing one measure
+after another costs nothing for the views they share. Pass `{"measures":["cms130"]}` to
+build just one measure's dependencies, or `{"force":true}` to rebuild regardless.
+
+The 485 demo patients are already loaded — the init bundle carried them in at boot, so
+there is no separate data step. (`load-demo-data.py` remains for loading them into an
+Aidbox that is already running, e.g. one built with `--no-demo-data`.)
+
+For an existing Aidbox with real patient data, see
 [install-to-existing-aidbox.md](install-to-existing-aidbox.md).
 
 ### 5. Try Measure/$evaluate-measure
@@ -88,15 +107,9 @@ Response: FHIR MeasureReport with population counts (initial-population, denomin
 
 ### 6. Open the demo app
 
-Start a local HTTP server from this directory:
+The demo is served by the app container — no separate local web server needed:
 
-```bash
-python3 -m http.server 3000
-```
-
-Then open the demo in your browser:
-
-→ [http://localhost:3000/demo/app.html](http://localhost:3000/demo/app.html)
+→ [http://localhost:8090](http://localhost:8090)
 
 The demo has four tabs:
 
@@ -119,7 +132,7 @@ The demo is built for cohorts of tens of thousands of patients. Cross-measure ag
 | `auth_user`, `auth_pass` | Basic auth credentials |
 | `dataset_label` | Label shown in the topbar |
 | `period_start`, `period_end` | Measurement period defaults |
-| `measures` | Optional whitelist of measure IDs to display (e.g., `["cms130", "cms131"]`). If omitted, all measures from `measure-sql.json` are shown. |
+| `measures` | Optional whitelist of measure IDs to display (e.g., `["cms130", "cms131"]`). If omitted, every measure found in Aidbox is shown. |
 
 ### Connecting to an existing Aidbox
 
@@ -132,7 +145,7 @@ cp demo/config-external.example.json demo/config-external.json
 
 Then open the demo with the `stack` URL parameter:
 
-→ http://localhost:3000/demo/app.html?stack=external
+→ http://localhost:8090/demo/app.html?stack=external
 
 The `?stack=NAME` parameter loads `demo/config-NAME.json` instead of the default `demo/config.json`, so multiple environments can coexist side-by-side.
 
@@ -153,7 +166,7 @@ The `?stack=NAME` parameter loads `demo/config-NAME.json` instead of the default
 | CMS155 | Weight Assessment / Counseling | 34 |
 | CMS143 | POAG Optic Nerve Evaluation | 32 |
 
-`demo/config.json` ships with nine of these enabled by default; edit the `measures` array to add or remove any.
+`demo/config.json` sets no `measures` whitelist, so the demo lists every measure installed in Aidbox; add the array to restrict it.
 
 ## How It Works
 

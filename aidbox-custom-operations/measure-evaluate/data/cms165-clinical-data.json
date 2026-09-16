@@ -4625,7 +4625,8 @@
     {
       "resource": {
         "resourceType": "Organization",
-        "id": "example"
+        "id": "example",
+        "name": "Example Organization"
       },
       "request": {
         "method": "PUT",

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-19T14:27:30.557653Z",
+  "timestamp": "2026-09-16T08:35:47.974979Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -575,21 +575,6 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/healthclaw-guardrails/README.md"
     },
     {
-      "id": "aidbox-custom-operations-ips-subscriptions",
-      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
-      "features": [
-        "IPS",
-        "Subscriptions",
-        "International Patient Summary"
-      ],
-      "languages": [
-        "TypeScript"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
-    },
-    {
       "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
       "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
       "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
@@ -603,6 +588,21 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions-no-zen",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions-no-zen/README.md"
+    },
+    {
+      "id": "aidbox-custom-operations-ips-subscriptions",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
+      "features": [
+        "IPS",
+        "Subscriptions",
+        "International Patient Summary"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
     },
     {
       "id": "aidbox-custom-operations-ips-ig",
