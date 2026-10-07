@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "profile": [
+      "https://profiles.ihe.net/ITI/BALP/StructureDefinition/IHE.BasicAudit.Query"
+    ]
+  },
+  "type": {
+    "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+    "code": "rest",
+    "display": "RESTful Operation"
+  },
+  "outcome": "0",
+  "resourceType": "AuditEvent",
+  "source": {
+    "site": "http://localhost:8090",
+    "type": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/security-source-type",
+        "code": "4",
+        "display": "Application Server"
+      }
+    ],
+    "observer": {
+      "type": "Device",
+      "identifier": {
+        "system": "urn:system:aidbox-id",
+        "value": "devbox"
+      },
+      "display": "Aidbox"
+    }
+  },
+  "recorded": "2026-10-07T09:52:18.040572791Z",
+  "agent": [
+    {
+      "requestor": false,
+      "who": {
+        "type": "Device",
+        "identifier": {
+          "system": "urn:system:aidbox-id",
+          "value": "devbox"
+        },
+        "display": "Aidbox"
+      },
+      "type": {
+        "coding": [
+          {
+            "system": "http://dicom.nema.org/resources/ontology/DCM",
+            "code": "110152",
+            "display": "Destination Role ID"
+          }
+        ]
+      },
+      "network": {
+        "address": "http://localhost:8090",
+        "type": "5"
+      }
+    },
+    {
+      "requestor": true,
+      "who": {
+        "type": "Device",
+        "identifier": {
+          "system": "http://localhost:8090",
+          "value": "lab-integration"
+        }
+      },
+      "type": {
+        "coding": [
+          {
+            "system": "http://dicom.nema.org/resources/ontology/DCM",
+            "code": "110153",
+            "display": "Source Role ID"
+          }
+        ]
+      },
+      "network": {
+        "address": "192.168.167.1",
+        "type": "2"
+      }
+    }
+  ],
+  "id": "01a115c7-307e-7c85-8d1e-c3038b4ba7ab",
+  "action": "E",
+  "entity": [
+    {
+      "role": {
+        "system": "http://terminology.hl7.org/CodeSystem/object-role",
+        "code": "24",
+        "display": "Query"
+      },
+      "description": "/fhir/Observation?subject=Patient/pt-1",
+      "type": {
+        "system": "http://terminology.hl7.org/CodeSystem/audit-entity-type",
+        "code": "2",
+        "display": "System Object"
+      },
+      "query": "R0VUIC9maGlyL09ic2VydmF0aW9uP3N1YmplY3Q9UGF0aWVudC9wdC0x"
+    },
+    {
+      "type": {
+        "system": "https://profiles.ihe.net/ITI/BALP/CodeSystem/BasicAuditEntityType",
+        "code": "XrequestId"
+      },
+      "what": {
+        "identifier": {
+          "value": "2b1afe89872b557d9751551b2200d34b"
+        }
+      }
+    }
+  ],
+  "subtype": [
+    {
+      "system": "http://hl7.org/fhir/restful-interaction",
+      "code": "search",
+      "display": "search"
+    }
+  ]
+}

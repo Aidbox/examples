@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-16T08:35:47.974979Z",
+  "timestamp": "2026-10-07T10:52:09.210727Z",
   "examples": [
     {
       "id": "developer-experience-agentic-coding-dashboard",
@@ -36,6 +36,24 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/developer-experience/agentic-coding-ig-development",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/developer-experience/agentic-coding-ig-development/README.md"
+    },
+    {
+      "id": "aidbox-integrations-audit-events-elasticsearch",
+      "title": "Aidbox Audit Events → Elasticsearch → Kibana",
+      "description": "Ship every Aidbox audit event to Elasticsearch and explore it in a Kibana dashboard. The pipeline is one small [Bun](https://bun.sh) service with no dependencies.",
+      "features": [
+        "Audit",
+        "AuditEvent",
+        "IHE BALP",
+        "Topic-Based Subscriptions",
+        "Elasticsearch",
+        "Kibana"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-integrations/audit-events-elasticsearch",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/audit-events-elasticsearch/README.md"
     },
     {
       "id": "aidbox-custom-operations-cql-java-engine-integration",
@@ -575,6 +593,23 @@
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-integrations/healthclaw-guardrails/README.md"
     },
     {
+      "id": "aidbox-custom-operations-ips-ig",
+      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
+      "description": "[Demo](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)",
+      "features": [
+        "IPS",
+        "International Patient Summary",
+        "FHIR IG",
+        "Summary operation",
+        "Narrative generation"
+      ],
+      "languages": [
+        "TypeScript"
+      ],
+      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig",
+      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig/README.md"
+    },
+    {
       "id": "aidbox-custom-operations-ips-subscriptions-no-zen",
       "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
       "description": "This repository contains pre-configured Aidbox instance and implementation of `$summary` operation defined by IPS:",
@@ -603,23 +638,6 @@
       ],
       "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-subscriptions",
       "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-subscriptions/README.md"
-    },
-    {
-      "id": "aidbox-custom-operations-ips-ig",
-      "title": "Implementation of IPS FHIR IG on Aidbox FHIR platform",
-      "description": "[Demo](https://ips.hz.aidbox.dev/fhir/Patient/2b90dd2b-2dab-4c75-9bb9-a355e07401e8/$summary) | [Inferno International Patient Summary Test Kit](https://inferno-qa.healthit.gov/suites/ips/Zb7EriZknW)",
-      "features": [
-        "IPS",
-        "International Patient Summary",
-        "FHIR IG",
-        "Summary operation",
-        "Narrative generation"
-      ],
-      "languages": [
-        "TypeScript"
-      ],
-      "github_url": "https://github.com/Aidbox/examples/tree/main/aidbox-custom-operations/ips-ig",
-      "readme_url": "https://github.com/Aidbox/examples/blob/main/aidbox-custom-operations/ips-ig/README.md"
     },
     {
       "id": "aidbox-custom-operations-ips-ig-cl",
@@ -985,7 +1003,9 @@
     "Async eligibility (RTE)",
     "Async operations",
     "Attachments",
+    "Audit",
     "Audit trail",
+    "AuditEvent",
     "Automation",
     "Beda EMR",
     "Benchmarking",
@@ -1023,6 +1043,7 @@
     "EHR integration",
     "EHR launch",
     "Editor",
+    "Elasticsearch",
     "Electronic medical record",
     "Environment variables",
     "Event streaming",
@@ -1055,6 +1076,7 @@
     "HIPAA",
     "Healthcare",
     "Human-in-the-loop",
+    "IHE BALP",
     "IPS",
     "Implementation guide",
     "Init bundle",
@@ -1068,6 +1090,7 @@
     "K6",
     "Kafka",
     "Keycloak",
+    "Kibana",
     "Logs",
     "MCP",
     "Markdown",
@@ -1137,6 +1160,7 @@
     "Templating",
     "Testing",
     "Time-bounded sharing",
+    "Topic-Based Subscriptions",
     "Topic-based",
     "TypeScript",
     "ViewDefinition",
