@@ -1,0 +1,127 @@
+volumes:
+  postgres_data: {}
+  es_data: {}
+
+services:
+  postgres:
+    image: docker.io/library/postgres:18
+    volumes:
+    - postgres_data:/var/lib/postgresql/18/docker:delegated
+    command:
+    - postgres
+    - -c
+    - shared_preload_libraries=pg_stat_statements
+    environment:
+      POSTGRES_USER: aidbox
+      POSTGRES_PORT: '5432'
+      POSTGRES_DB: aidbox
+      POSTGRES_PASSWORD: PHfUiT9OBc
+  aidbox:
+    image: docker.io/healthsamurai/aidboxone:edge
+    pull_policy: always
+    depends_on:
+    - postgres
+    ports:
+    - 8080:8080
+    volumes:
+    - ./init-bundle.json:/resources/init-bundle.json:ro
+    environment:
+      BOX_INIT_BUNDLE: file:///resources/init-bundle.json
+      BOX_ADMIN_PASSWORD: d6Tj_QnuZj
+      BOX_BOOTSTRAP_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
+      BOX_COMPATIBILITY_VALIDATION_JSON__SCHEMA_REGEX: '#{:fhir-datetime}'
+      BOX_DB_DATABASE: aidbox
+      BOX_DB_HOST: postgres
+      BOX_DB_PASSWORD: PHfUiT9OBc
+      BOX_DB_PORT: '5432'
+      BOX_DB_USER: aidbox
+      BOX_FHIR_BUNDLE_EXECUTION_VALIDATION_MODE: limited
+      BOX_FHIR_COMPLIANT_MODE: 'true'
+      BOX_FHIR_CORRECT_AIDBOX_FORMAT: 'true'
+      BOX_FHIR_CREATEDAT_URL: https://aidbox.app/ex/createdAt
+      BOX_FHIR_SCHEMA_VALIDATION: 'true'
+      BOX_FHIR_SEARCH_AUTHORIZE_INLINE_REQUESTS: 'true'
+      BOX_FHIR_SEARCH_CHAIN_SUBSELECT: 'true'
+      BOX_FHIR_SEARCH_COMPARISONS: 'true'
+      BOX_FHIR_TERMINOLOGY_ENGINE: hybrid
+      BOX_FHIR_TERMINOLOGY_ENGINE_HYBRID_EXTERNAL_TX_SERVER: https://tx5.health-samurai.io/fhir
+      BOX_FHIR_TERMINOLOGY_SERVICE_BASE_URL: https://tx5.health-samurai.io/fhir
+      BOX_MODULE_SDC_STRICT_ACCESS_CONTROL: 'true'
+      BOX_ROOT_CLIENT_SECRET: uBqQjkMz7f
+      BOX_SEARCH_INCLUDE_CONFORMANT: 'true'
+      BOX_SECURITY_AUDIT_LOG_ENABLED: 'true'
+      BOX_SECURITY_DEV_MODE: 'true'
+      BOX_SETTINGS_MODE: read-write
+      BOX_WEB_BASE_URL: http://localhost:8080
+      BOX_WEB_PORT: 8080
+    healthcheck:
+      test: curl -f http://localhost:8080/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 90
+      start_period: 30s
+
+  elasticsearch:
+    image: elasticsearch:9.5.5
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    healthcheck:
+      test: curl -s http://localhost:9200/_cluster/health | grep -qE '"status":"(green|yellow)"'
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  kibana:
+    image: kibana:9.5.5
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      # Demo cluster: no telemetry prompt, no "enable security" toast.
+      - TELEMETRY_OPTIN=false
+      - TELEMETRY_ALLOWCHANGINGOPTINSTATUS=false
+      - XPACK_SECURITY_SHOWINSECURECLUSTERWARNING=false
+    ports:
+      - 5601:5601
+    healthcheck:
+      test: curl -s http://localhost:5601/api/status | grep -q '"level":"available"'
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  # Receives the audit webhook from Aidbox and bulk-indexes into Elasticsearch.
+  ingestor:
+    image: oven/bun:1.4-alpine
+    working_dir: /app
+    command: bun run src/server.ts
+    volumes:
+      - ./ingestor:/app:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - WEBHOOK_TOKEN=audit-webhook-token
+    ports:
+      - 3000:3000
+
+  # One-shot: imports the data view and dashboard into Kibana, then exits.
+  kibana-setup:
+    image: oven/bun:1.4-alpine
+    working_dir: /app
+    command: bun run setup.ts
+    volumes:
+      - ./kibana:/app:ro
+    depends_on:
+      kibana:
+        condition: service_healthy
+    environment:
+      - KIBANA_URL=http://kibana:5601
+    restart: "no"

@@ -1,0 +1,63 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "request": { "method": "PUT", "url": "/AidboxTopicDestination/audit-to-elasticsearch" },
+      "resource": {
+        "resourceType": "AidboxTopicDestination",
+        "id": "audit-to-elasticsearch",
+        "meta": {
+          "profile": [
+            "http://health-samurai.io/fhir/core/StructureDefinition/aidboxtopicdestination-webhookAtLeastOnceProfile"
+          ]
+        },
+        "kind": "webhook-at-least-once",
+        "topic": "http://health-samurai.io/fhir/core/StructureDefinition/AuditEventsR4BALP",
+        "content": "full-resource",
+        "parameter": [
+          { "name": "endpoint", "valueUrl": "http://ingestor:3000/audit-events" },
+          { "name": "header", "valueString": "Authorization: Bearer audit-webhook-token" },
+          { "name": "maxMessagesInBatch", "valueUnsignedInt": 100 },
+          { "name": "timeout", "valueUnsignedInt": 30 }
+        ]
+      }
+    },
+    {
+      "request": { "method": "PUT", "url": "/Client/ehr-frontend" },
+      "resource": {
+        "resourceType": "Client",
+        "id": "ehr-frontend",
+        "secret": "ehr-secret",
+        "grant_types": ["basic"]
+      }
+    },
+    {
+      "request": { "method": "PUT", "url": "/Client/lab-integration" },
+      "resource": {
+        "resourceType": "Client",
+        "id": "lab-integration",
+        "secret": "lab-secret",
+        "grant_types": ["basic"]
+      }
+    },
+    {
+      "request": { "method": "PUT", "url": "/Client/billing-service" },
+      "resource": {
+        "resourceType": "Client",
+        "id": "billing-service",
+        "secret": "billing-secret",
+        "grant_types": ["basic"]
+      }
+    },
+    {
+      "request": { "method": "PUT", "url": "/AccessPolicy/demo-clients-full-access" },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "demo-clients-full-access",
+        "engine": "matcho",
+        "matcho": { "client": { "id": { "$enum": ["ehr-frontend", "lab-integration", "billing-service"] } } }
+      }
+    }
+  ]
+}
