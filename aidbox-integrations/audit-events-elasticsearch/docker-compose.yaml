@@ -65,29 +65,52 @@ services:
     image: elasticsearch:9.5.5
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false
+      # Security on, HTTP stays plain (no TLS) to keep the demo simple.
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ELASTIC_PASSWORD=Kq3vR8_xLm
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
     volumes:
       - es_data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
     healthcheck:
-      test: curl -s http://localhost:9200/_cluster/health | grep -qE '"status":"(green|yellow)"'
+      test: curl -s -u elastic:Kq3vR8_xLm http://localhost:9200/_cluster/health | grep -qE '"status":"(green|yellow)"'
       interval: 5s
       timeout: 5s
       retries: 60
 
-  kibana:
-    image: kibana:9.5.5
+  # One-shot: sets the password of the built-in kibana_system user, which
+  # Kibana uses to talk to Elasticsearch (Kibana refuses to run as `elastic`).
+  elasticsearch-setup:
+    image: curlimages/curl:8.11.1
     depends_on:
       elasticsearch:
         condition: service_healthy
+    command:
+      - -sf
+      - -u
+      - elastic:Kq3vR8_xLm
+      - -H
+      - "content-type: application/json"
+      - -d
+      - '{"password":"Zt7pW2nYcE"}'
+      - http://elasticsearch:9200/_security/user/kibana_system/_password
+    restart: "no"
+
+  kibana:
+    image: kibana:9.5.5
+    depends_on:
+      elasticsearch-setup:
+        condition: service_completed_successfully
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      # Demo cluster: no telemetry prompt, no "enable security" toast.
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=Zt7pW2nYcE
+      # Demo cluster: no telemetry prompt.
       - TELEMETRY_OPTIN=false
       - TELEMETRY_ALLOWCHANGINGOPTINSTATUS=false
-      - XPACK_SECURITY_SHOWINSECURECLUSTERWARNING=false
     ports:
       - 5601:5601
     healthcheck:
@@ -108,6 +131,8 @@ services:
         condition: service_healthy
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=Kq3vR8_xLm
       - WEBHOOK_TOKEN=audit-webhook-token
     ports:
       - 3000:3000
@@ -124,4 +149,6 @@ services:
         condition: service_healthy
     environment:
       - KIBANA_URL=http://kibana:5601
+      - KIBANA_USERNAME=elastic
+      - KIBANA_PASSWORD=Kq3vR8_xLm
     restart: "no"

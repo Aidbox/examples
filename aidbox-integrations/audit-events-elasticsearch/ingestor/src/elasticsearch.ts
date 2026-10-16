@@ -2,11 +2,14 @@ import { INDEX_PREFIX, TEMPLATE_NAME, indexTemplate } from "./mapping";
 import { rollups, type AuditEvent } from "./rollups";
 
 const ES_URL = process.env.ELASTICSEARCH_URL ?? "http://localhost:9200";
+const ES_USER = process.env.ELASTICSEARCH_USERNAME;
+const ES_PASSWORD = process.env.ELASTICSEARCH_PASSWORD;
+const AUTH = ES_USER ? { authorization: `Basic ${btoa(`${ES_USER}:${ES_PASSWORD ?? ""}`)}` } : {};
 
 async function es(method: string, path: string, body?: unknown, ndjson = false) {
   return fetch(`${ES_URL}${path}`, {
     method,
-    headers: { "content-type": ndjson ? "application/x-ndjson" : "application/json" },
+    headers: { "content-type": ndjson ? "application/x-ndjson" : "application/json", ...AUTH },
     body: body === undefined ? undefined : ndjson ? (body as string) : JSON.stringify(body),
   });
 }
