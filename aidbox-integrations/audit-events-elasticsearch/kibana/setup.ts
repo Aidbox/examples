@@ -5,6 +5,7 @@
 // because Lens cannot aggregate on the nested agent/entity arrays.
 
 const KIBANA = process.env.KIBANA_URL ?? "http://localhost:5601";
+const AUTH = `Basic ${btoa(`${process.env.KIBANA_USERNAME ?? "elastic"}:${process.env.KIBANA_PASSWORD ?? ""}`)}`;
 const DATA_VIEW = "aidbox-audit-events";
 const DASHBOARD = "aidbox-audit-dashboard";
 
@@ -271,7 +272,7 @@ form.append("file", new Blob([ndjson]), "aidbox-audit.ndjson");
 
 const res = await fetch(`${KIBANA}/api/saved_objects/_import?overwrite=true`, {
   method: "POST",
-  headers: { "kbn-xsrf": "true" },
+  headers: { "kbn-xsrf": "true", authorization: AUTH },
   body: form,
 });
 const body = (await res.json()) as { success?: boolean; successCount?: number; errors?: unknown[] };
