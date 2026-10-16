@@ -39,15 +39,15 @@ docker compose up -d
    ```bash
    bun run scripts/generate-traffic.ts
    ```
-3. Open the dashboard at http://localhost:5601/app/dashboards#/view/aidbox-audit-dashboard.
+3. Open the dashboard at http://localhost:5601/app/dashboards#/view/aidbox-audit-dashboard and log in as `elastic` / `Kq3vR8_xLm`.
 
 The `kibana-setup` container imports the dashboard on start and then exits. To re-import after you edit `kibana/setup.ts`, run `docker compose run --rm kibana-setup`.
 
 | Service | URL |
 |---|---|
 | Aidbox | http://localhost:8080 (`admin` / `d6Tj_QnuZj`, client `root` / `uBqQjkMz7f`) |
-| Kibana | http://localhost:5601 |
-| Elasticsearch | http://localhost:9200 |
+| Kibana | http://localhost:5601 (`elastic` / `Kq3vR8_xLm`) |
+| Elasticsearch | http://localhost:9200 (`elastic` / `Kq3vR8_xLm`) |
 | Ingestor | http://localhost:3000/health |
 
 ## How it works
@@ -128,7 +128,8 @@ The generator ends with a deliberate anomaly: `lab-integration`, which normally 
 ## Things to know
 
 - **Requires Aidbox 2609 or later**, which provides the built-in topic. Compose uses `healthsamurai/aidboxone:edge`.
-- **This is a demo cluster.** Elasticsearch security is off, the cluster is a single node with 0 replicas, and there's no ILM. For retention, add an ILM policy to the template.
+- **Kibana login.** Elasticsearch security is on and you log in with the built-in `elastic` superuser. Kibana connects to Elasticsearch as the built-in `kibana_system` user, whose password is set by the one-shot `elasticsearch-setup` container. The ingestor and `kibana-setup` also use `elastic` for brevity. In production, give each its own user and a least-privilege role (for example, a read-only role on `auditevent-*` for dashboard viewers), and enable TLS.
+- **This is a demo cluster.** HTTP is plain (no TLS), the cluster is a single node with 0 replicas, and there's no ILM. For retention, add an ILM policy to the template.
 - **The webhook token** is a shared constant in `init-bundle.json` and `docker-compose.yaml`. Change both together.
 
 ## Tests
