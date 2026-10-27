@@ -31,7 +31,7 @@ const EXPORT_TYPE_FILTERS = [
   `OrganizationAffiliation?active=true&_profile=${PLAN_NET}/plannet-OrganizationAffiliation&network=${NETWORK_FILTER}`,
 ];
 
-const PUBLISH_ACCOUNT = process.env.PUBLISH_ACCOUNT ?? "minio";
+const PUBLISH_ACCOUNT = process.env.PUBLISH_ACCOUNT ?? "rustfs";
 const PUBLISH_BUCKET = process.env.PUBLISH_BUCKET ?? "provider-directory-publish";
 const PUBLIC_BASE = process.env.PUBLIC_BASE ?? `http://localhost:9000/${PUBLISH_BUCKET}`;
 const FULL_URL_BASE = process.env.FULL_URL_BASE ?? "http://localhost:8888/fhir";

@@ -1,5 +1,5 @@
 ---
-features: [Bulk API, $export, Plan-Net, Provider Directory, S3, MinIO, Presigned URLs]
+features: [Bulk API, $export, Plan-Net, Provider Directory, S3, RustFS, Presigned URLs]
 languages: [TypeScript]
 ---
 # Medicare Plan Finder (MPF)
@@ -9,7 +9,7 @@ A minimal TypeScript provider-directory publishing pipeline on Aidbox. The flow:
 1. **Export**: kick off a system-level FHIR [`$export`](https://docs.aidbox.app/api/bulk-api/export) with `_typeFilter`, poll to completion, download the gzipped NDJSON.
 2. **Scope filter**: walk references from the kept parents and drop children nothing points at.
 3. **Bundle**: partition into FHIR collection `Bundle` files plus an `index.json` manifest.
-4. **Publish**: upload through Aidbox-presigned URLs to S3-compatible storage (local [MinIO](https://github.com/minio/minio) here). The script holds no bucket credentials.
+4. **Publish**: upload through Aidbox-presigned URLs to S3-compatible storage (local [RustFS](https://github.com/rustfs/rustfs) here). The script holds no bucket credentials.
 
 This is the shape behind CMS provider-directory feeds (Medicare Plan Finder): a crawler starts from `index.json` and downloads the bundles it lists.
 
@@ -17,8 +17,8 @@ This is the shape behind CMS provider-directory feeds (Medicare Plan Finder): a 
 
 | File | Purpose |
 |---|---|
-| `docker-compose.yml` | Aidbox, PostgreSQL, MinIO (buckets auto-created), and an `export` service that runs the pipeline with [Bun](https://bun.sh). |
-| `init-bundle.json` | An `AwsAccount` for MinIO, the `provider-export` client with a least-privilege `AccessPolicy`, and a small Plan-Net dataset (one plan, two networks, practitioners in and out of network). |
+| `docker-compose.yml` | Aidbox, PostgreSQL, RustFS (buckets auto-created), and an `export` service that runs the pipeline with [Bun](https://bun.sh). |
+| `init-bundle.json` | An `AwsAccount` for RustFS, the `provider-export` client with a least-privilege `AccessPolicy`, and a small Plan-Net dataset (one plan, two networks, practitioners in and out of network). |
 | `src/main.ts` | Scope config and orchestration of the four steps. |
 | `src/aidbox.ts` | Token mint, `$export` start and polling, presigned uploads. |
 | `src/filter.ts` | Two-pass scope filter. |
@@ -49,4 +49,4 @@ This is the shape behind CMS provider-directory feeds (Medicare Plan Finder): a 
 
 ## Adapting
 
-Scope IDs live in `src/main.ts`, sample data and the storage account in `init-bundle.json`. To change the data before a rerun, edit `init-bundle.json` and re-seed with `docker compose down -v && docker compose up -d`, or edit it live in the Aidbox console at http://localhost:8888 (admin / secret). Swap MinIO for S3, GCP, or Azure through the `AwsAccount`.
+Scope IDs live in `src/main.ts`, sample data and the storage account in `init-bundle.json`. To change the data before a rerun, edit `init-bundle.json` and re-seed with `docker compose down -v && docker compose up -d`, or edit it live in the Aidbox console at http://localhost:8888 (admin / secret). Swap RustFS for S3, GCP, or Azure through the `AwsAccount`.
