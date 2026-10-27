@@ -1,11 +1,15 @@
 volumes:
-  aidbox_pg_data: {}
-  minio_data: {}
+  postgres_data: {}
+  rustfs_data: {}
 services:
   aidbox_db:
-    image: healthsamurai/aidboxdb:17
+    image: postgres:18
     volumes:
-      - aidbox_pg_data:/var/lib/postgresql/data:delegated
+      - postgres_data:/var/lib/postgresql/18/docker:delegated
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
     environment:
       POSTGRES_USER: aidbox
       POSTGRES_PORT: "5432"
@@ -20,6 +24,8 @@ services:
       - aidbox_db
     ports:
       - 8888:8888
+    volumes:
+      - ./init-bundle.json:/init-bundle/init-bundle.json:ro
     environment:
       AIDBOX_TERMINOLOGY_SERVICE_BASE_URL: https://tx.fhir.org/r4
       AIDBOX_FHIR_PACKAGES: hl7.fhir.r4.core#4.0.1
@@ -39,15 +45,45 @@ services:
       PGPASSWORD: M3ya7uZxdJ
       PGPORT: "5432"
       BOX_SEARCH_INCLUDE_CONFORMANT: true
+      BOX_INIT_BUNDLE: file:///init-bundle/init-bundle.json
 
-  minio:
-    image: minio/minio:RELEASE.2025-04-22T22-12-26Z-cpuv1
-    command: server /data --console-address ":9001"
+  rustfs:
+    image: rustfs/rustfs:1.0.3
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - rustfs_data:/data
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
+      - RUSTFS_ACCESS_KEY=rustfsadmin
+      - RUSTFS_SECRET_KEY=rustfsadmin
+      - RUSTFS_VOLUMES=/data
+      - RUSTFS_CONSOLE_ENABLE=true
+
+  # Creates "mybucket" (presigned URLs, with CORS for the front-end at localhost:3000)
+  # and "offload" (Binary.data offloaded by Aidbox, never reached by the browser).
+  createbucket:
+    image: amazon/aws-cli:2.27.50
+    depends_on:
+      - rustfs
+    environment:
+      - AWS_ACCESS_KEY_ID=rustfsadmin
+      - AWS_SECRET_ACCESS_KEY=rustfsadmin
+      - AWS_DEFAULT_REGION=us-east-1
+    entrypoint: >
+      /bin/sh -c "
+      s3='aws --endpoint-url http://rustfs:9000 s3api';
+      until $$s3 list-buckets > /dev/null; do sleep 1; done;
+      $$s3 create-bucket --bucket mybucket || true;
+      $$s3 create-bucket --bucket offload || true;
+      $$s3 put-bucket-cors --bucket mybucket --cors-configuration '{\"CORSRules\":[{\"AllowedOrigins\":[\"http://localhost:3000\"],\"AllowedMethods\":[\"GET\",\"PUT\",\"POST\",\"DELETE\"],\"AllowedHeaders\":[\"*\"]}]}';
+      exit 0"
+
+  # Front-end at http://localhost:3000. It runs in the browser, so it calls Aidbox and RustFS
+  # through their published ports on localhost.
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - aidbox
