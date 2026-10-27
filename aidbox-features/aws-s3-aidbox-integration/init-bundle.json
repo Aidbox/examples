@@ -1,0 +1,87 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "request": { "method": "PUT", "url": "/AwsAccount/my-account" },
+      "resource": {
+        "resourceType": "AwsAccount",
+        "id": "my-account",
+        "access-key-id": "rustfsadmin",
+        "secret-access-key": "rustfsadmin",
+        "region": "us-east-1",
+        "host": "127.0.0.1:9000",
+        "path-style": true,
+        "use-ssl": false
+      }
+    },
+    {
+      "request": { "method": "PUT", "url": "/AwsAccount/offload-account" },
+      "resource": {
+        "resourceType": "AwsAccount",
+        "id": "offload-account",
+        "access-key-id": "rustfsadmin",
+        "secret-access-key": "rustfsadmin",
+        "region": "us-east-1",
+        "host": "rustfs:9000",
+        "path-style": true,
+        "use-ssl": false
+      }
+    },
+    {
+      "request": { "method": "PUT", "url": "/Client/basic" },
+      "resource": {
+        "resourceType": "Client",
+        "id": "basic",
+        "secret": "secret",
+        "grant_types": ["basic"]
+      }
+    },
+    {
+      "request": { "method": "PUT", "url": "/AccessPolicy/basic-policy" },
+      "resource": {
+        "resourceType": "AccessPolicy",
+        "id": "basic-policy",
+        "engine": "allow",
+        "link": [{ "id": "basic", "resourceType": "Client" }]
+      }
+    },
+    {
+      "request": { "method": "POST", "url": "/$create-storage" },
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          { "name": "storageId", "valueString": "binary-offload" },
+          { "name": "ifNoneExist", "valueBoolean": true },
+          { "name": "structureDefinition", "valueCanonical": "http://hl7.org/fhir/StructureDefinition/Binary|4.0.1" },
+          { "name": "storageType", "valueString": "default" },
+          { "name": "tableName", "valueString": "binary_offload" },
+          { "name": "history", "valueBoolean": false }
+        ]
+      }
+    },
+    {
+      "request": { "method": "POST", "url": "/$create-api" },
+      "resource": {
+        "resourceType": "Parameters",
+        "parameter": [
+          { "name": "apiId", "valueString": "binary-api" },
+          { "name": "ifNoneExist", "valueBoolean": true },
+          { "name": "resourceType", "valueString": "Binary" },
+          { "name": "storageId", "valueString": "binary-offload" },
+          { "name": "apiTemplate", "valueString": "pre-2604" },
+          {
+            "name": "dataOffloadToExternalStorage",
+            "part": [
+              { "name": "fhirpathToBase64BinaryElement", "valueString": "data" },
+              { "name": "storageProvider", "valueCode": "aws" },
+              { "name": "awsAccount", "valueReference": { "reference": "AwsAccount/offload-account" } },
+              { "name": "awsBucket", "valueString": "offload" },
+              { "name": "blobNamePrefix", "valueString": "binary" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

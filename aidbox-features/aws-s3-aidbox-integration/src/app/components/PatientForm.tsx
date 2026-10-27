@@ -1,12 +1,16 @@
 "use client"
 import { useState } from 'react';
+import { ResponseData } from "./ResponseDisplay";
 import { aidboxAWSBucketUrl, aidboxUrl, basicAuthHeader } from "../../constants";
 
 interface PatientFormProps {
-  setResponseData: React.Dispatch<React.SetStateAction<any>>;
+  setResponseData: React.Dispatch<React.SetStateAction<ResponseData>>;
 }
 
+type Approach = "presigned" | "offload";
+
 const PatientForm = ({ setResponseData }: PatientFormProps) => {
+  const [approach, setApproach] = useState<Approach>("presigned");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -31,6 +35,13 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
     return url.split("?")[0];
   }
 
+  async function deleteBinary(binaryUrl: string): Promise<void> {
+    await fetch(`${aidboxUrl}/${binaryUrl}`, {
+      method: "DELETE",
+      headers: { Authorization: basicAuthHeader },
+    });
+  }
+
   async function deleteFile(filename: string): Promise<void> {
     const signedUrlResponse = await fetch(`${aidboxAWSBucketUrl}/${filename}`, {
       method: "DELETE",
@@ -50,6 +61,58 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
     await fetch(fileSendUrl, {
       method: "DELETE"
     });
+  }
+
+  // Approach 1: Aidbox signs a URL, the browser uploads straight to the bucket.
+  async function uploadWithPresignedUrl(file: File, filename: string) {
+    const signedUrlResponse = await fetch(aidboxAWSBucketUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: basicAuthHeader,
+      },
+      body: JSON.stringify({ filename: filename }),
+    });
+
+    if (!signedUrlResponse.ok) {
+      throw new Error(`Error: ${signedUrlResponse.status} ${signedUrlResponse.statusText}`);
+    }
+
+    const signedUrlData = await signedUrlResponse.json();
+    const fileSendUrl = signedUrlData.url;
+
+    const fileUploadResponse = await fetch(fileSendUrl, {
+      method: "PUT",
+      body: file,
+    });
+
+    if (!fileUploadResponse.ok) {
+      throw new Error(
+        `Error uploading file to URL ${fileSendUrl} : ${fileUploadResponse.status} ${fileUploadResponse.statusText}`
+      );
+    }
+
+    return { url: removeQueryString(fileSendUrl), responses: { signedUrlResponse: signedUrlData } };
+  }
+
+  // Approach 2: the browser posts the raw file to /fhir/Binary, Aidbox streams it to the bucket
+  // and keeps only a pointer in the database.
+  async function uploadAsOffloadedBinary(file: File) {
+    const binaryResponse = await fetch(`${aidboxUrl}/Binary`, {
+      method: "POST",
+      headers: {
+        "Content-Type": file.type,
+        Authorization: basicAuthHeader,
+      },
+      body: file,
+    });
+
+    if (!binaryResponse.ok) {
+      throw new Error(`Error creating Binary: ${binaryResponse.status} ${binaryResponse.statusText}`);
+    }
+
+    const binaryData = await binaryResponse.json();
+    return { url: `Binary/${binaryData.id}`, responses: { binaryResponse: binaryData } };
   }
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,32 +145,10 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
     try {
       const filename = getFileName(file.name, formData.firstName, formData.lastName, formData.dob);
 
-      const signedUrlResponse = await fetch(aidboxAWSBucketUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: basicAuthHeader,
-        },
-        body: JSON.stringify({ filename: filename }),
-      });
-
-      if (!signedUrlResponse.ok) {
-        throw new Error(`Error: ${signedUrlResponse.status} ${signedUrlResponse.statusText}`);
-      }
-
-      const signedUrlData = await signedUrlResponse.json();
-      const fileSendUrl = signedUrlData.url;
-
-      const fileUploadResponse = await fetch(fileSendUrl, {
-        method: "PUT",
-        body: file,
-      });
-
-      if (!fileUploadResponse.ok) {
-        throw new Error(
-          `Error uploading file to URL ${fileSendUrl} : ${fileUploadResponse.status} ${fileUploadResponse.statusText}`
-        );
-      }
+      const upload = approach === "presigned"
+        ? await uploadWithPresignedUrl(file, filename)
+        : await uploadAsOffloadedBinary(file);
+      const cleanup = () => approach === "presigned" ? deleteFile(filename) : deleteBinary(upload.url);
 
       const documentReferenceResponse = await fetch(`${aidboxUrl}/DocumentReference`, {
         method: "POST",
@@ -120,7 +161,7 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
           content: [
             {
               attachment: {
-                url: removeQueryString(fileSendUrl),
+                url: upload.url,
                 title: filename,
                 contentType: "image/" + fileExtension(filename),
               },
@@ -130,7 +171,7 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
       });
 
       if (!documentReferenceResponse.ok) {
-        await deleteFile(filename);
+        await cleanup();
         throw new Error(
           `Error creating DocumentReference: ${documentReferenceResponse.status} ${documentReferenceResponse.statusText}`
         );
@@ -157,14 +198,14 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
             {
               title: filename,
               contentType: "image/" + fileExtension(filename),
-              url: removeQueryString(fileSendUrl),
+              url: upload.url,
             },
           ],
         }),
       });
 
       if (!patientResponse.ok) {
-        await deleteFile(filename);
+        await cleanup();
         throw new Error(
           `Error creating Patient: ${patientResponse.status} ${patientResponse.statusText}`
         );
@@ -174,12 +215,12 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
 
       setResponseData({
         patientResponse: patientData,
-        signedUrlResponse: signedUrlData,
+        ...upload.responses,
         documentReferenceResponse: documentReferenceData,
       });
       setError(null);
-    } catch (err: any) {
-      setError("error! " + (err.message || "An unexpected error occurred."));
+    } catch (err) {
+      setError("error! " + (err instanceof Error ? err.message : "An unexpected error occurred."));
     }
   };
 
@@ -191,6 +232,31 @@ const PatientForm = ({ setResponseData }: PatientFormProps) => {
       <h1 className="text-xl font-semibold text-gray-800 mb-6">
         Patient Form
       </h1>
+      <fieldset className="mb-6">
+        <legend className="block text-sm font-medium text-gray-700 mb-2">Storage approach</legend>
+        <label className="flex items-start gap-2 mb-2 text-sm text-gray-700">
+          <input
+            type="radio"
+            name="approach"
+            value="presigned"
+            checked={approach === "presigned"}
+            onChange={() => setApproach("presigned")}
+            className="mt-1"
+          />
+          <span><b>Presigned URL</b>: the browser uploads directly to the bucket</span>
+        </label>
+        <label className="flex items-start gap-2 text-sm text-gray-700">
+          <input
+            type="radio"
+            name="approach"
+            value="offload"
+            checked={approach === "offload"}
+            onChange={() => setApproach("offload")}
+            className="mt-1"
+          />
+          <span><b>Binary data offload</b>: the browser posts to <code>/fhir/Binary</code>, Aidbox stores the bytes in the bucket</span>
+        </label>
+      </fieldset>
       <div className="mb-4">
         <label
           htmlFor="firstName"

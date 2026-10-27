@@ -1,18 +1,17 @@
 "use client"
 import { useState } from 'react';
+import { ResponseData } from "./ResponseDisplay";
 import { aidboxAWSBucketUrl, aidboxUrl, basicAuthHeader } from "../../constants";
 
 interface GetPatientPhotoFormProps {
-  setResponseData: React.Dispatch<React.SetStateAction<any>>;
+  setResponseData: React.Dispatch<React.SetStateAction<ResponseData>>;
 }
 
 const GetPatientPhotoForm = ({ setResponseData }: GetPatientPhotoFormProps) => {
   const [getPatientId, setGetPatientId] = useState('');
   const [photoError, setPhotoError] = useState<string | null>(null);
 
-  const [getPhotoResponses, setGetPhotoResponses] = useState<any>({
-    patientResponse: null,
-    signedUrlResponse: null,
+  const [getPhotoResponses, setGetPhotoResponses] = useState<{ photoUrl: string | null }>({
     photoUrl: null,
   });
 
@@ -39,13 +38,39 @@ const GetPatientPhotoForm = ({ setResponseData }: GetPatientPhotoFormProps) => {
       }
 
       const patientData = await patientResponse.json();
-      const title = patientData.photo?.[0]?.title;
+      const photo = patientData.photo?.[0];
 
-      if (!title) {
-        throw new Error("Patient does not have a photo title.");
+      if (!photo?.url) {
+        throw new Error("Patient does not have a photo.");
       }
 
-      const signedUrlResponse = await fetch(`${aidboxAWSBucketUrl}/${title}`, {
+      if (photo.url.startsWith("Binary/")) {
+        // Offloaded Binary: a raw read returns the bytes, Aidbox fetches them from the bucket.
+        const binaryResponse = await fetch(`${aidboxUrl}/${photo.url}`, {
+          method: "GET",
+          headers: {
+            Accept: photo.contentType,
+            Authorization: basicAuthHeader,
+          },
+        });
+
+        if (!binaryResponse.ok) {
+          throw new Error(
+            `Error fetching Binary: ${binaryResponse.status} ${binaryResponse.statusText}`
+          );
+        }
+
+        const photoBlob = await binaryResponse.blob();
+        setGetPhotoResponses({ photoUrl: URL.createObjectURL(photoBlob) });
+        setPhotoError(null);
+        setResponseData({
+          patientResponse: patientData,
+          binaryResponse: `${photoBlob.size} bytes of ${photoBlob.type} streamed by Aidbox from the offload bucket`,
+        });
+        return;
+      }
+
+      const signedUrlResponse = await fetch(`${aidboxAWSBucketUrl}/${photo.title}`, {
         method: "GET",
         headers: {
           Authorization: basicAuthHeader,
@@ -61,18 +86,14 @@ const GetPatientPhotoForm = ({ setResponseData }: GetPatientPhotoFormProps) => {
       const signedUrlData = await signedUrlResponse.json();
       const photoUrl = signedUrlData.url;
 
-      setGetPhotoResponses({
-        patientResponse: JSON.stringify(patientData, null, 2),
-        signedUrlResponse: JSON.stringify(signedUrlData, null, 2),
-        photoUrl,
-      });
+      setGetPhotoResponses({ photoUrl });
       setPhotoError(null);
       setResponseData({
         patientResponse: patientData,
         signedUrlResponse: signedUrlData
       });
-    } catch (err: any) {
-      setPhotoError(err.message || "An unexpected error occurred.");
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : "An unexpected error occurred.");
     }
   };
 

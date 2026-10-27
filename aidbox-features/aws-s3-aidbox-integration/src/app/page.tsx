@@ -2,11 +2,11 @@
 import { useState } from "react";
 import PatientForm from './components/PatientForm';
 import GetPatientPhotoForm from './components/GetPatientPhotoForm';
-import ResponseDisplay from './components/ResponseDisplay';
+import ResponseDisplay, { ResponseData } from './components/ResponseDisplay';
 
 function App() {
-  const [addResponseData, setAddResponseData] = useState<any>(null);
-  const [getResponseData, setGetResponseData] = useState<any>(null);
+  const [addResponseData, setAddResponseData] = useState<ResponseData>(null);
+  const [getResponseData, setGetResponseData] = useState<ResponseData>(null);
 
   return (
     <div className="min-h-screen p-8 pb-20 font-[family-name:var(--font-geist-sans)] bg-gray-50">

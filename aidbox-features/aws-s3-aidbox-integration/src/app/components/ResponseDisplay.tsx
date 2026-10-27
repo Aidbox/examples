@@ -1,6 +1,8 @@
 "use client"
+export type ResponseData = Record<string, object | string> | null;
+
 interface ResponseDisplayProps {
-  responseData: any;
+  responseData: ResponseData;
 }
 
 const ResponseDisplay = ({ responseData }: ResponseDisplayProps) => {
@@ -15,6 +17,14 @@ const ResponseDisplay = ({ responseData }: ResponseDisplayProps) => {
               <h2 className="text-lg font-semibold mb-2">Signed URL Response:</h2>
               <pre className="whitespace-pre-wrap break-words">
                 {JSON.stringify(responseData.signedUrlResponse, null, 2)}
+              </pre>
+            </div>
+          )}
+          {responseData.binaryResponse && (
+            <div className="p-4 border border-gray-300 rounded-md bg-white">
+              <h2 className="text-lg font-semibold mb-2">Binary Response:</h2>
+              <pre className="whitespace-pre-wrap break-words">
+                {JSON.stringify(responseData.binaryResponse, null, 2)}
               </pre>
             </div>
           )}
