@@ -103,6 +103,15 @@ def main() -> None:
         "type": "batch",
         "entry": entries,
     }
+    # Older docker-compose.yml versions created an empty `init.json/` directory when
+    # `docker compose up` ran before this script. Clean that up so re-running the
+    # documented steps just works.
+    if OUTPUT.is_dir():
+        try:
+            OUTPUT.rmdir()
+            print(f"Removed empty directory {OUTPUT} (left over from an earlier `docker compose up`)")
+        except OSError:
+            raise SystemExit(f"{OUTPUT} is a non-empty directory; remove it and re-run.")
     OUTPUT.write_text(json.dumps(bundle, indent=2) + "\n")
     size = os.path.getsize(OUTPUT)
     print(f"Wrote {OUTPUT}")
