@@ -2,16 +2,17 @@
 
 Guide for deploying `Measure/$evaluate-measure` into an **already-running Aidbox** (not via the bundled `docker-compose.yml`). Use this when you have a production/staging Aidbox with your own FHIR data and want to add the custom operation and our 12 CMS quality measures on top.
 
+> **Just want to try the demo?** Use the [Quick Start in the README](README.md#quick-start) instead. It starts its own Aidbox with the measures and 485 sample patients already loaded, and you don't need an existing Aidbox.
+
 ## What gets installed vs what stays yours
 
 | What we install | What stays yours |
 |---|---|
-| 1 Flask container (sql-evaluate-app, port 8090) | Aidbox instance (any version, any deploy) |
-| 1 App resource in Aidbox (wires the operation) | PostgreSQL data (Patient, Encounter, Condition, …) |
-| SQL on FHIR `ViewDefinition` resources, materialized into `sof.*_flat` tables (the typed projection layer ships as `sql-view` Libraries, inlined by Aidbox at query time) | All clinical resources — we don't touch them |
-| 1 `concepts` table (terminology: ValueSets + codes used by the 12 measures) | Your authentication, auth policies, access control |
-| Btree indexes on the `sof.*_flat` tables | Your existing custom operations, Apps |
-| 12 measure SQL definitions (one file per measure) | Your data, schemas, and other indexes |
+| 1 FHIR package `healthsamurai.measure-evaluate` (CodeSystems, ValueSets, `ViewDefinition`s, SQLQuery `Library` resources holding each measure's SQL) | Aidbox instance (any version, any deploy) |
+| 1 Flask container (sql-evaluate-app, port 8090) | PostgreSQL data (Patient, Encounter, Condition, …) |
+| 1 App resource in Aidbox (wires the operation) | All clinical resources — we don't touch them |
+| `sof.*_flat` tables materialized from the `ViewDefinition`s (the typed projection layer ships as `sql-view` Libraries, inlined by Aidbox at query time) | Your authentication, auth policies, access control |
+| `sof.concept` / `concepts` terminology tables and btree indexes on `sof.*` | Your existing custom operations, Apps, schemas and other indexes |
 
 ## Prerequisites
 
@@ -26,10 +27,55 @@ Guide for deploying `Measure/$evaluate-measure` into an **already-running Aidbox
   - `Procedure` with `code.coding`, `performed.dateTime` or `performed.Period.start`, `status`
   - `MedicationRequest`, `ServiceRequest`, `DeviceRequest` (for selected measures)
 - **Aidbox admin credentials** with `$sql` access, ability to create `App` resources
+- **Python 3** to build the FHIR package
+- **Ability to mount a directory into the Aidbox container** (Step 1 installs the package from a file Aidbox can read)
 - **Docker** (or any Python 3.11 runtime) for the sql-evaluate-app container
 - **Network:** Aidbox must be able to reach the sql-evaluate-app container on port 8090, and the app must reach Aidbox on its API port
 
-## Step 1. Deploy the sql-evaluate-app container
+## Step 1. Build and install the FHIR package
+
+Everything non-clinical the measures need ships as one FHIR NPM package. Build it from this folder:
+
+```bash
+python3 scripts/build_fhir_package.py
+# -> dist/fhir-package/healthsamurai.measure-evaluate-0.1.0.tgz
+```
+
+Aidbox installs a local package from a `file://` path **inside its own container**, so make the `.tgz` visible to Aidbox. For a Docker Compose deployment, add a read-only mount to your Aidbox service and restart it:
+
+```yaml
+services:
+  aidbox:
+    volumes:
+      - /path/to/measure-evaluate/dist/fhir-package:/srv/aidbox-fhir-packages:ro
+```
+
+(Kubernetes: put the `.tgz` on a volume mounted at the same path.) Then install it:
+
+```bash
+curl -u <admin>:<password> -X POST \
+  'https://aidbox.example.com/$fhir-package-install' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "resourceType": "Parameters",
+    "parameter": [
+      {"name": "package",
+       "valueString": "file:///srv/aidbox-fhir-packages/healthsamurai.measure-evaluate-0.1.0.tgz"}
+    ]
+  }'
+```
+
+Package install re-keys `ViewDefinition` / `Library` ids to Aidbox-assigned GUIDs. The canonical `url`s are preserved, and everything in this sample resolves resources by `url`.
+
+Verify:
+
+```bash
+curl -u <admin>:<password> \
+  'https://aidbox.example.com/fhir/Library?url=https://health-samurai.io/fhir/Library/cms130-summary&_elements=url'
+# -> a Bundle with one entry
+```
+
+## Step 2. Deploy the sql-evaluate-app container
 
 The app is a small Flask service that receives `$evaluate-measure` calls from Aidbox, executes SQL, and returns a FHIR MeasureReport.
 
@@ -70,9 +116,9 @@ docker logs sql-evaluate-app --tail 15
 #   "Running on http://0.0.0.0:8090"
 ```
 
-The app only exposes `POST /` — that's the HTTP-RPC entry point Aidbox dispatches to. Direct calls to the Flask container with `GET` or any other path return 404/405 — Aidbox is the front door. Users invoke the operation via Aidbox at `Measure/$evaluate-measure` (registered in Step 2), and that endpoint supports both `POST` and `GET`.
+The app only exposes `POST /` — that's the HTTP-RPC entry point Aidbox dispatches to. Direct calls to the Flask container with `GET` or any other path return 404/405 — Aidbox is the front door. Users invoke the operation via Aidbox at `Measure/$evaluate-measure` (registered in Step 3), and that endpoint supports both `POST` and `GET`.
 
-## Step 2. Register the App resource in Aidbox
+## Step 3. Register the App resource in Aidbox
 
 This tells Aidbox to route both `POST` and `GET` calls on `Measure/$evaluate-measure` to your sql-evaluate-app. The two are semantically distinct:
 
@@ -105,7 +151,7 @@ curl -u <admin>:<password> -X PUT \
   }'
 ```
 
-Replace `http://sql-evaluate-app:8090` with however Aidbox reaches the app container (Docker service name, Kubernetes Service DNS, static IP, etc.).
+Replace `http://sql-evaluate-app:8090` with however Aidbox reaches the app container (Docker service name, Kubernetes Service DNS, static IP, etc.). With plain Docker, the simplest option is to start the app on Aidbox's network (`--network <your-aidbox-network>` in Step 2; find the name with `docker network ls`). Then `http://sql-evaluate-app:8090` works as written.
 
 Verify:
 
@@ -115,9 +161,9 @@ curl -u <admin>:<password> \
 # → returns the App resource
 ```
 
-## Step 3. Build the runtime state
+## Step 4. Build the runtime state
 
-Everything non-clinical is delivered by the FHIR package you installed in step 1:
+Everything non-clinical is delivered by the FHIR package you installed in Step 1:
 the `ViewDefinition` resources, the SQLQuery `Library` resources holding each
 measure's SQL, the typed `sql-view` wrapper layer, and the `setup-NN-*` scripts
 for terminology scaffolding and `sof.*` indexes. The app applies them in
@@ -139,18 +185,14 @@ or press **Materialize all** in the demo app. It performs, in order:
 Idempotent and safe to re-run: views already present are skipped unless you pass
 `{"force":true}`. Your clinical data is never touched.
 
-Build the init bundle with `python3 scripts/build_init_bundle.py --no-demo-data` for
-this case — the default bundle inlines the 485 sample patients, which you do not want
-alongside real data.
-
 Verify:
 
 ```bash
-# wrapper views wrap your FHIR data (one per resource type)
+# materialized projection of your Patient data
 curl -u <admin>:<password> -X POST \
   https://aidbox.example.com/\$sql \
   -H 'Content-Type: application/json' \
-  -d '["SELECT count(*) FROM patient_flat"]'
+  -d '["SELECT count(*) FROM sof.patient_flat"]'
 # → [{"count": <number equal to your Patient count>}]
 
 # sof.*_flat materialized tables (one per ViewDefinition)
@@ -176,13 +218,17 @@ Authentication: the app reads `AIDBOX_URL`, `AIDBOX_USER` and `AIDBOX_PASS` from
 concepts (valueset_url, valueset_name, system, code, display)
 ```
 
-## Step 4. Measure-specific SQL (already bundled)
+## Step 5. (Optional) Load the sample patients
 
-Each measure is one SQL file under `sql/measures/<cmsXXX>/02-<cmsXXX>-measure.sql`. It defines CTEs (initial population, exclusions, numerator) over the shared views + concepts table.
+Only for a sandbox/staging Aidbox. Don't do this next to real data. It loads the same 485 test patients the Quick Start uses, then re-materializes:
 
-These SQL files are loaded by the Flask app from `$REPO_ROOT/sql/measures/` **at request time**. The Dockerfile already bakes them into the image (Step 1, Option A).
+```bash
+python3 load-demo-data.py --aidbox https://aidbox.example.com \
+  --user <admin> --password <password> \
+  --app http://localhost:8090 --materialize
+```
 
-## Step 5. Evaluate a measure against your data
+## Step 6. Evaluate a measure against your data
 
 Single-patient report (R4 `reportType=subject`), **persisted** in Aidbox via `POST`:
 
@@ -207,7 +253,7 @@ curl -u <admin>:<password> -X POST \
 
 Response: a FHIR `MeasureReport` with `group.population` counts (initial-population, denominator, denominator-exclusion, numerator) and `group.measureScore`.
 
-## Step 6. (Optional) Demo UI pointed at your Aidbox
+## Step 7. (Optional) Demo UI pointed at your Aidbox
 
 The bundled `demo/app.html` is a single-file dashboard that visualizes all 12 measures + care gaps + patient drill-down. It reads its target Aidbox from a config file — so you can point it at your instance without editing code.
 
@@ -237,7 +283,7 @@ URL-param convention: `?stack=<name>` makes the demo fetch `./config-<name>.json
 Measure SQL is built on top of two layers that hide most of the raw Aidbox JSONB:
 
 1. **`ViewDefinition` resources** (in `viewdefinitions/`) use FHIRPath to project FHIR resources into relational columns. `POST /ViewDefinition/<id>/$materialize` writes the result into a `sof.*_flat` table.
-2. **Wrapper views** (in `sql/01-wrapper-views.sql`) sit on top of the `sof.*_flat` tables and add: `COALESCE` for polymorphic `dateTime` vs `Period`, `parse_fhir_datetime` for partial dates like `"2015"` / `"2015-10"`, and a `has_value::boolean` cast for Observation.
+2. **Typed projections** (`sql-view` Libraries, sources in `sqlview/`) sit on top of the `sof.*_flat` tables and add: `COALESCE` for polymorphic `dateTime` vs `Period`, `parse_fhir_datetime` for partial dates like `"2015"` / `"2015-10"`, and a `has_value::boolean` cast for Observation.
 
 Measure SQL queries the typed projections — `encounter_flat`, `condition_flat`, etc. — using simple column names. Those projections are `sql-view` Libraries in the package, which Aidbox inlines as CTEs at query time rather than materializing as database views. Aidbox JSONB still underlies the raw resources, but the JSONB extraction is encapsulated in the `ViewDefinition` resources, not duplicated in every measure SQL. One wrapper (`medicationrequest_flat`) additionally `LEFT JOIN`s the raw `medication` table to fall back on medication-by-`Reference` cases that the `ViewDefinition` alone can't resolve.
 
@@ -252,7 +298,7 @@ Measure SQL queries the typed projections — `encounter_flat`, `condition_flat`
 ### `Measure/$evaluate-measure` returns 500
 
 - Check sql-evaluate-app logs: `docker logs sql-evaluate-app`
-- Most common cause: Step 3 didn't run or failed partway — re-run `curl -s -X POST http://localhost:8090/api/materialize -H 'Content-Type: application/json' -d '{"force":true}'` (idempotent)
+- Most common cause: Step 4 didn't run or failed partway — re-run `curl -s -X POST http://localhost:8090/api/materialize -H 'Content-Type: application/json' -d '{"force":true}'` (idempotent)
 - Flask dev server can drop connections on rapid sequential requests — for production, replace with gunicorn/waitress
 
 ### MeasureReport shows `initial-population = 0`
@@ -330,30 +376,13 @@ curl -u <admin>:<password> -X DELETE \
 # 2. Stop the Flask container
 docker stop sql-evaluate-app && docker rm sql-evaluate-app
 
-# 3. Drop wrapper views, sof.* materialized tables, and the concepts table
+# 3. Drop the sof.* materialized tables and the terminology tables
 curl -u <admin>:<password> -X POST \
   https://aidbox.example.com/\$sql \
   -H 'Content-Type: application/json' \
-  -d '[
-    "DROP TABLE IF EXISTS concepts CASCADE;
-     DROP VIEW IF EXISTS patient_flat CASCADE;
-     DROP VIEW IF EXISTS encounter_flat CASCADE;
-     DROP VIEW IF EXISTS condition_flat CASCADE;
-     DROP VIEW IF EXISTS observation_flat CASCADE;
-     DROP VIEW IF EXISTS observation_bp_flat CASCADE;
-     DROP VIEW IF EXISTS procedure_flat CASCADE;
-     DROP VIEW IF EXISTS medicationrequest_flat CASCADE;
-     DROP VIEW IF EXISTS servicerequest_flat CASCADE;
-     DROP VIEW IF EXISTS devicerequest_flat CASCADE;
-     DROP SCHEMA IF EXISTS sof CASCADE;"
-  ]'
-
-# 4. (Optional) Remove the 9 ViewDefinition resources
-for vd in patient encounter condition procedure observation observation-bp \
-         servicerequest medicationrequest devicerequest; do
-  curl -u <admin>:<password> -X DELETE \
-    "https://aidbox.example.com/ViewDefinition/${vd}-flat"
-done
+  -d '["DROP TABLE IF EXISTS concepts CASCADE; DROP SCHEMA IF EXISTS sof CASCADE;"]'
 ```
 
-The clinical FHIR resources (Patient, Encounter, Condition, …) are not affected — the steps above remove only the artifacts installed in Steps 1–3.
+The package's own resources (CodeSystems, ValueSets, ViewDefinitions, Libraries) stay installed in Aidbox until you remove the `healthsamurai.measure-evaluate` package. Nothing calls them once the App is gone.
+
+The clinical FHIR resources (Patient, Encounter, Condition, …) are not affected — the steps above remove only the artifacts installed in Steps 1–4.
