@@ -10,6 +10,13 @@ FHIR R4: canonical operation name `$evaluate-measure`, `reportType` values `subj
 
 The demo discovers whatever measures the installed FHIR package ships — it reads them from their SQLQuery `Library` resources in Aidbox, so nothing is hardcoded. Includes sample data (484 test patients) and an interactive demo app.
 
+## Which guide do I need?
+
+| You want… | Follow |
+|---|---|
+| To try the demo: Aidbox with the measures and 485 sample patients already loaded | **[Quick Start](#quick-start)** below. It starts its **own** Aidbox, PostgreSQL and demo app with Docker Compose. You do **not** need to set up Aidbox separately first. |
+| To add the measures to an Aidbox you already run, with your own patient data | [install-to-existing-aidbox.md](install-to-existing-aidbox.md) |
+
 ## Stack
 
 | Component | Version |
@@ -26,6 +33,25 @@ The demo discovers whatever measures the installed FHIR package ships — it rea
 
 ## Quick Start
 
+This brings up a self-contained stack: PostgreSQL, Aidbox on http://localhost:8888, and
+the demo app on http://localhost:8090. If you already started another Aidbox for this,
+you can stop it. This stack does not use it.
+
+### 0. Get the code
+
+This example lives in a subfolder of the [Aidbox/examples](https://github.com/Aidbox/examples)
+repository. Clone the repository and go into the folder:
+
+```bash
+git clone --depth 1 https://github.com/Aidbox/examples.git
+cd examples/aidbox-custom-operations/measure-evaluate
+```
+
+No git? Download the [repository ZIP](https://github.com/Aidbox/examples/archive/refs/heads/main.zip),
+unzip it, and open `examples-main/aidbox-custom-operations/measure-evaluate` in a terminal.
+
+All commands below are run from this `measure-evaluate` folder.
+
 ### 1. Build the FHIR package and init bundle
 
 The measure *definitions* — terminology (CodeSystems + ValueSets), the SQL-on-FHIR
@@ -37,6 +63,9 @@ carries the demo patients. Build both first:
 python3 scripts/build_fhir_package.py    # -> dist/fhir-package/healthsamurai.measure-evaluate-0.1.0.tgz
 python3 scripts/build_init_bundle.py     # -> init.json (inlines data/*-clinical-data.json)
 ```
+
+Run **both** scripts **before** `docker compose up`. Compose mounts these generated files
+into Aidbox and refuses to start (`bind source path does not exist`) if they are missing.
 
 Both outputs are gitignored — they are generated from the tracked sources under
 `viewdefinitions/`, `sqlquery/`, and `data/`. `docker-compose.yml` mounts
@@ -209,6 +238,26 @@ Aidbox JSONB tables
 | `periodStart` | no | Measurement period start (default: `2026-01-01`) |
 | `periodEnd` | no | Measurement period end (default: `2026-12-31`) |
 | `reportType` | no | `subject` (single patient, default if `subject` provided), `subject-list`, or `population` (default if no subject) |
+
+## Troubleshooting
+
+**`bind source path does not exist: …/init.json` (or `…/dist/fhir-package`)**
+You ran `docker compose up` before step 1. Run both build scripts, then start again.
+
+**`IsADirectoryError: … init.json`, or Aidbox exits with `/tmp/init.json (Is a directory)`**
+An older version of this example's `docker-compose.yml` created an empty `init.json`
+directory when the stack started before step 1. Reset and rebuild:
+
+```bash
+docker compose down
+rm -rf init.json
+python3 scripts/build_fhir_package.py
+python3 scripts/build_init_bundle.py
+docker compose up --build
+```
+
+**`relation "_aidbox_license" does not exist` in the `db` logs**
+This is expected on first boot, before Aidbox is activated (step 3). You can ignore it.
 
 ## Shutdown
 
